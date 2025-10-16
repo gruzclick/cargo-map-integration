@@ -28,12 +28,28 @@ const DeliveryForm = ({ onSuccess }: DeliveryFormProps) => {
     contact_phone: ''
   });
 
+  const [cargoPhoto, setCargoPhoto] = useState<string>('');
+  const [photoPreview, setPhotoPreview] = useState<string>('');
+
   const copyToClipboard = (text: string, label: string) => {
     navigator.clipboard.writeText(text);
     toast({
       title: 'Скопировано',
       description: `${label} скопирован в буфер обмена`
     });
+  };
+
+  const handlePhotoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        const base64 = reader.result as string;
+        setCargoPhoto(base64);
+        setPhotoPreview(base64);
+      };
+      reader.readAsDataURL(file);
+    }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -57,7 +73,8 @@ const DeliveryForm = ({ onSuccess }: DeliveryFormProps) => {
           ...formData,
           cargo_quantity: parseInt(formData.cargo_quantity),
           weight: parseFloat(formData.weight),
-          delivery_price: parseFloat(formData.delivery_price)
+          delivery_price: parseFloat(formData.delivery_price),
+          cargo_photo: cargoPhoto
         })
       });
 
@@ -79,6 +96,8 @@ const DeliveryForm = ({ onSuccess }: DeliveryFormProps) => {
           delivery_price: '',
           contact_phone: ''
         });
+        setCargoPhoto('');
+        setPhotoPreview('');
         onSuccess();
       } else {
         throw new Error(data.error || 'Ошибка создания поставки');
@@ -106,6 +125,24 @@ const DeliveryForm = ({ onSuccess }: DeliveryFormProps) => {
       </CardHeader>
       <CardContent>
         <form onSubmit={handleSubmit} className="space-y-5">
+          <div className="space-y-2">
+            <Label htmlFor="cargo_photo">Фото груза *</Label>
+            <Input
+              id="cargo_photo"
+              type="file"
+              accept="image/*"
+              onChange={handlePhotoChange}
+              required
+              className="cursor-pointer"
+            />
+            {photoPreview && (
+              <img
+                src={photoPreview}
+                alt="Груз"
+                className="mt-3 w-full h-48 object-cover rounded-xl border border-border"
+              />
+            )}
+          </div>
           <div className="grid md:grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label htmlFor="pickup_address">Адрес забора груза *</Label>

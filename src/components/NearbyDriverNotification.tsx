@@ -12,84 +12,87 @@ interface Driver {
   rating: number;
 }
 
-interface NearbyDriverNotificationProps {
-  cargoLocation: { lat: number; lng: number };
-  enabled: boolean;
+interface Cargo {
+  id: string;
+  pickup_address: string;
+  delivery_address: string;
+  warehouse_address: string;
+  distance: number;
+  delivery_date: string;
+  cargo_quantity: number;
+  cargo_unit: string;
+  weight: number;
 }
 
-const NearbyDriverNotification = ({ cargoLocation, enabled }: NearbyDriverNotificationProps) => {
+interface NearbyDriverNotificationProps {
+  driverRoute: Array<{ warehouse: string; time: string }>;
+  enabled: boolean;
+  userType: 'driver' | 'client';
+}
+
+const NearbyDriverNotification = ({ driverRoute, enabled, userType }: NearbyDriverNotificationProps) => {
   const [nearbyDrivers, setNearbyDrivers] = useState<Driver[]>([]);
+  const [nearbyCargos, setNearbyCargos] = useState<Cargo[]>([]);
   const [dismissed, setDismissed] = useState<Set<string>>(new Set());
   const { toast } = useToast();
+  const userId = localStorage.getItem('userId') || '';
 
   useEffect(() => {
     if (!enabled) return;
 
-    const checkNearbyDrivers = async () => {
+    const checkNearby = async () => {
       try {
-        const response = await fetch('https://functions.poehali.dev/e0c57b5b-aa36-4b28-8b31-c70ece513cae');
-        const data = await response.json();
-        
-        const drivers = data.markers
-          ?.filter((m: any) => m.type === 'driver' && m.vehicleStatus === 'free')
-          .map((driver: any) => {
-            const distance = calculateDistance(
-              cargoLocation.lat,
-              cargoLocation.lng,
-              driver.lat,
-              driver.lng
-            );
-            return {
-              id: driver.id,
-              name: driver.name,
-              distance,
-              vehicleType: driver.vehicleCategory || 'car',
-              rating: driver.rating || 5.0
-            };
-          })
-          .filter((d: Driver) => d.distance <= 5 && !dismissed.has(d.id))
-          .sort((a: Driver, b: Driver) => a.distance - b.distance);
+        if (userType === 'driver') {
+          const today = new Date().toISOString().split('T')[0];
+          const warehouses = driverRoute
+            .filter(r => r.time.startsWith(today))
+            .map(r => r.warehouse);
 
-        if (drivers && drivers.length > 0) {
-          setNearbyDrivers(drivers.slice(0, 3));
-          
-          drivers.slice(0, 1).forEach((driver: Driver) => {
-            toast({
-              title: '🚚 Свободный водитель рядом!',
-              description: `${driver.name} находится в ${driver.distance.toFixed(1)} км от вашего груза`,
-              duration: 8000
-            });
+          if (warehouses.length === 0) return;
+
+          const response = await fetch('https://functions.poehali.dev/b388f085-faa7-4aab-88a5-b45708b116eb', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              action: 'get_nearby_cargos',
+              user_id: userId,
+              warehouses: warehouses
+            })
           });
+
+          const data = await response.json();
+          const cargos = data.cargos?.filter((c: Cargo) => !dismissed.has(c.id)) || [];
+
+          if (cargos.length > 0) {
+            setNearbyCargos(cargos.slice(0, 3));
+            
+            if (cargos.length > nearbyCargos.length) {
+              toast({
+                title: '📦 Новые грузы на маршруте!',
+                description: `${cargos.length} грузов требуют доставки на ваши склады`,
+                duration: 8000
+              });
+            }
+          }
         }
       } catch (error) {
-        console.error('Error checking nearby drivers:', error);
+        console.error('Error checking nearby:', error);
       }
     };
 
-    checkNearbyDrivers();
-    const interval = setInterval(checkNearbyDrivers, 30000);
+    checkNearby();
+    const interval = setInterval(checkNearby, 30000);
 
     return () => clearInterval(interval);
-  }, [cargoLocation, enabled, dismissed]);
+  }, [driverRoute, enabled, dismissed, userType]);
 
-  const calculateDistance = (lat1: number, lon1: number, lat2: number, lon2: number) => {
-    const R = 6371;
-    const dLat = (lat2 - lat1) * Math.PI / 180;
-    const dLon = (lon2 - lon1) * Math.PI / 180;
-    const a = 
-      Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-      Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
-      Math.sin(dLon / 2) * Math.sin(dLon / 2);
-    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-    return R * c;
+  const handleDismissCargo = (cargoId: string) => {
+    setDismissed(prev => new Set([...prev, cargoId]));
+    setNearbyCargos(prev => prev.filter(c => c.id !== cargoId));
   };
 
-  const getVehicleIcon = (type: string) => {
-    switch (type) {
-      case 'truck': return 'Truck';
-      case 'semi': return 'Container';
-      default: return 'Car';
-    }
+  const getCargoIcon = (unit: string) => {
+    return unit === 'pallets' ? 'Package' : 'Box';
   };
 
   const handleDismiss = (driverId: string) => {
@@ -97,44 +100,55 @@ const NearbyDriverNotification = ({ cargoLocation, enabled }: NearbyDriverNotifi
     setNearbyDrivers(prev => prev.filter(d => d.id !== driverId));
   };
 
-  if (nearbyDrivers.length === 0) return null;
+  if (userType === 'driver' && nearbyCargos.length === 0) return null;
+  if (userType !== 'driver') return null;
 
   return (
     <div className="fixed bottom-6 right-6 z-50 space-y-3 max-w-sm">
-      {nearbyDrivers.map((driver) => (
-        <Card key={driver.id} className="border-0 shadow-2xl rounded-2xl p-4 bg-card/95 backdrop-blur-xl animate-in slide-in-from-right">
+      {nearbyCargos.map((cargo) => (
+        <Card key={cargo.id} className="border-0 shadow-2xl rounded-2xl p-4 bg-card/95 backdrop-blur-xl animate-in slide-in-from-right">
           <div className="flex items-start gap-3">
-            <div className="w-12 h-12 bg-green-500/10 rounded-xl flex items-center justify-center flex-shrink-0">
-              <Icon name={getVehicleIcon(driver.vehicleType)} size={24} className="text-green-500" />
+            <div className="w-12 h-12 bg-blue-500/10 rounded-xl flex items-center justify-center flex-shrink-0">
+              <Icon name={getCargoIcon(cargo.cargo_unit)} size={24} className="text-blue-500" />
             </div>
             
             <div className="flex-1 min-w-0">
               <div className="flex items-start justify-between gap-2 mb-1">
-                <h4 className="font-semibold text-sm truncate">{driver.name}</h4>
+                <h4 className="font-semibold text-sm">Новый груз</h4>
                 <Button 
                   variant="ghost" 
                   size="icon" 
                   className="h-6 w-6 flex-shrink-0"
-                  onClick={() => handleDismiss(driver.id)}
+                  onClick={() => handleDismissCargo(cargo.id)}
                 >
                   <Icon name="X" size={14} />
                 </Button>
               </div>
               
-              <div className="flex items-center gap-3 text-xs text-muted-foreground mb-2">
+              <div className="space-y-1 text-xs text-muted-foreground mb-2">
                 <div className="flex items-center gap-1">
                   <Icon name="MapPin" size={12} className="text-green-500" />
-                  <span>{driver.distance.toFixed(1)} км</span>
+                  <span className="truncate">{cargo.warehouse_address}</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <div className="flex items-center gap-1">
+                    <Icon name="Package" size={12} />
+                    <span>{cargo.cargo_quantity} {cargo.cargo_unit === 'pallets' ? 'паллет' : 'коробок'}</span>
+                  </div>
+                  <div className="flex items-center gap-1">
+                    <Icon name="Weight" size={12} />
+                    <span>{cargo.weight} кг</span>
+                  </div>
                 </div>
                 <div className="flex items-center gap-1">
-                  <Icon name="Star" size={12} className="text-yellow-500" />
-                  <span>{driver.rating.toFixed(1)}</span>
+                  <Icon name="Calendar" size={12} className="text-blue-500" />
+                  <span>{cargo.delivery_date}</span>
                 </div>
               </div>
               
               <Button size="sm" className="w-full h-8 text-xs rounded-lg">
-                <Icon name="Phone" size={14} className="mr-1" />
-                Связаться
+                <Icon name="CheckCircle" size={14} className="mr-1" />
+                Взять заявку
               </Button>
             </div>
           </div>
