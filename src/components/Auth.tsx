@@ -5,9 +5,10 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-
+import { Checkbox } from '@/components/ui/checkbox';
 import Icon from '@/components/ui/icon';
 import { useToast } from '@/hooks/use-toast';
+import TermsAgreement from './TermsAgreement';
 
 interface AuthProps {
   onSuccess: (userData: any) => void;
@@ -17,6 +18,8 @@ const Auth = ({ onSuccess }: AuthProps) => {
   const [isLogin, setIsLogin] = useState(true);
   const [loading, setLoading] = useState(false);
   const [userType, setUserType] = useState<'client' | 'carrier'>('client');
+  const [showTerms, setShowTerms] = useState(false);
+  const [termsAccepted, setTermsAccepted] = useState(false);
 
   const { toast } = useToast();
 
@@ -108,6 +111,21 @@ const Auth = ({ onSuccess }: AuthProps) => {
   };
 
 
+
+  if (showTerms) {
+    return (
+      <TermsAgreement
+        onAccept={() => {
+          setTermsAccepted(true);
+          setShowTerms(false);
+        }}
+        onDecline={() => {
+          setTermsAccepted(false);
+          setShowTerms(false);
+        }}
+      />
+    );
+  }
 
   return (
     <div className="min-h-screen flex items-center justify-center p-4 bg-gradient-to-br from-background via-background to-accent/5">
@@ -261,7 +279,31 @@ const Auth = ({ onSuccess }: AuthProps) => {
               />
             </div>
 
-            <Button type="submit" className="w-full h-12 text-base rounded-xl" disabled={loading}>
+            {!isLogin && (
+              <div className="flex items-start space-x-3 p-3 bg-accent/5 rounded-xl">
+                <Checkbox 
+                  id="terms" 
+                  checked={termsAccepted}
+                  onCheckedChange={(checked) => setTermsAccepted(checked === true)}
+                  className="mt-1"
+                />
+                <label
+                  htmlFor="terms"
+                  className="text-sm leading-relaxed cursor-pointer"
+                >
+                  Я согласен с{' '}
+                  <button
+                    type="button"
+                    onClick={() => setShowTerms(true)}
+                    className="text-accent hover:underline font-medium"
+                  >
+                    пользовательским соглашением
+                  </button>
+                </label>
+              </div>
+            )}
+
+            <Button type="submit" className="w-full h-12 text-base rounded-xl" disabled={loading || (!isLogin && !termsAccepted)}>
               {loading ? (
                 <>
                   <Icon name="Loader2" size={18} className="animate-spin mr-2" />

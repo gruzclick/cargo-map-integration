@@ -6,6 +6,8 @@ import Auth from '@/components/Auth';
 import DeliveryForm from '@/components/DeliveryForm';
 import CarrierStatus from '@/components/CarrierStatus';
 import NearbyDriverNotification from '@/components/NearbyDriverNotification';
+import DeliveryHistory from '@/components/DeliveryHistory';
+import RouteManager from '@/components/RouteManager';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
 const Index = () => {
@@ -68,7 +70,7 @@ const Index = () => {
 
       <div className="container mx-auto px-6 py-8">
         <Tabs defaultValue="map" className="w-full">
-          <TabsList className="grid w-full max-w-md mx-auto grid-cols-3 mb-8">
+          <TabsList className="grid w-full max-w-2xl mx-auto grid-cols-4 mb-8">
             <TabsTrigger value="map">
               <Icon name="Map" size={16} className="mr-2" />
               Карта
@@ -85,6 +87,10 @@ const Index = () => {
                 Заказы
               </TabsTrigger>
             )}
+            <TabsTrigger value="history">
+              <Icon name="History" size={16} className="mr-2" />
+              История
+            </TabsTrigger>
             <TabsTrigger value="profile">
               <Icon name="User" size={16} className="mr-2" />
               Профиль
@@ -119,9 +125,18 @@ const Index = () => {
 
           {user.user_type === 'carrier' && (
             <TabsContent value="orders">
-              <CarrierStatus userId={user.id} />
+              <div className="space-y-6">
+                <CarrierStatus userId={user.id} />
+                <RouteManager userId={user.id} />
+              </div>
             </TabsContent>
           )}
+
+          <TabsContent value="history">
+            <div className="max-w-4xl mx-auto">
+              <DeliveryHistory userId={user.id} userType={user.user_type} />
+            </div>
+          </TabsContent>
 
           <TabsContent value="profile">
             <div className="max-w-2xl mx-auto">

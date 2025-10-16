@@ -1,0 +1,29 @@
+{
+  "tests": [
+    {
+      "name": "Get driver route",
+      "method": "GET",
+      "path": "/?user_id=driver123",
+      "expectedStatus": 200,
+      "expectedBody": {
+        "route": "array"
+      },
+      "bodyMatcher": "partial"
+    },
+    {
+      "name": "Add route stop",
+      "method": "POST",
+      "path": "/",
+      "body": {
+        "action": "add_stop",
+        "user_id": "driver123",
+        "warehouse": "Склад А",
+        "time": "14:00"
+      },
+      "expectedStatus": 200,
+      "expectedBody": {
+        "success": true
+      }
+    }
+  ]
+}
