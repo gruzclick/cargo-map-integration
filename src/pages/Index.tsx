@@ -5,6 +5,7 @@ import LiveMap from '@/components/LiveMap';
 import Auth from '@/components/Auth';
 import DeliveryForm from '@/components/DeliveryForm';
 import CarrierStatus from '@/components/CarrierStatus';
+import NearbyDriverNotification from '@/components/NearbyDriverNotification';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
 const Index = () => {
@@ -43,7 +44,7 @@ const Index = () => {
             </div>
             <div>
               <h1 className="text-lg font-semibold tracking-tight">Груз Клик</h1>
-              <p className="text-xs text-muted-foreground">{user.full_name}</p>
+              <p className="text-xs text-muted-foreground">Информационная платформа</p>
             </div>
           </div>
           <div className="flex items-center gap-3">
@@ -93,13 +94,19 @@ const Index = () => {
           <TabsContent value="map" className="space-y-6">
             <div className="text-center mb-6">
               <h2 className="text-4xl md:text-5xl font-semibold mb-3 text-foreground tracking-tight">
-                Карта грузов и водителей
+                Информационная платформа Груз Клик
               </h2>
               <p className="text-lg text-muted-foreground">
                 Все доступные грузы и свободные водители в реальном времени
               </p>
             </div>
             <LiveMap />
+            {user.user_type === 'client' && (
+              <NearbyDriverNotification 
+                cargoLocation={{ lat: 55.7558, lng: 37.6173 }} 
+                enabled={true}
+              />
+            )}
           </TabsContent>
 
           {user.user_type === 'client' && (

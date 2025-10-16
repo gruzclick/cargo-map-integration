@@ -117,7 +117,7 @@ const Auth = ({ onSuccess }: AuthProps) => {
             <Icon name="Truck" size={32} className="text-accent-foreground" />
           </div>
           <CardTitle className="text-3xl font-bold text-center">
-            {isLogin ? 'Вход' : 'Регистрация'}
+            Информационная платформа Груз Клик
           </CardTitle>
           <CardDescription className="text-center text-base">
             {isLogin ? 'Войдите в свой аккаунт' : 'Создайте новый аккаунт'}
