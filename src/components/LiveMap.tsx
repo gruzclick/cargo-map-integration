@@ -382,26 +382,24 @@ const LiveMap = () => {
             )}
             
             <div className="flex gap-3">
-              {selectedMarker.type === 'cargo' ? (
-                <>
-                  <button className="flex-1 bg-primary text-primary-foreground px-6 py-3 rounded-xl font-medium hover:bg-primary/90 transition-all">
-                    Принять заказ
-                  </button>
-                  <button className="px-4 py-3 border border-border/50 rounded-xl hover:bg-secondary/50 transition-all">
-                    <Icon name="Phone" size={20} />
-                  </button>
-                </>
-              ) : (
-                <>
-                  <button className="flex-1 bg-accent text-accent-foreground px-6 py-3 rounded-xl font-medium hover:bg-accent/90 transition-all">
-                    Связаться
-                  </button>
-                  <button className="px-4 py-3 border border-border/50 rounded-xl hover:bg-secondary/50 transition-all">
-                    <Icon name="MapPin" size={20} />
-                  </button>
-                </>
+              {selectedMarker.type === 'cargo' && (
+                <button className="flex-1 bg-primary text-primary-foreground px-6 py-3 rounded-xl font-medium hover:bg-primary/90 transition-all">
+                  Принять заказ
+                </button>
               )}
             </div>
+            
+            {selectedMarker.phone && (
+              <div className="pt-4 border-t mt-4">
+                <p className="text-sm font-semibold mb-2">Контакты</p>
+                <div className="flex items-center gap-2">
+                  <Icon name="Phone" size={16} className="text-accent" />
+                  <a href={`tel:${selectedMarker.phone}`} className="text-accent hover:underline">
+                    {selectedMarker.phone}
+                  </a>
+                </div>
+              </div>
+            )}
           </CardContent>
         </Card>
       )}

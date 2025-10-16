@@ -5,6 +5,7 @@ import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Label } from '@/components/ui/label';
 import Icon from '@/components/ui/icon';
 import { useToast } from '@/hooks/use-toast';
+import LocationTracker from './LocationTracker';
 
 interface CarrierStatusProps {
   userId: string;
@@ -77,7 +78,9 @@ const CarrierStatus = ({ userId }: CarrierStatusProps) => {
   };
 
   return (
-    <div className="max-w-2xl mx-auto">
+    <div className="max-w-2xl mx-auto space-y-6">
+      <LocationTracker userId={userId} userType="carrier" enabled={true} />
+      
       <Card className="border-0 shadow-xl rounded-3xl">
         <CardHeader className="space-y-2">
           <div className="w-16 h-16 bg-accent/10 rounded-2xl flex items-center justify-center mx-auto mb-2">

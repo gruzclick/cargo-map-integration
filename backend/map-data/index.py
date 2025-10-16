@@ -72,6 +72,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             })
         
         for row in driver_rows:
+            vehicle_status = row[6] if row[6] in ['free', 'has_space', 'full'] else 'free'
             markers.append({
                 'id': row[0],
                 'type': 'driver',
@@ -81,6 +82,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                 'details': f"{row[2]}, грузоподъёмность {row[3]}т",
                 'status': 'Свободен' if row[6] == 'free' else 'Занят',
                 'vehicleCategory': row[7] if row[7] else 'car',
+                'vehicleStatus': vehicle_status,
                 'rating': float(row[8]) if row[8] else 5.0,
                 'capacity': float(row[3]) if row[3] else 0,
                 'freeSpace': float(row[9]) if row[9] else 0,
@@ -100,26 +102,41 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
     
     if method == 'POST':
         body_data = json.loads(event.get('body', '{}'))
-        marker_type = body_data.get('type')
-        marker_id = body_data.get('id')
-        lat = body_data.get('lat')
-        lng = body_data.get('lng')
+        action = body_data.get('action')
         
         conn = psycopg2.connect(database_url)
         cur = conn.cursor()
         
-        if marker_type == 'driver':
+        if action == 'update_location':
+            user_id = body_data.get('user_id')
+            lat = body_data.get('lat')
+            lng = body_data.get('lng')
+            
             cur.execute("""
                 UPDATE drivers 
                 SET lat = %s, lng = %s, updated_at = CURRENT_TIMESTAMP 
                 WHERE driver_id = %s
-            """, (lat, lng, marker_id))
-        elif marker_type == 'cargo':
+            """, (lat, lng, user_id))
+            
+        elif action == 'update_status':
+            user_id = body_data.get('user_id')
+            status = body_data.get('status')
+            
+            cur.execute("""
+                UPDATE drivers 
+                SET status = %s, updated_at = CURRENT_TIMESTAMP 
+                WHERE driver_id = %s
+            """, (status, user_id))
+            
+        elif action == 'accept_cargo':
+            cargo_id = body_data.get('cargo_id')
+            driver_id = body_data.get('driver_id')
+            
             cur.execute("""
                 UPDATE cargo 
-                SET lat = %s, lng = %s, updated_at = CURRENT_TIMESTAMP 
+                SET status = 'accepted', driver_id = %s, updated_at = CURRENT_TIMESTAMP 
                 WHERE cargo_id = %s
-            """, (lat, lng, marker_id))
+            """, (driver_id, cargo_id))
         
         conn.commit()
         cur.close()
