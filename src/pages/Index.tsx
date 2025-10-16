@@ -4,6 +4,7 @@ import Icon from '@/components/ui/icon';
 import LiveMap from '@/components/LiveMap';
 import Auth from '@/components/Auth';
 import DeliveryForm from '@/components/DeliveryForm';
+import CarrierStatus from '@/components/CarrierStatus';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
 const Index = () => {
@@ -111,11 +112,7 @@ const Index = () => {
 
           {user.user_type === 'carrier' && (
             <TabsContent value="orders">
-              <div className="text-center py-12">
-                <Icon name="List" size={48} className="mx-auto mb-4 text-muted-foreground" />
-                <h3 className="text-2xl font-semibold mb-2">Доступные заказы</h3>
-                <p className="text-muted-foreground">Скоро здесь появятся доступные заказы</p>
-              </div>
+              <CarrierStatus userId={user.id} />
             </TabsContent>
           )}
 
