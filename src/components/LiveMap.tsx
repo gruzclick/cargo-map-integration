@@ -14,6 +14,17 @@ interface MapMarker {
   status?: string;
   cargoType?: 'box' | 'pallet';
   vehicleCategory?: 'car' | 'truck' | 'semi';
+  rating?: number;
+  capacity?: number;
+  freeSpace?: number;
+  destinationWarehouse?: string;
+  phone?: string;
+  readyStatus?: string;
+  readyTime?: string;
+  quantity?: number;
+  weight?: number;
+  clientAddress?: string;
+  clientRating?: number;
 }
 
 const LiveMap = () => {
@@ -76,18 +87,18 @@ const LiveMap = () => {
 
   const getCargoIcon = (cargoType?: string) => {
     if (cargoType === 'pallet') {
-      return '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="9" y1="21" x2="9" y2="9"/></svg>';
+      return '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></svg>';
     }
-    return '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path></svg>';
+    return '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"><path d="M16 16h3a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h3"/><polyline points="12 2 12 22"/><polyline points="15 13 12 16 9 13"/></svg>';
   };
 
   const getVehicleIcon = (vehicleCategory?: string) => {
     if (vehicleCategory === 'truck') {
-      return '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"><path d="M14 16H9m10 0h3v-3.15a1 1 0 0 0-.84-.99L16 11l-2.7-3.6a1 1 0 0 0-.8-.4H5.24a2 2 0 0 0-1.8 1.1l-.8 1.63A6 6 0 0 0 2 12.42V16h2"></path><circle cx="6.5" cy="16.5" r="2.5"></circle><circle cx="16.5" cy="16.5" r="2.5"></circle></svg>';
+      return '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"><rect width="20" height="14" x="2" y="7" rx="2" ry="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg>';
     } else if (vehicleCategory === 'semi') {
-      return '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"><path d="M16 3h3l3 4v5h-2m-4 0H3m0 0h2m14 0v3M5 12v3m0 0a2 2 0 1 0 0 4 2 2 0 0 0 0-4Zm14 0a2 2 0 1 0 0 4 2 2 0 0 0 0-4Z"></path><rect x="3" y="6" width="10" height="6"></rect></svg>';
+      return '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"><path d="M9 21h12c1.7 0 3-1.3 3-3v-3l-3-3h-3V9c0-1.7-1.3-3-3-3H3v9c0 1.7 1.3 3 3 3h3"/><circle cx="7" cy="18" r="2"/><path d="M9 18h6"/><circle cx="17" cy="18" r="2"/></svg>';
     }
-    return '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"><path d="M19 17h2l.64-2.54c.24-.959.24-1.962 0-2.92l-1.07-4.27A3 3 0 0 0 17.66 5H4a2 2 0 0 0-2 2v10h2"></path><circle cx="7" cy="17" r="2"></circle><path d="M9 17h6"></path><circle cx="17" cy="17" r="2"></circle></svg>';
+    return '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"><path d="M19 17h2c.6 0 1-.4 1-1v-3c0-.9-.7-1.7-1.5-1.9C18.7 10.6 16 10 16 10s-1.3-1.4-2.2-2.3c-.5-.4-1.1-.7-1.8-.7H5c-.6 0-1.1.4-1.4.9l-1.4 2.9A3.7 3.7 0 0 0 2 12v4c0 .6.4 1 1 1h2"/><circle cx="7" cy="17" r="2"/><path d="M9 17h6"/><circle cx="17" cy="17" r="2"/></svg>';
   };
 
   const updateMarkers = () => {
@@ -205,6 +216,124 @@ const LiveMap = () => {
                 {selectedMarker.status}
               </Badge>
             </div>
+
+            {selectedMarker.type === 'driver' ? (
+              <div className="space-y-4 mb-6">
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="flex items-center gap-3">
+                    <Icon name="Star" size={18} className="text-yellow-500" />
+                    <div>
+                      <p className="text-xs text-muted-foreground">Рейтинг</p>
+                      <p className="font-semibold">{selectedMarker.rating?.toFixed(1) || '5.0'} / 5.0</p>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-3">
+                    <Icon name="Activity" size={18} className="text-green-500" />
+                    <div>
+                      <p className="text-xs text-muted-foreground">Статус</p>
+                      <p className="font-semibold">{selectedMarker.status || 'Доступен'}</p>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="flex items-center gap-3">
+                    <Icon name="Weight" size={18} className="text-blue-500" />
+                    <div>
+                      <p className="text-xs text-muted-foreground">Вместимость</p>
+                      <p className="font-semibold">{selectedMarker.capacity || 0} кг</p>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-3">
+                    <Icon name="Package" size={18} className="text-purple-500" />
+                    <div>
+                      <p className="text-xs text-muted-foreground">Свободно</p>
+                      <p className="font-semibold">{selectedMarker.freeSpace?.toFixed(0) || 0} кг</p>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="pt-3 border-t border-border/50">
+                  <div className="flex items-start gap-3">
+                    <Icon name="MapPin" size={18} className="text-red-500 mt-1" />
+                    <div>
+                      <p className="text-xs text-muted-foreground">Склад назначения</p>
+                      <p className="font-medium text-sm">{selectedMarker.destinationWarehouse || 'Не указан'}</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            ) : (
+              <div className="space-y-4 mb-6">
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="flex items-center gap-3">
+                    <Icon name="Clock" size={18} className="text-orange-500" />
+                    <div>
+                      <p className="text-xs text-muted-foreground">Статус готовности</p>
+                      <p className="font-semibold">{selectedMarker.readyStatus === 'ready' ? 'Готов к отгрузке' : 'Запланировано'}</p>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-3">
+                    <Icon name="Calendar" size={18} className="text-blue-500" />
+                    <div>
+                      <p className="text-xs text-muted-foreground">Время готовности</p>
+                      <p className="font-semibold text-sm">
+                        {selectedMarker.readyTime ? new Date(selectedMarker.readyTime).toLocaleString('ru-RU', { 
+                          day: '2-digit', 
+                          month: '2-digit', 
+                          hour: '2-digit', 
+                          minute: '2-digit' 
+                        }) : 'Сейчас'}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="flex items-center gap-3">
+                    <Icon name="Package" size={18} className="text-purple-500" />
+                    <div>
+                      <p className="text-xs text-muted-foreground">Количество</p>
+                      <p className="font-semibold">{selectedMarker.quantity || 0} шт</p>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-3">
+                    <Icon name="Weight" size={18} className="text-green-500" />
+                    <div>
+                      <p className="text-xs text-muted-foreground">Вес</p>
+                      <p className="font-semibold">{selectedMarker.weight || 0} кг</p>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="flex items-center gap-3">
+                    <Icon name="Star" size={18} className="text-yellow-500" />
+                    <div>
+                      <p className="text-xs text-muted-foreground">Рейтинг клиента</p>
+                      <p className="font-semibold">{selectedMarker.clientRating?.toFixed(1) || '5.0'} / 5.0</p>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-3">
+                    <Icon name="MapPin" size={18} className="text-red-500" />
+                    <div>
+                      <p className="text-xs text-muted-foreground">Склад</p>
+                      <p className="font-semibold text-sm">{selectedMarker.destinationWarehouse?.split('(')[0] || 'Не указан'}</p>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="pt-3 border-t border-border/50">
+                  <div className="flex items-start gap-3">
+                    <Icon name="Home" size={18} className="text-indigo-500 mt-1" />
+                    <div>
+                      <p className="text-xs text-muted-foreground">Адрес клиента</p>
+                      <p className="font-medium text-sm">{selectedMarker.clientAddress || 'Не указан'}</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
             
             <div className="flex gap-3">
               {selectedMarker.type === 'cargo' ? (

@@ -32,14 +32,17 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
         cur = conn.cursor()
         
         cur.execute("""
-            SELECT cargo_id, name, details, weight, lat, lng, status, cargo_type 
+            SELECT cargo_id, name, details, weight, lat, lng, status, cargo_type,
+                   ready_status, ready_time, quantity, destination_warehouse, 
+                   client_address, client_rating
             FROM cargo 
             WHERE status = 'waiting'
         """)
         cargo_rows = cur.fetchall()
         
         cur.execute("""
-            SELECT driver_id, name, vehicle_type, capacity, lat, lng, status, vehicle_category 
+            SELECT driver_id, name, vehicle_type, capacity, lat, lng, status, vehicle_category,
+                   rating, free_space, destination_warehouse, phone
             FROM drivers
         """)
         driver_rows = cur.fetchall()
@@ -58,7 +61,14 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                 'name': row[1],
                 'details': f"{row[2]}, {row[3]}кг",
                 'status': 'Ожидает',
-                'cargoType': row[7] if row[7] else 'box'
+                'cargoType': row[7] if row[7] else 'box',
+                'readyStatus': row[8] if row[8] else 'ready',
+                'readyTime': row[9].isoformat() if row[9] else None,
+                'quantity': int(row[10]) if row[10] else 0,
+                'weight': float(row[3]) if row[3] else 0,
+                'destinationWarehouse': row[11] if row[11] else 'Не указан',
+                'clientAddress': row[12] if row[12] else 'Не указан',
+                'clientRating': float(row[13]) if row[13] else 5.0
             })
         
         for row in driver_rows:
@@ -70,7 +80,12 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                 'name': row[1],
                 'details': f"{row[2]}, грузоподъёмность {row[3]}т",
                 'status': 'Свободен' if row[6] == 'free' else 'Занят',
-                'vehicleCategory': row[7] if row[7] else 'car'
+                'vehicleCategory': row[7] if row[7] else 'car',
+                'rating': float(row[8]) if row[8] else 5.0,
+                'capacity': float(row[3]) if row[3] else 0,
+                'freeSpace': float(row[9]) if row[9] else 0,
+                'destinationWarehouse': row[10] if row[10] else 'Не указан',
+                'phone': row[11] if row[11] else ''
             })
         
         return {
