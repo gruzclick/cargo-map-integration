@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import Icon from '@/components/ui/icon';
+import MapLegend from './MapLegend';
 
 interface MapMarker {
   id: string;
@@ -11,6 +12,8 @@ interface MapMarker {
   name: string;
   details: string;
   status?: string;
+  cargoType?: 'box' | 'pallet';
+  vehicleCategory?: 'car' | 'truck' | 'semi';
 }
 
 const LiveMap = () => {
@@ -71,6 +74,22 @@ const LiveMap = () => {
     }
   };
 
+  const getCargoIcon = (cargoType?: string) => {
+    if (cargoType === 'pallet') {
+      return '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="9" y1="21" x2="9" y2="9"/></svg>';
+    }
+    return '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path></svg>';
+  };
+
+  const getVehicleIcon = (vehicleCategory?: string) => {
+    if (vehicleCategory === 'truck') {
+      return '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"><path d="M14 16H9m10 0h3v-3.15a1 1 0 0 0-.84-.99L16 11l-2.7-3.6a1 1 0 0 0-.8-.4H5.24a2 2 0 0 0-1.8 1.1l-.8 1.63A6 6 0 0 0 2 12.42V16h2"></path><circle cx="6.5" cy="16.5" r="2.5"></circle><circle cx="16.5" cy="16.5" r="2.5"></circle></svg>';
+    } else if (vehicleCategory === 'semi') {
+      return '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"><path d="M16 3h3l3 4v5h-2m-4 0H3m0 0h2m14 0v3M5 12v3m0 0a2 2 0 1 0 0 4 2 2 0 0 0 0-4Zm14 0a2 2 0 1 0 0 4 2 2 0 0 0 0-4Z"></path><rect x="3" y="6" width="10" height="6"></rect></svg>';
+    }
+    return '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"><path d="M19 17h2l.64-2.54c.24-.959.24-1.962 0-2.92l-1.07-4.27A3 3 0 0 0 17.66 5H4a2 2 0 0 0-2 2v10h2"></path><circle cx="7" cy="17" r="2"></circle><path d="M9 17h6"></path><circle cx="17" cy="17" r="2"></circle></svg>';
+  };
+
   const updateMarkers = () => {
     if (!mapRef.current || !(mapRef.current as any).yandexMap) return;
 
@@ -78,21 +97,30 @@ const LiveMap = () => {
     map.geoObjects.removeAll();
 
     markers.forEach((marker) => {
-      const iconContent = marker.type === 'cargo' 
-        ? '<div style="width: 40px; height: 40px; background: #2B5BF5; border-radius: 50%; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 6px rgba(0,0,0,0.1);"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path></svg></div>'
-        : '<div style="width: 40px; height: 40px; background: #FF6B35; border-radius: 50%; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 6px rgba(0,0,0,0.1);"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"><path d="M14 16H9m10 0h3v-3.15a1 1 0 0 0-.84-.99L16 11l-2.7-3.6a1 1 0 0 0-.8-.4H5.24a2 2 0 0 0-1.8 1.1l-.8 1.63A6 6 0 0 0 2 12.42V16h2"></path><circle cx="6.5" cy="16.5" r="2.5"></circle><circle cx="16.5" cy="16.5" r="2.5"></circle></svg></div>';
+      let iconSvg = '';
+      let bgColor = '';
+      
+      if (marker.type === 'cargo') {
+        iconSvg = getCargoIcon(marker.cargoType);
+        bgColor = '#0EA5E9';
+      } else {
+        iconSvg = getVehicleIcon(marker.vehicleCategory);
+        bgColor = '#1A1A1A';
+      }
+      
+      const iconContent = `<div style="width: 44px; height: 44px; background: ${bgColor}; border-radius: 12px; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 12px rgba(0,0,0,0.15);">${iconSvg}</div>`;
 
       const placemark = new (window as any).ymaps.Placemark(
         [marker.lat, marker.lng],
         {
           hintContent: marker.name,
-          balloonContent: `<div style="padding: 8px;"><strong>${marker.name}</strong><br/>${marker.details}<br/><span style="color: ${marker.type === 'cargo' ? '#2B5BF5' : '#FF6B35'};">${marker.status}</span></div>`
+          balloonContent: `<div style="padding: 8px;"><strong>${marker.name}</strong><br/>${marker.details}<br/><span style="color: ${bgColor};">${marker.status}</span></div>`
         },
         {
           iconLayout: 'default#imageWithContent',
           iconImageHref: '',
-          iconImageSize: [40, 40],
-          iconImageOffset: [-20, -20],
+          iconImageSize: [44, 44],
+          iconImageOffset: [-22, -22],
           iconContentLayout: (window as any).ymaps.templateLayoutFactory.createClass(iconContent)
         }
       );
@@ -110,7 +138,7 @@ const LiveMap = () => {
 
   return (
     <div className="space-y-5">
-      <div className="grid md:grid-cols-2 gap-4">
+      <div className="grid md:grid-cols-3 gap-4">
         <Card className="border-0 shadow-md rounded-2xl bg-card">
           <CardContent className="p-6 flex items-center justify-between">
             <div className="flex items-center gap-4">
@@ -140,6 +168,8 @@ const LiveMap = () => {
             <Badge className="bg-primary/10 text-primary hover:bg-primary/20 border-0">Онлайн</Badge>
           </CardContent>
         </Card>
+
+        <MapLegend />
       </div>
 
       <Card className="border-0 shadow-xl rounded-3xl overflow-hidden">

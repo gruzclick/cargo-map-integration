@@ -32,14 +32,14 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
         cur = conn.cursor()
         
         cur.execute("""
-            SELECT cargo_id, name, details, weight, lat, lng, status 
+            SELECT cargo_id, name, details, weight, lat, lng, status, cargo_type 
             FROM cargo 
             WHERE status = 'waiting'
         """)
         cargo_rows = cur.fetchall()
         
         cur.execute("""
-            SELECT driver_id, name, vehicle_type, capacity, lat, lng, status 
+            SELECT driver_id, name, vehicle_type, capacity, lat, lng, status, vehicle_category 
             FROM drivers
         """)
         driver_rows = cur.fetchall()
@@ -57,7 +57,8 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                 'lng': float(row[5]),
                 'name': row[1],
                 'details': f"{row[2]}, {row[3]}кг",
-                'status': 'Ожидает'
+                'status': 'Ожидает',
+                'cargoType': row[7] if row[7] else 'box'
             })
         
         for row in driver_rows:
@@ -68,7 +69,8 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                 'lng': float(row[5]),
                 'name': row[1],
                 'details': f"{row[2]}, грузоподъёмность {row[3]}т",
-                'status': 'Свободен' if row[6] == 'free' else 'Занят'
+                'status': 'Свободен' if row[6] == 'free' else 'Занят',
+                'vehicleCategory': row[7] if row[7] else 'car'
             })
         
         return {
