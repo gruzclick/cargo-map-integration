@@ -24,8 +24,7 @@ const DeliveryForm = ({ onSuccess }: DeliveryFormProps) => {
     cargo_unit: 'boxes',
     weight: '',
     delivery_date: '',
-    delivery_price: '',
-    contact_phone: ''
+    delivery_price: ''
   });
 
   const [cargoPhoto, setCargoPhoto] = useState<string>('');
@@ -93,8 +92,7 @@ const DeliveryForm = ({ onSuccess }: DeliveryFormProps) => {
           cargo_unit: 'boxes',
           weight: '',
           delivery_date: '',
-          delivery_price: '',
-          contact_phone: ''
+          delivery_price: ''
         });
         setCargoPhoto('');
         setPhotoPreview('');
@@ -255,7 +253,7 @@ const DeliveryForm = ({ onSuccess }: DeliveryFormProps) => {
             </div>
           </div>
 
-          <div className="grid md:grid-cols-3 gap-4">
+          <div className="grid md:grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label htmlFor="delivery_date">Дата поставки *</Label>
               <Input
@@ -280,17 +278,13 @@ const DeliveryForm = ({ onSuccess }: DeliveryFormProps) => {
               />
             </div>
 
-            <div className="space-y-2">
-              <Label htmlFor="contact_phone">Телефон для связи *</Label>
-              <Input
-                id="contact_phone"
-                type="tel"
-                placeholder="+79991234567"
-                value={formData.contact_phone}
-                onChange={(e) => setFormData({ ...formData, contact_phone: e.target.value })}
-                required
-              />
-            </div>
+          </div>
+          
+          <div className="bg-blue-500/10 border border-blue-500/30 rounded-lg p-3 flex gap-2">
+            <Icon name="MessageSquare" size={18} className="text-blue-400 flex-shrink-0 mt-0.5" />
+            <p className="text-sm text-blue-400">
+              После создания заявки вы сможете общаться с перевозчиком через встроенный чат
+            </p>
           </div>
 
           <Button type="submit" className="w-full h-12 text-base rounded-xl" disabled={loading}>

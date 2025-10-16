@@ -14,7 +14,6 @@ interface DeliveryPoint {
   delivery_date: string;
   cargo_photo: string;
   client_name: string;
-  client_phone: string;
   lat: number;
   lng: number;
 }
@@ -169,7 +168,7 @@ export default function RouteOptimizer() {
                     <div className="flex items-start justify-between mb-2">
                       <div>
                         <p className="font-semibold">{delivery.client_name}</p>
-                        <p className="text-sm text-muted-foreground">{delivery.client_phone}</p>
+                        <p className="text-sm text-muted-foreground">Клиент</p>
                       </div>
                       <div className="text-right">
                         <div className="text-sm font-semibold">{delivery.cargo_quantity} {delivery.cargo_unit === 'pallets' ? 'паллет' : 'коробок'}</div>

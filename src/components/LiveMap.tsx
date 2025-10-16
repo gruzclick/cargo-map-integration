@@ -19,7 +19,6 @@ interface MapMarker {
   capacity?: number;
   freeSpace?: number;
   destinationWarehouse?: string;
-  phone?: string;
   readyStatus?: string;
   readyTime?: string;
   quantity?: number;

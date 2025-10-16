@@ -7,7 +7,6 @@ interface TrackingData {
   delivery_id: string;
   status: 'pending' | 'picked_up' | 'in_transit' | 'delivered';
   driver_name: string;
-  driver_phone: string;
   vehicle: string;
   vehicle_photo: string;
   current_location: { lat: number; lng: number };
@@ -105,9 +104,10 @@ export default function DeliveryTracking({ deliveryId, onClose }: DeliveryTracki
             <div className="flex-1">
               <p className="font-semibold">{tracking.driver_name}</p>
               <p className="text-sm text-muted-foreground">{tracking.vehicle}</p>
-              <a href={`tel:${tracking.driver_phone}`} className="text-sm text-primary hover:underline">
-                {tracking.driver_phone}
-              </a>
+              <Button variant="outline" size="sm" className="mt-2">
+                <Icon name="MessageSquare" size={16} className="mr-2" />
+                Открыть чат
+              </Button>
             </div>
           </div>
         </div>

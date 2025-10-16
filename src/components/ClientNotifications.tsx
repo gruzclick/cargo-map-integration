@@ -7,7 +7,6 @@ import { useToast } from './ui/use-toast';
 interface Notification {
   id: string;
   driver_name: string;
-  driver_phone: string;
   vehicle: string;
   warehouse: string;
   arrival_time: string;
@@ -88,16 +87,16 @@ export default function ClientNotifications() {
                   <span>{notification.driver_name}</span>
                 </div>
                 <div className="flex items-center gap-1">
-                  <Icon name="Phone" size={14} />
-                  <span>{notification.driver_phone}</span>
-                </div>
-                <div className="flex items-center gap-1">
                   <Icon name="Truck" size={14} />
                   <span>{notification.vehicle}</span>
                 </div>
                 <div className="flex items-center gap-1">
                   <Icon name="Clock" size={14} />
                   <span>{notification.arrival_time}</span>
+                </div>
+                <div className="flex items-center gap-1">
+                  <Icon name="MessageSquare" size={14} className="text-primary" />
+                  <span className="text-primary">Открыть чат</span>
                 </div>
               </div>
             </div>
