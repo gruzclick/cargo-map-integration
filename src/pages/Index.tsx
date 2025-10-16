@@ -8,10 +8,18 @@ import CarrierStatus from '@/components/CarrierStatus';
 import NearbyDriverNotification from '@/components/NearbyDriverNotification';
 import DeliveryHistory from '@/components/DeliveryHistory';
 import RouteManager from '@/components/RouteManager';
+import VehicleManager from '@/components/VehicleManager';
+import ClientNotifications from '@/components/ClientNotifications';
+import DeliveryTracking from '@/components/DeliveryTracking';
+import RestStatusManager from '@/components/RestStatusManager';
+import RouteOptimizer from '@/components/RouteOptimizer';
+import DeliveryPhotoUpload from '@/components/DeliveryPhotoUpload';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
 const Index = () => {
   const [user, setUser] = useState<any>(null);
+  const [driverRoute, setDriverRoute] = useState<Array<{ warehouse: string; time: string }>>([]);
+  const [trackingDeliveryId, setTrackingDeliveryId] = useState<string | null>(null);
 
   useEffect(() => {
     const token = localStorage.getItem('auth_token');
@@ -70,7 +78,7 @@ const Index = () => {
 
       <div className="container mx-auto px-6 py-8">
         <Tabs defaultValue="map" className="w-full">
-          <TabsList className="grid w-full max-w-2xl mx-auto grid-cols-4 mb-8">
+          <TabsList className="grid w-full max-w-3xl mx-auto grid-cols-5 mb-8">
             <TabsTrigger value="map">
               <Icon name="Map" size={16} className="mr-2" />
               Карта
@@ -95,6 +103,12 @@ const Index = () => {
               <Icon name="User" size={16} className="mr-2" />
               Профиль
             </TabsTrigger>
+            {user.user_type === 'carrier' && (
+              <TabsTrigger value="vehicles">
+                <Icon name="Truck" size={16} className="mr-2" />
+                Автопарк
+              </TabsTrigger>
+            )}
           </TabsList>
 
           <TabsContent value="map" className="space-y-6">
@@ -106,11 +120,20 @@ const Index = () => {
                 Все доступные грузы и свободные водители в реальном времени
               </p>
             </div>
-            <LiveMap />
+            
             {user.user_type === 'client' && (
+              <div className="max-w-4xl mx-auto mb-6">
+                <ClientNotifications />
+              </div>
+            )}
+            
+            <LiveMap />
+            
+            {user.user_type === 'carrier' && (
               <NearbyDriverNotification 
-                cargoLocation={{ lat: 55.7558, lng: 37.6173 }} 
+                driverRoute={driverRoute}
                 enabled={true}
+                userType="driver"
               />
             )}
           </TabsContent>
@@ -126,8 +149,26 @@ const Index = () => {
           {user.user_type === 'carrier' && (
             <TabsContent value="orders">
               <div className="space-y-6">
-                <CarrierStatus userId={user.id} />
-                <RouteManager userId={user.id} />
+                <div className="max-w-4xl mx-auto">
+                  <RestStatusManager userType="driver" onStatusChange={() => {}} />
+                </div>
+                
+                <div className="max-w-4xl mx-auto">
+                  <RouteOptimizer />
+                </div>
+                
+                <div className="grid md:grid-cols-2 gap-6">
+                  <CarrierStatus userId={user.id} />
+                  <RouteManager userId={user.id} />
+                </div>
+              </div>
+            </TabsContent>
+          )}
+          
+          {user.user_type === 'carrier' && (
+            <TabsContent value="vehicles">
+              <div className="max-w-6xl mx-auto">
+                <VehicleManager />
               </div>
             </TabsContent>
           )}
@@ -139,7 +180,11 @@ const Index = () => {
           </TabsContent>
 
           <TabsContent value="profile">
-            <div className="max-w-2xl mx-auto">
+            <div className="max-w-2xl mx-auto space-y-6">
+              {user.user_type === 'client' && (
+                <RestStatusManager userType="client" onStatusChange={() => {}} />
+              )}
+              
               <div className="bg-card rounded-3xl shadow-xl p-8 space-y-6">
                 <div className="flex items-center gap-4 pb-6 border-b">
                   <div className="w-20 h-20 bg-accent/10 rounded-2xl flex items-center justify-center">
