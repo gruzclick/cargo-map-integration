@@ -3,6 +3,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent } from '@/components/ui/card';
 import Icon from '@/components/ui/icon';
+import LiveMap from '@/components/LiveMap';
 
 const Index = () => {
   const [trackingId, setTrackingId] = useState('');
@@ -74,25 +75,18 @@ const Index = () => {
         </div>
       </header>
 
-      <section id="home" className="py-20 bg-gradient-to-br from-primary/5 to-accent/5">
+      <section id="home" className="py-12 bg-gradient-to-br from-primary/5 to-accent/5">
         <div className="container mx-auto px-4">
-          <div className="max-w-3xl mx-auto text-center">
-            <h2 className="text-5xl md:text-6xl font-bold mb-6 text-foreground">
-              Грузоперевозки по России
-            </h2>
-            <p className="text-xl text-muted-foreground mb-8">
-              Надёжная доставка в любую точку. Отслеживание в реальном времени.
-            </p>
-            <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Button size="lg" className="text-lg">
-                <Icon name="Calculator" size={20} className="mr-2" />
-                Рассчитать стоимость
-              </Button>
-              <Button size="lg" variant="outline" className="text-lg">
-                <Icon name="MapPin" size={20} className="mr-2" />
-                Отследить груз
-              </Button>
+          <div className="max-w-6xl mx-auto">
+            <div className="text-center mb-8">
+              <h2 className="text-4xl md:text-5xl font-bold mb-4 text-foreground">
+                Карта грузов и водителей
+              </h2>
+              <p className="text-lg text-muted-foreground">
+                Все доступные грузы и свободные водители в реальном времени
+              </p>
             </div>
+            <LiveMap />
           </div>
         </div>
       </section>

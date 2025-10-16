@@ -1,0 +1,25 @@
+{
+  "tests": [
+    {
+      "name": "Get map markers data",
+      "method": "GET",
+      "path": "/",
+      "expectedStatus": 200
+    },
+    {
+      "name": "Update driver position",
+      "method": "POST",
+      "path": "/",
+      "body": {
+        "type": "driver",
+        "id": "DRV-001",
+        "lat": 55.7540,
+        "lng": 37.6180
+      },
+      "expectedStatus": 200,
+      "expectedBody": {
+        "success": true
+      }
+    }
+  ]
+}
