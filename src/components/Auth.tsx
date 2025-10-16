@@ -5,6 +5,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Alert, AlertDescription } from '@/components/ui/alert';
 import Icon from '@/components/ui/icon';
 import { useToast } from '@/hooks/use-toast';
 
@@ -16,6 +17,9 @@ const Auth = ({ onSuccess }: AuthProps) => {
   const [isLogin, setIsLogin] = useState(true);
   const [loading, setLoading] = useState(false);
   const [userType, setUserType] = useState<'client' | 'carrier'>('client');
+  const [showVerification, setShowVerification] = useState(false);
+  const [verificationData, setVerificationData] = useState<any>(null);
+  const [verificationCode, setVerificationCode] = useState('');
   const { toast } = useToast();
 
   const [formData, setFormData] = useState({
@@ -83,12 +87,13 @@ const Auth = ({ onSuccess }: AuthProps) => {
         const data = await response.json();
 
         if (response.ok) {
+          setVerificationData(data);
+          setShowVerification(true);
           toast({
             title: 'Регистрация успешна!',
-            description: 'Проверьте email для подтверждения регистрации',
-            duration: 6000
+            description: 'Отправьте код подтверждения в Telegram бот',
+            duration: 8000
           });
-          setIsLogin(true);
         } else {
           throw new Error(data.error || 'Ошибка регистрации');
         }
@@ -103,6 +108,144 @@ const Auth = ({ onSuccess }: AuthProps) => {
       setLoading(false);
     }
   };
+
+  const handleVerifyCode = async () => {
+    setLoading(true);
+    try {
+      const response = await fetch('https://functions.poehali.dev/9835e97e-8876-4256-90f3-4250d5dbdfc8', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          action: 'verify_code',
+          phone: verificationData.phone,
+          code: verificationCode
+        })
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        toast({
+          title: 'Телефон подтвержден!',
+          description: 'Теперь вы можете войти в систему'
+        });
+        setShowVerification(false);
+        setIsLogin(true);
+      } else {
+        throw new Error(data.error || 'Неверный код');
+      }
+    } catch (error: any) {
+      toast({
+        title: 'Ошибка',
+        description: error.message,
+        variant: 'destructive'
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const copyCode = () => {
+    navigator.clipboard.writeText(verificationData?.telegram_code || '');
+    toast({
+      title: 'Скопировано',
+      description: 'Код скопирован в буфер обмена'
+    });
+  };
+
+  if (showVerification) {
+    return (
+      <div className="min-h-screen flex items-center justify-center p-4 bg-gradient-to-br from-background via-background to-accent/5">
+        <Card className="w-full max-w-md border-0 shadow-2xl rounded-3xl">
+          <CardHeader className="space-y-2 pb-6">
+            <div className="w-16 h-16 bg-accent rounded-2xl flex items-center justify-center mx-auto mb-4">
+              <Icon name="MessageSquare" size={32} className="text-accent-foreground" />
+            </div>
+            <CardTitle className="text-3xl font-bold text-center">
+              Подтверждение телефона
+            </CardTitle>
+            <CardDescription className="text-center text-base">
+              Отправьте код в Telegram бот
+            </CardDescription>
+          </CardHeader>
+
+          <CardContent className="space-y-6">
+            <Alert className="bg-accent/10 border-accent/20">
+              <Icon name="Info" size={18} className="text-accent" />
+              <AlertDescription className="ml-2">
+                <div className="space-y-2">
+                  <p className="font-semibold">Ваш код подтверждения:</p>
+                  <div className="flex items-center gap-2">
+                    <code className="flex-1 bg-background px-4 py-3 rounded-lg text-2xl font-bold tracking-wider text-center">
+                      {verificationData?.telegram_code}
+                    </code>
+                    <Button variant="outline" size="icon" onClick={copyCode}>
+                      <Icon name="Copy" size={18} />
+                    </Button>
+                  </div>
+                </div>
+              </AlertDescription>
+            </Alert>
+
+            <div className="space-y-3">
+              <p className="text-sm text-muted-foreground">
+                <strong>Шаг 1:</strong> Откройте Telegram и найдите бота{' '}
+                <a 
+                  href={`https://t.me/${verificationData?.bot_username}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-accent hover:underline font-medium"
+                >
+                  @{verificationData?.bot_username}
+                </a>
+              </p>
+              <p className="text-sm text-muted-foreground">
+                <strong>Шаг 2:</strong> Нажмите /start и отправьте код из поля выше
+              </p>
+              <p className="text-sm text-muted-foreground">
+                <strong>Шаг 3:</strong> Введите код здесь для завершения регистрации
+              </p>
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="code">Код подтверждения</Label>
+              <Input
+                id="code"
+                placeholder="123456"
+                value={verificationCode}
+                onChange={(e) => setVerificationCode(e.target.value)}
+                maxLength={6}
+                className="text-center text-2xl tracking-wider font-bold"
+              />
+            </div>
+
+            <Button 
+              onClick={handleVerifyCode} 
+              className="w-full h-12 text-base rounded-xl"
+              disabled={loading || verificationCode.length !== 6}
+            >
+              {loading ? (
+                <>
+                  <Icon name="Loader2" size={18} className="animate-spin mr-2" />
+                  Проверка...
+                </>
+              ) : (
+                'Подтвердить'
+              )}
+            </Button>
+
+            <Button
+              variant="outline"
+              onClick={() => setShowVerification(false)}
+              className="w-full"
+            >
+              Назад
+            </Button>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen flex items-center justify-center p-4 bg-gradient-to-br from-background via-background to-accent/5">
