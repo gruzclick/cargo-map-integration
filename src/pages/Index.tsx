@@ -56,33 +56,34 @@ const Index = () => {
 
   return (
     <div className="min-h-screen bg-background">
-      <header className="border-b border-border sticky top-0 bg-white/95 backdrop-blur-sm z-50">
-        <div className="container mx-auto px-4 py-4 flex items-center justify-between">
+      <header className="border-b border-border/40 sticky top-0 bg-white/80 backdrop-blur-xl z-50">
+        <div className="container mx-auto px-6 py-3 flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <Icon name="Truck" size={32} className="text-primary" />
-            <h1 className="text-2xl font-bold text-primary">ГрузЭкспресс</h1>
+            <div className="w-10 h-10 bg-primary rounded-xl flex items-center justify-center">
+              <Icon name="Zap" size={22} className="text-primary-foreground" />
+            </div>
+            <h1 className="text-xl font-semibold tracking-tight">Груз Клик</h1>
           </div>
-          <nav className="hidden md:flex gap-6">
-            <a href="#home" className="text-foreground hover:text-primary transition-colors">Главная</a>
-            <a href="#services" className="text-foreground hover:text-primary transition-colors">Услуги</a>
-            <a href="#tracking" className="text-foreground hover:text-primary transition-colors">Отслеживание</a>
-            <a href="#reviews" className="text-foreground hover:text-primary transition-colors">Отзывы</a>
+          <nav className="hidden md:flex gap-8">
+            <a href="#home" className="text-sm font-medium text-foreground/70 hover:text-foreground transition-colors">Карта</a>
+            <a href="#services" className="text-sm font-medium text-foreground/70 hover:text-foreground transition-colors">Услуги</a>
+            <a href="#tracking" className="text-sm font-medium text-foreground/70 hover:text-foreground transition-colors">Отслеживание</a>
+            <a href="#reviews" className="text-sm font-medium text-foreground/70 hover:text-foreground transition-colors">Отзывы</a>
           </nav>
-          <Button>
-            <Icon name="Phone" size={18} className="mr-2" />
-            +7 (495) 123-45-67
+          <Button className="rounded-full" size="sm">
+            Связаться
           </Button>
         </div>
       </header>
 
-      <section id="home" className="py-12 bg-gradient-to-br from-primary/5 to-accent/5">
-        <div className="container mx-auto px-4">
-          <div className="max-w-6xl mx-auto">
-            <div className="text-center mb-8">
-              <h2 className="text-4xl md:text-5xl font-bold mb-4 text-foreground">
+      <section id="home" className="py-16">
+        <div className="container mx-auto px-6">
+          <div className="max-w-7xl mx-auto">
+            <div className="text-center mb-10">
+              <h2 className="text-5xl md:text-6xl font-semibold mb-4 text-foreground tracking-tight">
                 Карта грузов и водителей
               </h2>
-              <p className="text-lg text-muted-foreground">
+              <p className="text-xl text-muted-foreground font-light">
                 Все доступные грузы и свободные водители в реальном времени
               </p>
             </div>
@@ -91,18 +92,18 @@ const Index = () => {
         </div>
       </section>
 
-      <section id="services" className="py-16">
-        <div className="container mx-auto px-4">
-          <h2 className="text-4xl font-bold text-center mb-12">Наши услуги</h2>
-          <div className="grid md:grid-cols-3 gap-8">
+      <section id="services" className="py-20 bg-secondary/30">
+        <div className="container mx-auto px-6">
+          <h2 className="text-4xl md:text-5xl font-semibold text-center mb-14 tracking-tight">Наши услуги</h2>
+          <div className="grid md:grid-cols-3 gap-6 max-w-6xl mx-auto">
             {services.map((service, index) => (
-              <Card key={index} className="hover:shadow-lg transition-shadow border-2">
-                <CardContent className="p-8 text-center">
-                  <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-4">
-                    <Icon name={service.icon as any} size={32} className="text-primary" />
+              <Card key={index} className="hover:shadow-xl transition-all duration-300 border-0 bg-card rounded-2xl overflow-hidden">
+                <CardContent className="p-10 text-center">
+                  <div className="w-14 h-14 bg-accent/10 rounded-2xl flex items-center justify-center mx-auto mb-5">
+                    <Icon name={service.icon as any} size={28} className="text-accent" />
                   </div>
-                  <h3 className="text-xl font-bold mb-2">{service.title}</h3>
-                  <p className="text-muted-foreground">{service.description}</p>
+                  <h3 className="text-xl font-semibold mb-3">{service.title}</h3>
+                  <p className="text-muted-foreground font-light leading-relaxed">{service.description}</p>
                 </CardContent>
               </Card>
             ))}
@@ -110,20 +111,20 @@ const Index = () => {
         </div>
       </section>
 
-      <section id="tracking" className="py-16 bg-muted/30">
-        <div className="container mx-auto px-4">
-          <h2 className="text-4xl font-bold text-center mb-12">Отследить груз</h2>
-          <div className="max-w-2xl mx-auto">
-            <Card>
-              <CardContent className="p-8">
-                <div className="flex gap-4 mb-6">
+      <section id="tracking" className="py-20">
+        <div className="container mx-auto px-6">
+          <h2 className="text-4xl md:text-5xl font-semibold text-center mb-14 tracking-tight">Отследить груз</h2>
+          <div className="max-w-3xl mx-auto">
+            <Card className="border-0 shadow-lg rounded-2xl">
+              <CardContent className="p-10">
+                <div className="flex gap-3 mb-6">
                   <Input
                     placeholder="Введите ID груза (например: КГ-12345)"
                     value={trackingId}
                     onChange={(e) => setTrackingId(e.target.value)}
-                    className="flex-1 h-12 text-lg"
+                    className="flex-1 h-14 text-base rounded-xl border-border/50"
                   />
-                  <Button onClick={handleTrack} size="lg" className="px-8">
+                  <Button onClick={handleTrack} size="lg" className="px-10 rounded-xl h-14">
                     <Icon name="Search" size={20} className="mr-2" />
                     Найти
                   </Button>
@@ -167,22 +168,22 @@ const Index = () => {
         </div>
       </section>
 
-      <section id="reviews" className="py-16">
-        <div className="container mx-auto px-4">
-          <h2 className="text-4xl font-bold text-center mb-12">Отзывы клиентов</h2>
-          <div className="grid md:grid-cols-3 gap-8">
+      <section id="reviews" className="py-20 bg-secondary/30">
+        <div className="container mx-auto px-6">
+          <h2 className="text-4xl md:text-5xl font-semibold text-center mb-14 tracking-tight">Отзывы клиентов</h2>
+          <div className="grid md:grid-cols-3 gap-6 max-w-6xl mx-auto">
             {reviews.map((review, index) => (
-              <Card key={index}>
-                <CardContent className="p-6">
-                  <div className="flex items-center gap-1 mb-4">
+              <Card key={index} className="border-0 shadow-md rounded-2xl bg-card">
+                <CardContent className="p-8">
+                  <div className="flex items-center gap-1 mb-5">
                     {[...Array(review.rating)].map((_, i) => (
-                      <Icon key={i} name="Star" size={18} className="text-accent fill-accent" />
+                      <Icon key={i} name="Star" size={16} className="text-accent fill-accent" />
                     ))}
                   </div>
-                  <p className="text-muted-foreground mb-4 italic">"{review.text}"</p>
+                  <p className="text-muted-foreground mb-5 font-light leading-relaxed">"{review.text}"</p>
                   <div>
-                    <p className="font-semibold">{review.name}</p>
-                    <p className="text-sm text-muted-foreground">{review.company}</p>
+                    <p className="font-semibold text-sm">{review.name}</p>
+                    <p className="text-xs text-muted-foreground mt-1">{review.company}</p>
                   </div>
                 </CardContent>
               </Card>
@@ -191,54 +192,56 @@ const Index = () => {
         </div>
       </section>
 
-      <footer className="bg-secondary text-secondary-foreground py-12">
-        <div className="container mx-auto px-4">
-          <div className="grid md:grid-cols-4 gap-8">
+      <footer className="bg-foreground text-background py-16">
+        <div className="container mx-auto px-6">
+          <div className="grid md:grid-cols-4 gap-12 max-w-6xl mx-auto">
             <div>
               <div className="flex items-center gap-2 mb-4">
-                <Icon name="Truck" size={28} className="text-primary" />
-                <h3 className="text-xl font-bold">ГрузЭкспресс</h3>
+                <div className="w-8 h-8 bg-background/10 rounded-lg flex items-center justify-center">
+                  <Icon name="Zap" size={18} className="text-background" />
+                </div>
+                <h3 className="text-lg font-semibold">Груз Клик</h3>
               </div>
-              <p className="text-sm opacity-80">Надёжные грузоперевозки с 2010 года</p>
+              <p className="text-sm opacity-70 font-light">Надёжные грузоперевозки с 2010 года</p>
             </div>
             <div>
-              <h4 className="font-semibold mb-4">Услуги</h4>
-              <ul className="space-y-2 text-sm opacity-80">
+              <h4 className="font-medium mb-4 text-sm">Услуги</h4>
+              <ul className="space-y-2 text-sm opacity-70 font-light">
                 <li>Городские перевозки</li>
                 <li>Межгород</li>
                 <li>Международные</li>
               </ul>
             </div>
             <div>
-              <h4 className="font-semibold mb-4">Контакты</h4>
-              <ul className="space-y-2 text-sm opacity-80">
+              <h4 className="font-medium mb-4 text-sm">Контакты</h4>
+              <ul className="space-y-2 text-sm opacity-70 font-light">
                 <li className="flex items-center gap-2">
-                  <Icon name="Phone" size={16} />
+                  <Icon name="Phone" size={14} />
                   +7 (495) 123-45-67
                 </li>
                 <li className="flex items-center gap-2">
-                  <Icon name="Mail" size={16} />
-                  info@gruzexpress.ru
+                  <Icon name="Mail" size={14} />
+                  info@gruzclick.ru
                 </li>
               </ul>
             </div>
             <div>
-              <h4 className="font-semibold mb-4">Мы в соцсетях</h4>
-              <div className="flex gap-3">
-                <Button size="sm" variant="outline" className="w-10 h-10 p-0">
-                  <Icon name="Facebook" size={18} />
+              <h4 className="font-medium mb-4 text-sm">Соцсети</h4>
+              <div className="flex gap-2">
+                <Button size="sm" variant="outline" className="w-9 h-9 p-0 rounded-full border-background/20 hover:bg-background/10">
+                  <Icon name="Facebook" size={16} />
                 </Button>
-                <Button size="sm" variant="outline" className="w-10 h-10 p-0">
-                  <Icon name="Instagram" size={18} />
+                <Button size="sm" variant="outline" className="w-9 h-9 p-0 rounded-full border-background/20 hover:bg-background/10">
+                  <Icon name="Instagram" size={16} />
                 </Button>
-                <Button size="sm" variant="outline" className="w-10 h-10 p-0">
-                  <Icon name="Twitter" size={18} />
+                <Button size="sm" variant="outline" className="w-9 h-9 p-0 rounded-full border-background/20 hover:bg-background/10">
+                  <Icon name="Twitter" size={16} />
                 </Button>
               </div>
             </div>
           </div>
-          <div className="border-t border-white/10 mt-8 pt-8 text-center text-sm opacity-80">
-            © 2024 ГрузЭкспресс. Все права защищены.
+          <div className="border-t border-background/10 mt-12 pt-8 text-center text-xs opacity-60 font-light">
+            © 2024 Груз Клик. Все права защищены.
           </div>
         </div>
       </footer>

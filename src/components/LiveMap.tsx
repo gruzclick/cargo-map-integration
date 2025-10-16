@@ -109,69 +109,69 @@ const LiveMap = () => {
   const driverCount = markers.filter(m => m.type === 'driver').length;
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-5">
       <div className="grid md:grid-cols-2 gap-4">
-        <Card>
-          <CardContent className="p-4 flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <div className="w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center">
-                <Icon name="Package" size={24} className="text-primary" />
+        <Card className="border-0 shadow-md rounded-2xl bg-card">
+          <CardContent className="p-6 flex items-center justify-between">
+            <div className="flex items-center gap-4">
+              <div className="w-12 h-12 bg-accent/10 rounded-xl flex items-center justify-center">
+                <Icon name="Package" size={22} className="text-accent" />
               </div>
               <div>
-                <p className="text-sm text-muted-foreground">Грузов ожидает</p>
-                <p className="text-2xl font-bold">{cargoCount}</p>
+                <p className="text-xs text-muted-foreground font-medium">Грузов ожидает</p>
+                <p className="text-3xl font-semibold tracking-tight">{cargoCount}</p>
               </div>
             </div>
-            <Badge className="bg-primary">Активно</Badge>
+            <Badge className="bg-accent/10 text-accent hover:bg-accent/20 border-0">Активно</Badge>
           </CardContent>
         </Card>
 
-        <Card>
-          <CardContent className="p-4 flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <div className="w-12 h-12 bg-accent/10 rounded-full flex items-center justify-center">
-                <Icon name="Truck" size={24} className="text-accent" />
+        <Card className="border-0 shadow-md rounded-2xl bg-card">
+          <CardContent className="p-6 flex items-center justify-between">
+            <div className="flex items-center gap-4">
+              <div className="w-12 h-12 bg-primary/10 rounded-xl flex items-center justify-center">
+                <Icon name="Truck" size={22} className="text-primary" />
               </div>
               <div>
-                <p className="text-sm text-muted-foreground">Водителей свободно</p>
-                <p className="text-2xl font-bold">{driverCount}</p>
+                <p className="text-xs text-muted-foreground font-medium">Водителей свободно</p>
+                <p className="text-3xl font-semibold tracking-tight">{driverCount}</p>
               </div>
             </div>
-            <Badge className="bg-accent">Онлайн</Badge>
+            <Badge className="bg-primary/10 text-primary hover:bg-primary/20 border-0">Онлайн</Badge>
           </CardContent>
         </Card>
       </div>
 
-      <Card>
+      <Card className="border-0 shadow-xl rounded-3xl overflow-hidden">
         <CardContent className="p-0">
           <div 
             ref={mapRef} 
-            className="w-full h-[600px] rounded-lg"
+            className="w-full h-[600px]"
             style={{ minHeight: '600px' }}
           />
         </CardContent>
       </Card>
 
       {selectedMarker && (
-        <Card className="border-2 border-primary animate-fade-in">
-          <CardContent className="p-6">
-            <div className="flex items-start justify-between mb-4">
-              <div className="flex items-center gap-3">
-                <div className={`w-12 h-12 rounded-full flex items-center justify-center ${
-                  selectedMarker.type === 'cargo' ? 'bg-primary/10' : 'bg-accent/10'
+        <Card className="border-0 shadow-lg rounded-2xl animate-fade-in">
+          <CardContent className="p-8">
+            <div className="flex items-start justify-between mb-6">
+              <div className="flex items-center gap-4">
+                <div className={`w-14 h-14 rounded-2xl flex items-center justify-center ${
+                  selectedMarker.type === 'cargo' ? 'bg-accent/10' : 'bg-primary/10'
                 }`}>
                   <Icon 
                     name={selectedMarker.type === 'cargo' ? 'Package' : 'Truck'} 
-                    size={24} 
-                    className={selectedMarker.type === 'cargo' ? 'text-primary' : 'text-accent'}
+                    size={26} 
+                    className={selectedMarker.type === 'cargo' ? 'text-accent' : 'text-primary'}
                   />
                 </div>
                 <div>
-                  <h3 className="font-bold text-lg">{selectedMarker.name}</h3>
-                  <p className="text-sm text-muted-foreground">{selectedMarker.details}</p>
+                  <h3 className="font-semibold text-lg tracking-tight">{selectedMarker.name}</h3>
+                  <p className="text-sm text-muted-foreground font-light">{selectedMarker.details}</p>
                 </div>
               </div>
-              <Badge className={selectedMarker.type === 'cargo' ? 'bg-primary' : 'bg-accent'}>
+              <Badge className={`${selectedMarker.type === 'cargo' ? 'bg-accent/10 text-accent' : 'bg-primary/10 text-primary'} border-0`}>
                 {selectedMarker.status}
               </Badge>
             </div>
@@ -179,19 +179,19 @@ const LiveMap = () => {
             <div className="flex gap-3">
               {selectedMarker.type === 'cargo' ? (
                 <>
-                  <button className="flex-1 bg-primary text-white px-4 py-2 rounded-lg font-medium hover:bg-primary/90 transition-colors">
+                  <button className="flex-1 bg-primary text-primary-foreground px-6 py-3 rounded-xl font-medium hover:bg-primary/90 transition-all">
                     Принять заказ
                   </button>
-                  <button className="px-4 py-2 border border-border rounded-lg hover:bg-muted transition-colors">
+                  <button className="px-4 py-3 border border-border/50 rounded-xl hover:bg-secondary/50 transition-all">
                     <Icon name="Phone" size={20} />
                   </button>
                 </>
               ) : (
                 <>
-                  <button className="flex-1 bg-accent text-white px-4 py-2 rounded-lg font-medium hover:bg-accent/90 transition-colors">
+                  <button className="flex-1 bg-accent text-accent-foreground px-6 py-3 rounded-xl font-medium hover:bg-accent/90 transition-all">
                     Связаться
                   </button>
-                  <button className="px-4 py-2 border border-border rounded-lg hover:bg-muted transition-colors">
+                  <button className="px-4 py-3 border border-border/50 rounded-xl hover:bg-secondary/50 transition-all">
                     <Icon name="MapPin" size={20} />
                   </button>
                 </>
@@ -201,13 +201,13 @@ const LiveMap = () => {
         </Card>
       )}
 
-      <div className="flex items-center gap-4 text-sm text-muted-foreground">
+      <div className="flex items-center gap-6 text-xs text-muted-foreground font-medium">
         <div className="flex items-center gap-2">
-          <div className="w-4 h-4 bg-primary rounded-full" />
+          <div className="w-3 h-3 bg-accent rounded-full" />
           <span>Грузы</span>
         </div>
         <div className="flex items-center gap-2">
-          <div className="w-4 h-4 bg-accent rounded-full" />
+          <div className="w-3 h-3 bg-primary rounded-full" />
           <span>Водители</span>
         </div>
         <div className="flex items-center gap-2 ml-auto">
