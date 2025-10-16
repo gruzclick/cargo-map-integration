@@ -31,8 +31,14 @@ const Auth = ({ onSuccess }: AuthProps) => {
     inn: '',
     organization_name: '',
     phone: '',
+    passport_series: '',
+    passport_number: '',
+    passport_date: '',
+    passport_issued_by: '',
     vehicle_type: 'car',
-    capacity: ''
+    capacity: '',
+    agree_geolocation: false,
+    agree_verification: false
   });
 
   const handleSubmit = async (e: React.FormEvent) => {
