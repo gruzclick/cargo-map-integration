@@ -14,6 +14,7 @@ interface MapMarker {
   status?: string;
   cargoType?: 'box' | 'pallet';
   vehicleCategory?: 'car' | 'truck' | 'semi';
+  vehicleStatus?: 'free' | 'has_space' | 'full';
   rating?: number;
   capacity?: number;
   freeSpace?: number;
@@ -51,7 +52,7 @@ const LiveMap = () => {
 
   useEffect(() => {
     const script = document.createElement('script');
-    script.src = 'https://api-maps.yandex.ru/2.1/?apikey=&lang=ru_RU';
+    script.src = 'https://api-maps.yandex.ru/2.1/?apikey=&lang=ru_RU&theme=dark';
     script.async = true;
     script.onload = () => {
       setMapLoaded(true);
@@ -59,8 +60,21 @@ const LiveMap = () => {
     };
     document.body.appendChild(script);
 
+    const style = document.createElement('style');
+    style.textContent = `
+      ymaps[class*="ground-pane"] {
+        filter: invert(100%) hue-rotate(180deg) brightness(95%) contrast(90%);
+      }
+      ymaps[class*="places-pane"],
+      ymaps[class*="events-pane"] {
+        filter: invert(100%) hue-rotate(180deg);
+      }
+    `;
+    document.head.appendChild(style);
+
     return () => {
       document.body.removeChild(script);
+      document.head.removeChild(style);
     };
   }, []);
 
@@ -76,8 +90,15 @@ const LiveMap = () => {
         const map = new (window as any).ymaps.Map(mapRef.current, {
           center: [55.7558, 37.6173],
           zoom: 13,
-          controls: ['zoomControl', 'fullscreenControl']
+          controls: ['zoomControl', 'fullscreenControl'],
+          options: {
+            copyrightLogoVisible: false,
+            copyrightProvidersVisible: false,
+            copyrightUaVisible: false
+          }
         });
+
+        map.behaviors.disable('scrollZoom');
 
         (mapRef.current as any).yandexMap = map;
         updateMarkers();
@@ -92,13 +113,17 @@ const LiveMap = () => {
     return '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"><path d="M16 16h3a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h3"/><polyline points="12 2 12 22"/><polyline points="15 13 12 16 9 13"/></svg>';
   };
 
-  const getVehicleIcon = (vehicleCategory?: string) => {
+  const getVehicleIcon = (vehicleCategory?: string, vehicleStatus?: string) => {
+    let color = '#22c55e';
+    if (vehicleStatus === 'has_space') color = '#eab308';
+    if (vehicleStatus === 'full') color = '#ef4444';
+    
     if (vehicleCategory === 'truck') {
-      return '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"><rect width="20" height="14" x="2" y="7" rx="2" ry="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg>';
+      return `<svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="${color}" stroke-width="2"><rect x="1" y="6" width="15" height="12" rx="1"/><path d="M16 8h3l3 3v5h-3"/><circle cx="5.5" cy="18.5" r="2.5" fill="${color}"/><circle cx="18.5" cy="18.5" r="2.5" fill="${color}"/></svg>`;
     } else if (vehicleCategory === 'semi') {
-      return '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"><path d="M9 21h12c1.7 0 3-1.3 3-3v-3l-3-3h-3V9c0-1.7-1.3-3-3-3H3v9c0 1.7 1.3 3 3 3h3"/><circle cx="7" cy="18" r="2"/><path d="M9 18h6"/><circle cx="17" cy="18" r="2"/></svg>';
+      return `<svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="${color}" stroke-width="2"><rect x="1" y="6" width="10" height="10" rx="1"/><path d="M11 8h4l4 4v4h-2"/><rect x="15" y="14" width="8" height="4" rx="1"/><circle cx="5" cy="18" r="2" fill="${color}"/><circle cx="15" cy="18" r="2" fill="${color}"/><circle cx="20" cy="18" r="2" fill="${color}"/></svg>`;
     }
-    return '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"><path d="M19 17h2c.6 0 1-.4 1-1v-3c0-.9-.7-1.7-1.5-1.9C18.7 10.6 16 10 16 10s-1.3-1.4-2.2-2.3c-.5-.4-1.1-.7-1.8-.7H5c-.6 0-1.1.4-1.4.9l-1.4 2.9A3.7 3.7 0 0 0 2 12v4c0 .6.4 1 1 1h2"/><circle cx="7" cy="17" r="2"/><path d="M9 17h6"/><circle cx="17" cy="17" r="2"/></svg>';
+    return `<svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="${color}" stroke-width="2"><path d="M14 16H9m10 0h3v-3.15a1 1 0 0 0-.84-.99L16 11l-2.7-3.6a1 1 0 0 0-.8-.4H5.24a2 2 0 0 0-1.8 1.1l-.8 1.63A6 6 0 0 0 2 12.42V14a2 2 0 0 0 2 2h2"/><circle cx="6.5" cy="16.5" r="2.5" fill="${color}"/><circle cx="16.5" cy="16.5" r="2.5" fill="${color}"/></svg>`;
   };
 
   const updateMarkers = () => {
@@ -114,33 +139,54 @@ const LiveMap = () => {
       if (marker.type === 'cargo') {
         iconSvg = getCargoIcon(marker.cargoType);
         bgColor = '#0EA5E9';
+        const iconContent = `<div style="width: 44px; height: 44px; background: ${bgColor}; border-radius: 12px; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 12px rgba(0,0,0,0.15);">${iconSvg}</div>`;
+        
+        const placemark = new (window as any).ymaps.Placemark(
+          [marker.lat, marker.lng],
+          {
+            hintContent: marker.name,
+            balloonContent: `<div style="padding: 8px;"><strong>${marker.name}</strong><br/>${marker.details}<br/><span style="color: ${bgColor};">${marker.status}</span></div>`
+          },
+          {
+            iconLayout: 'default#imageWithContent',
+            iconImageHref: '',
+            iconImageSize: [44, 44],
+            iconImageOffset: [-22, -22],
+            iconContentLayout: (window as any).ymaps.templateLayoutFactory.createClass(iconContent)
+          }
+        );
+
+        placemark.events.add('click', () => {
+          setSelectedMarker(marker);
+        });
+
+        map.geoObjects.add(placemark);
       } else {
-        iconSvg = getVehicleIcon(marker.vehicleCategory);
-        bgColor = '#1A1A1A';
+        iconSvg = getVehicleIcon(marker.vehicleCategory, (marker as any).vehicleStatus || 'free');
+        
+        const iconContent = `<div style="width: 50px; height: 50px; display: flex; align-items: center; justify-content: center; filter: drop-shadow(0 4px 12px rgba(0,0,0,0.25));">${iconSvg}</div>`;
+        
+        const placemark = new (window as any).ymaps.Placemark(
+          [marker.lat, marker.lng],
+          {
+            hintContent: marker.name,
+            balloonContent: `<div style="padding: 8px;"><strong>${marker.name}</strong><br/>${marker.details}<br/><span>${marker.status}</span></div>`
+          },
+          {
+            iconLayout: 'default#imageWithContent',
+            iconImageHref: '',
+            iconImageSize: [50, 50],
+            iconImageOffset: [-25, -25],
+            iconContentLayout: (window as any).ymaps.templateLayoutFactory.createClass(iconContent)
+          }
+        );
+
+        placemark.events.add('click', () => {
+          setSelectedMarker(marker);
+        });
+
+        map.geoObjects.add(placemark);
       }
-      
-      const iconContent = `<div style="width: 44px; height: 44px; background: ${bgColor}; border-radius: 12px; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 12px rgba(0,0,0,0.15);">${iconSvg}</div>`;
-
-      const placemark = new (window as any).ymaps.Placemark(
-        [marker.lat, marker.lng],
-        {
-          hintContent: marker.name,
-          balloonContent: `<div style="padding: 8px;"><strong>${marker.name}</strong><br/>${marker.details}<br/><span style="color: ${bgColor};">${marker.status}</span></div>`
-        },
-        {
-          iconLayout: 'default#imageWithContent',
-          iconImageHref: '',
-          iconImageSize: [44, 44],
-          iconImageOffset: [-22, -22],
-          iconContentLayout: (window as any).ymaps.templateLayoutFactory.createClass(iconContent)
-        }
-      );
-
-      placemark.events.add('click', () => {
-        setSelectedMarker(marker);
-      });
-
-      map.geoObjects.add(placemark);
     });
   };
 

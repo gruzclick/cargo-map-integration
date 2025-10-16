@@ -1,0 +1,35 @@
+{
+  "tests": [
+    {
+      "name": "Get deliveries without auth",
+      "method": "GET",
+      "path": "/",
+      "expectedStatus": 401,
+      "expectedBody": {
+        "error": "Authentication required"
+      },
+      "bodyMatcher": "partial"
+    },
+    {
+      "name": "Create delivery without auth",
+      "method": "POST",
+      "path": "/",
+      "body": {
+        "pickup_address": "Moscow, Red Square",
+        "delivery_address": "Saint Petersburg, Palace Square",
+        "warehouse_address": "Moscow, Warehouse 5",
+        "cargo_quantity": 10,
+        "cargo_unit": "boxes",
+        "weight": 150.5,
+        "delivery_date": "2025-11-01",
+        "delivery_price": 5000,
+        "contact_phone": "+79991234567"
+      },
+      "expectedStatus": 401,
+      "expectedBody": {
+        "error": "Authentication required"
+      },
+      "bodyMatcher": "partial"
+    }
+  ]
+}
