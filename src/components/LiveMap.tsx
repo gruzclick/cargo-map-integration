@@ -27,7 +27,12 @@ interface MapMarker {
   clientRating?: number;
 }
 
-const LiveMap = () => {
+interface LiveMapProps {
+  isPublic?: boolean;
+  onMarkerClick?: () => void;
+}
+
+const LiveMap = ({ isPublic = false, onMarkerClick }: LiveMapProps = {}) => {
   const mapRef = useRef<HTMLDivElement>(null);
   const [markers, setMarkers] = useState<MapMarker[]>([]);
   const [selectedMarker, setSelectedMarker] = useState<MapMarker | null>(null);

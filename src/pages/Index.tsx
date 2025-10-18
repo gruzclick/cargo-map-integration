@@ -4,6 +4,8 @@ import Icon from '@/components/ui/icon';
 import LiveMap from '@/components/LiveMap';
 import Auth from '@/components/Auth';
 import PublicMap from '@/components/PublicMap';
+import LanguageSelector from '@/components/LanguageSelector';
+import { useTranslation } from 'react-i18next';
 import DeliveryForm from '@/components/DeliveryForm';
 import CarrierStatus from '@/components/CarrierStatus';
 import NearbyDriverNotification from '@/components/NearbyDriverNotification';
@@ -22,6 +24,7 @@ import TermsUpdateNotification from '@/components/TermsUpdateNotification';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
 const Index = () => {
+  const { t } = useTranslation();
   const [user, setUser] = useState<any>(null);
   const [showAuth, setShowAuth] = useState(false);
   const [driverRoute, setDriverRoute] = useState<Array<{ warehouse: string; time: string }>>([]);
@@ -66,11 +69,12 @@ const Index = () => {
               <Icon name="Truck" size={24} className="text-white" />
             </div>
             <div>
-              <h1 className="text-xl font-bold tracking-tight">Груз Клик</h1>
-              <p className="text-xs text-muted-foreground font-medium">информационная площадка</p>
+              <h1 className="text-2xl font-bold tracking-tight">{t('appTitle')}</h1>
+              <p className="text-xs text-muted-foreground">{t('appSubtitle')}</p>
             </div>
           </div>
           <div className="flex items-center gap-3">
+            <LanguageSelector />
             <div className="hidden md:flex items-center gap-2 px-3 py-1.5 bg-accent/10 rounded-lg">
               <Icon 
                 name={user.user_type === 'client' ? 'Package' : 'Truck'} 

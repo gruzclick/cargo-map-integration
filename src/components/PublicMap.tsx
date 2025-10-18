@@ -1,12 +1,17 @@
 import { Card } from './ui/card';
 import { Button } from './ui/button';
 import Icon from './ui/icon';
+import LanguageSelector from './LanguageSelector';
+import { useTranslation } from 'react-i18next';
+import LiveMap from './LiveMap';
 
 interface PublicMapProps {
   onRegister: () => void;
 }
 
 const PublicMap = ({ onRegister }: PublicMapProps) => {
+  const { t } = useTranslation();
+  
   return (
     <div className="min-h-screen bg-background">
       <header className="border-b border-border/40 sticky top-0 bg-white/90 backdrop-blur-xl z-50 shadow-sm">
@@ -16,26 +21,42 @@ const PublicMap = ({ onRegister }: PublicMapProps) => {
               <Icon name="Truck" size={24} className="text-white" />
             </div>
             <div>
-              <h1 className="text-xl font-bold tracking-tight">Груз Клик</h1>
-              <p className="text-xs text-muted-foreground font-medium">информационная площадка</p>
+              <h1 className="text-2xl font-bold tracking-tight">{t('appTitle')}</h1>
+              <p className="text-xs text-muted-foreground">{t('appSubtitle')}</p>
             </div>
           </div>
-          <Button onClick={onRegister} className="rounded-full">
+          <div className="flex items-center gap-3">
+            <LanguageSelector />
+            <Button onClick={onRegister} className="rounded-full">
             <Icon name="LogIn" size={16} className="mr-2" />
-            Войти / Регистрация
-          </Button>
+            {t('login')} / {t('register')}
+            </Button>
+          </div>
         </div>
       </header>
 
-      <div className="container mx-auto px-6 py-8">
+      <div className="container mx-auto px-6 py-8 space-y-8">
+        <div className="text-center mb-6">
+          <h2 className="text-3xl md:text-4xl font-bold mb-3">
+            {t('appTitle')}
+          </h2>
+          <p className="text-lg text-muted-foreground mb-8">
+            {t('accessDenied')}
+          </p>
+        </div>
+
+        <LiveMap isPublic={true} onMarkerClick={() => {
+          alert(t('loginToView'));
+        }} />
+
         <Card className="max-w-2xl mx-auto p-8 text-center border-0 shadow-2xl">
           <div className="w-20 h-20 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-6">
             <Icon name="Lock" size={40} className="text-primary" />
           </div>
           
-          <h2 className="text-2xl font-bold mb-3">
-            Информационная площадка Груз Клик
-          </h2>
+          <h3 className="text-2xl font-bold mb-3">
+            {t('loginToView')}
+          </h3>
           
           <p className="text-muted-foreground mb-6 leading-relaxed">
             Данные о клиентах и перевозчиках видны только зарегистрированным пользователям. 
@@ -68,7 +89,7 @@ const PublicMap = ({ onRegister }: PublicMapProps) => {
 
           <Button onClick={onRegister} size="lg" className="w-full rounded-full">
             <Icon name="UserPlus" size={20} className="mr-2" />
-            Зарегистрироваться / Войти
+            {t('register')} / {t('login')}
           </Button>
 
           <p className="text-xs text-muted-foreground mt-6">
