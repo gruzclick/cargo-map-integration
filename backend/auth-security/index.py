@@ -14,6 +14,7 @@ from typing import Dict, Any
 sms_codes: Dict[str, str] = {}
 rate_limit_storage: Dict[str, list] = {}
 failed_login_attempts: Dict[str, Dict[str, Any]] = {}
+reset_tokens: Dict[str, Dict[str, Any]] = {}
 
 def check_rate_limit(ip_address: str, max_requests: int = 100, window_seconds: int = 60) -> bool:
     current_time = time.time()
@@ -38,17 +39,11 @@ def check_login_attempts(user_id: str) -> Dict[str, Any]:
     if user_id in failed_login_attempts:
         attempt_data = failed_login_attempts[user_id]
         
-        if attempt_data['blocked_until'] > current_time:
-            remaining_seconds = int(attempt_data['blocked_until'] - current_time)
-            remaining_minutes = remaining_seconds // 60
+        if attempt_data['blocked_until'] > 0:
             return {
                 'blocked': True,
-                'remaining_minutes': remaining_minutes,
-                'message': f'Аккаунт заблокирован на {remaining_minutes} минут после 5 неудачных попыток входа'
+                'message': 'Аккаунт заблокирован после 5 неудачных попыток входа. Восстановите доступ через email.'
             }
-        
-        if current_time - attempt_data['last_attempt'] > 3600:
-            failed_login_attempts[user_id] = {'count': 0, 'last_attempt': current_time, 'blocked_until': 0}
     
     return {'blocked': False}
 
@@ -62,7 +57,31 @@ def record_failed_login(user_id: str):
     failed_login_attempts[user_id]['last_attempt'] = current_time
     
     if failed_login_attempts[user_id]['count'] >= 5:
-        failed_login_attempts[user_id]['blocked_until'] = current_time + 3600
+        failed_login_attempts[user_id]['blocked_until'] = 1
+
+def generate_reset_token(email: str) -> str:
+    token = hashlib.sha256(f"{email}{time.time()}{random.randint(1000, 9999)}".encode()).hexdigest()[:32]
+    reset_tokens[token] = {
+        'email': email,
+        'created_at': time.time(),
+        'expires_at': time.time() + 3600
+    }
+    return token
+
+def verify_reset_token(token: str) -> Dict[str, Any]:
+    if token not in reset_tokens:
+        return {'valid': False, 'message': 'Неверный токен восстановления'}
+    
+    token_data = reset_tokens[token]
+    if time.time() > token_data['expires_at']:
+        del reset_tokens[token]
+        return {'valid': False, 'message': 'Токен восстановления истёк'}
+    
+    return {'valid': True, 'email': token_data['email']}
+
+def unlock_account(user_id: str):
+    if user_id in failed_login_attempts:
+        failed_login_attempts[user_id] = {'count': 0, 'last_attempt': time.time(), 'blocked_until': 0}
 
 def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
     method: str = event.get('httpMethod', 'GET')
@@ -242,6 +261,60 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                     'success': True,
                     'attempts_left': max(0, attempts_left),
                     'message': f'Осталось попыток: {max(0, attempts_left)}'
+                }),
+                'isBase64Encoded': False
+            }
+        
+        elif action == 'request_password_reset':
+            email: str = body_data.get('email', '')
+            reset_token = generate_reset_token(email)
+            
+            return {
+                'statusCode': 200,
+                'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                'body': json.dumps({
+                    'success': True,
+                    'message': f'Ссылка для восстановления отправлена на {email}',
+                    'reset_token_for_testing': reset_token
+                }),
+                'isBase64Encoded': False
+            }
+        
+        elif action == 'verify_reset_token':
+            token: str = body_data.get('token', '')
+            verification = verify_reset_token(token)
+            
+            return {
+                'statusCode': 200 if verification['valid'] else 400,
+                'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                'body': json.dumps(verification),
+                'isBase64Encoded': False
+            }
+        
+        elif action == 'reset_password':
+            token: str = body_data.get('token', '')
+            new_password: str = body_data.get('new_password', '')
+            user_id: str = body_data.get('user_id', '')
+            
+            verification = verify_reset_token(token)
+            if not verification['valid']:
+                return {
+                    'statusCode': 400,
+                    'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                    'body': json.dumps(verification),
+                    'isBase64Encoded': False
+                }
+            
+            unlock_account(user_id)
+            if token in reset_tokens:
+                del reset_tokens[token]
+            
+            return {
+                'statusCode': 200,
+                'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                'body': json.dumps({
+                    'success': True,
+                    'message': 'Пароль успешно изменён. Аккаунт разблокирован.'
                 }),
                 'isBase64Encoded': False
             }

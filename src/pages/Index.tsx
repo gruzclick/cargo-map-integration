@@ -3,6 +3,7 @@ import { Button } from '@/components/ui/button';
 import Icon from '@/components/ui/icon';
 import LiveMap from '@/components/LiveMap';
 import Auth from '@/components/Auth';
+import PublicMap from '@/components/PublicMap';
 import DeliveryForm from '@/components/DeliveryForm';
 import CarrierStatus from '@/components/CarrierStatus';
 import NearbyDriverNotification from '@/components/NearbyDriverNotification';
@@ -17,10 +18,12 @@ import RestStatusManager from '@/components/RestStatusManager';
 import RouteOptimizer from '@/components/RouteOptimizer';
 import DeliveryPhotoUpload from '@/components/DeliveryPhotoUpload';
 import RatingSystem from '@/components/RatingSystem';
+import TermsUpdateNotification from '@/components/TermsUpdateNotification';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
 const Index = () => {
   const [user, setUser] = useState<any>(null);
+  const [showAuth, setShowAuth] = useState(false);
   const [driverRoute, setDriverRoute] = useState<Array<{ warehouse: string; time: string }>>([]);
   const [trackingDeliveryId, setTrackingDeliveryId] = useState<string | null>(null);
 
@@ -37,22 +40,29 @@ const Index = () => {
     localStorage.removeItem('auth_token');
     localStorage.removeItem('user_data');
     setUser(null);
+    setShowAuth(false);
   };
 
   const handleAuthSuccess = (userData: any) => {
     setUser(userData);
+    setShowAuth(false);
   };
 
-  if (!user) {
+  if (!user && !showAuth) {
+    return <PublicMap onRegister={() => setShowAuth(true)} />;
+  }
+
+  if (!user && showAuth) {
     return <Auth onSuccess={handleAuthSuccess} />;
   }
 
   return (
     <div className="min-h-screen bg-background">
+      {user && <TermsUpdateNotification userId={user.user_id || user.phone} />}
       <header className="border-b border-border/40 sticky top-0 bg-white/90 backdrop-blur-xl z-50 shadow-sm">
         <div className="container mx-auto px-6 py-4 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="w-12 h-12 bg-gradient-to-br from-accent to-orange-600 rounded-2xl flex items-center justify-center shadow-lg">
+            <div className="w-12 h-12 bg-gradient-to-br from-primary to-blue-600 rounded-2xl flex items-center justify-center shadow-lg">
               <Icon name="Truck" size={24} className="text-white" />
             </div>
             <div>
