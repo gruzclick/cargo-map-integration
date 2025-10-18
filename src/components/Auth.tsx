@@ -9,6 +9,7 @@ import { Checkbox } from '@/components/ui/checkbox';
 import Icon from '@/components/ui/icon';
 import { useToast } from '@/hooks/use-toast';
 import TermsAgreement from './TermsAgreement';
+import BiometricAuth from './BiometricAuth';
 
 interface AuthProps {
   onSuccess: (userData: any) => void;
@@ -38,7 +39,8 @@ const Auth = ({ onSuccess }: AuthProps) => {
     vehicle_type: 'car_small',
     capacity: '',
     agree_geolocation: false,
-    agree_verification: false
+    agree_verification: false,
+    use_gosuslugi: false
   });
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -54,7 +56,7 @@ const Auth = ({ onSuccess }: AuthProps) => {
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             action: 'login',
-            email: formData.email,
+            phone: formData.phone,
             password: formData.password
           })
         });
@@ -230,6 +232,25 @@ const Auth = ({ onSuccess }: AuthProps) => {
                   />
                 </div>
 
+                <div className="flex items-start space-x-3 p-4 bg-gradient-to-r from-blue-500/10 to-accent/10 rounded-xl border border-blue-500/30">
+                  <Checkbox 
+                    id="gosuslugi" 
+                    checked={formData.use_gosuslugi}
+                    onCheckedChange={(checked) => setFormData({ ...formData, use_gosuslugi: checked === true })}
+                    className="mt-1"
+                  />
+                  <label htmlFor="gosuslugi" className="text-sm leading-relaxed cursor-pointer">
+                    <div className="flex items-center gap-2 mb-1">
+                      <Icon name="Shield" size={16} className="text-blue-500" />
+                      <span className="font-semibold">Подтвердить данные через Госуслуги</span>
+                    </div>
+                    <p className="text-xs text-muted-foreground">
+                      Рекомендуем подтвердить паспортные данные через Госуслуги — это даёт вам преимущество перед другими пользователями. 
+                      Клиенты видят отметку "Проверено" и больше доверяют проверенным перевозчикам, что приводит к увеличению количества заказов на 40-60%.
+                    </p>
+                  </label>
+                </div>
+
                 {userType === 'carrier' && (
                   <>
                     <div className="space-y-2">
@@ -240,6 +261,7 @@ const Auth = ({ onSuccess }: AuthProps) => {
                         </SelectTrigger>
                         <SelectContent>
                           <SelectItem value="car_small">Легковой автомобиль</SelectItem>
+                          <SelectItem value="fleet">Автопарк</SelectItem>
                           <SelectItem value="van_small">Малый фургон (Газель)</SelectItem>
                           <SelectItem value="van_medium">Средний фургон</SelectItem>
                           <SelectItem value="van_large">Большой фургон</SelectItem>
@@ -253,7 +275,7 @@ const Auth = ({ onSuccess }: AuthProps) => {
                           <SelectItem value="truck_isothermal">Изотермический фургон</SelectItem>
                           <SelectItem value="truck_flatbed">Бортовой грузовик</SelectItem>
                           <SelectItem value="truck_container">Контейнеровоз</SelectItem>
-                          <SelectItem value="fleet">Автопарк</SelectItem>
+                          <SelectItem value="semi_truck">Седельный тягач</SelectItem>
                         </SelectContent>
                       </Select>
                     </div>
@@ -273,14 +295,28 @@ const Auth = ({ onSuccess }: AuthProps) => {
               </>
             )}
 
+            {!isLogin && (
+              <div className="space-y-2">
+                <Label htmlFor="email">Email *</Label>
+                <Input
+                  id="email"
+                  type="email"
+                  placeholder="email@example.com"
+                  value={formData.email}
+                  onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                  required
+                />
+              </div>
+            )}
+
             <div className="space-y-2">
-              <Label htmlFor="email">Email *</Label>
+              <Label htmlFor="phone">Телефон *</Label>
               <Input
-                id="email"
-                type="email"
-                placeholder="email@example.com"
-                value={formData.email}
-                onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                id="phone"
+                type="tel"
+                placeholder="+7 (999) 123-45-67"
+                value={formData.phone}
+                onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
                 required
               />
             </div>
@@ -344,6 +380,12 @@ const Auth = ({ onSuccess }: AuthProps) => {
           </form>
         </CardContent>
       </Card>
+
+      {isLogin && (
+        <div className="mt-6">
+          <BiometricAuth onSuccess={onSuccess} />
+        </div>
+      )}
     </div>
   );
 };

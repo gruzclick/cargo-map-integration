@@ -45,7 +45,7 @@ const MapLegend = () => {
                 <div className="w-9 h-9 bg-primary rounded-lg flex items-center justify-center">
                   <Icon name="Container" size={18} className="text-white" />
                 </div>
-                <span className="text-xs">Фура</span>
+                <span className="text-xs">Седельный тягач</span>
               </div>
             </div>
           </div>

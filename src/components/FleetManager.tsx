@@ -60,7 +60,8 @@ export default function FleetManager() {
     { value: 'truck_refrigerator', label: 'Рефрижератор' },
     { value: 'truck_isothermal', label: 'Изотермический фургон' },
     { value: 'truck_flatbed', label: 'Бортовой грузовик' },
-    { value: 'truck_container', label: 'Контейнеровоз' }
+    { value: 'truck_container', label: 'Контейнеровоз' },
+    { value: 'semi_truck', label: 'Седельный тягач' }
   ];
 
   const handleAddVehicle = () => {
