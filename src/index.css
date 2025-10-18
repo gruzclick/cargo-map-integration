@@ -6,17 +6,58 @@
 
 @layer base {
   :root {
-    --background: 0 0% 6%;
+    --background: 0 0% 100%;
+    --foreground: 0 0% 7%;
+
+    --card: 0 0% 100%;
+    --card-foreground: 0 0% 7%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 0 0% 7%;
+
+    --primary: 0 0% 7%;
+    --primary-foreground: 0 0% 100%;
+
+    --secondary: 0 0% 96%;
+    --secondary-foreground: 0 0% 7%;
+
+    --muted: 0 0% 96%;
+    --muted-foreground: 0 0% 45%;
+
+    --accent: 0 0% 96%;
+    --accent-foreground: 0 0% 7%;
+
+    --destructive: 0 72% 55%;
+    --destructive-foreground: 0 0% 100%;
+
+    --border: 0 0% 89%;
+    --input: 0 0% 89%;
+    --ring: 0 0% 7%;
+
+    --radius: 0.75rem;
+
+    --sidebar-background: 0 0% 100%;
+    --sidebar-foreground: 0 0% 7%;
+    --sidebar-primary: 0 0% 7%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 0 0% 96%;
+    --sidebar-accent-foreground: 0 0% 7%;
+    --sidebar-border: 0 0% 89%;
+    --sidebar-ring: 0 0% 7%;
+  }
+
+  .dark {
+    --background: 0 0% 7%;
     --foreground: 0 0% 96%;
 
-    --card: 0 0% 9%;
+    --card: 0 0% 10%;
     --card-foreground: 0 0% 96%;
 
-    --popover: 0 0% 9%;
+    --popover: 0 0% 10%;
     --popover-foreground: 0 0% 96%;
 
-    --primary: 211 100% 50%;
-    --primary-foreground: 0 0% 100%;
+    --primary: 0 0% 96%;
+    --primary-foreground: 0 0% 7%;
 
     --secondary: 0 0% 14%;
     --secondary-foreground: 0 0% 96%;
@@ -24,26 +65,24 @@
     --muted: 0 0% 14%;
     --muted-foreground: 0 0% 62%;
 
-    --accent: 211 100% 50%;
-    --accent-foreground: 0 0% 100%;
+    --accent: 0 0% 14%;
+    --accent-foreground: 0 0% 96%;
 
     --destructive: 0 72% 55%;
     --destructive-foreground: 0 0% 100%;
 
     --border: 0 0% 18%;
     --input: 0 0% 18%;
-    --ring: 211 100% 50%;
+    --ring: 0 0% 96%;
 
-    --radius: 1.2rem;
-
-    --sidebar-background: 0 0% 9%;
+    --sidebar-background: 0 0% 10%;
     --sidebar-foreground: 0 0% 96%;
-    --sidebar-primary: 211 100% 50%;
-    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-primary: 0 0% 96%;
+    --sidebar-primary-foreground: 0 0% 7%;
     --sidebar-accent: 0 0% 14%;
     --sidebar-accent-foreground: 0 0% 96%;
     --sidebar-border: 0 0% 18%;
-    --sidebar-ring: 211 100% 50%;
+    --sidebar-ring: 0 0% 96%;
   }
 }
 

@@ -141,6 +141,10 @@ const LiveMap = ({ isPublic = false, onMarkerClick }: LiveMapProps = {}) => {
       let bgColor = '';
       
       if (marker.type === 'cargo') {
+        if (marker.status === 'accepted' || marker.status === 'in_transit' || marker.status === 'delivered') {
+          return;
+        }
+        
         iconSvg = getCargoIcon(marker.cargoType);
         bgColor = '#0EA5E9';
         const iconContent = `<div style="width: 44px; height: 44px; background: ${bgColor}; border-radius: 12px; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 12px rgba(0,0,0,0.15);">${iconSvg}</div>`;

@@ -81,24 +81,25 @@
     "commentPlaceholder": "Оставьте комментарий (необязательно)",
     "submit": "Отправить оценку"
   },
-  "complaint": {
-    "title": "Подать жалобу",
-    "subtitle": "Опишите проблему подробно",
-    "reason": "Причина жалобы",
-    "selectReason": "Выберите причину",
-    "description": "Описание",
-    "descriptionPlaceholder": "Подробно опишите ситуацию...",
-    "evidence": "Доказательства",
-    "uploadEvidence": "Загрузить фото/документы",
-    "submit": "Отправить жалобу",
-    "reasons": {
-      "damage": "Повреждение груза",
-      "delay": "Задержка доставки",
-      "no_show": "Не явился",
-      "unprofessional": "Непрофессиональное поведение",
-      "fraud": "Мошенничество",
-      "other": "Другое"
-    }
+  "deliveryReport": {
+    "title": "Отчёт о сдаче груза",
+    "subtitle": "Заполните данные после доставки",
+    "warehouse": "Склад приёмки",
+    "warehousePlaceholder": "Название склада или адрес",
+    "date": "Дата сдачи",
+    "time": "Время сдачи",
+    "vehicleMake": "Марка автомобиля",
+    "vehicleMakePlaceholder": "Например: КАМАЗ",
+    "vehicleNumber": "Госномер",
+    "vehicleNumberPlaceholder": "А123БВ777",
+    "gateNumber": "Номер ворот/склада",
+    "gateNumberPlaceholder": "Необязательно",
+    "driverName": "ФИО водителя",
+    "driverNamePlaceholder": "Иванов Иван Иванович",
+    "uploadPhoto": "Загрузить фото",
+    "photoRequirement": "Требуется: фото груза на складе, накладная, подпись приёмки",
+    "submit": "Завершить доставку",
+    "submitted": "Отчёт отправлен"
   },
   "analytics": {
     "title": "Аналитика перевозчика",

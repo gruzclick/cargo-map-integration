@@ -14,21 +14,21 @@ const PublicMap = ({ onRegister }: PublicMapProps) => {
   
   return (
     <div className="min-h-screen bg-background">
-      <header className="border-b border-border/40 sticky top-0 bg-gradient-to-r from-orange-500/90 to-primary/90 backdrop-blur-xl z-50 shadow-sm">
-        <div className="container mx-auto px-6 py-4 flex items-center justify-between">
+      <header className="border-b border-gray-200/50 dark:border-gray-800/50 sticky top-0 bg-white/80 dark:bg-gray-900/80 backdrop-blur-xl z-50 shadow-sm">
+        <div className="container mx-auto px-6 py-2.5 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="w-12 h-12 bg-white/20 rounded-2xl flex items-center justify-center shadow-lg">
-              <Icon name="Truck" size={24} className="text-white" />
+            <div className="w-9 h-9 bg-gray-900 dark:bg-gray-100 rounded-xl flex items-center justify-center">
+              <Icon name="Truck" size={18} className="text-white dark:text-gray-900" />
             </div>
             <div>
-              <h1 className="text-2xl font-bold tracking-tight text-white">{t('appTitle')}</h1>
-              <p className="text-xs text-white/80">{t('appSubtitle')}</p>
+              <h1 className="text-lg font-semibold tracking-tight text-gray-900 dark:text-gray-100">{t('appTitle')}</h1>
+              <p className="text-[10px] text-gray-600 dark:text-gray-400">{t('appSubtitle')}</p>
             </div>
           </div>
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2">
             <LanguageSelector />
-            <Button onClick={onRegister} className="rounded-full bg-white/20 border-white/30 text-white hover:bg-white/30">
-            <Icon name="LogIn" size={16} className="mr-2" />
+            <Button onClick={onRegister} className="rounded-lg bg-gray-900 dark:bg-gray-100 text-white dark:text-gray-900 hover:bg-gray-800 dark:hover:bg-gray-200 text-xs px-3 py-2">
+            <Icon name="LogIn" size={14} className="mr-1.5" />
             {t('login')} / {t('register')}
             </Button>
           </div>
@@ -40,13 +40,13 @@ const PublicMap = ({ onRegister }: PublicMapProps) => {
           <h2 className="text-3xl md:text-4xl font-bold mb-3">
             {t('appTitle')}
           </h2>
-          <p className="text-lg text-muted-foreground mb-8">
-            {t('accessDenied')}
+          <p className="text-xl font-medium text-gray-900 dark:text-gray-100 mb-8">
+            С нами вам по пути
           </p>
         </div>
 
         <LiveMap isPublic={true} onMarkerClick={() => {
-          alert(t('loginToView'));
+          onRegister();
         }} />
 
         <Card className="max-w-2xl mx-auto p-8 text-center border-0 shadow-2xl">
