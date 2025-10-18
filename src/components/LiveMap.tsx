@@ -161,7 +161,11 @@ const LiveMap = ({ isPublic = false, onMarkerClick }: LiveMapProps = {}) => {
         );
 
         placemark.events.add('click', () => {
-          setSelectedMarker(marker);
+          if (isPublic) {
+            onMarkerClick?.();
+          } else {
+            setSelectedMarker(marker);
+          }
         });
 
         map.geoObjects.add(placemark);
@@ -186,7 +190,11 @@ const LiveMap = ({ isPublic = false, onMarkerClick }: LiveMapProps = {}) => {
         );
 
         placemark.events.add('click', () => {
-          setSelectedMarker(marker);
+          if (isPublic) {
+            onMarkerClick?.();
+          } else {
+            setSelectedMarker(marker);
+          }
         });
 
         map.geoObjects.add(placemark);

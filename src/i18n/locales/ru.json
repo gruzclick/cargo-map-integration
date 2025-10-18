@@ -64,5 +64,127 @@
   "error": "Ошибка",
   "success": "Успешно",
   "warning": "Внимание",
-  "info": "Информация"
+  "info": "Информация",
+  "common": {
+    "loading": "Загрузка..."
+  },
+  "chat": {
+    "title": "Чат с клиентом/перевозчиком",
+    "subtitle": "Общайтесь в реальном времени",
+    "placeholder": "Введите сообщение...",
+    "newMessage": "Новое сообщение"
+  },
+  "rating": {
+    "title": "Оцените сотрудничество",
+    "rateCarrier": "Оцените работу перевозчика",
+    "rateClient": "Оцените клиента",
+    "commentPlaceholder": "Оставьте комментарий (необязательно)",
+    "submit": "Отправить оценку"
+  },
+  "complaint": {
+    "title": "Подать жалобу",
+    "subtitle": "Опишите проблему подробно",
+    "reason": "Причина жалобы",
+    "selectReason": "Выберите причину",
+    "description": "Описание",
+    "descriptionPlaceholder": "Подробно опишите ситуацию...",
+    "evidence": "Доказательства",
+    "uploadEvidence": "Загрузить фото/документы",
+    "submit": "Отправить жалобу",
+    "reasons": {
+      "damage": "Повреждение груза",
+      "delay": "Задержка доставки",
+      "no_show": "Не явился",
+      "unprofessional": "Непрофессиональное поведение",
+      "fraud": "Мошенничество",
+      "other": "Другое"
+    }
+  },
+  "analytics": {
+    "title": "Аналитика перевозчика",
+    "totalOrders": "Всего заказов",
+    "completedOrders": "Выполнено",
+    "averageRating": "Средний рейтинг",
+    "reviews": "отзывов",
+    "completionRate": "% выполнения",
+    "popularRoutes": "Популярные маршруты",
+    "noRoutes": "Пока нет данных о маршрутах",
+    "trips": "рейсов",
+    "noData": "Нет данных"
+  },
+  "filters": {
+    "title": "Фильтры карты",
+    "showOnMap": "Показывать на карте",
+    "clients": "Клиентов",
+    "carriers": "Перевозчиков",
+    "vehicleType": "Тип транспорта",
+    "cargoType": "Тип груза",
+    "period": "Период",
+    "today": "Сегодня",
+    "week": "Неделя",
+    "month": "Месяц",
+    "all": "Все время",
+    "reset": "Сбросить фильтры"
+  },
+  "vehicleTypes": {
+    "tent_truck": "Тентованный грузовик",
+    "refrigerator": "Рефрижератор",
+    "container": "Контейнеровоз",
+    "flatbed": "Бортовой",
+    "tanker": "Цистерна"
+  },
+  "cargoTypes": {
+    "box": "Коробки",
+    "pallet": "Паллеты",
+    "container": "Контейнер",
+    "bulk": "Насыпной груз",
+    "liquid": "Жидкость"
+  },
+  "driverStatus": {
+    "title": "Статус водителя",
+    "currentStatus": "Текущий статус",
+    "routeStart": "Откуда",
+    "routeStartPlaceholder": "Город или склад",
+    "routeEnd": "Куда",
+    "routeEndPlaceholder": "Город или склад",
+    "availableFrom": "Доступен с",
+    "update": "Обновить статус",
+    "updated": "Статус обновлен",
+    "statuses": {
+      "free": "Свободен (полностью)",
+      "has_space": "Есть свободное место",
+      "no_space": "Мест нет"
+    }
+  },
+  "scheduledOrder": {
+    "title": "Запланировать заявку",
+    "subtitle": "Создайте заявку на будущую дату",
+    "cargoType": "Тип груза",
+    "selectCargoType": "Выберите тип груза",
+    "origin": "Откуда",
+    "originPlaceholder": "Адрес или склад",
+    "destination": "Куда",
+    "destinationPlaceholder": "Адрес или склад",
+    "scheduledDate": "Дата отправки",
+    "weight": "Вес (кг)",
+    "volume": "Объем (м³)",
+    "vehicleType": "Тип транспорта",
+    "selectVehicleType": "Выберите тип",
+    "price": "Цена (₽)",
+    "description": "Дополнительно",
+    "descriptionPlaceholder": "Особые требования...",
+    "submit": "Создать заявку",
+    "created": "Заявка создана",
+    "createdBody": "Заявка запланирована на {{date}}"
+  },
+  "availableDriver": {
+    "title": "Водитель освободился!",
+    "body": "{{name}} едет по маршруту {{route}}",
+    "subscribe": "Уведомления о водителях",
+    "subscribeDesc": "Получайте уведомления когда освобождаются машины",
+    "subscribed": "Подписка активна",
+    "recentTitle": "Недавно освободились",
+    "availableFrom": "Доступен с {{date}}",
+    "distance": "В {{distance}} км от вас"
+  }
 }

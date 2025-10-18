@@ -14,20 +14,20 @@ const PublicMap = ({ onRegister }: PublicMapProps) => {
   
   return (
     <div className="min-h-screen bg-background">
-      <header className="border-b border-border/40 sticky top-0 bg-white/90 backdrop-blur-xl z-50 shadow-sm">
+      <header className="border-b border-border/40 sticky top-0 bg-gradient-to-r from-orange-500/90 to-primary/90 backdrop-blur-xl z-50 shadow-sm">
         <div className="container mx-auto px-6 py-4 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="w-12 h-12 bg-gradient-to-br from-primary to-blue-600 rounded-2xl flex items-center justify-center shadow-lg">
+            <div className="w-12 h-12 bg-white/20 rounded-2xl flex items-center justify-center shadow-lg">
               <Icon name="Truck" size={24} className="text-white" />
             </div>
             <div>
-              <h1 className="text-2xl font-bold tracking-tight">{t('appTitle')}</h1>
-              <p className="text-xs text-muted-foreground">{t('appSubtitle')}</p>
+              <h1 className="text-2xl font-bold tracking-tight text-white">{t('appTitle')}</h1>
+              <p className="text-xs text-white/80">{t('appSubtitle')}</p>
             </div>
           </div>
           <div className="flex items-center gap-3">
             <LanguageSelector />
-            <Button onClick={onRegister} className="rounded-full">
+            <Button onClick={onRegister} className="rounded-full bg-white/20 border-white/30 text-white hover:bg-white/30">
             <Icon name="LogIn" size={16} className="mr-2" />
             {t('login')} / {t('register')}
             </Button>
