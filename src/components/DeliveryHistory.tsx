@@ -3,6 +3,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import Icon from '@/components/ui/icon';
+import PDFExport from '@/components/PDFExport';
 import { useToast } from '@/hooks/use-toast';
 
 interface Delivery {
@@ -92,6 +93,22 @@ const DeliveryHistory = ({ userId, userType }: DeliveryHistoryProps) => {
     );
   }
 
+  const exportDeliveries = deliveries.map(d => ({
+    id: d.id,
+    from: d.from,
+    to: d.to,
+    cargo: '-',
+    weight: `${d.weight} кг`,
+    status: d.status,
+    date: new Date(d.date).toLocaleDateString('ru-RU'),
+    price: d.cost ? `${d.cost} ₽` : undefined,
+    carrier: d.driver,
+    client: d.client
+  }));
+
+  const userData = JSON.parse(localStorage.getItem('user_data') || '{}');
+  const userName = userData.full_name || userData.phone || 'Пользователь';
+
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between mb-6">
@@ -99,10 +116,17 @@ const DeliveryHistory = ({ userId, userType }: DeliveryHistoryProps) => {
           <h3 className="text-2xl font-semibold">История поставок</h3>
           <p className="text-muted-foreground">Все ваши завершенные заказы</p>
         </div>
-        <Badge variant="secondary" className="gap-2">
-          <Icon name="PackageCheck" size={16} />
-          {deliveries.length} поставок
-        </Badge>
+        <div className="flex items-center gap-3">
+          <PDFExport 
+            deliveries={exportDeliveries} 
+            userType={userType}
+            userName={userName}
+          />
+          <Badge variant="secondary" className="gap-2">
+            <Icon name="PackageCheck" size={16} />
+            {deliveries.length} поставок
+          </Badge>
+        </div>
       </div>
 
       {deliveries.length === 0 ? (

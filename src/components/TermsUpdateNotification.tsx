@@ -11,7 +11,7 @@ import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import Icon from '@/components/ui/icon';
 
-const TERMS_VERSION = '2.0';
+const TERMS_VERSION = '3.0';
 
 interface TermsUpdateNotificationProps {
   userId: string;
@@ -65,11 +65,12 @@ const TermsUpdateNotification = ({ userId }: TermsUpdateNotificationProps) => {
               Что изменилось?
             </h4>
             <ul className="list-disc list-inside text-sm text-muted-foreground space-y-2 ml-2">
-              <li>Обновлен пункт 1: уточнен характер платформы</li>
-              <li>Добавлен пункт 7: ограничение ответственности платформы</li>
-              <li>Добавлен пункт 8: обязанности пользователя</li>
-              <li>Добавлен пункт 9: порядок изменения соглашения</li>
-              <li>Усилены положения о самостоятельной ответственности пользователей</li>
+              <li>Добавлен пункт 9: интеллектуальная собственность</li>
+              <li>Добавлен пункт 10: запрещённые действия и грузы</li>
+              <li>Добавлен пункт 11: оплата и финансовые расчёты</li>
+              <li>Добавлен пункт 12: форс-мажор и технические сбои</li>
+              <li>Добавлен пункт 13: применимое право и юрисдикция</li>
+              <li>Усилена защита от незаконных действий и мошенничества</li>
             </ul>
           </div>
 

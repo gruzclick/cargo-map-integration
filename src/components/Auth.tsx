@@ -261,6 +261,7 @@ const Auth = ({ onSuccess }: AuthProps) => {
                         </SelectTrigger>
                         <SelectContent>
                           <SelectItem value="car_small">Легковой автомобиль</SelectItem>
+                          <SelectItem value="fleet">Автопарк</SelectItem>
                           <SelectItem value="van_small">Малый фургон (Газель)</SelectItem>
                           <SelectItem value="van_medium">Средний фургон</SelectItem>
                           <SelectItem value="van_large">Большой фургон</SelectItem>
@@ -275,7 +276,6 @@ const Auth = ({ onSuccess }: AuthProps) => {
                           <SelectItem value="truck_trailer">Грузовик с прицепом</SelectItem>
                           <SelectItem value="truck_container">Контейнеровоз</SelectItem>
                           <SelectItem value="semi_truck">Седельный тягач</SelectItem>
-                          <SelectItem value="fleet">Автопарк</SelectItem>
                         </SelectContent>
                       </Select>
                     </div>

@@ -175,8 +175,97 @@ const TermsAgreement = ({ onAccept, onDecline }: TermsAgreementProps) => {
 
                 <div>
                   <h4 className="font-semibold mb-2 flex items-center gap-2">
+                    <Icon name="Copyright" size={16} className="text-accent" />
+                    9. Интеллектуальная собственность
+                  </h4>
+                  <p className="text-muted-foreground leading-relaxed">
+                    Все права на дизайн, логотип, название "Груз Клик", программный код и интерфейс платформы 
+                    принадлежат администрации. Запрещается копирование, воспроизведение или использование элементов 
+                    платформы без письменного разрешения. Нарушение прав интеллектуальной собственности 
+                    преследуется в соответствии с законодательством РФ.
+                  </p>
+                </div>
+
+                <div>
+                  <h4 className="font-semibold mb-2 flex items-center gap-2">
+                    <Icon name="Ban" size={16} className="text-red-500" />
+                    10. Запрещённые действия и грузы
+                  </h4>
+                  <p className="text-muted-foreground leading-relaxed">
+                    <strong className="text-red-500">СТРОГО ЗАПРЕЩЕНО</strong> использовать платформу для:
+                  </p>
+                  <ul className="list-disc list-inside text-muted-foreground ml-4 mt-2 space-y-1">
+                    <li>Перевозки незаконных грузов (оружие, наркотики, контрафакт, краденое имущество)</li>
+                    <li>Мошенничества, обмана клиентов или перевозчиков</li>
+                    <li>Размещения спама, рекламы сторонних услуг</li>
+                    <li>Использования чужих данных или фальсификации документов</li>
+                    <li>Обхода системы безопасности или взлома платформы</li>
+                    <li>Дискриминации, оскорблений, угроз другим пользователям</li>
+                  </ul>
+                  <p className="text-muted-foreground leading-relaxed mt-2">
+                    Нарушители будут заблокированы, а информация передана правоохранительным органам.
+                  </p>
+                </div>
+
+                <div>
+                  <h4 className="font-semibold mb-2 flex items-center gap-2">
+                    <Icon name="CreditCard" size={16} className="text-accent" />
+                    11. Оплата и финансовые расчёты
+                  </h4>
+                  <p className="text-muted-foreground leading-relaxed">
+                    Все финансовые расчёты между клиентами и перевозчиками осуществляются <strong>напрямую</strong>, 
+                    без участия платформы. Платформа не принимает платежи, не хранит денежные средства 
+                    и не выступает посредником в расчётах. Платформа не несёт ответственности за:
+                  </p>
+                  <ul className="list-disc list-inside text-muted-foreground ml-4 mt-2 space-y-1">
+                    <li>Невыплату вознаграждения перевозчикам</li>
+                    <li>Неоплату услуг клиентами</li>
+                    <li>Споры о стоимости услуг</li>
+                    <li>Возврат предоплаты или компенсаций</li>
+                  </ul>
+                  <p className="text-muted-foreground leading-relaxed mt-2">
+                    Рекомендуем оформлять письменные договоры и использовать безопасные способы оплаты.
+                  </p>
+                </div>
+
+                <div>
+                  <h4 className="font-semibold mb-2 flex items-center gap-2">
+                    <Icon name="CloudOff" size={16} className="text-accent" />
+                    12. Форс-мажор и технические сбои
+                  </h4>
+                  <p className="text-muted-foreground leading-relaxed">
+                    Платформа не несёт ответственности за:
+                  </p>
+                  <ul className="list-disc list-inside text-muted-foreground ml-4 mt-2 space-y-1">
+                    <li>Технические сбои, недоступность сервиса</li>
+                    <li>Потерю данных вследствие взлома или кибератак</li>
+                    <li>Форс-мажорные обстоятельства (стихийные бедствия, войны, теракты)</li>
+                    <li>Действия третьих лиц (хакеров, злоумышленников)</li>
+                    <li>Изменения в законодательстве, делающие невозможной работу платформы</li>
+                  </ul>
+                  <p className="text-muted-foreground leading-relaxed mt-2">
+                    При технических сбоях администрация приложит максимум усилий для восстановления работы, 
+                    но не гарантирует сроков восстановления и не возмещает убытки.
+                  </p>
+                </div>
+
+                <div>
+                  <h4 className="font-semibold mb-2 flex items-center gap-2">
+                    <Icon name="Gavel" size={16} className="text-accent" />
+                    13. Применимое право и юрисдикция
+                  </h4>
+                  <p className="text-muted-foreground leading-relaxed">
+                    Настоящее соглашение регулируется законодательством <strong>Российской Федерации</strong>. 
+                    Все споры, возникающие между пользователем и платформой, подлежат разрешению 
+                    в судебном порядке по месту нахождения администрации платформы. 
+                    Пользователи обязуются соблюдать законодательство РФ при использовании сервиса.
+                  </p>
+                </div>
+
+                <div>
+                  <h4 className="font-semibold mb-2 flex items-center gap-2">
                     <Icon name="RefreshCw" size={16} className="text-accent" />
-                    9. Изменения соглашения
+                    14. Изменения соглашения
                   </h4>
                   <p className="text-muted-foreground leading-relaxed">
                     Администрация платформы оставляет за собой право вносить изменения в настоящее соглашение 
@@ -189,7 +278,7 @@ const TermsAgreement = ({ onAccept, onDecline }: TermsAgreementProps) => {
                 <div>
                   <h4 className="font-semibold mb-2 flex items-center gap-2">
                     <Icon name="FileCheck" size={16} className="text-accent" />
-                    10. Принятие условий
+                    15. Принятие условий
                   </h4>
                   <p className="text-muted-foreground leading-relaxed">
                     Регистрируясь на платформе, пользователь подтверждает, что ознакомился с настоящим 

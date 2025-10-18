@@ -47,7 +47,7 @@ def check_login_attempts(user_id: str) -> Dict[str, Any]:
     
     return {'blocked': False}
 
-def record_failed_login(user_id: str):
+def record_failed_login(user_id: str) -> bool:
     current_time = time.time()
     
     if user_id not in failed_login_attempts:
@@ -58,6 +58,9 @@ def record_failed_login(user_id: str):
     
     if failed_login_attempts[user_id]['count'] >= 5:
         failed_login_attempts[user_id]['blocked_until'] = 1
+        return True
+    
+    return False
 
 def generate_reset_token(email: str) -> str:
     token = hashlib.sha256(f"{email}{time.time()}{random.randint(1000, 9999)}".encode()).hexdigest()[:32]
@@ -250,18 +253,27 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
         
         elif action == 'record_failed_login':
             user_id: str = body_data.get('user_id', '')
-            record_failed_login(user_id)
+            email: str = body_data.get('email', '')
+            is_blocked = record_failed_login(user_id)
             
             attempts_left = 5 - failed_login_attempts.get(user_id, {}).get('count', 0)
+            
+            response_data = {
+                'success': True,
+                'attempts_left': max(0, attempts_left),
+                'message': f'Осталось попыток: {max(0, attempts_left)}'
+            }
+            
+            if is_blocked and email:
+                reset_token = generate_reset_token(email)
+                response_data['blocked'] = True
+                response_data['reset_token_for_testing'] = reset_token
+                response_data['message'] = 'Аккаунт заблокирован после 5 неудачных попыток. Проверьте email для восстановления доступа.'
             
             return {
                 'statusCode': 200,
                 'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
-                'body': json.dumps({
-                    'success': True,
-                    'attempts_left': max(0, attempts_left),
-                    'message': f'Осталось попыток: {max(0, attempts_left)}'
-                }),
+                'body': json.dumps(response_data),
                 'isBase64Encoded': False
             }
         
