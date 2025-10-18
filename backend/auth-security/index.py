@@ -13,6 +13,7 @@ from typing import Dict, Any
 
 sms_codes: Dict[str, str] = {}
 rate_limit_storage: Dict[str, list] = {}
+failed_login_attempts: Dict[str, Dict[str, Any]] = {}
 
 def check_rate_limit(ip_address: str, max_requests: int = 100, window_seconds: int = 60) -> bool:
     current_time = time.time()
@@ -30,6 +31,38 @@ def check_rate_limit(ip_address: str, max_requests: int = 100, window_seconds: i
     
     rate_limit_storage[ip_address].append(current_time)
     return True
+
+def check_login_attempts(user_id: str) -> Dict[str, Any]:
+    current_time = time.time()
+    
+    if user_id in failed_login_attempts:
+        attempt_data = failed_login_attempts[user_id]
+        
+        if attempt_data['blocked_until'] > current_time:
+            remaining_seconds = int(attempt_data['blocked_until'] - current_time)
+            remaining_minutes = remaining_seconds // 60
+            return {
+                'blocked': True,
+                'remaining_minutes': remaining_minutes,
+                'message': f'Аккаунт заблокирован на {remaining_minutes} минут после 5 неудачных попыток входа'
+            }
+        
+        if current_time - attempt_data['last_attempt'] > 3600:
+            failed_login_attempts[user_id] = {'count': 0, 'last_attempt': current_time, 'blocked_until': 0}
+    
+    return {'blocked': False}
+
+def record_failed_login(user_id: str):
+    current_time = time.time()
+    
+    if user_id not in failed_login_attempts:
+        failed_login_attempts[user_id] = {'count': 0, 'last_attempt': current_time, 'blocked_until': 0}
+    
+    failed_login_attempts[user_id]['count'] += 1
+    failed_login_attempts[user_id]['last_attempt'] = current_time
+    
+    if failed_login_attempts[user_id]['count'] >= 5:
+        failed_login_attempts[user_id]['blocked_until'] = current_time + 3600
 
 def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
     method: str = event.get('httpMethod', 'GET')
@@ -181,6 +214,34 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                     'success': True,
                     'encrypted_data': encrypted,
                     'algorithm': 'SHA-256'
+                }),
+                'isBase64Encoded': False
+            }
+        
+        elif action == 'check_login_block':
+            user_id: str = body_data.get('user_id', '')
+            check_result = check_login_attempts(user_id)
+            
+            return {
+                'statusCode': 200 if not check_result['blocked'] else 403,
+                'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                'body': json.dumps(check_result),
+                'isBase64Encoded': False
+            }
+        
+        elif action == 'record_failed_login':
+            user_id: str = body_data.get('user_id', '')
+            record_failed_login(user_id)
+            
+            attempts_left = 5 - failed_login_attempts.get(user_id, {}).get('count', 0)
+            
+            return {
+                'statusCode': 200,
+                'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                'body': json.dumps({
+                    'success': True,
+                    'attempts_left': max(0, attempts_left),
+                    'message': f'Осталось попыток: {max(0, attempts_left)}'
                 }),
                 'isBase64Encoded': False
             }

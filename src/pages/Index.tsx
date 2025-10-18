@@ -16,6 +16,7 @@ import DeliveryTracking from '@/components/DeliveryTracking';
 import RestStatusManager from '@/components/RestStatusManager';
 import RouteOptimizer from '@/components/RouteOptimizer';
 import DeliveryPhotoUpload from '@/components/DeliveryPhotoUpload';
+import RatingSystem from '@/components/RatingSystem';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
 const Index = () => {
@@ -196,7 +197,7 @@ const Index = () => {
           </TabsContent>
 
           <TabsContent value="profile">
-            <div className="max-w-2xl mx-auto space-y-6">
+            <div className="max-w-4xl mx-auto space-y-6">
               {user.user_type === 'client' && (
                 <RestStatusManager userType="client" onStatusChange={() => {}} />
               )}
@@ -225,6 +226,14 @@ const Index = () => {
                   </div>
                 </div>
               </div>
+
+              {user.user_type === 'carrier' && (
+                <RatingSystem 
+                  carrierId={user.id} 
+                  carrierName={user.full_name}
+                  canReview={false}
+                />
+              )}
             </div>
           </TabsContent>
         </Tabs>
