@@ -36,8 +36,8 @@ const MapFilters = ({ onFilterChange }: MapFiltersProps) => {
   };
 
   return (
-    <div className="absolute top-4 left-4 z-10 w-80">
-      <div className="bg-white/70 dark:bg-gray-900/70 backdrop-blur-2xl rounded-2xl shadow-2xl border border-gray-200/50 dark:border-gray-700/50 overflow-hidden">
+    <div className="absolute top-4 left-4 z-10 w-80 animate-slide-in-down">
+      <div className="bg-white/70 dark:bg-gray-900/70 backdrop-blur-2xl rounded-2xl shadow-2xl border border-gray-200/50 dark:border-gray-700/50 overflow-hidden transition-smooth">
         <div className="p-4">
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center gap-2">
@@ -68,7 +68,7 @@ const MapFilters = ({ onFilterChange }: MapFiltersProps) => {
                   variant={filters.userType === 'all' ? 'default' : 'outline'}
                   size="sm"
                   onClick={() => updateFilter('userType', 'all')}
-                  className="text-xs h-9 rounded-lg"
+                  className="text-xs h-9 rounded-lg transition-spring hover:scale-105"
                 >
                   Все
                 </Button>
@@ -76,7 +76,7 @@ const MapFilters = ({ onFilterChange }: MapFiltersProps) => {
                   variant={filters.userType === 'client' ? 'default' : 'outline'}
                   size="sm"
                   onClick={() => updateFilter('userType', 'client')}
-                  className="text-xs h-9 rounded-lg"
+                  className="text-xs h-9 rounded-lg transition-spring hover:scale-105"
                 >
                   <Icon name="Package" size={14} className="mr-1" />
                   Клиент
@@ -85,7 +85,7 @@ const MapFilters = ({ onFilterChange }: MapFiltersProps) => {
                   variant={filters.userType === 'carrier' ? 'default' : 'outline'}
                   size="sm"
                   onClick={() => updateFilter('userType', 'carrier')}
-                  className="text-xs h-9 rounded-lg"
+                  className="text-xs h-9 rounded-lg transition-spring hover:scale-105"
                 >
                   <Icon name="Truck" size={14} className="mr-1" />
                   Перевозчик

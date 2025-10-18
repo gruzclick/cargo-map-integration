@@ -85,9 +85,9 @@ const Index = () => {
   }
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background animate-fade-in">
       {user && <TermsUpdateNotification userId={user.user_id || user.phone} />}
-      <header className="border-b border-gray-200/20 dark:border-gray-700/30 sticky top-0 bg-white/60 dark:bg-gray-900/60 backdrop-blur-2xl z-50 shadow-lg">
+      <header className="border-b border-gray-200/20 dark:border-gray-700/30 sticky top-0 bg-white/60 dark:bg-gray-900/60 backdrop-blur-2xl z-50 shadow-lg animate-slide-in-down">
         <div className="container mx-auto px-6 py-2.5 flex items-center justify-between">
           <div className="flex items-center gap-3">
             <div className="w-9 h-9 bg-gray-900 dark:bg-gray-100 rounded-xl flex items-center justify-center">
@@ -160,7 +160,7 @@ const Index = () => {
             </TabsTrigger>
           </TabsList>
 
-          <TabsContent value="map" className="space-y-6">
+          <TabsContent value="map" className="space-y-6 animate-slide-in-up">
             <div className="text-center mb-6">
               <h2 className="text-4xl md:text-5xl font-semibold mb-3 text-foreground tracking-tight">
                 Информационная платформа Груз Клик
@@ -189,13 +189,13 @@ const Index = () => {
 
           {user.user_type === 'client' && (
             <>
-              <TabsContent value="delivery">
+              <TabsContent value="delivery" className="animate-slide-in-up">
                 <div className="max-w-4xl mx-auto">
                   <DeliveryForm onSuccess={() => {}} />
                 </div>
               </TabsContent>
               
-              <TabsContent value="documents">
+              <TabsContent value="documents" className="animate-slide-in-up">
                 <div className="max-w-4xl mx-auto">
                   <DocumentGenerator />
                 </div>
@@ -204,7 +204,7 @@ const Index = () => {
           )}
 
           {user.user_type === 'carrier' && (
-            <TabsContent value="orders">
+            <TabsContent value="orders" className="animate-slide-in-up">
               <div className="space-y-6">
                 <div className="max-w-4xl mx-auto">
                   <RestStatusManager userType="driver" onStatusChange={() => {}} />
@@ -223,20 +223,20 @@ const Index = () => {
           )}
           
           {user.user_type === 'carrier' && (
-            <TabsContent value="vehicles">
+            <TabsContent value="vehicles" className="animate-slide-in-up">
               <div className="max-w-6xl mx-auto space-y-6">
                 <FleetManager />
               </div>
             </TabsContent>
           )}
 
-          <TabsContent value="history">
+          <TabsContent value="history" className="animate-slide-in-up">
             <div className="max-w-4xl mx-auto">
               <DeliveryHistory userId={user.id} userType={user.user_type} />
             </div>
           </TabsContent>
 
-          <TabsContent value="profile">
+          <TabsContent value="profile" className="animate-slide-in-up">
             <div className="max-w-4xl mx-auto space-y-6">
               {user.user_type === 'client' && (
                 <RestStatusManager userType="client" onStatusChange={() => {}} />

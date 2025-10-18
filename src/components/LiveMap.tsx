@@ -218,7 +218,7 @@ const LiveMap = ({ isPublic = false, onMarkerClick }: LiveMapProps = {}) => {
   return (
     <div className="space-y-5">
       <div className="flex gap-3 items-stretch">
-        <Card className="border border-gray-200/20 dark:border-gray-700/30 shadow-lg rounded-xl bg-white/60 dark:bg-gray-900/60 backdrop-blur-2xl flex-1">
+        <Card className="border border-gray-200/20 dark:border-gray-700/30 shadow-lg rounded-xl bg-white/60 dark:bg-gray-900/60 backdrop-blur-2xl flex-1 animate-scale-in transition-smooth hover:scale-105">
           <CardContent className="p-4 flex items-center gap-3 h-full">
             <div className="w-10 h-10 bg-accent/10 rounded-lg flex items-center justify-center flex-shrink-0">
               <Icon name="Package" size={18} className="text-accent" />
@@ -230,7 +230,7 @@ const LiveMap = ({ isPublic = false, onMarkerClick }: LiveMapProps = {}) => {
           </CardContent>
         </Card>
 
-        <Card className="border border-gray-200/20 dark:border-gray-700/30 shadow-lg rounded-xl bg-white/60 dark:bg-gray-900/60 backdrop-blur-2xl flex-1">
+        <Card className="border border-gray-200/20 dark:border-gray-700/30 shadow-lg rounded-xl bg-white/60 dark:bg-gray-900/60 backdrop-blur-2xl flex-1 animate-scale-in transition-smooth hover:scale-105">
           <CardContent className="p-4 flex items-center gap-3 h-full">
             <div className="w-10 h-10 bg-primary/10 rounded-lg flex items-center justify-center flex-shrink-0">
               <Icon name="Truck" size={18} className="text-primary" />
@@ -245,7 +245,7 @@ const LiveMap = ({ isPublic = false, onMarkerClick }: LiveMapProps = {}) => {
         <MapLegend />
       </div>
 
-      <Card className="border border-gray-200/20 dark:border-gray-700/30 shadow-xl rounded-3xl overflow-hidden bg-white/60 dark:bg-gray-900/60 backdrop-blur-2xl relative">
+      <Card className="border border-gray-200/20 dark:border-gray-700/30 shadow-xl rounded-3xl overflow-hidden bg-white/60 dark:bg-gray-900/60 backdrop-blur-2xl relative animate-slide-in-up">
         <CardContent className="p-0">
           {!isPublic && <MapFilters onFilterChange={handleFilterChange} />}
           <div 
