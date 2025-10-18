@@ -23,9 +23,10 @@ import DeliveryPhotoUpload from '@/components/DeliveryPhotoUpload';
 import RatingSystem from '@/components/RatingSystem';
 import TermsUpdateNotification from '@/components/TermsUpdateNotification';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { detectUserCountry, getCurrencyByCountry, getLanguageByCountry } from '@/utils/geoip';
 
 const Index = () => {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const [user, setUser] = useState<any>(null);
   const [showAuth, setShowAuth] = useState(false);
   const [driverRoute, setDriverRoute] = useState<Array<{ warehouse: string; time: string }>>([]);
@@ -38,7 +39,30 @@ const Index = () => {
     if (token && userData) {
       setUser(JSON.parse(userData));
     }
-  }, []);
+
+    const initializeGeoSettings = async () => {
+      const savedCurrency = localStorage.getItem('user_currency');
+      const savedLanguage = localStorage.getItem('user_language');
+
+      if (!savedCurrency || !savedLanguage) {
+        const geoData = await detectUserCountry();
+        if (geoData) {
+          const currency = getCurrencyByCountry(geoData.country);
+          const language = getLanguageByCountry(geoData.country);
+
+          if (!savedCurrency) {
+            localStorage.setItem('user_currency', currency);
+          }
+          if (!savedLanguage) {
+            localStorage.setItem('user_language', language);
+            i18n.changeLanguage(language);
+          }
+        }
+      }
+    };
+
+    initializeGeoSettings();
+  }, [i18n]);
 
   const handleLogout = () => {
     localStorage.removeItem('auth_token');

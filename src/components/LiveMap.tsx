@@ -211,32 +211,30 @@ const LiveMap = ({ isPublic = false, onMarkerClick }: LiveMapProps = {}) => {
 
   return (
     <div className="space-y-5">
-      <div className="flex gap-3 items-start">
-        <div className="flex gap-3 flex-1">
-          <Card className="border-0 shadow-md rounded-xl bg-card flex-1">
-            <CardContent className="p-4 flex items-center gap-3">
-              <div className="w-10 h-10 bg-accent/10 rounded-lg flex items-center justify-center">
-                <Icon name="Package" size={18} className="text-accent" />
-              </div>
-              <div>
-                <p className="text-xs text-muted-foreground font-medium">Грузов ожидает</p>
-                <p className="text-2xl font-semibold tracking-tight">{cargoCount}</p>
-              </div>
-            </CardContent>
-          </Card>
+      <div className="flex gap-3 items-stretch">
+        <Card className="border-0 shadow-md rounded-xl bg-card flex-1">
+          <CardContent className="p-4 flex items-center gap-3 h-full">
+            <div className="w-10 h-10 bg-accent/10 rounded-lg flex items-center justify-center flex-shrink-0">
+              <Icon name="Package" size={18} className="text-accent" />
+            </div>
+            <div>
+              <p className="text-xs text-muted-foreground font-medium">Грузов ожидает</p>
+              <p className="text-2xl font-semibold tracking-tight">{cargoCount}</p>
+            </div>
+          </CardContent>
+        </Card>
 
-          <Card className="border-0 shadow-md rounded-xl bg-card flex-1">
-            <CardContent className="p-4 flex items-center gap-3">
-              <div className="w-10 h-10 bg-primary/10 rounded-lg flex items-center justify-center">
-                <Icon name="Truck" size={18} className="text-primary" />
-              </div>
-              <div>
-                <p className="text-xs text-muted-foreground font-medium">Водителей свободно</p>
-                <p className="text-2xl font-semibold tracking-tight">{driverCount}</p>
-              </div>
-            </CardContent>
-          </Card>
-        </div>
+        <Card className="border-0 shadow-md rounded-xl bg-card flex-1">
+          <CardContent className="p-4 flex items-center gap-3 h-full">
+            <div className="w-10 h-10 bg-primary/10 rounded-lg flex items-center justify-center flex-shrink-0">
+              <Icon name="Truck" size={18} className="text-primary" />
+            </div>
+            <div>
+              <p className="text-xs text-muted-foreground font-medium">Водителей свободно</p>
+              <p className="text-2xl font-semibold tracking-tight">{driverCount}</p>
+            </div>
+          </CardContent>
+        </Card>
 
         <MapLegend />
       </div>

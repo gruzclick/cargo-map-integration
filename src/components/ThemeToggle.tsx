@@ -1,4 +1,3 @@
-import { Moon, Sun } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useEffect, useState } from 'react';
 
@@ -24,13 +23,9 @@ const ThemeToggle = () => {
       variant="ghost"
       size="sm"
       onClick={toggleTheme}
-      className="rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 w-9 h-9 p-0"
+      className="rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 px-3 py-1.5 h-auto text-xs font-medium"
     >
-      {theme === 'light' ? (
-        <Moon size={16} className="text-gray-700 dark:text-gray-300" />
-      ) : (
-        <Sun size={16} className="text-gray-700 dark:text-gray-300" />
-      )}
+      {theme === 'light' ? 'Светлый' : 'Темный'}
     </Button>
   );
 };
