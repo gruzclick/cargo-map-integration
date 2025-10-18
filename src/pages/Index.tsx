@@ -9,6 +9,8 @@ import NearbyDriverNotification from '@/components/NearbyDriverNotification';
 import DeliveryHistory from '@/components/DeliveryHistory';
 import RouteManager from '@/components/RouteManager';
 import VehicleManager from '@/components/VehicleManager';
+import FleetManager from '@/components/FleetManager';
+import DocumentGenerator from '@/components/DocumentGenerator';
 import ClientNotifications from '@/components/ClientNotifications';
 import DeliveryTracking from '@/components/DeliveryTracking';
 import RestStatusManager from '@/components/RestStatusManager';
@@ -46,15 +48,15 @@ const Index = () => {
 
   return (
     <div className="min-h-screen bg-background">
-      <header className="border-b border-border/40 sticky top-0 bg-card/80 backdrop-blur-xl z-50">
-        <div className="container mx-auto px-6 py-3 flex items-center justify-between">
+      <header className="border-b border-border/40 sticky top-0 bg-white/90 backdrop-blur-xl z-50 shadow-sm">
+        <div className="container mx-auto px-6 py-4 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 bg-accent rounded-xl flex items-center justify-center">
-              <Icon name="Truck" size={22} className="text-accent-foreground" />
+            <div className="w-12 h-12 bg-gradient-to-br from-accent to-orange-600 rounded-2xl flex items-center justify-center shadow-lg">
+              <Icon name="Truck" size={24} className="text-white" />
             </div>
             <div>
-              <h1 className="text-lg font-semibold tracking-tight">Груз Клик</h1>
-              <p className="text-xs text-muted-foreground">Информационная платформа</p>
+              <h1 className="text-xl font-bold tracking-tight">Груз Клик</h1>
+              <p className="text-xs text-muted-foreground font-medium">информационная площадка</p>
             </div>
           </div>
           <div className="flex items-center gap-3">
@@ -78,37 +80,43 @@ const Index = () => {
 
       <div className="container mx-auto px-6 py-8">
         <Tabs defaultValue="map" className="w-full">
-          <TabsList className="grid w-full max-w-3xl mx-auto grid-cols-5 mb-8">
-            <TabsTrigger value="map">
+          <TabsList className="grid w-full max-w-4xl mx-auto grid-cols-3 md:grid-cols-6 mb-8 bg-muted/30 p-1.5 rounded-2xl">
+            <TabsTrigger value="map" className="rounded-xl data-[state=active]:bg-white data-[state=active]:shadow-md">
               <Icon name="Map" size={16} className="mr-2" />
               Карта
             </TabsTrigger>
             {user.user_type === 'client' && (
-              <TabsTrigger value="delivery">
-                <Icon name="Plus" size={16} className="mr-2" />
-                Поставка
-              </TabsTrigger>
+              <>
+                <TabsTrigger value="delivery" className="rounded-xl data-[state=active]:bg-white data-[state=active]:shadow-md">
+                  <Icon name="Plus" size={16} className="mr-2" />
+                  Поставка
+                </TabsTrigger>
+                <TabsTrigger value="documents" className="rounded-xl data-[state=active]:bg-white data-[state=active]:shadow-md">
+                  <Icon name="FileText" size={16} className="mr-2" />
+                  Документы
+                </TabsTrigger>
+              </>
             )}
             {user.user_type === 'carrier' && (
-              <TabsTrigger value="orders">
-                <Icon name="List" size={16} className="mr-2" />
-                Заказы
-              </TabsTrigger>
+              <>
+                <TabsTrigger value="orders" className="rounded-xl data-[state=active]:bg-white data-[state=active]:shadow-md">
+                  <Icon name="List" size={16} className="mr-2" />
+                  Заказы
+                </TabsTrigger>
+                <TabsTrigger value="vehicles" className="rounded-xl data-[state=active]:bg-white data-[state=active]:shadow-md">
+                  <Icon name="Truck" size={16} className="mr-2" />
+                  Автопарк
+                </TabsTrigger>
+              </>
             )}
-            <TabsTrigger value="history">
+            <TabsTrigger value="history" className="rounded-xl data-[state=active]:bg-white data-[state=active]:shadow-md">
               <Icon name="History" size={16} className="mr-2" />
               История
             </TabsTrigger>
-            <TabsTrigger value="profile">
+            <TabsTrigger value="profile" className="rounded-xl data-[state=active]:bg-white data-[state=active]:shadow-md">
               <Icon name="User" size={16} className="mr-2" />
               Профиль
             </TabsTrigger>
-            {user.user_type === 'carrier' && (
-              <TabsTrigger value="vehicles">
-                <Icon name="Truck" size={16} className="mr-2" />
-                Автопарк
-              </TabsTrigger>
-            )}
           </TabsList>
 
           <TabsContent value="map" className="space-y-6">
@@ -139,11 +147,19 @@ const Index = () => {
           </TabsContent>
 
           {user.user_type === 'client' && (
-            <TabsContent value="delivery">
-              <div className="max-w-4xl mx-auto">
-                <DeliveryForm onSuccess={() => {}} />
-              </div>
-            </TabsContent>
+            <>
+              <TabsContent value="delivery">
+                <div className="max-w-4xl mx-auto">
+                  <DeliveryForm onSuccess={() => {}} />
+                </div>
+              </TabsContent>
+              
+              <TabsContent value="documents">
+                <div className="max-w-4xl mx-auto">
+                  <DocumentGenerator />
+                </div>
+              </TabsContent>
+            </>
           )}
 
           {user.user_type === 'carrier' && (
@@ -167,8 +183,8 @@ const Index = () => {
           
           {user.user_type === 'carrier' && (
             <TabsContent value="vehicles">
-              <div className="max-w-6xl mx-auto">
-                <VehicleManager />
+              <div className="max-w-6xl mx-auto space-y-6">
+                <FleetManager />
               </div>
             </TabsContent>
           )}

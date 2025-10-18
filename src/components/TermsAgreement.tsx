@@ -107,8 +107,32 @@ const TermsAgreement = ({ onAccept, onDecline }: TermsAgreementProps) => {
 
                 <div>
                   <h4 className="font-semibold mb-2 flex items-center gap-2">
+                    <Icon name="Scale" size={16} className="text-red-500" />
+                    6. Передача данных правоохранительным органам
+                  </h4>
+                  <p className="text-muted-foreground leading-relaxed">
+                    <strong className="text-red-500">ВАЖНО:</strong> В случае спорных ситуаций, противозаконных действий, 
+                    мошенничества или по официальному запросу правоохранительных органов (полиции, прокуратуры, суда), 
+                    администрация платформы <strong>обязана передать всю имеющуюся информацию</strong> о пользователях, включая:
+                  </p>
+                  <ul className="list-disc list-inside text-muted-foreground ml-4 mt-2 space-y-1">
+                    <li>Персональные данные (ФИО, паспортные данные, ИНН)</li>
+                    <li>Контактную информацию (телефон, email, адрес)</li>
+                    <li>Историю заказов и переписки</li>
+                    <li>Данные геолокации и маршруты</li>
+                    <li>Фотографии грузов и документов</li>
+                    <li>IP-адреса и логи активности</li>
+                  </ul>
+                  <p className="text-muted-foreground leading-relaxed mt-2">
+                    Используя платформу, вы соглашаетесь с тем, что эта информация может быть передана 
+                    компетентным органам в соответствии с законодательством Российской Федерации.
+                  </p>
+                </div>
+
+                <div>
+                  <h4 className="font-semibold mb-2 flex items-center gap-2">
                     <Icon name="FileCheck" size={16} className="text-accent" />
-                    6. Принятие условий
+                    7. Принятие условий
                   </h4>
                   <p className="text-muted-foreground leading-relaxed">
                     Регистрируясь на платформе, пользователь подтверждает, что ознакомился с настоящим 

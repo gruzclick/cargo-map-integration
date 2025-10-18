@@ -35,7 +35,7 @@ const Auth = ({ onSuccess }: AuthProps) => {
     passport_number: '',
     passport_date: '',
     passport_issued_by: '',
-    vehicle_type: 'car',
+    vehicle_type: 'car_small',
     capacity: '',
     agree_geolocation: false,
     agree_verification: false
@@ -239,9 +239,21 @@ const Auth = ({ onSuccess }: AuthProps) => {
                           <SelectValue />
                         </SelectTrigger>
                         <SelectContent>
-                          <SelectItem value="car">Легковой</SelectItem>
-                          <SelectItem value="truck">Грузовой</SelectItem>
-                          <SelectItem value="semi">Фура</SelectItem>
+                          <SelectItem value="car_small">Легковой автомобиль</SelectItem>
+                          <SelectItem value="van_small">Малый фургон (Газель)</SelectItem>
+                          <SelectItem value="van_medium">Средний фургон</SelectItem>
+                          <SelectItem value="van_large">Большой фургон</SelectItem>
+                          <SelectItem value="truck_1.5t">Грузовик до 1.5т</SelectItem>
+                          <SelectItem value="truck_3t">Грузовик до 3т</SelectItem>
+                          <SelectItem value="truck_5t">Грузовик до 5т</SelectItem>
+                          <SelectItem value="truck_10t">Грузовик до 10т</SelectItem>
+                          <SelectItem value="truck_20t">Грузовик до 20т</SelectItem>
+                          <SelectItem value="truck_trailer">Грузовик с прицепом</SelectItem>
+                          <SelectItem value="truck_refrigerator">Рефрижератор</SelectItem>
+                          <SelectItem value="truck_isothermal">Изотермический фургон</SelectItem>
+                          <SelectItem value="truck_flatbed">Бортовой грузовик</SelectItem>
+                          <SelectItem value="truck_container">Контейнеровоз</SelectItem>
+                          <SelectItem value="fleet">Автопарк</SelectItem>
                         </SelectContent>
                       </Select>
                     </div>
