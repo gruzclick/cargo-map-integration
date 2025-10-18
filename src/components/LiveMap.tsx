@@ -211,36 +211,32 @@ const LiveMap = ({ isPublic = false, onMarkerClick }: LiveMapProps = {}) => {
 
   return (
     <div className="space-y-5">
-      <div className="grid md:grid-cols-3 gap-4">
-        <Card className="border-0 shadow-md rounded-2xl bg-card">
-          <CardContent className="p-6 flex items-center justify-between">
-            <div className="flex items-center gap-4">
-              <div className="w-12 h-12 bg-accent/10 rounded-xl flex items-center justify-center">
-                <Icon name="Package" size={22} className="text-accent" />
+      <div className="flex gap-3 items-start">
+        <div className="flex gap-3 flex-1">
+          <Card className="border-0 shadow-md rounded-xl bg-card flex-1">
+            <CardContent className="p-4 flex items-center gap-3">
+              <div className="w-10 h-10 bg-accent/10 rounded-lg flex items-center justify-center">
+                <Icon name="Package" size={18} className="text-accent" />
               </div>
               <div>
                 <p className="text-xs text-muted-foreground font-medium">Грузов ожидает</p>
-                <p className="text-3xl font-semibold tracking-tight">{cargoCount}</p>
+                <p className="text-2xl font-semibold tracking-tight">{cargoCount}</p>
               </div>
-            </div>
-            <Badge className="bg-accent/10 text-accent hover:bg-accent/20 border-0">Активно</Badge>
-          </CardContent>
-        </Card>
+            </CardContent>
+          </Card>
 
-        <Card className="border-0 shadow-md rounded-2xl bg-card">
-          <CardContent className="p-6 flex items-center justify-between">
-            <div className="flex items-center gap-4">
-              <div className="w-12 h-12 bg-primary/10 rounded-xl flex items-center justify-center">
-                <Icon name="Truck" size={22} className="text-primary" />
+          <Card className="border-0 shadow-md rounded-xl bg-card flex-1">
+            <CardContent className="p-4 flex items-center gap-3">
+              <div className="w-10 h-10 bg-primary/10 rounded-lg flex items-center justify-center">
+                <Icon name="Truck" size={18} className="text-primary" />
               </div>
               <div>
                 <p className="text-xs text-muted-foreground font-medium">Водителей свободно</p>
-                <p className="text-3xl font-semibold tracking-tight">{driverCount}</p>
+                <p className="text-2xl font-semibold tracking-tight">{driverCount}</p>
               </div>
-            </div>
-            <Badge className="bg-primary/10 text-primary hover:bg-primary/20 border-0">Онлайн</Badge>
-          </CardContent>
-        </Card>
+            </CardContent>
+          </Card>
+        </div>
 
         <MapLegend />
       </div>

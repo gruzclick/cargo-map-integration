@@ -5,6 +5,7 @@ import LiveMap from '@/components/LiveMap';
 import Auth from '@/components/Auth';
 import PublicMap from '@/components/PublicMap';
 import LanguageSelector from '@/components/LanguageSelector';
+import ThemeToggle from '@/components/ThemeToggle';
 import { useTranslation } from 'react-i18next';
 import DeliveryForm from '@/components/DeliveryForm';
 import CarrierStatus from '@/components/CarrierStatus';
@@ -74,6 +75,7 @@ const Index = () => {
             </div>
           </div>
           <div className="flex items-center gap-2">
+            <ThemeToggle />
             <LanguageSelector />
             <div className="hidden md:flex items-center gap-2 px-2.5 py-1.5 bg-gray-100 dark:bg-gray-800 rounded-lg">
               <Icon 
