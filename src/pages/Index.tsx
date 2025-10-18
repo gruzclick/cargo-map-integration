@@ -87,7 +87,7 @@ const Index = () => {
   return (
     <div className="min-h-screen bg-background">
       {user && <TermsUpdateNotification userId={user.user_id || user.phone} />}
-      <header className="border-b border-gray-200/50 dark:border-gray-800/50 sticky top-0 bg-white/80 dark:bg-gray-900/80 backdrop-blur-xl z-50 shadow-sm">
+      <header className="border-b border-gray-200/20 dark:border-gray-700/30 sticky top-0 bg-white/60 dark:bg-gray-900/60 backdrop-blur-2xl z-50 shadow-lg">
         <div className="container mx-auto px-6 py-2.5 flex items-center justify-between">
           <div className="flex items-center gap-3">
             <div className="w-9 h-9 bg-gray-900 dark:bg-gray-100 rounded-xl flex items-center justify-center">
@@ -121,18 +121,18 @@ const Index = () => {
 
       <div className="container mx-auto px-6 py-8">
         <Tabs defaultValue="map" className="w-full">
-          <TabsList className="grid w-full max-w-4xl mx-auto grid-cols-3 md:grid-cols-6 mb-8 bg-muted/30 p-1.5 rounded-2xl">
-            <TabsTrigger value="map" className="rounded-xl data-[state=active]:bg-white data-[state=active]:shadow-md">
+          <TabsList className="grid w-full max-w-4xl mx-auto grid-cols-3 md:grid-cols-6 mb-8 bg-white/60 dark:bg-gray-900/60 backdrop-blur-2xl border border-gray-200/20 dark:border-gray-700/30 p-1.5 rounded-2xl shadow-lg">
+            <TabsTrigger value="map" className="rounded-xl data-[state=active]:bg-white/80 dark:data-[state=active]:bg-gray-800/80 data-[state=active]:backdrop-blur-xl data-[state=active]:shadow-md">
               <Icon name="Map" size={16} className="mr-2" />
               Карта
             </TabsTrigger>
             {user.user_type === 'client' && (
               <>
-                <TabsTrigger value="delivery" className="rounded-xl data-[state=active]:bg-white data-[state=active]:shadow-md">
+                <TabsTrigger value="delivery" className="rounded-xl data-[state=active]:bg-white/80 dark:data-[state=active]:bg-gray-800/80 data-[state=active]:backdrop-blur-xl data-[state=active]:shadow-md">
                   <Icon name="Plus" size={16} className="mr-2" />
                   Поставка
                 </TabsTrigger>
-                <TabsTrigger value="documents" className="rounded-xl data-[state=active]:bg-white data-[state=active]:shadow-md">
+                <TabsTrigger value="documents" className="rounded-xl data-[state=active]:bg-white/80 dark:data-[state=active]:bg-gray-800/80 data-[state=active]:backdrop-blur-xl data-[state=active]:shadow-md">
                   <Icon name="FileText" size={16} className="mr-2" />
                   Документы
                 </TabsTrigger>
@@ -140,21 +140,21 @@ const Index = () => {
             )}
             {user.user_type === 'carrier' && (
               <>
-                <TabsTrigger value="orders" className="rounded-xl data-[state=active]:bg-white data-[state=active]:shadow-md">
+                <TabsTrigger value="orders" className="rounded-xl data-[state=active]:bg-white/80 dark:data-[state=active]:bg-gray-800/80 data-[state=active]:backdrop-blur-xl data-[state=active]:shadow-md">
                   <Icon name="List" size={16} className="mr-2" />
                   Заказы
                 </TabsTrigger>
-                <TabsTrigger value="vehicles" className="rounded-xl data-[state=active]:bg-white data-[state=active]:shadow-md">
+                <TabsTrigger value="vehicles" className="rounded-xl data-[state=active]:bg-white/80 dark:data-[state=active]:bg-gray-800/80 data-[state=active]:backdrop-blur-xl data-[state=active]:shadow-md">
                   <Icon name="Truck" size={16} className="mr-2" />
                   Автопарк
                 </TabsTrigger>
               </>
             )}
-            <TabsTrigger value="history" className="rounded-xl data-[state=active]:bg-white data-[state=active]:shadow-md">
+            <TabsTrigger value="history" className="rounded-xl data-[state=active]:bg-white/80 dark:data-[state=active]:bg-gray-800/80 data-[state=active]:backdrop-blur-xl data-[state=active]:shadow-md">
               <Icon name="History" size={16} className="mr-2" />
               История
             </TabsTrigger>
-            <TabsTrigger value="profile" className="rounded-xl data-[state=active]:bg-white data-[state=active]:shadow-md">
+            <TabsTrigger value="profile" className="rounded-xl data-[state=active]:bg-white/80 dark:data-[state=active]:bg-gray-800/80 data-[state=active]:backdrop-blur-xl data-[state=active]:shadow-md">
               <Icon name="User" size={16} className="mr-2" />
               Профиль
             </TabsTrigger>

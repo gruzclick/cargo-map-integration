@@ -14,7 +14,7 @@ const PublicMap = ({ onRegister }: PublicMapProps) => {
   
   return (
     <div className="min-h-screen bg-background">
-      <header className="border-b border-gray-200/50 dark:border-gray-800/50 sticky top-0 bg-white/80 dark:bg-gray-900/80 backdrop-blur-xl z-50 shadow-sm">
+      <header className="border-b border-gray-200/20 dark:border-gray-700/30 sticky top-0 bg-white/60 dark:bg-gray-900/60 backdrop-blur-2xl z-50 shadow-lg">
         <div className="container mx-auto px-6 py-2.5 flex items-center justify-between">
           <div className="flex items-center gap-3">
             <div className="w-9 h-9 bg-gray-900 dark:bg-gray-100 rounded-xl flex items-center justify-center">
@@ -36,20 +36,11 @@ const PublicMap = ({ onRegister }: PublicMapProps) => {
       </header>
 
       <div className="container mx-auto px-6 py-8 space-y-8">
-        <div className="text-center mb-6">
-          <h2 className="text-3xl md:text-4xl font-bold mb-3">
-            {t('appTitle')}
-          </h2>
-          <p className="text-xl font-medium text-gray-900 dark:text-gray-100 mb-8">
-            С нами вам по пути
-          </p>
-        </div>
-
         <LiveMap isPublic={true} onMarkerClick={() => {
           onRegister();
         }} />
 
-        <Card className="max-w-2xl mx-auto p-8 text-center border-0 shadow-2xl">
+        <Card className="max-w-2xl mx-auto p-8 text-center border border-gray-200/20 dark:border-gray-700/30 shadow-2xl bg-white/60 dark:bg-gray-900/60 backdrop-blur-2xl">
           <div className="w-20 h-20 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-6">
             <Icon name="Lock" size={40} className="text-primary" />
           </div>

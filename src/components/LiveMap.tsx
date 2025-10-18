@@ -3,6 +3,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import Icon from '@/components/ui/icon';
 import MapLegend from './MapLegend';
+import MapFilters, { FilterState } from './MapFilters';
 
 interface MapMarker {
   id: string;
@@ -37,12 +38,17 @@ const LiveMap = ({ isPublic = false, onMarkerClick }: LiveMapProps = {}) => {
   const [markers, setMarkers] = useState<MapMarker[]>([]);
   const [selectedMarker, setSelectedMarker] = useState<MapMarker | null>(null);
   const [mapLoaded, setMapLoaded] = useState(false);
+  const [filters, setFilters] = useState<FilterState>({ userType: 'all' });
 
   useEffect(() => {
     fetchMarkers();
     const interval = setInterval(fetchMarkers, 5000);
     return () => clearInterval(interval);
   }, []);
+
+  const handleFilterChange = (newFilters: FilterState) => {
+    setFilters(newFilters);
+  };
 
   const fetchMarkers = async () => {
     try {
@@ -212,7 +218,7 @@ const LiveMap = ({ isPublic = false, onMarkerClick }: LiveMapProps = {}) => {
   return (
     <div className="space-y-5">
       <div className="flex gap-3 items-stretch">
-        <Card className="border-0 shadow-md rounded-xl bg-card flex-1">
+        <Card className="border border-gray-200/20 dark:border-gray-700/30 shadow-lg rounded-xl bg-white/60 dark:bg-gray-900/60 backdrop-blur-2xl flex-1">
           <CardContent className="p-4 flex items-center gap-3 h-full">
             <div className="w-10 h-10 bg-accent/10 rounded-lg flex items-center justify-center flex-shrink-0">
               <Icon name="Package" size={18} className="text-accent" />
@@ -224,7 +230,7 @@ const LiveMap = ({ isPublic = false, onMarkerClick }: LiveMapProps = {}) => {
           </CardContent>
         </Card>
 
-        <Card className="border-0 shadow-md rounded-xl bg-card flex-1">
+        <Card className="border border-gray-200/20 dark:border-gray-700/30 shadow-lg rounded-xl bg-white/60 dark:bg-gray-900/60 backdrop-blur-2xl flex-1">
           <CardContent className="p-4 flex items-center gap-3 h-full">
             <div className="w-10 h-10 bg-primary/10 rounded-lg flex items-center justify-center flex-shrink-0">
               <Icon name="Truck" size={18} className="text-primary" />
@@ -239,8 +245,9 @@ const LiveMap = ({ isPublic = false, onMarkerClick }: LiveMapProps = {}) => {
         <MapLegend />
       </div>
 
-      <Card className="border-0 shadow-xl rounded-3xl overflow-hidden">
+      <Card className="border border-gray-200/20 dark:border-gray-700/30 shadow-xl rounded-3xl overflow-hidden bg-white/60 dark:bg-gray-900/60 backdrop-blur-2xl relative">
         <CardContent className="p-0">
+          {!isPublic && <MapFilters onFilterChange={handleFilterChange} />}
           <div 
             ref={mapRef} 
             className="w-full h-[600px]"
@@ -250,7 +257,7 @@ const LiveMap = ({ isPublic = false, onMarkerClick }: LiveMapProps = {}) => {
       </Card>
 
       {selectedMarker && (
-        <Card className="border-0 shadow-lg rounded-2xl animate-fade-in">
+        <Card className="border border-gray-200/20 dark:border-gray-700/30 shadow-lg rounded-2xl animate-fade-in bg-white/60 dark:bg-gray-900/60 backdrop-blur-2xl">
           <CardContent className="p-8">
             <div className="flex items-start justify-between mb-6">
               <div className="flex items-center gap-4">
