@@ -9,9 +9,15 @@ import json
 import hashlib
 import random
 import time
+import smtplib
+from email.mime.text import MIMEText
+from email.mime.multipart import MIMEMultipart
+import os
+from datetime import datetime, timedelta
 from typing import Dict, Any
 
 sms_codes: Dict[str, str] = {}
+email_codes: Dict[str, Dict[str, Any]] = {}
 rate_limit_storage: Dict[str, list] = {}
 failed_login_attempts: Dict[str, Dict[str, Any]] = {}
 reset_tokens: Dict[str, Dict[str, Any]] = {}
@@ -85,6 +91,56 @@ def verify_reset_token(token: str) -> Dict[str, Any]:
 def unlock_account(user_id: str):
     if user_id in failed_login_attempts:
         failed_login_attempts[user_id] = {'count': 0, 'last_attempt': time.time(), 'blocked_until': 0}
+
+def send_email_code(email: str, code: str) -> bool:
+    try:
+        smtp_host = os.environ.get('SMTP_HOST', 'smtp.gmail.com')
+        smtp_port = int(os.environ.get('SMTP_PORT', '587'))
+        smtp_user = os.environ.get('SMTP_USER', '')
+        smtp_password = os.environ.get('SMTP_PASSWORD', '')
+        
+        if not smtp_user or not smtp_password:
+            print('SMTP credentials not configured')
+            return False
+        
+        msg = MIMEMultipart('alternative')
+        msg['Subject'] = 'Ваш код подтверждения'
+        msg['From'] = smtp_user
+        msg['To'] = email
+        
+        html_body = f'''
+        <html>
+            <body style="font-family: Arial, sans-serif; padding: 20px;">
+                <div style="max-width: 600px; margin: 0 auto; background: #f5f5f5; padding: 30px; border-radius: 10px;">
+                    <h2 style="color: #333;">🔐 Код подтверждения</h2>
+                    <p style="font-size: 16px; color: #666;">Ваш код для входа в систему логистики грузоперевозок:</p>
+                    <div style="background: white; padding: 20px; border-radius: 8px; text-align: center; margin: 20px 0;">
+                        <h1 style="font-size: 48px; letter-spacing: 10px; color: #4CAF50; margin: 0;">{code}</h1>
+                    </div>
+                    <p style="font-size: 14px; color: #999;">Код действителен в течение 10 минут.</p>
+                    <p style="font-size: 14px; color: #999;">Если вы не запрашивали код, проигнорируйте это письмо.</p>
+                </div>
+            </body>
+        </html>
+        '''
+        
+        text_body = f'Ваш код подтверждения: {code}\n\nКод действителен в течение 10 минут.'
+        
+        part1 = MIMEText(text_body, 'plain')
+        part2 = MIMEText(html_body, 'html')
+        
+        msg.attach(part1)
+        msg.attach(part2)
+        
+        with smtplib.SMTP(smtp_host, smtp_port) as server:
+            server.starttls()
+            server.login(smtp_user, smtp_password)
+            server.send_message(msg)
+        
+        return True
+    except Exception as e:
+        print(f'Error sending email: {str(e)}')
+        return False
 
 def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
     method: str = event.get('httpMethod', 'GET')
@@ -195,6 +251,90 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                         'success': True,
                         'verified': True,
                         'message': 'Код подтверждён'
+                    }),
+                    'isBase64Encoded': False
+                }
+            else:
+                return {
+                    'statusCode': 400,
+                    'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                    'body': json.dumps({
+                        'success': False,
+                        'error': 'Неверный код'
+                    }),
+                    'isBase64Encoded': False
+                }
+        
+        elif action == 'email_send':
+            email: str = body_data.get('email', '')
+            generated_code = str(random.randint(100000, 999999))
+            
+            success = send_email_code(email, generated_code)
+            
+            if success:
+                email_codes[email] = {
+                    'code': generated_code,
+                    'expires_at': time.time() + 600
+                }
+                return {
+                    'statusCode': 200,
+                    'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                    'body': json.dumps({
+                        'success': True,
+                        'message': f'Email код отправлен на {email}',
+                        'code_for_testing': generated_code
+                    }),
+                    'isBase64Encoded': False
+                }
+            else:
+                return {
+                    'statusCode': 500,
+                    'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                    'body': json.dumps({
+                        'success': False,
+                        'error': 'Не удалось отправить email. Проверьте SMTP настройки.'
+                    }),
+                    'isBase64Encoded': False
+                }
+        
+        elif action == 'email_verify':
+            email: str = body_data.get('email', '')
+            code: str = body_data.get('code', '')
+            
+            if email not in email_codes:
+                return {
+                    'statusCode': 400,
+                    'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                    'body': json.dumps({
+                        'success': False,
+                        'error': 'Код не найден или истёк'
+                    }),
+                    'isBase64Encoded': False
+                }
+            
+            stored_data = email_codes[email]
+            
+            if time.time() > stored_data['expires_at']:
+                del email_codes[email]
+                return {
+                    'statusCode': 400,
+                    'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                    'body': json.dumps({
+                        'success': False,
+                        'error': 'Код истёк'
+                    }),
+                    'isBase64Encoded': False
+                }
+            
+            if code == stored_data['code']:
+                del email_codes[email]
+                return {
+                    'statusCode': 200,
+                    'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                    'body': json.dumps({
+                        'success': True,
+                        'verified': True,
+                        'message': 'Email подтверждён'
                     }),
                     'isBase64Encoded': False
                 }
