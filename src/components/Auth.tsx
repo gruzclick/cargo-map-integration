@@ -9,7 +9,6 @@ import { Checkbox } from '@/components/ui/checkbox';
 import Icon from '@/components/ui/icon';
 import { useToast } from '@/hooks/use-toast';
 import TermsAgreement from './TermsAgreement';
-import BiometricAuth from './BiometricAuth';
 
 interface AuthProps {
   onSuccess: (userData: any) => void;
@@ -381,11 +380,7 @@ const Auth = ({ onSuccess }: AuthProps) => {
         </CardContent>
       </Card>
 
-      {isLogin && (
-        <div className="mt-6">
-          <BiometricAuth onSuccess={onSuccess} />
-        </div>
-      )}
+
     </div>
   );
 };

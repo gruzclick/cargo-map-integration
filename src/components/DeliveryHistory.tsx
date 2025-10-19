@@ -4,7 +4,14 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import Icon from '@/components/ui/icon';
 import PDFExport from '@/components/PDFExport';
+import OrderChat from '@/components/OrderChat';
 import { useToast } from '@/hooks/use-toast';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
 
 const exportToExcel = (deliveries: Delivery[]) => {
   const headers = ['Дата', 'Откуда', 'Куда', 'Вес (кг)', 'Стоимость', 'Статус', 'Рейтинг', 'Контрагент'];
@@ -55,6 +62,7 @@ const DeliveryHistory = ({ userId, userType }: DeliveryHistoryProps) => {
   const [loading, setLoading] = useState(true);
   const [ratingDelivery, setRatingDelivery] = useState<string | null>(null);
   const [selectedRating, setSelectedRating] = useState(0);
+  const [chatDelivery, setChatDelivery] = useState<Delivery | null>(null);
   const { toast } = useToast();
 
   useEffect(() => {
@@ -231,71 +239,101 @@ const DeliveryHistory = ({ userId, userType }: DeliveryHistoryProps) => {
                   )}
                 </div>
 
-                {delivery.rating ? (
-                  <div className="flex items-center gap-2 pt-2 border-t">
-                    <Icon name="Star" size={16} className="text-yellow-500" />
-                    <span className="text-sm font-medium">Оценка: {delivery.rating}/5</span>
-                  </div>
-                ) : delivery.status === 'completed' && (
-                  <div className="pt-2 border-t">
-                    {ratingDelivery === delivery.id ? (
-                      <div className="space-y-3">
-                        <p className="text-sm font-medium">Оцените {userType === 'client' ? 'водителя' : 'клиента'}:</p>
-                        <div className="flex items-center gap-2">
-                          {[1, 2, 3, 4, 5].map((star) => (
-                            <button
-                              key={star}
-                              onClick={() => setSelectedRating(star)}
-                              className="transition-transform hover:scale-110"
+                <div className="pt-2 border-t flex items-center gap-2">
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={() => setChatDelivery(delivery)}
+                    className="rounded-lg gap-2"
+                  >
+                    <Icon name="MessageSquare" size={16} />
+                    Чат
+                  </Button>
+
+                  {delivery.rating ? (
+                    <div className="flex items-center gap-2">
+                      <Icon name="Star" size={16} className="text-yellow-500" />
+                      <span className="text-sm font-medium">Оценка: {delivery.rating}/5</span>
+                    </div>
+                  ) : delivery.status === 'completed' && (
+                    <>
+                      {ratingDelivery === delivery.id ? (
+                        <div className="space-y-3 flex-1">
+                          <p className="text-sm font-medium">Оцените {userType === 'client' ? 'водителя' : 'клиента'}:</p>
+                          <div className="flex items-center gap-2">
+                            {[1, 2, 3, 4, 5].map((star) => (
+                              <button
+                                key={star}
+                                onClick={() => setSelectedRating(star)}
+                                className="transition-transform hover:scale-110"
+                              >
+                                <Icon
+                                  name="Star"
+                                  size={24}
+                                  className={selectedRating >= star ? 'text-yellow-500 fill-yellow-500' : 'text-gray-300'}
+                                />
+                              </button>
+                            ))}
+                          </div>
+                          <div className="flex gap-2">
+                            <Button
+                              size="sm"
+                              onClick={() => submitRating(delivery.id, selectedRating)}
+                              disabled={selectedRating === 0}
+                              className="rounded-lg"
                             >
-                              <Icon
-                                name="Star"
-                                size={24}
-                                className={selectedRating >= star ? 'text-yellow-500 fill-yellow-500' : 'text-gray-300'}
-                              />
-                            </button>
-                          ))}
+                              Отправить
+                            </Button>
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              onClick={() => {
+                                setRatingDelivery(null);
+                                setSelectedRating(0);
+                              }}
+                              className="rounded-lg"
+                            >
+                              Отмена
+                            </Button>
+                          </div>
                         </div>
-                        <div className="flex gap-2">
-                          <Button
-                            size="sm"
-                            onClick={() => submitRating(delivery.id, selectedRating)}
-                            disabled={selectedRating === 0}
-                            className="rounded-lg"
-                          >
-                            Отправить
-                          </Button>
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            onClick={() => {
-                              setRatingDelivery(null);
-                              setSelectedRating(0);
-                            }}
-                            className="rounded-lg"
-                          >
-                            Отмена
-                          </Button>
-                        </div>
-                      </div>
-                    ) : (
-                      <Button
-                        size="sm"
-                        variant="outline"
-                        onClick={() => setRatingDelivery(delivery.id)}
-                        className="rounded-lg"
-                      >
-                        <Icon name="Star" size={16} className="mr-2" />
-                        Оценить
-                      </Button>
-                    )}
-                  </div>
-                )}
+                      ) : (
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={() => setRatingDelivery(delivery.id)}
+                          className="rounded-lg"
+                        >
+                          <Icon name="Star" size={16} className="mr-2" />
+                          Оценить
+                        </Button>
+                      )}
+                    </>
+                  )}
+                </div>
               </CardContent>
             </Card>
           ))}
         </div>
       )}
+
+      <Dialog open={!!chatDelivery} onOpenChange={() => setChatDelivery(null)}>
+        <DialogContent className="max-w-2xl p-0">
+          <DialogHeader className="p-6 pb-0">
+            <DialogTitle>Чат по заказу: {chatDelivery?.from} → {chatDelivery?.to}</DialogTitle>
+          </DialogHeader>
+          {chatDelivery && (
+            <OrderChat
+              orderId={chatDelivery.id}
+              currentUserId={userId}
+              currentUserName={userData.full_name || userData.phone}
+              currentUserType={userType}
+              recipientId={userType === 'client' ? (chatDelivery.driver || '') : (chatDelivery.client || '')}
+              recipientName={userType === 'client' ? (chatDelivery.driver || 'Водитель') : (chatDelivery.client || 'Клиент')}
+            />
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
