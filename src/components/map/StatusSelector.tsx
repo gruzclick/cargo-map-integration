@@ -34,16 +34,6 @@ const StatusSelector = ({ userType, status, onStatusChange }: StatusSelectorProp
               <div className="w-2 h-2 rounded-full bg-yellow-500 mr-1.5" />
               Есть места
             </Button>
-            <Button
-              variant={status === 'full' ? 'default' : 'outline'}
-              size="sm"
-              onClick={() => onStatusChange('full')}
-              className="justify-start text-[10px] md:text-xs h-7 md:h-8"
-              style={status === 'full' ? { backgroundColor: '#ef4444' } : {}}
-            >
-              <div className="w-2 h-2 rounded-full bg-red-500 mr-1.5" />
-              Нет мест
-            </Button>
           </div>
         </CardContent>
       </Card>
