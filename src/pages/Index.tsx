@@ -123,11 +123,29 @@ const Index = () => {
             </div>
           </div>
           <div className="flex items-center gap-1 md:gap-2">
+            <Button 
+              variant="ghost" 
+              size="sm" 
+              onClick={() => window.location.href = '/routes'}
+              className="rounded-lg text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800"
+            >
+              <Icon name="Route" size={14} className="mr-1.5" />
+              <span className="text-xs hidden md:inline">Маршруты</span>
+            </Button>
+            <Button 
+              variant="ghost" 
+              size="sm" 
+              onClick={() => window.location.href = '/profile'}
+              className="rounded-lg text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800"
+            >
+              <Icon name="User" size={14} className="mr-1.5" />
+              <span className="text-xs hidden md:inline">Профиль</span>
+            </Button>
             <ChatNotifications currentUserId={user.user_id || user.phone} />
             <AccessibilityToggle />
             <ThemeToggle />
             <LanguageSelector />
-            <div className="hidden md:flex items-center gap-2 px-2.5 py-1.5 bg-gray-100 dark:bg-gray-800 rounded-lg">
+            <div className="hidden lg:flex items-center gap-2 px-2.5 py-1.5 bg-gray-100 dark:bg-gray-800 rounded-lg">
               <Icon 
                 name={user.user_type === 'client' ? 'Package' : 'Truck'} 
                 size={14} 
@@ -139,7 +157,7 @@ const Index = () => {
             </div>
             <Button variant="ghost" size="sm" onClick={handleLogout} className="rounded-lg text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800">
               <Icon name="LogOut" size={14} className="mr-1.5" />
-              <span className="text-xs">Выйти</span>
+              <span className="text-xs hidden md:inline">Выйти</span>
             </Button>
           </div>
         </div>
