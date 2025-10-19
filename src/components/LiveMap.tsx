@@ -4,7 +4,7 @@ import MapFilters, { FilterState } from './MapFilters';
 import MapStats from './map/MapStats';
 import RouteSearchPanel from './map/RouteSearchPanel';
 import CargoVehicleSelector from './map/CargoVehicleSelector';
-import YandexMapContainer from './map/YandexMapContainer';
+import AdaptiveMapContainer from './map/AdaptiveMapContainer';
 import MarkerDetailsModal from './map/MarkerDetailsModal';
 import CargoDetailsModal from './map/CargoDetailsModal';
 import VehicleDetailsModal from './map/VehicleDetailsModal';
@@ -144,7 +144,7 @@ const LiveMap = ({ isPublic = false, onMarkerClick }: LiveMapProps = {}) => {
 
       <Card className="border border-gray-200/20 dark:border-gray-700/30 shadow-2xl bg-white/60 dark:bg-gray-900/60 backdrop-blur-2xl overflow-hidden animate-scale-in" style={{ animationDelay: '0.2s' }}>
         <CardContent className="p-3 md:p-5">
-          <YandexMapContainer 
+          <AdaptiveMapContainer 
             filteredMarkers={filteredMarkers}
             isPublic={isPublic}
             onMarkerClick={handleMapMarkerClick}
