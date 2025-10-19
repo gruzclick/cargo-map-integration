@@ -37,39 +37,39 @@ const MapFilters = ({ onFilterChange }: MapFiltersProps) => {
   };
 
   return (
-    <div className="absolute top-4 left-4 z-10 w-80 animate-slide-in-down">
-      <div className="bg-white/70 dark:bg-gray-900/70 backdrop-blur-2xl rounded-2xl shadow-2xl border border-gray-200/50 dark:border-gray-700/50 overflow-hidden transition-smooth">
-        <div className="p-4">
-          <div className="flex items-center justify-between mb-4">
+    <div className="fixed top-16 md:top-20 left-2 md:left-4 z-10 w-[calc(100vw-16px)] max-w-[320px] md:w-80 animate-slide-in-down">
+      <div className="bg-white/70 dark:bg-gray-900/70 backdrop-blur-2xl rounded-xl md:rounded-2xl shadow-2xl border border-gray-200/50 dark:border-gray-700/50 overflow-hidden transition-smooth">
+        <div className="p-3 md:p-4">
+          <div className="flex items-center justify-between mb-3 md:mb-4">
             <div className="flex items-center gap-2">
-              <Icon name="Filter" size={20} className="text-gray-700 dark:text-gray-300" />
-              <h3 className="font-semibold text-gray-900 dark:text-gray-100">Фильтры поиска</h3>
+              <Icon name="Filter" size={18} className="text-gray-700 dark:text-gray-300 md:w-5 md:h-5" />
+              <h3 className="text-sm md:text-base font-semibold text-gray-900 dark:text-gray-100">Фильтры</h3>
             </div>
             <Button
               variant="ghost"
               size="sm"
               onClick={() => setIsExpanded(!isExpanded)}
-              className="h-8 w-8 p-0 rounded-lg hover:bg-gray-100/50 dark:hover:bg-gray-800/50"
+              className="h-7 w-7 md:h-8 md:w-8 p-0 rounded-lg hover:bg-gray-100/50 dark:hover:bg-gray-800/50"
             >
               <Icon 
                 name={isExpanded ? "ChevronUp" : "ChevronDown"} 
-                size={18} 
-                className="text-gray-600 dark:text-gray-400"
+                size={16} 
+                className="text-gray-600 dark:text-gray-400 md:w-[18px] md:h-[18px]"
               />
             </Button>
           </div>
 
-          <div className="space-y-3">
+          <div className="space-y-2 md:space-y-3">
             <div>
-              <label className="text-xs font-medium text-gray-700 dark:text-gray-300 mb-1.5 block">
+              <label className="text-[10px] md:text-xs font-medium text-gray-700 dark:text-gray-300 mb-1 md:mb-1.5 block">
                 Я ищу как:
               </label>
-              <div className="grid grid-cols-3 gap-2">
+              <div className="grid grid-cols-3 gap-1 md:gap-2">
                 <Button
                   variant={filters.userType === 'all' ? 'default' : 'outline'}
                   size="sm"
                   onClick={() => updateFilter('userType', 'all')}
-                  className="text-xs h-9 rounded-lg transition-spring hover:scale-105"
+                  className="text-[10px] md:text-xs h-7 md:h-9 rounded-lg transition-spring hover:scale-105 px-1 md:px-2"
                 >
                   Все
                 </Button>
@@ -77,19 +77,21 @@ const MapFilters = ({ onFilterChange }: MapFiltersProps) => {
                   variant={filters.userType === 'client' ? 'default' : 'outline'}
                   size="sm"
                   onClick={() => updateFilter('userType', 'client')}
-                  className="text-xs h-9 rounded-lg transition-spring hover:scale-105"
+                  className="text-[10px] md:text-xs h-7 md:h-9 rounded-lg transition-spring hover:scale-105 px-1 md:px-2"
                 >
-                  <Icon name="Package" size={14} className="mr-1" />
-                  Клиент
+                  <Icon name="Package" size={12} className="mr-0.5 md:mr-1 shrink-0 md:w-[14px] md:h-[14px]" />
+                  <span className="hidden sm:inline">Клиент</span>
+                  <span className="sm:hidden">К</span>
                 </Button>
                 <Button
                   variant={filters.userType === 'carrier' ? 'default' : 'outline'}
                   size="sm"
                   onClick={() => updateFilter('userType', 'carrier')}
-                  className="text-xs h-9 rounded-lg transition-spring hover:scale-105"
+                  className="text-[10px] md:text-xs h-7 md:h-9 rounded-lg transition-spring hover:scale-105 px-1 md:px-2"
                 >
-                  <Icon name="Truck" size={14} className="mr-1" />
-                  Перевозчик
+                  <Icon name="Truck" size={12} className="mr-0.5 md:mr-1 shrink-0 md:w-[14px] md:h-[14px]" />
+                  <span className="hidden sm:inline">Перевозчик</span>
+                  <span className="sm:hidden">П</span>
                 </Button>
               </div>
             </div>
@@ -99,11 +101,11 @@ const MapFilters = ({ onFilterChange }: MapFiltersProps) => {
                 {filters.userType === 'client' && (
                   <>
                     <div>
-                      <label className="text-xs font-medium text-gray-700 dark:text-gray-300 mb-1.5 block">
+                      <label className="text-[10px] md:text-xs font-medium text-gray-700 dark:text-gray-300 mb-1 md:mb-1.5 block">
                         Тип транспорта
                       </label>
                       <Select onValueChange={(value) => updateFilter('vehicleType', value)}>
-                        <SelectTrigger className="w-full h-9 text-xs rounded-lg bg-white/50 dark:bg-gray-800/50">
+                        <SelectTrigger className="w-full h-8 md:h-9 text-[10px] md:text-xs rounded-lg bg-white/50 dark:bg-gray-800/50">
                           <SelectValue placeholder="Выберите тип" />
                         </SelectTrigger>
                         <SelectContent>
@@ -117,11 +119,11 @@ const MapFilters = ({ onFilterChange }: MapFiltersProps) => {
                     </div>
 
                     <div>
-                      <label className="text-xs font-medium text-gray-700 dark:text-gray-300 mb-1.5 block">
+                      <label className="text-[10px] md:text-xs font-medium text-gray-700 dark:text-gray-300 mb-1 md:mb-1.5 block">
                         Грузоподъёмность (тонн)
                       </label>
                       <Select onValueChange={(value) => updateFilter('maxWeight', Number(value))}>
-                        <SelectTrigger className="w-full h-9 text-xs rounded-lg bg-white/50 dark:bg-gray-800/50">
+                        <SelectTrigger className="w-full h-8 md:h-9 text-[10px] md:text-xs rounded-lg bg-white/50 dark:bg-gray-800/50">
                           <SelectValue placeholder="Выберите вес" />
                         </SelectTrigger>
                         <SelectContent>
@@ -140,11 +142,11 @@ const MapFilters = ({ onFilterChange }: MapFiltersProps) => {
                 {filters.userType === 'carrier' && (
                   <>
                     <div>
-                      <label className="text-xs font-medium text-gray-700 dark:text-gray-300 mb-1.5 block">
+                      <label className="text-[10px] md:text-xs font-medium text-gray-700 dark:text-gray-300 mb-1 md:mb-1.5 block">
                         Тип груза
                       </label>
                       <Select onValueChange={(value) => updateFilter('cargoType', value)}>
-                        <SelectTrigger className="w-full h-9 text-xs rounded-lg bg-white/50 dark:bg-gray-800/50">
+                        <SelectTrigger className="w-full h-8 md:h-9 text-[10px] md:text-xs rounded-lg bg-white/50 dark:bg-gray-800/50">
                           <SelectValue placeholder="Выберите тип" />
                         </SelectTrigger>
                         <SelectContent>
@@ -164,11 +166,11 @@ const MapFilters = ({ onFilterChange }: MapFiltersProps) => {
                     </div>
 
                     <div>
-                      <label className="text-xs font-medium text-gray-700 dark:text-gray-300 mb-1.5 block">
+                      <label className="text-[10px] md:text-xs font-medium text-gray-700 dark:text-gray-300 mb-1 md:mb-1.5 block">
                         Вес груза (тонн)
                       </label>
                       <Select onValueChange={(value) => updateFilter('maxWeight', Number(value))}>
-                        <SelectTrigger className="w-full h-9 text-xs rounded-lg bg-white/50 dark:bg-gray-800/50">
+                        <SelectTrigger className="w-full h-8 md:h-9 text-[10px] md:text-xs rounded-lg bg-white/50 dark:bg-gray-800/50">
                           <SelectValue placeholder="Выберите вес" />
                         </SelectTrigger>
                         <SelectContent>
@@ -192,9 +194,9 @@ const MapFilters = ({ onFilterChange }: MapFiltersProps) => {
                     setFilters(resetFilters);
                     onFilterChange(resetFilters);
                   }}
-                  className="w-full text-xs h-9 rounded-lg"
+                  className="w-full text-[10px] md:text-xs h-7 md:h-8 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800"
                 >
-                  <Icon name="X" size={14} className="mr-1.5" />
+                  <Icon name="RotateCcw" size={12} className="mr-1 md:w-[14px] md:h-[14px]" />
                   Сбросить фильтры
                 </Button>
               </>

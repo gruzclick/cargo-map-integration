@@ -16,80 +16,34 @@ const PublicMap = ({ onRegister }: PublicMapProps) => {
   return (
     <div className="min-h-screen bg-background animate-fade-in">
       <header className="border-b border-gray-200/20 dark:border-gray-700/30 sticky top-0 bg-white/60 dark:bg-gray-900/60 backdrop-blur-2xl z-50 shadow-lg animate-slide-in-down">
-        <div className="container mx-auto px-4 md:px-6 py-2.5 flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className="w-9 h-9 bg-gray-900 dark:bg-gray-100 rounded-xl flex items-center justify-center">
-              <Icon name="Truck" size={18} className="text-white dark:text-gray-900" />
+        <div className="container mx-auto px-3 md:px-6 py-2.5">
+          <div className="flex items-center justify-between gap-2">
+            <div className="flex items-center gap-2 md:gap-3 flex-1 min-w-0">
+              <div className="w-8 h-8 md:w-9 md:h-9 bg-gray-900 dark:bg-gray-100 rounded-xl flex items-center justify-center shrink-0">
+                <Icon name="Truck" size={16} className="text-white dark:text-gray-900 md:w-[18px] md:h-[18px]" />
+              </div>
+              <div className="min-w-0">
+                <h1 className="text-sm md:text-lg font-semibold tracking-tight text-gray-900 dark:text-gray-100 truncate">{t('appTitle')}</h1>
+                <p className="text-[9px] md:text-[10px] text-gray-600 dark:text-gray-400 hidden sm:block">{t('appSubtitle')}</p>
+              </div>
             </div>
-            <div>
-              <h1 className="text-base md:text-lg font-semibold tracking-tight text-gray-900 dark:text-gray-100">{t('appTitle')}</h1>
-              <p className="text-[9px] md:text-[10px] text-gray-600 dark:text-gray-400">{t('appSubtitle')}</p>
+            <div className="flex items-center gap-1 md:gap-2 shrink-0">
+              <ThemeToggle />
+              <LanguageSelector />
+              <Button onClick={onRegister} className="rounded-lg bg-gray-900 dark:bg-gray-100 text-white dark:text-gray-900 hover:bg-gray-800 dark:hover:bg-gray-200 text-[10px] md:text-xs px-2 md:px-3 py-1.5 md:py-2 h-8 md:h-auto">
+                <Icon name="LogIn" size={12} className="md:mr-1.5 md:w-[14px] md:h-[14px]" />
+                <span className="hidden sm:inline whitespace-nowrap">{t('login')} / {t('register')}</span>
+                <span className="sm:hidden">Вход</span>
+              </Button>
             </div>
-          </div>
-          <div className="flex items-center gap-1 md:gap-2">
-            <ThemeToggle />
-            <LanguageSelector />
-            <Button onClick={onRegister} className="rounded-lg bg-gray-900 dark:bg-gray-100 text-white dark:text-gray-900 hover:bg-gray-800 dark:hover:bg-gray-200 text-xs px-2 md:px-3 py-2">
-            <Icon name="LogIn" size={14} className="md:mr-1.5" />
-            <span className="hidden md:inline">{t('login')} / {t('register')}</span>
-            </Button>
           </div>
         </div>
       </header>
 
-      <div className="container mx-auto px-4 md:px-6 py-4 md:py-8 space-y-4 md:space-y-8">
+      <div className="container mx-auto px-3 md:px-6 py-4 md:py-8 space-y-4 md:space-y-8">
         <LiveMap isPublic={true} onMarkerClick={() => {
           onRegister();
         }} />
-
-        <Card className="max-w-2xl mx-auto p-8 text-center border border-gray-200/20 dark:border-gray-700/30 shadow-2xl bg-white/60 dark:bg-gray-900/60 backdrop-blur-2xl animate-scale-in">
-          <div className="w-20 h-20 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-6">
-            <Icon name="Lock" size={40} className="text-primary" />
-          </div>
-          
-          <h3 className="text-2xl font-bold mb-3">
-            {t('loginToView')}
-          </h3>
-          
-          <p className="text-muted-foreground mb-6 leading-relaxed">
-            Данные о клиентах и перевозчиках видны только зарегистрированным пользователям. 
-            Зарегистрируйтесь, чтобы получить доступ к платформе.
-          </p>
-
-          <div className="space-y-3 mb-6 text-left bg-muted/30 rounded-xl p-4">
-            <div className="flex items-start gap-3">
-              <Icon name="Check" size={20} className="text-primary mt-0.5" />
-              <div>
-                <p className="font-semibold text-sm">Для клиентов</p>
-                <p className="text-xs text-muted-foreground">Найдите проверенных перевозчиков с рейтингом</p>
-              </div>
-            </div>
-            <div className="flex items-start gap-3">
-              <Icon name="Check" size={20} className="text-primary mt-0.5" />
-              <div>
-                <p className="font-semibold text-sm">Для перевозчиков</p>
-                <p className="text-xs text-muted-foreground">Получайте заявки на доставку в реальном времени</p>
-              </div>
-            </div>
-            <div className="flex items-start gap-3">
-              <Icon name="Check" size={20} className="text-primary mt-0.5" />
-              <div>
-                <p className="font-semibold text-sm">Безопасность</p>
-                <p className="text-xs text-muted-foreground">Все данные защищены и доступны только участникам</p>
-              </div>
-            </div>
-          </div>
-
-          <Button onClick={onRegister} size="lg" className="w-full rounded-full">
-            <Icon name="UserPlus" size={20} className="mr-2" />
-            {t('register')} / {t('login')}
-          </Button>
-
-          <p className="text-xs text-muted-foreground mt-6">
-            Регистрируясь, вы соглашаетесь с{' '}
-            <span className="text-primary font-medium">пользовательским соглашением</span>
-          </p>
-        </Card>
       </div>
     </div>
   );

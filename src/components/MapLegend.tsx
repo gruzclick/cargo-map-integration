@@ -1,6 +1,7 @@
 import { Card, CardContent } from '@/components/ui/card';
 import Icon from '@/components/ui/icon';
 import { BoxIcon, PalletIcon } from '@/components/ui/custom-icons';
+import CargoTypeIcon from './CargoTypeIcon';
 
 const MapLegend = () => {
   return (
@@ -17,6 +18,12 @@ const MapLegend = () => {
               <div className="flex items-center gap-2">
                 <PalletIcon size={24} />
                 <span className="text-xs">Паллеты</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <div className="w-6 h-6 bg-sky-500 rounded-lg flex items-center justify-center">
+                  <CargoTypeIcon type="oversized" size={16} className="text-white" />
+                </div>
+                <span className="text-xs">Негабарит</span>
               </div>
             </div>
           </div>
@@ -40,7 +47,7 @@ const MapLegend = () => {
                 <div className="w-6 h-6 bg-gray-900 dark:bg-gray-100 rounded-lg flex items-center justify-center">
                   <Icon name="Container" size={14} className="text-white dark:text-gray-900" />
                 </div>
-                <span className="text-xs">Седельный</span>
+                <span className="text-xs">Тягач</span>
               </div>
             </div>
           </div>
