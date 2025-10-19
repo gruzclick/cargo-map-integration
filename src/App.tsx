@@ -7,6 +7,8 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Index from "./pages/Index";
 import Profile from "./pages/Profile";
 import RoutesPage from "./pages/Routes";
+import AdminAds from "./pages/AdminAds";
+import AdPreviewPage from "./pages/AdPreviewPage";
 import NotFound from "./pages/NotFound";
 import './i18n/config';
 
@@ -22,6 +24,8 @@ const App = () => (
           <Route path="/" element={<Index />} />
           <Route path="/profile" element={<Profile />} />
           <Route path="/routes" element={<RoutesPage />} />
+          <Route path="/admin/ads" element={<AdminAds />} />
+          <Route path="/ad-preview" element={<AdPreviewPage />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>
