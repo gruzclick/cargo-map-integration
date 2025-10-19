@@ -85,7 +85,8 @@ const LiveMap = ({ isPublic = false, onMarkerClick }: LiveMapProps = {}) => {
       {
         id: '1',
         type: 'cargo',
-        position: { lat: 55.7558, lng: 37.6173 },
+        lat: 55.7558,
+        lng: 37.6173,
         from: 'Москва',
         to: 'Санкт-Петербург',
         cargoType: 'box',
@@ -94,27 +95,29 @@ const LiveMap = ({ isPublic = false, onMarkerClick }: LiveMapProps = {}) => {
         weight: 1500,
         volume: 12,
         status: 'waiting',
-        description: 'Срочная доставка стройматериалов',
+        details: 'Срочная доставка стройматериалов',
         contact: '+7 (999) 123-45-67'
       },
       {
         id: '2',
         type: 'driver',
-        position: { lat: 55.8, lng: 37.4 },
+        lat: 55.8,
+        lng: 37.4,
         from: 'Москва (Свободен)',
         to: 'Любой маршрут',
-        vehicleType: 'truck',
+        vehicleCategory: 'truck',
         capacity: 5,
         distance: 0,
         price: 0,
         vehicleStatus: 'free',
-        description: 'Грузовик 5 тонн, готов к работе',
+        details: 'Грузовик 5 тонн, готов к работе',
         contact: '+7 (999) 987-65-43'
       },
       {
         id: '3',
         type: 'cargo',
-        position: { lat: 59.9343, lng: 30.3351 },
+        lat: 59.9343,
+        lng: 30.3351,
         from: 'Санкт-Петербург',
         to: 'Казань',
         cargoType: 'pallet',
@@ -123,7 +126,8 @@ const LiveMap = ({ isPublic = false, onMarkerClick }: LiveMapProps = {}) => {
         weight: 3000,
         volume: 25,
         status: 'ready',
-        description: 'Паллеты с оборудованием',
+        readyStatus: 'ready',
+        details: 'Паллеты с оборудованием',
         contact: '+7 (911) 222-33-44'
       }
     ];

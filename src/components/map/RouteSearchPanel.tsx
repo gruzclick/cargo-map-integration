@@ -9,7 +9,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { getRouteHistory, addToRouteHistory, removeFromRouteHistory, RouteHistoryItem } from '@/utils/routeHistory';
+import { getRouteHistory, addToRouteHistory, removeFromRouteHistory, clearRouteHistory, RouteHistoryItem } from '@/utils/routeHistory';
+import { exportRouteHistoryToExcel } from '@/utils/excelExport';
 
 interface RouteSearchPanelProps {
   routeSearch: { from: string; to: string };
@@ -144,16 +145,44 @@ const RouteSearchPanel = ({ routeSearch, onRouteChange, onLocationDetected }: Ro
 
       {routeHistory.length > 0 && (
         <div className="space-y-2">
-          <button
-            onClick={() => setShowHistory(!showHistory)}
-            className="w-full flex items-center justify-between text-xs font-medium text-muted-foreground hover:text-foreground transition-colors py-1"
-          >
-            <div className="flex items-center gap-1.5">
-              <Icon name="History" size={14} />
-              История поиска ({routeHistory.length})
-            </div>
-            <Icon name={showHistory ? "ChevronUp" : "ChevronDown"} size={14} />
-          </button>
+          <div className="flex items-center gap-2">
+            <button
+              onClick={() => setShowHistory(!showHistory)}
+              className="flex-1 flex items-center justify-between text-xs font-medium text-muted-foreground hover:text-foreground transition-colors py-1"
+            >
+              <div className="flex items-center gap-1.5">
+                <Icon name="History" size={14} />
+                История поиска ({routeHistory.length})
+              </div>
+              <Icon name={showHistory ? "ChevronUp" : "ChevronDown"} size={14} />
+            </button>
+            
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => exportRouteHistoryToExcel(routeHistory)}
+              className="h-7 px-2 text-xs"
+              title="Экспорт в Excel"
+            >
+              <Icon name="Download" size={14} className="mr-1" />
+              Excel
+            </Button>
+            
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => {
+                if (confirm('Очистить всю историю поиска?')) {
+                  clearRouteHistory();
+                  setRouteHistory([]);
+                }
+              }}
+              className="h-7 w-7 p-0 text-destructive hover:text-destructive"
+              title="Очистить историю"
+            >
+              <Icon name="Trash2" size={14} />
+            </Button>
+          </div>
 
           {showHistory && (
             <div className="space-y-1.5 max-h-48 overflow-y-auto">
