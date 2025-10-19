@@ -30,6 +30,7 @@ import DeliveryPhotoUpload from '@/components/DeliveryPhotoUpload';
 import RatingSystem from '@/components/RatingSystem';
 import TermsUpdateNotification from '@/components/TermsUpdateNotification';
 import PWAInstallPrompt from '@/components/PWAInstallPrompt';
+import RotatingAdBanner from '@/components/RotatingAdBanner';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { detectUserCountry, getCurrencyByCountry, getLanguageByCountry } from '@/utils/geoip';
 
@@ -112,15 +113,15 @@ const Index = () => {
       {user && <TermsUpdateNotification userId={user.user_id || user.phone} />}
       <PWAInstallPrompt />
       <header className="border-b border-gray-200/20 dark:border-gray-700/30 sticky top-0 bg-white/60 dark:bg-gray-900/60 backdrop-blur-2xl z-50 shadow-lg animate-slide-in-down">
-        <div className="container mx-auto px-4 md:px-6 py-2.5 flex items-center justify-between">
-          <div className="flex items-center gap-3">
+        <div className="container mx-auto px-4 md:px-6 py-2.5 flex items-center justify-between gap-4">
+          <div className="flex items-center gap-3 flex-shrink-0">
             <div className="w-9 h-9 bg-gray-900 dark:bg-gray-100 rounded-xl flex items-center justify-center">
               <Icon name="Truck" size={18} className="text-white dark:text-gray-900" />
             </div>
-            <div>
-              <h1 className="text-base md:text-lg font-semibold tracking-tight text-gray-900 dark:text-gray-100">{t('appTitle')}</h1>
-              <p className="text-[9px] md:text-[10px] text-gray-600 dark:text-gray-400">{t('appSubtitle')}</p>
-            </div>
+          </div>
+          
+          <div className="flex-1 max-w-md hidden md:block">
+            <RotatingAdBanner />
           </div>
           <div className="flex items-center gap-1 md:gap-2">
             <Button 

@@ -1,14 +1,8 @@
 export const TELEGRAM_BLOCKED_COUNTRIES = [
   'CN',
   'IR',
-  'BY',
   'KP',
-  'TM',
-  'UZ',
-  'PK',
-  'BD',
-  'ID',
-  'TH'
+  'TM'
 ];
 
 export interface CountryInfo {
