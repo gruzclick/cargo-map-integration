@@ -1,4 +1,3 @@
-// База данных городов России (топ-100 по населению)
 export const russianCities = [
   'Москва', 'Санкт-Петербург', 'Новосибирск', 'Екатеринбург', 'Казань',
   'Нижний Новгород', 'Челябинск', 'Самара', 'Омск', 'Ростов-на-Дону',
@@ -21,9 +20,51 @@ export const russianCities = [
   'Подольск', 'Королёв', 'Мытищи', 'Люберцы', 'Красногорск'
 ];
 
-// Популярные склады и логистические центры
+export const kazakhstanCities = [
+  'Алматы', 'Астана', 'Шымкент', 'Караганда', 'Актобе',
+  'Тараз', 'Павлодар', 'Усть-Каменогорск', 'Семей', 'Атырау',
+  'Костанай', 'Кызылорда', 'Уральск', 'Петропавловск', 'Актау',
+  'Темиртау', 'Туркестан', 'Кокшетау', 'Талдыкорган', 'Экибастуз'
+];
+
+export const belarusCities = [
+  'Минск', 'Гомель', 'Могилёв', 'Витебск', 'Гродно',
+  'Брест', 'Бобруйск', 'Барановичи', 'Борисов', 'Пинск',
+  'Орша', 'Мозырь', 'Солигорск', 'Новополоцк', 'Лида'
+];
+
+export const ukraineCities = [
+  'Киев', 'Харьков', 'Одесса', 'Днепр', 'Донецк',
+  'Запорожье', 'Львов', 'Кривой Рог', 'Николаев', 'Мариуполь',
+  'Луганск', 'Винница', 'Херсон', 'Чернигов', 'Полтава'
+];
+
+export const uzbekistanCities = [
+  'Ташкент', 'Самарканд', 'Наманган', 'Андижан', 'Бухара',
+  'Нукус', 'Карши', 'Коканд', 'Фергана', 'Маргилан',
+  'Джизак', 'Термез', 'Ургенч', 'Навои', 'Алмалык'
+];
+
+export const chinaCities = [
+  'Пекин', 'Шанхай', 'Гуанчжоу', 'Шэньчжэнь', 'Чэнду',
+  'Чунцин', 'Тяньцзинь', 'Ухань', 'Ханчжоу', 'Сиань',
+  'Нанкин', 'Харбин', 'Далянь', 'Циндао', 'Сучжоу',
+  'Урумчи', 'Иу'
+];
+
+export const europeCities = [
+  'Варшава', 'Краков', 'Вроцлав', 'Гданьск', 'Познань',
+  'Прага', 'Брно', 'Братислава', 'Будапешт', 'Бухарест',
+  'София', 'Белград', 'Загреб', 'Вильнюс', 'Рига',
+  'Таллин', 'Кишинёв', 'Тбилиси', 'Ереван', 'Баку'
+];
+
+export const turkishCities = [
+  'Стамбул', 'Анкара', 'Измир', 'Бурса', 'Анталья',
+  'Адана', 'Газиантеп', 'Конья', 'Мерсин', 'Диярбакыр'
+];
+
 export const warehouses = [
-  // Wildberries
   'Склад Wildberries Подольск',
   'Склад Wildberries Электросталь',
   'Склад Wildberries Коледино',
@@ -33,8 +74,7 @@ export const warehouses = [
   'Склад Wildberries Екатеринбург',
   'Склад Wildberries Краснодар',
   
-  // Ozon
-  'Склад Ozon Твер',
+  'Склад Ozon Тверь',
   'Склад Ozon Софьино',
   'Склад Ozon Подольск',
   'Склад Ozon Санкт-Петербург',
@@ -42,65 +82,123 @@ export const warehouses = [
   'Склад Ozon Екатеринбург',
   'Склад Ozon Новосибирск',
   
-  // Яндекс.Маркет
   'Склад Яндекс.Маркет Софьино',
   'Склад Яндекс.Маркет Томилино',
   'Склад Яндекс.Маркет Ростов-на-Дону',
   
-  // AliExpress
   'Склад AliExpress Подольск',
   'Склад AliExpress Электросталь',
+  'Склад AliExpress Алматы',
+  'Склад AliExpress Астана',
+  'Склад AliExpress Ташкент',
   
-  // Другие логистические центры
   'ЛЦ ПЭК Москва',
   'ЛЦ ПЭК Санкт-Петербург',
+  'ЛЦ ПЭК Минск',
+  'ЛЦ ПЭК Алматы',
+  
   'ЛЦ Деловые Линии Москва',
   'ЛЦ Деловые Линии Санкт-Петербург',
+  'ЛЦ Деловые Линии Новосибирск',
+  'ЛЦ Деловые Линии Алматы',
+  
   'ЛЦ СДЭК Москва',
   'ЛЦ СДЭК Новосибирск',
-  'ЛЦ Байкал Сервис Иркутск',
+  'ЛЦ СДЭК Алматы',
+  'ЛЦ СДЭК Ташкент',
+  'ЛЦ СДЭК Минск',
+  
+  'Склад Kaspi Алматы',
+  'Склад Kaspi Астана',
+  'Склад Kaspi Шымкент',
+  
+  'Склад Uzum Ташкент',
+  'Склад Uzum Самарканд',
+  
   'Склад Леруа Мерлен Котельники',
+  'Склад Леруа Мерлен Минск',
   'Склад ИКЕА Химки',
+  'Склад ИКЕА Санкт-Петербург',
   'Склад Metro Москва',
+  'Склад Metro Киев',
+  
+  'Amazon Warehouse Warsaw',
+  'Amazon Warehouse Prague',
+  'DHL Hub Leipzig',
+  'DHL Hub Warsaw',
+  'FedEx Hub Paris',
+  'UPS Hub Cologne',
+  
   'Терминал Почта России Москва',
-  'Терминал Почта России Санкт-Петербург'
+  'Терминал Почта России Санкт-Петербург',
+  'Терминал Белпочта Минск',
+  'Терминал Казпочта Алматы'
 ];
 
-// Популярные адреса и объекты
 export const popularAddresses = [
   'Москва, МКАД',
   'Москва, Садовое кольцо',
   'Москва, Третье транспортное кольцо',
   'Санкт-Петербург, КАД',
+  
   'Аэропорт Шереметьево',
   'Аэропорт Домодедово',
   'Аэропорт Внуково',
   'Аэропорт Пулково',
+  'Аэропорт Кольцово Екатеринбург',
+  'Аэропорт Толмачёво Новосибирск',
+  'Аэропорт Минск',
+  'Аэропорт Алматы',
+  'Аэропорт Астана',
+  'Аэропорт Ташкент',
+  'Аэропорт Борисполь Киев',
+  'Аэропорт Стамбул',
+  'Аэропорт Варшава Шопен',
+  'Аэропорт Прага Вацлав Гавел',
+  
   'Морской порт Новороссийск',
   'Морской порт Владивосток',
-  'Морской порт Санкт-Петербург'
+  'Морской порт Санкт-Петербург',
+  'Морской порт Одесса',
+  'Морской порт Стамбул',
+  'Морской порт Актау',
+  
+  'Ж/Д вокзал Москва',
+  'Ж/Д вокзал Санкт-Петербург',
+  'Ж/Д вокзал Минск',
+  'Ж/Д вокзал Алматы',
+  'Ж/Д вокзал Ташкент',
+  'Ж/Д вокзал Варшава',
+  'Ж/Д вокзал Прага'
 ];
 
-// Функция автодополнения
+const allCities = [
+  ...russianCities,
+  ...kazakhstanCities,
+  ...belarusCities,
+  ...ukraineCities,
+  ...uzbekistanCities,
+  ...chinaCities,
+  ...europeCities,
+  ...turkishCities
+];
+
 export function getAddressSuggestions(input: string, limit: number = 10): string[] {
   if (!input || input.length < 2) return [];
   
   const searchTerm = input.toLowerCase().trim();
   const suggestions: string[] = [];
   
-  // Поиск по городам
-  const matchingCities = russianCities
+  const matchingCities = allCities
     .filter(city => city.toLowerCase().includes(searchTerm))
     .slice(0, 5);
   suggestions.push(...matchingCities);
   
-  // Поиск по складам
   const matchingWarehouses = warehouses
     .filter(warehouse => warehouse.toLowerCase().includes(searchTerm))
     .slice(0, 3);
   suggestions.push(...matchingWarehouses);
   
-  // Поиск по популярным адресам
   const matchingAddresses = popularAddresses
     .filter(address => address.toLowerCase().includes(searchTerm))
     .slice(0, 2);
@@ -109,14 +207,13 @@ export function getAddressSuggestions(input: string, limit: number = 10): string
   return suggestions.slice(0, limit);
 }
 
-// Категории для группировки
 export function getCategorizedSuggestions(input: string) {
   if (!input || input.length < 2) return { cities: [], warehouses: [], addresses: [] };
   
   const searchTerm = input.toLowerCase().trim();
   
   return {
-    cities: russianCities.filter(city => city.toLowerCase().includes(searchTerm)).slice(0, 5),
+    cities: allCities.filter(city => city.toLowerCase().includes(searchTerm)).slice(0, 5),
     warehouses: warehouses.filter(warehouse => warehouse.toLowerCase().includes(searchTerm)).slice(0, 5),
     addresses: popularAddresses.filter(address => address.toLowerCase().includes(searchTerm)).slice(0, 3)
   };

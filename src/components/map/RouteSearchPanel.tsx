@@ -9,6 +9,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { getRouteHistory, addToRouteHistory, removeFromRouteHistory, RouteHistoryItem } from '@/utils/routeHistory';
 
 interface RouteSearchPanelProps {
   routeSearch: { from: string; to: string };
@@ -27,12 +28,15 @@ const RouteSearchPanel = ({ routeSearch, onRouteChange, onLocationDetected }: Ro
   const [savedRoutes, setSavedRoutes] = useState<SavedRoute[]>([]);
   const [routeName, setRouteName] = useState('');
   const [detectingLocation, setDetectingLocation] = useState(false);
+  const [routeHistory, setRouteHistory] = useState<RouteHistoryItem[]>([]);
+  const [showHistory, setShowHistory] = useState(false);
 
   useEffect(() => {
     const saved = localStorage.getItem('savedRoutes');
     if (saved) {
       setSavedRoutes(JSON.parse(saved));
     }
+    setRouteHistory(getRouteHistory());
   }, []);
 
   const saveRoute = () => {
@@ -126,6 +130,8 @@ const RouteSearchPanel = ({ routeSearch, onRouteChange, onLocationDetected }: Ro
             size="sm"
             onClick={() => {
               if (routeSearch.from && routeSearch.to) {
+                addToRouteHistory(routeSearch.from, routeSearch.to);
+                setRouteHistory(getRouteHistory());
                 console.log('Поиск маршрута:', routeSearch);
               }
             }}
@@ -135,6 +141,61 @@ const RouteSearchPanel = ({ routeSearch, onRouteChange, onLocationDetected }: Ro
           </Button>
         )}
       </div>
+
+      {routeHistory.length > 0 && (
+        <div className="space-y-2">
+          <button
+            onClick={() => setShowHistory(!showHistory)}
+            className="w-full flex items-center justify-between text-xs font-medium text-muted-foreground hover:text-foreground transition-colors py-1"
+          >
+            <div className="flex items-center gap-1.5">
+              <Icon name="History" size={14} />
+              История поиска ({routeHistory.length})
+            </div>
+            <Icon name={showHistory ? "ChevronUp" : "ChevronDown"} size={14} />
+          </button>
+
+          {showHistory && (
+            <div className="space-y-1.5 max-h-48 overflow-y-auto">
+              {routeHistory.map((item) => (
+                <div
+                  key={item.id}
+                  className="group flex items-center gap-2 p-2 bg-muted/50 hover:bg-muted rounded-md transition-colors cursor-pointer"
+                  onClick={() => onRouteChange({ from: item.from, to: item.to })}
+                >
+                  <div className="flex-1 min-w-0">
+                    <div className="text-xs font-medium truncate">{item.from}</div>
+                    <div className="flex items-center gap-1 text-xs text-muted-foreground">
+                      <Icon name="ArrowRight" size={10} />
+                      <span className="truncate">{item.to}</span>
+                    </div>
+                    <div className="text-[10px] text-muted-foreground mt-0.5">
+                      {new Date(item.timestamp).toLocaleDateString('ru-RU', { 
+                        day: 'numeric', 
+                        month: 'short',
+                        hour: '2-digit',
+                        minute: '2-digit'
+                      })}
+                    </div>
+                  </div>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      removeFromRouteHistory(item.id);
+                      setRouteHistory(getRouteHistory());
+                    }}
+                    className="h-6 w-6 p-0 opacity-0 group-hover:opacity-100 transition-opacity"
+                  >
+                    <Icon name="X" size={12} />
+                  </Button>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
 
       {savedRoutes.length > 0 && (
         <div className="flex items-center gap-2">
@@ -166,26 +227,7 @@ const RouteSearchPanel = ({ routeSearch, onRouteChange, onLocationDetected }: Ro
         </div>
       )}
 
-      {routeSearch.from && routeSearch.to && (
-        <div className="flex gap-2">
-          <Input
-            placeholder="Название маршрута"
-            value={routeName}
-            onChange={(e) => setRouteName(e.target.value)}
-            className="text-xs flex-1 h-8"
-          />
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={saveRoute}
-            disabled={!routeName}
-            className="text-xs h-8"
-          >
-            <Icon name="Star" size={14} className="mr-1" />
-            Сохранить
-          </Button>
-        </div>
-      )}
+
     </div>
   );
 };
