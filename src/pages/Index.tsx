@@ -29,6 +29,7 @@ import RouteOptimizer from '@/components/RouteOptimizer';
 import DeliveryPhotoUpload from '@/components/DeliveryPhotoUpload';
 import RatingSystem from '@/components/RatingSystem';
 import TermsUpdateNotification from '@/components/TermsUpdateNotification';
+import PWAInstallPrompt from '@/components/PWAInstallPrompt';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { detectUserCountry, getCurrencyByCountry, getLanguageByCountry } from '@/utils/geoip';
 
@@ -109,6 +110,7 @@ const Index = () => {
   return (
     <div className="min-h-screen bg-background animate-fade-in">
       {user && <TermsUpdateNotification userId={user.user_id || user.phone} />}
+      <PWAInstallPrompt />
       <header className="border-b border-gray-200/20 dark:border-gray-700/30 sticky top-0 bg-white/60 dark:bg-gray-900/60 backdrop-blur-2xl z-50 shadow-lg animate-slide-in-down">
         <div className="container mx-auto px-4 md:px-6 py-2.5 flex items-center justify-between">
           <div className="flex items-center gap-3">
