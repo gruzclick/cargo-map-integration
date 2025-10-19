@@ -82,84 +82,83 @@ export default function AdPreviewPage() {
         </Card>
 
         <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Icon name="Smartphone" size={20} />
-                Мобильная версия (между названием и грузами)
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-4">
-                <div className="max-w-sm mx-auto border-4 border-border rounded-3xl overflow-hidden shadow-2xl">
-                  <div className="bg-background">
-                    <div className="bg-card border-b border-border px-4 py-3">
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-2">
-                          <div className="w-8 h-8 bg-foreground rounded-lg flex items-center justify-center">
-                            <Icon name="Truck" size={16} className="text-background" />
-                          </div>
-                          <span className="text-sm font-semibold">Логистика</span>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Icon name="Smartphone" size={20} />
+              Мобильная версия (между названием и грузами)
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-4">
+              <div className="max-w-sm mx-auto border-4 border-border rounded-3xl overflow-hidden shadow-2xl">
+                <div className="bg-background">
+                  <div className="bg-card border-b border-border px-4 py-3">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <div className="w-8 h-8 bg-foreground rounded-lg flex items-center justify-center">
+                          <Icon name="Truck" size={16} className="text-background" />
                         </div>
-                        <div className="flex gap-1">
-                          <div className="w-6 h-6 rounded-full bg-muted"></div>
-                          <div className="w-6 h-6 rounded-full bg-muted"></div>
-                        </div>
+                        <span className="text-sm font-semibold">Логистика</span>
                       </div>
-                    </div>
-
-                    <div className="border-2 border-primary rounded-lg m-4">
-                      <AdPreview variant="mobile" />
-                    </div>
-
-                    <div className="px-4 pb-4">
-                      <div className="bg-muted/50 rounded-lg p-3 text-center">
-                        <div className="text-xs font-semibold text-muted-foreground">
-                          📦 Грузы ожидают (список ниже)
-                        </div>
+                      <div className="flex gap-1">
+                        <div className="w-6 h-6 rounded-full bg-muted"></div>
+                        <div className="w-6 h-6 rounded-full bg-muted"></div>
                       </div>
                     </div>
                   </div>
-                </div>
 
-                <div className="max-w-sm mx-auto text-center text-sm text-muted-foreground">
-                  ↑ Реклама появляется между хедером и списком грузов
-                </div>
+                  <div className="border-2 border-primary rounded-lg m-4">
+                    <AdPreview variant="mobile" />
+                  </div>
 
-                <div className="flex items-start gap-2 text-sm">
-                  <Icon name="Info" size={16} className="text-blue-500 mt-0.5" />
-                  <div>
-                    <p className="font-medium">Тот же алгоритм:</p>
-                    <p className="text-muted-foreground">
-                      10 секунд название сайта → 10 секунд реклама → и так далее
-                    </p>
+                  <div className="px-4 pb-4">
+                    <div className="bg-muted/50 rounded-lg p-3 text-center">
+                      <div className="text-xs font-semibold text-muted-foreground">
+                        📦 Грузы ожидают (список ниже)
+                      </div>
+                    </div>
                   </div>
                 </div>
               </div>
-            </CardContent>
-          </Card>
+
+              <div className="max-w-sm mx-auto text-center text-sm text-muted-foreground">
+                ↑ Реклама появляется между хедером и списком грузов
+              </div>
+
+              <div className="flex items-start gap-2 text-sm">
+                <Icon name="Info" size={16} className="text-blue-500 mt-0.5" />
+                <div>
+                  <p className="font-medium">Тот же алгоритм:</p>
+                  <p className="text-muted-foreground">
+                    10 секунд название сайта → 10 секунд реклама → и так далее
+                  </p>
+                </div>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
 
         <Card className="border-yellow-500/50 bg-yellow-500/5">
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2 text-yellow-600 dark:text-yellow-500">
-                <Icon name="AlertTriangle" size={20} />
-                Важно!
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-3 text-sm">
-              <p>
-                <strong>Это только превью!</strong> Реклама НЕ внедрена на реальный сайт.
-              </p>
-              <p>
-                Чтобы внедрить рекламу:
-              </p>
-              <ol className="list-decimal list-inside space-y-1 text-muted-foreground ml-4">
-                <li>Перейдите в <strong>Управление рекламой</strong></li>
-                <li>Добавьте/отредактируйте баннеры</li>
-                <li>Включите реальное отображение на сайте (я добавлю эту функцию)</li>
-              </ol>
-            </CardContent>
-          </Card>
-        </div>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2 text-yellow-600 dark:text-yellow-500">
+              <Icon name="AlertTriangle" size={20} />
+              Важно!
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-3 text-sm">
+            <p>
+              <strong>Это только превью!</strong> Реклама НЕ внедрена на реальный сайт.
+            </p>
+            <p>
+              Чтобы внедрить рекламу:
+            </p>
+            <ol className="list-decimal list-inside space-y-1 text-muted-foreground ml-4">
+              <li>Перейдите в <strong>Управление рекламой</strong></li>
+              <li>Добавьте/отредактируйте баннеры</li>
+              <li>Включите реальное отображение на сайте (я добавлю эту функцию)</li>
+            </ol>
+          </CardContent>
+        </Card>
       </div>
     </div>
   );
