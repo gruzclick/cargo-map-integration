@@ -6,8 +6,12 @@ import Auth from '@/components/Auth';
 import PublicMap from '@/components/PublicMap';
 import LanguageSelector from '@/components/LanguageSelector';
 import ThemeToggle from '@/components/ThemeToggle';
+import AccessibilityToggle from '@/components/AccessibilityToggle';
 import OnboardingTour from '@/components/OnboardingTour';
 import AIAssistant from '@/components/AIAssistant';
+import QuickActions from '@/components/QuickActions';
+import PriceCalculator from '@/components/PriceCalculator';
+import FavoritesList from '@/components/FavoritesList';
 import { useTranslation } from 'react-i18next';
 import DeliveryForm from '@/components/DeliveryForm';
 import CarrierStatus from '@/components/CarrierStatus';
@@ -101,6 +105,7 @@ const Index = () => {
             </div>
           </div>
           <div className="flex items-center gap-1 md:gap-2">
+            <AccessibilityToggle />
             <ThemeToggle />
             <LanguageSelector />
             <div className="hidden md:flex items-center gap-2 px-2.5 py-1.5 bg-gray-100 dark:bg-gray-800 rounded-lg">
@@ -156,6 +161,10 @@ const Index = () => {
               <Icon name="History" size={16} className="md:mr-2" />
               <span className="hidden md:inline">История</span>
             </TabsTrigger>
+            <TabsTrigger value="calculator" className="rounded-xl data-[state=active]:bg-white/80 dark:data-[state=active]:bg-gray-800/80 data-[state=active]:backdrop-blur-xl data-[state=active]:shadow-md text-xs md:text-sm">
+              <Icon name="Calculator" size={16} className="md:mr-2" />
+              <span className="hidden md:inline">Калькулятор</span>
+            </TabsTrigger>
             <TabsTrigger value="profile" className="rounded-xl data-[state=active]:bg-white/80 dark:data-[state=active]:bg-gray-800/80 data-[state=active]:backdrop-blur-xl data-[state=active]:shadow-md text-xs md:text-sm">
               <Icon name="User" size={16} className="md:mr-2" />
               <span className="hidden md:inline">Профиль</span>
@@ -171,9 +180,24 @@ const Index = () => {
                 Все доступные грузы и свободные водители в реальном времени
               </p>
             </div>
+
+            <div className="grid md:grid-cols-3 gap-3 mb-3 max-w-6xl mx-auto">
+              <QuickActions 
+                userRole={user.user_type === 'client' ? 'client' : 'carrier'}
+                onAction={(action) => {
+                  if (action === 'calculator') {
+                    const calcTab = document.querySelector('[value="calculator"]') as HTMLElement;
+                    calcTab?.click();
+                  }
+                }}
+              />
+              <div className="md:col-span-2">
+                <FavoritesList userRole={user.user_type === 'client' ? 'client' : 'carrier'} />
+              </div>
+            </div>
             
             {user.user_type === 'client' && (
-              <div className="max-w-4xl mx-auto mb-3">
+              <div className="max-w-6xl mx-auto mb-3">
                 <ClientNotifications />
               </div>
             )}
@@ -241,6 +265,10 @@ const Index = () => {
             <div className="max-w-4xl mx-auto">
               <DeliveryHistory userId={user.id} userType={user.user_type} />
             </div>
+          </TabsContent>
+
+          <TabsContent value="calculator" className="animate-slide-in-up">
+            <PriceCalculator />
           </TabsContent>
 
           <TabsContent value="profile" className="animate-slide-in-up">

@@ -6,6 +6,32 @@ import Icon from '@/components/ui/icon';
 import PDFExport from '@/components/PDFExport';
 import { useToast } from '@/hooks/use-toast';
 
+const exportToExcel = (deliveries: Delivery[]) => {
+  const headers = ['Дата', 'Откуда', 'Куда', 'Вес (кг)', 'Стоимость', 'Статус', 'Рейтинг', 'Контрагент'];
+  
+  const rows = deliveries.map(d => [
+    d.date,
+    d.from,
+    d.to,
+    d.weight.toString(),
+    d.cost ? `${d.cost}₽` : '-',
+    d.status === 'completed' ? 'Завершён' : 'Отменён',
+    d.rating ? d.rating.toString() : '-',
+    d.driver || d.client || '-'
+  ]);
+
+  const csv = [
+    headers.join(','),
+    ...rows.map(row => row.map(cell => `"${cell}"`).join(','))
+  ].join('\n');
+
+  const blob = new Blob(['\uFEFF' + csv], { type: 'text/csv;charset=utf-8;' });
+  const link = document.createElement('a');
+  link.href = URL.createObjectURL(blob);
+  link.download = `История_заказов_${new Date().toISOString().split('T')[0]}.csv`;
+  link.click();
+};
+
 interface Delivery {
   id: string;
   date: string;
@@ -116,7 +142,16 @@ const DeliveryHistory = ({ userId, userType }: DeliveryHistoryProps) => {
           <h3 className="text-2xl font-semibold">История поставок</h3>
           <p className="text-muted-foreground">Все ваши завершенные заказы</p>
         </div>
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-2">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => exportToExcel(deliveries)}
+            className="gap-2"
+          >
+            <Icon name="FileSpreadsheet" size={16} />
+            <span className="hidden md:inline">Excel</span>
+          </Button>
           <PDFExport 
             deliveries={exportDeliveries} 
             userType={userType}
@@ -124,7 +159,8 @@ const DeliveryHistory = ({ userId, userType }: DeliveryHistoryProps) => {
           />
           <Badge variant="secondary" className="gap-2">
             <Icon name="PackageCheck" size={16} />
-            {deliveries.length} поставок
+            <span className="hidden md:inline">{deliveries.length} поставок</span>
+            <span className="md:hidden">{deliveries.length}</span>
           </Badge>
         </div>
       </div>
