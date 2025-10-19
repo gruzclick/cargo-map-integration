@@ -4,12 +4,12 @@ import psycopg2
 from typing import Dict, Any, List
 
 def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
-    """
+    '''
     Business: Get real-time map data with cargo and drivers positions
     Args: event - dict with httpMethod (GET, POST, OPTIONS)
           context - object with request_id attribute
     Returns: HTTP response with markers data
-    """
+    '''
     method: str = event.get('httpMethod', 'GET')
     
     if method == 'OPTIONS':
