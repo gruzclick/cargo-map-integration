@@ -6,6 +6,8 @@ import Auth from '@/components/Auth';
 import PublicMap from '@/components/PublicMap';
 import LanguageSelector from '@/components/LanguageSelector';
 import ThemeToggle from '@/components/ThemeToggle';
+import OnboardingTour from '@/components/OnboardingTour';
+import AIAssistant from '@/components/AIAssistant';
 import { useTranslation } from 'react-i18next';
 import DeliveryForm from '@/components/DeliveryForm';
 import CarrierStatus from '@/components/CarrierStatus';
@@ -160,23 +162,28 @@ const Index = () => {
             </TabsTrigger>
           </TabsList>
 
-          <TabsContent value="map" className="space-y-6 animate-slide-in-up">
-            <div className="text-center mb-4 md:mb-6">
-              <h2 className="text-2xl md:text-4xl lg:text-5xl font-semibold mb-2 md:mb-3 text-foreground tracking-tight">
+          <TabsContent value="map" className="space-y-3 md:space-y-4 animate-slide-in-up">
+            <div className="text-center mb-2 md:mb-3">
+              <h2 className="text-xl md:text-3xl lg:text-4xl font-semibold mb-1 md:mb-2 text-foreground tracking-tight">
                 Информационная платформа Груз Клик
               </h2>
-              <p className="text-sm md:text-lg text-muted-foreground">
+              <p className="text-xs md:text-base text-muted-foreground">
                 Все доступные грузы и свободные водители в реальном времени
               </p>
             </div>
             
             {user.user_type === 'client' && (
-              <div className="max-w-4xl mx-auto mb-6">
+              <div className="max-w-4xl mx-auto mb-3">
                 <ClientNotifications />
               </div>
             )}
             
             <LiveMap />
+            <OnboardingTour 
+              userRole={user.user_type === 'carrier' ? 'driver' : 'client'}
+              onComplete={() => console.log('Tour completed')}
+            />
+            <AIAssistant />
             
             {user.user_type === 'carrier' && (
               <NearbyDriverNotification 

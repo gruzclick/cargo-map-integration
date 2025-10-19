@@ -46,7 +46,9 @@ const CargoVehicleSelector = ({ filters, onCargoTypeClick, onVehicleTypeClick }:
             onClick={() => onCargoTypeClick('oversized', filters.userType === 'carrier')}
             className="justify-start text-xs h-8 md:h-9"
           >
-            <CargoTypeIcon type="oversized" size={14} className="mr-1.5 text-sky-500 shrink-0" />
+            <div className="w-5 h-5 bg-sky-500 rounded flex items-center justify-center mr-1.5 shrink-0">
+              <span className="text-white font-bold text-xs">Н</span>
+            </div>
             <span className="truncate">Негабарит</span>
           </Button>
         </div>

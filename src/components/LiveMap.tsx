@@ -36,15 +36,25 @@ const LiveMap = ({ isPublic = false, onMarkerClick }: LiveMapProps = {}) => {
 
   useEffect(() => {
     applyFilters();
-  }, [markers, filters, routeSearch]);
+  }, [markers, filters, routeSearch, driverStatus, cargoStatus]);
 
   const applyFilters = () => {
     let filtered = [...markers];
     
     if (filters.userType === 'client') {
       filtered = filtered.filter(m => m.type === 'driver');
+      if (driverStatus) {
+        filtered = filtered.filter(m => m.vehicleStatus === driverStatus);
+      }
     } else if (filters.userType === 'carrier') {
       filtered = filtered.filter(m => m.type === 'cargo');
+      if (cargoStatus) {
+        filtered = filtered.filter(m => {
+          if (cargoStatus === 'ready') return m.readyStatus === 'ready';
+          if (cargoStatus === 'scheduled') return m.readyStatus === 'scheduled';
+          return true;
+        });
+      }
     }
 
     if (filters.cargoType && filters.cargoType !== 'all') {
@@ -114,11 +124,11 @@ const LiveMap = ({ isPublic = false, onMarkerClick }: LiveMapProps = {}) => {
   const driverCount = filteredMarkers.filter(m => m.type === 'driver').length;
 
   return (
-    <div className="space-y-3 md:space-y-5">
+    <div className="space-y-1.5 md:space-y-2.5">
       <MapStats cargoCount={cargoCount} driverCount={driverCount} />
 
       {!isPublic && (
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-1.5 md:gap-2">
           <StatusSelector 
             userType="driver"
             status={driverStatus}
@@ -151,7 +161,7 @@ const LiveMap = ({ isPublic = false, onMarkerClick }: LiveMapProps = {}) => {
             onLocationDetected={setUserLocation}
           />
 
-          <div className="border-t border-gray-200/30 dark:border-gray-700/30 my-3 md:my-4" />
+          <div className="border-t border-gray-200/30 dark:border-gray-700/30 my-2 md:my-2" />
 
           <CargoVehicleSelector 
             filters={filters}
