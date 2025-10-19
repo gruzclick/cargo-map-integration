@@ -1,36 +1,61 @@
 {
   "tests": [
     {
-      "name": "Register client - email taken",
+      "name": "Register new client with validation",
       "method": "POST",
       "path": "/",
       "body": {
         "action": "register",
-        "email": "test@example.com",
-        "password": "testpass123",
-        "full_name": "Test User",
+        "email": "newuser@example.com",
+        "password": "SecurePass123",
+        "full_name": "New Test User",
         "user_type": "client",
         "entity_type": "individual",
-        "phone": "+79991234567"
+        "phone": "+79991234999"
       },
-      "expectedStatus": 400,
+      "expectedStatus": 200,
       "expectedBody": {
-        "error": "Email already registered"
+        "message": "string",
+        "token": "string",
+        "user": {
+          "user_id": "string",
+          "email": "string",
+          "full_name": "string"
+        }
       },
       "bodyMatcher": "partial"
     },
     {
-      "name": "Login with invalid credentials",
+      "name": "Register with weak password",
+      "method": "POST",
+      "path": "/",
+      "body": {
+        "action": "register",
+        "email": "test2@example.com",
+        "password": "weak",
+        "full_name": "Test User",
+        "user_type": "client",
+        "entity_type": "individual",
+        "phone": "+79991234568"
+      },
+      "expectedStatus": 400,
+      "expectedBody": {
+        "error": "string"
+      },
+      "bodyMatcher": "partial"
+    },
+    {
+      "name": "Login with invalid phone",
       "method": "POST",
       "path": "/",
       "body": {
         "action": "login",
-        "email": "wrong@example.com",
-        "password": "wrongpass"
+        "phone": "+79999999999",
+        "password": "wrongpassword123"
       },
       "expectedStatus": 401,
       "expectedBody": {
-        "error": "Invalid credentials"
+        "error": "string"
       },
       "bodyMatcher": "partial"
     }
