@@ -201,6 +201,7 @@ export default function DocumentGenerator() {
                     <SelectItem value="truck_10t">Грузовик до 10т</SelectItem>
                     <SelectItem value="truck_20t">Грузовик до 20т</SelectItem>
                     <SelectItem value="truck_refrigerator">Рефрижератор</SelectItem>
+                    <SelectItem value="truck_oversized">Негабарит</SelectItem>
                   </SelectContent>
                 </Select>
               </div>

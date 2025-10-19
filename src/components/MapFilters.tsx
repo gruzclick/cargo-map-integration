@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Button } from './ui/button';
 import Icon from './ui/icon';
+import CargoTypeIcon from './CargoTypeIcon';
 import { useTranslation } from 'react-i18next';
 import {
   Select,
@@ -152,7 +153,12 @@ const MapFilters = ({ onFilterChange }: MapFiltersProps) => {
                           <SelectItem value="fragile">Хрупкие грузы</SelectItem>
                           <SelectItem value="perishable">Скоропортящиеся</SelectItem>
                           <SelectItem value="hazardous">Опасные грузы</SelectItem>
-                          <SelectItem value="oversized">Негабаритные</SelectItem>
+                          <SelectItem value="oversized">
+                            <div className="flex items-center gap-2">
+                              <CargoTypeIcon type="oversized" size={16} />
+                              Негабаритные
+                            </div>
+                          </SelectItem>
                         </SelectContent>
                       </Select>
                     </div>

@@ -6,6 +6,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useTranslation } from 'react-i18next';
 import { Calendar, MapPin, Package } from 'lucide-react';
+import CargoTypeIcon from './CargoTypeIcon';
 
 interface ScheduledOrderFormProps {
   clientId: string;
@@ -25,7 +26,7 @@ export function ScheduledOrderForm({ clientId, onSubmit }: ScheduledOrderFormPro
   const [description, setDescription] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const cargoTypes = ['box', 'pallet', 'container', 'bulk', 'liquid'];
+  const cargoTypes = ['box', 'pallet', 'container', 'bulk', 'liquid', 'oversized'];
   const vehicleTypes = ['tent_truck', 'refrigerator', 'container', 'flatbed', 'tanker'];
 
   const handleSubmit = async () => {
@@ -98,7 +99,10 @@ export function ScheduledOrderForm({ clientId, onSubmit }: ScheduledOrderFormPro
             <SelectContent>
               {cargoTypes.map((type) => (
                 <SelectItem key={type} value={type}>
-                  {t(`cargoTypes.${type}`)}
+                  <div className="flex items-center gap-2">
+                    <CargoTypeIcon type={type} size={16} />
+                    {t(`cargoTypes.${type}`)}
+                  </div>
                 </SelectItem>
               ))}
             </SelectContent>

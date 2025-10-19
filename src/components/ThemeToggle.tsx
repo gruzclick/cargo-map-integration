@@ -1,4 +1,5 @@
 import { Button } from '@/components/ui/button';
+import Icon from '@/components/ui/icon';
 import { useEffect, useState } from 'react';
 
 const ThemeToggle = () => {
@@ -23,9 +24,14 @@ const ThemeToggle = () => {
       variant="ghost"
       size="sm"
       onClick={toggleTheme}
-      className="rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 px-3 py-1.5 h-auto text-xs font-medium"
+      className="rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 px-2 py-1.5 h-auto"
+      title={theme === 'light' ? 'Переключить на темную тему' : 'Переключить на светлую тему'}
     >
-      {theme === 'light' ? 'Светлый' : 'Темный'}
+      {theme === 'light' ? (
+        <Icon name="Moon" size={18} className="text-gray-700" />
+      ) : (
+        <Icon name="Sun" size={18} className="text-gray-300" />
+      )}
     </Button>
   );
 };

@@ -88,17 +88,17 @@ const Index = () => {
     <div className="min-h-screen bg-background animate-fade-in">
       {user && <TermsUpdateNotification userId={user.user_id || user.phone} />}
       <header className="border-b border-gray-200/20 dark:border-gray-700/30 sticky top-0 bg-white/60 dark:bg-gray-900/60 backdrop-blur-2xl z-50 shadow-lg animate-slide-in-down">
-        <div className="container mx-auto px-6 py-2.5 flex items-center justify-between">
+        <div className="container mx-auto px-4 md:px-6 py-2.5 flex items-center justify-between">
           <div className="flex items-center gap-3">
             <div className="w-9 h-9 bg-gray-900 dark:bg-gray-100 rounded-xl flex items-center justify-center">
               <Icon name="Truck" size={18} className="text-white dark:text-gray-900" />
             </div>
             <div>
-              <h1 className="text-lg font-semibold tracking-tight text-gray-900 dark:text-gray-100">{t('appTitle')}</h1>
-              <p className="text-[10px] text-gray-600 dark:text-gray-400">{t('appSubtitle')}</p>
+              <h1 className="text-base md:text-lg font-semibold tracking-tight text-gray-900 dark:text-gray-100">{t('appTitle')}</h1>
+              <p className="text-[9px] md:text-[10px] text-gray-600 dark:text-gray-400">{t('appSubtitle')}</p>
             </div>
           </div>
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-1 md:gap-2">
             <ThemeToggle />
             <LanguageSelector />
             <div className="hidden md:flex items-center gap-2 px-2.5 py-1.5 bg-gray-100 dark:bg-gray-800 rounded-lg">
@@ -119,53 +119,53 @@ const Index = () => {
         </div>
       </header>
 
-      <div className="container mx-auto px-6 py-8">
+      <div className="container mx-auto px-4 md:px-6 py-4 md:py-8">
         <Tabs defaultValue="map" className="w-full">
-          <TabsList className="grid w-full max-w-4xl mx-auto grid-cols-3 md:grid-cols-6 mb-8 bg-white/60 dark:bg-gray-900/60 backdrop-blur-2xl border border-gray-200/20 dark:border-gray-700/30 p-1.5 rounded-2xl shadow-lg">
-            <TabsTrigger value="map" className="rounded-xl data-[state=active]:bg-white/80 dark:data-[state=active]:bg-gray-800/80 data-[state=active]:backdrop-blur-xl data-[state=active]:shadow-md">
-              <Icon name="Map" size={16} className="mr-2" />
-              Карта
+          <TabsList className="grid w-full max-w-4xl mx-auto grid-cols-3 md:grid-cols-6 mb-6 md:mb-8 bg-white/60 dark:bg-gray-900/60 backdrop-blur-2xl border border-gray-200/20 dark:border-gray-700/30 p-1.5 rounded-2xl shadow-lg overflow-x-auto">
+            <TabsTrigger value="map" className="rounded-xl data-[state=active]:bg-white/80 dark:data-[state=active]:bg-gray-800/80 data-[state=active]:backdrop-blur-xl data-[state=active]:shadow-md text-xs md:text-sm">
+              <Icon name="Map" size={16} className="md:mr-2" />
+              <span className="hidden md:inline">Карта</span>
             </TabsTrigger>
             {user.user_type === 'client' && (
               <>
-                <TabsTrigger value="delivery" className="rounded-xl data-[state=active]:bg-white/80 dark:data-[state=active]:bg-gray-800/80 data-[state=active]:backdrop-blur-xl data-[state=active]:shadow-md">
-                  <Icon name="Plus" size={16} className="mr-2" />
-                  Поставка
+                <TabsTrigger value="delivery" className="rounded-xl data-[state=active]:bg-white/80 dark:data-[state=active]:bg-gray-800/80 data-[state=active]:backdrop-blur-xl data-[state=active]:shadow-md text-xs md:text-sm">
+                  <Icon name="Plus" size={16} className="md:mr-2" />
+                  <span className="hidden md:inline">Поставка</span>
                 </TabsTrigger>
-                <TabsTrigger value="documents" className="rounded-xl data-[state=active]:bg-white/80 dark:data-[state=active]:bg-gray-800/80 data-[state=active]:backdrop-blur-xl data-[state=active]:shadow-md">
-                  <Icon name="FileText" size={16} className="mr-2" />
-                  Документы
+                <TabsTrigger value="documents" className="rounded-xl data-[state=active]:bg-white/80 dark:data-[state=active]:bg-gray-800/80 data-[state=active]:backdrop-blur-xl data-[state=active]:shadow-md text-xs md:text-sm">
+                  <Icon name="FileText" size={16} className="md:mr-2" />
+                  <span className="hidden md:inline">Документы</span>
                 </TabsTrigger>
               </>
             )}
             {user.user_type === 'carrier' && (
               <>
-                <TabsTrigger value="orders" className="rounded-xl data-[state=active]:bg-white/80 dark:data-[state=active]:bg-gray-800/80 data-[state=active]:backdrop-blur-xl data-[state=active]:shadow-md">
-                  <Icon name="List" size={16} className="mr-2" />
-                  Заказы
+                <TabsTrigger value="orders" className="rounded-xl data-[state=active]:bg-white/80 dark:data-[state=active]:bg-gray-800/80 data-[state=active]:backdrop-blur-xl data-[state=active]:shadow-md text-xs md:text-sm">
+                  <Icon name="List" size={16} className="md:mr-2" />
+                  <span className="hidden md:inline">Заказы</span>
                 </TabsTrigger>
-                <TabsTrigger value="vehicles" className="rounded-xl data-[state=active]:bg-white/80 dark:data-[state=active]:bg-gray-800/80 data-[state=active]:backdrop-blur-xl data-[state=active]:shadow-md">
-                  <Icon name="Truck" size={16} className="mr-2" />
-                  Автопарк
+                <TabsTrigger value="vehicles" className="rounded-xl data-[state=active]:bg-white/80 dark:data-[state=active]:bg-gray-800/80 data-[state=active]:backdrop-blur-xl data-[state=active]:shadow-md text-xs md:text-sm">
+                  <Icon name="Truck" size={16} className="md:mr-2" />
+                  <span className="hidden md:inline">Автопарк</span>
                 </TabsTrigger>
               </>
             )}
-            <TabsTrigger value="history" className="rounded-xl data-[state=active]:bg-white/80 dark:data-[state=active]:bg-gray-800/80 data-[state=active]:backdrop-blur-xl data-[state=active]:shadow-md">
-              <Icon name="History" size={16} className="mr-2" />
-              История
+            <TabsTrigger value="history" className="rounded-xl data-[state=active]:bg-white/80 dark:data-[state=active]:bg-gray-800/80 data-[state=active]:backdrop-blur-xl data-[state=active]:shadow-md text-xs md:text-sm">
+              <Icon name="History" size={16} className="md:mr-2" />
+              <span className="hidden md:inline">История</span>
             </TabsTrigger>
-            <TabsTrigger value="profile" className="rounded-xl data-[state=active]:bg-white/80 dark:data-[state=active]:bg-gray-800/80 data-[state=active]:backdrop-blur-xl data-[state=active]:shadow-md">
-              <Icon name="User" size={16} className="mr-2" />
-              Профиль
+            <TabsTrigger value="profile" className="rounded-xl data-[state=active]:bg-white/80 dark:data-[state=active]:bg-gray-800/80 data-[state=active]:backdrop-blur-xl data-[state=active]:shadow-md text-xs md:text-sm">
+              <Icon name="User" size={16} className="md:mr-2" />
+              <span className="hidden md:inline">Профиль</span>
             </TabsTrigger>
           </TabsList>
 
           <TabsContent value="map" className="space-y-6 animate-slide-in-up">
-            <div className="text-center mb-6">
-              <h2 className="text-4xl md:text-5xl font-semibold mb-3 text-foreground tracking-tight">
+            <div className="text-center mb-4 md:mb-6">
+              <h2 className="text-2xl md:text-4xl lg:text-5xl font-semibold mb-2 md:mb-3 text-foreground tracking-tight">
                 Информационная платформа Груз Клик
               </h2>
-              <p className="text-lg text-muted-foreground">
+              <p className="text-sm md:text-lg text-muted-foreground">
                 Все доступные грузы и свободные водители в реальном времени
               </p>
             </div>

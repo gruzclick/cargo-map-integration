@@ -61,7 +61,8 @@ export default function FleetManager() {
     { value: 'truck_isothermal', label: 'Изотермический фургон' },
     { value: 'truck_flatbed', label: 'Бортовой грузовик' },
     { value: 'truck_container', label: 'Контейнеровоз' },
-    { value: 'semi_truck', label: 'Седельный тягач' }
+    { value: 'semi_truck', label: 'Седельный тягач' },
+    { value: 'truck_oversized', label: 'Негабарит' }
   ];
 
   const handleAddVehicle = () => {
