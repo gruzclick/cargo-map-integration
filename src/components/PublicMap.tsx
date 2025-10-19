@@ -28,6 +28,30 @@ const PublicMap = ({ onRegister }: PublicMapProps) => {
               </div>
             </div>
             <div className="flex items-center gap-1 md:gap-2 shrink-0">
+              <Button 
+                variant="ghost" 
+                size="sm" 
+                onClick={() => {
+                  const url = window.location.origin;
+                  if (navigator.share) {
+                    navigator.share({
+                      title: 'Логистика Грузоперевозок',
+                      text: 'Найди грузы и водителей рядом с тобой!',
+                      url: url
+                    }).catch(() => {
+                      navigator.clipboard.writeText(url);
+                      alert('Ссылка скопирована!');
+                    });
+                  } else {
+                    navigator.clipboard.writeText(url);
+                    alert('Ссылка скопирована в буфер обмена!');
+                  }
+                }}
+                className="rounded-lg text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 h-8 md:h-auto px-2 md:px-3"
+              >
+                <Icon name="Share2" size={14} className="md:mr-1.5" />
+                <span className="text-xs hidden md:inline">Поделиться</span>
+              </Button>
               <ThemeToggle />
               <LanguageSelector />
               <Button onClick={onRegister} className="rounded-lg bg-gray-900 dark:bg-gray-100 text-white dark:text-gray-900 hover:bg-gray-800 dark:hover:bg-gray-200 text-[10px] md:text-xs px-2 md:px-3 py-1.5 md:py-2 h-8 md:h-auto">

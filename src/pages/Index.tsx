@@ -127,6 +127,30 @@ const Index = () => {
             <Button 
               variant="ghost" 
               size="sm" 
+              onClick={() => {
+                const url = window.location.origin;
+                if (navigator.share) {
+                  navigator.share({
+                    title: 'Логистика Грузоперевозок',
+                    text: 'Найди грузы и водителей рядом с тобой!',
+                    url: url
+                  }).catch(() => {
+                    navigator.clipboard.writeText(url);
+                    alert('Ссылка скопирована!');
+                  });
+                } else {
+                  navigator.clipboard.writeText(url);
+                  alert('Ссылка скопирована в буфер обмена!');
+                }
+              }}
+              className="rounded-lg text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800"
+            >
+              <Icon name="Share2" size={14} className="mr-1.5" />
+              <span className="text-xs hidden md:inline">Поделиться</span>
+            </Button>
+            <Button 
+              variant="ghost" 
+              size="sm" 
               onClick={() => window.location.href = '/routes'}
               className="rounded-lg text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800"
             >
