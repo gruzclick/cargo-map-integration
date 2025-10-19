@@ -67,9 +67,7 @@ const PublicMap = ({ onRegister }: PublicMapProps) => {
       </header>
 
       <div className="container mx-auto px-3 md:px-6 py-4 md:py-8 space-y-4 md:space-y-8">
-        <LiveMap isPublic={true} onMarkerClick={() => {
-          onRegister();
-        }} />
+        <LiveMap isPublic={false} />
       </div>
     </div>
   );

@@ -31,6 +31,7 @@ const RouteSearchPanel = ({ routeSearch, onRouteChange, onLocationDetected }: Ro
   const [detectingLocation, setDetectingLocation] = useState(false);
   const [routeHistory, setRouteHistory] = useState<RouteHistoryItem[]>([]);
   const [showHistory, setShowHistory] = useState(false);
+  const [dateFilter, setDateFilter] = useState<'all' | 'today' | 'week' | 'month'>('all');
 
   useEffect(() => {
     const saved = localStorage.getItem('savedRoutes');
@@ -185,8 +186,59 @@ const RouteSearchPanel = ({ routeSearch, onRouteChange, onLocationDetected }: Ro
           </div>
 
           {showHistory && (
-            <div className="space-y-1.5 max-h-48 overflow-y-auto">
-              {routeHistory.map((item) => (
+            <>
+              <div className="flex gap-1.5 mb-2">
+                <Button
+                  variant={dateFilter === 'all' ? 'default' : 'outline'}
+                  size="sm"
+                  onClick={() => setDateFilter('all')}
+                  className="flex-1 h-7 text-[10px]"
+                >
+                  Все
+                </Button>
+                <Button
+                  variant={dateFilter === 'today' ? 'default' : 'outline'}
+                  size="sm"
+                  onClick={() => setDateFilter('today')}
+                  className="flex-1 h-7 text-[10px]"
+                >
+                  Сегодня
+                </Button>
+                <Button
+                  variant={dateFilter === 'week' ? 'default' : 'outline'}
+                  size="sm"
+                  onClick={() => setDateFilter('week')}
+                  className="flex-1 h-7 text-[10px]"
+                >
+                  Неделя
+                </Button>
+                <Button
+                  variant={dateFilter === 'month' ? 'default' : 'outline'}
+                  size="sm"
+                  onClick={() => setDateFilter('month')}
+                  className="flex-1 h-7 text-[10px]"
+                >
+                  Месяц
+                </Button>
+              </div>
+              <div className="space-y-1.5 max-h-48 overflow-y-auto">
+                {routeHistory.filter(item => {
+                  const itemDate = new Date(item.timestamp);
+                  const now = new Date();
+                  
+                  if (dateFilter === 'today') {
+                    return itemDate.toDateString() === now.toDateString();
+                  }
+                  if (dateFilter === 'week') {
+                    const weekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+                    return itemDate >= weekAgo;
+                  }
+                  if (dateFilter === 'month') {
+                    const monthAgo = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
+                    return itemDate >= monthAgo;
+                  }
+                  return true;
+                }).map((item) => (
                 <div
                   key={item.id}
                   className="group flex items-center gap-2 p-2 bg-muted/50 hover:bg-muted rounded-md transition-colors cursor-pointer"
@@ -220,8 +272,9 @@ const RouteSearchPanel = ({ routeSearch, onRouteChange, onLocationDetected }: Ro
                     <Icon name="X" size={12} />
                   </Button>
                 </div>
-              ))}
-            </div>
+                ))}
+              </div>
+            </>
           )}
         </div>
       )}

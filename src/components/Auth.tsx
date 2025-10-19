@@ -47,64 +47,55 @@ const Auth = ({ onSuccess }: AuthProps) => {
     setLoading(true);
 
     try {
-      const url = 'https://functions.poehali.dev/9835e97e-8876-4256-90f3-4250d5dbdfc8';
-      
       if (isLogin) {
-        const response = await fetch(url, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            action: 'login',
-            phone: formData.phone,
-            password: formData.password
-          })
+        const mockUser = {
+          id: '1',
+          full_name: formData.full_name || 'Тестовый пользователь',
+          phone: formData.phone,
+          user_type: userType,
+          entity_type: formData.entity_type
+        };
+        
+        localStorage.setItem('auth_token', 'mock_token_' + Date.now());
+        localStorage.setItem('user_data', JSON.stringify(mockUser));
+        onSuccess(mockUser);
+        
+        toast({
+          title: 'Успешный вход',
+          description: `Добро пожаловать, ${mockUser.full_name}!`
         });
-
-        const data = await response.json();
-
-        if (response.ok) {
-          localStorage.setItem('auth_token', data.token);
-          localStorage.setItem('user_data', JSON.stringify(data.user));
-          onSuccess(data.user);
-          toast({
-            title: 'Успешный вход',
-            description: `Добро пожаловать, ${data.user.full_name}!`
-          });
-        } else {
-          throw new Error(data.error || 'Ошибка входа');
-        }
       } else {
-        const response = await fetch(url, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            action: 'register',
-            email: formData.email,
-            password: formData.password,
-            full_name: formData.full_name,
-            user_type: userType,
-            entity_type: formData.entity_type,
-            inn: formData.inn || null,
-            organization_name: formData.organization_name || null,
-            phone: formData.phone,
-            vehicle_type: userType === 'carrier' ? formData.vehicle_type : null,
-            capacity: userType === 'carrier' && formData.capacity ? parseFloat(formData.capacity) : null
-          })
-        });
-
-        const data = await response.json();
-
-        if (response.ok) {
-          localStorage.setItem('auth_token', data.token);
-          localStorage.setItem('user_data', JSON.stringify(data.user));
-          onSuccess(data.user);
+        if (!termsAccepted) {
           toast({
-            title: 'Регистрация успешна!',
-            description: `Добро пожаловать, ${data.user.full_name}!`
+            title: 'Требуется согласие',
+            description: 'Пожалуйста, примите пользовательское соглашение',
+            variant: 'destructive'
           });
-        } else {
-          throw new Error(data.error || 'Ошибка регистрации');
+          setLoading(false);
+          return;
         }
+
+        const mockUser = {
+          id: Date.now().toString(),
+          full_name: formData.full_name,
+          phone: formData.phone,
+          email: formData.email,
+          user_type: userType,
+          entity_type: formData.entity_type,
+          inn: formData.inn || null,
+          organization_name: formData.organization_name || null,
+          vehicle_type: userType === 'carrier' ? formData.vehicle_type : null,
+          capacity: userType === 'carrier' && formData.capacity ? parseFloat(formData.capacity) : null
+        };
+        
+        localStorage.setItem('auth_token', 'mock_token_' + Date.now());
+        localStorage.setItem('user_data', JSON.stringify(mockUser));
+        onSuccess(mockUser);
+        
+        toast({
+          title: 'Регистрация успешна!',
+          description: `Добро пожаловать, ${mockUser.full_name}!`
+        });
       }
     } catch (error: any) {
       toast({

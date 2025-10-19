@@ -81,56 +81,8 @@ const LiveMap = ({ isPublic = false, onMarkerClick }: LiveMapProps = {}) => {
   };
 
   const fetchMarkers = async () => {
-    const mockMarkers: MapMarker[] = [
-      {
-        id: '1',
-        type: 'cargo',
-        lat: 55.7558,
-        lng: 37.6173,
-        from: 'Москва',
-        to: 'Санкт-Петербург',
-        cargoType: 'box',
-        distance: 712,
-        price: 45000,
-        weight: 1500,
-        volume: 12,
-        status: 'waiting',
-        details: 'Срочная доставка стройматериалов',
-        contact: '+7 (999) 123-45-67'
-      },
-      {
-        id: '2',
-        type: 'driver',
-        lat: 55.8,
-        lng: 37.4,
-        from: 'Москва (Свободен)',
-        to: 'Любой маршрут',
-        vehicleCategory: 'truck',
-        capacity: 5,
-        distance: 0,
-        price: 0,
-        vehicleStatus: 'free',
-        details: 'Грузовик 5 тонн, готов к работе',
-        contact: '+7 (999) 987-65-43'
-      },
-      {
-        id: '3',
-        type: 'cargo',
-        lat: 59.9343,
-        lng: 30.3351,
-        from: 'Санкт-Петербург',
-        to: 'Казань',
-        cargoType: 'pallet',
-        distance: 1435,
-        price: 65000,
-        weight: 3000,
-        volume: 25,
-        status: 'ready',
-        readyStatus: 'ready',
-        details: 'Паллеты с оборудованием',
-        contact: '+7 (911) 222-33-44'
-      }
-    ];
+    const { generateAllMockData } = await import('@/utils/mockData');
+    const mockMarkers = generateAllMockData();
     setMarkers(mockMarkers);
   };
 
