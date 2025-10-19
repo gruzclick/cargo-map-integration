@@ -10,6 +10,7 @@ import Profile from "./pages/Profile";
 import RoutesPage from "./pages/Routes";
 import AdminAds from "./pages/AdminAds";
 import AdPreviewPage from "./pages/AdPreviewPage";
+import QRPage from "./pages/QRPage";
 import NotFound from "./pages/NotFound";
 import './i18n/config';
 
@@ -46,6 +47,7 @@ const App = () => {
               <Route path="/routes" element={<RoutesPage />} />
               <Route path="/admin/ads" element={<AdminAds />} />
               <Route path="/ad-preview" element={<AdPreviewPage />} />
+              <Route path="/qr" element={<QRPage />} />
               {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
               <Route path="*" element={<NotFound />} />
             </Routes>

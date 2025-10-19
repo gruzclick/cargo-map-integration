@@ -194,6 +194,33 @@ export default function Profile() {
                 </div>
               </CardContent>
             </Card>
+
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Icon name="QrCode" size={20} />
+                  QR-код для доступа
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <p className="text-sm text-muted-foreground">
+                  Создайте QR-код для быстрого доступа к платформе с телефона
+                </p>
+                <Button onClick={() => window.location.href = '/qr'} className="w-full">
+                  <Icon name="QrCode" size={18} className="mr-2" />
+                  Открыть генератор QR-кода
+                </Button>
+                <div className="bg-muted/50 rounded-lg p-4 text-sm">
+                  <p className="font-semibold mb-2">Зачем нужен QR-код:</p>
+                  <ul className="list-disc list-inside space-y-1 text-muted-foreground">
+                    <li>Быстрый доступ с телефона без ввода URL</li>
+                    <li>Можно распечатать на визитках</li>
+                    <li>Удобно показывать клиентам</li>
+                    <li>Скачать и использовать в рекламе</li>
+                  </ul>
+                </div>
+              </CardContent>
+            </Card>
           </TabsContent>
 
           <TabsContent value="security" className="space-y-4">
