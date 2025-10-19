@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
+import Icon from '@/components/ui/icon';
 import MapFilters, { FilterState } from './MapFilters';
 import MapStats from './map/MapStats';
 import RouteSearchPanel from './map/RouteSearchPanel';
