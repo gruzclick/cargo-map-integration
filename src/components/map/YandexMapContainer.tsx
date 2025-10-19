@@ -13,16 +13,24 @@ const YandexMapContainer = ({ filteredMarkers, isPublic, onMarkerClick, onMapLoa
   const mapRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
+    const apiKey = import.meta.env.VITE_YANDEX_MAPS_API_KEY || '';
+    
     const script = document.createElement('script');
-    script.src = 'https://api-maps.yandex.ru/2.1/?apikey=&lang=ru_RU&theme=dark';
+    script.src = `https://api-maps.yandex.ru/2.1/?apikey=${apiKey}&lang=ru_RU`;
     script.async = true;
     script.onload = () => {
       onMapLoaded(true);
       initMap();
     };
+    script.onerror = () => {
+      console.error('Ошибка загрузки Яндекс.Карт');
+      onMapLoaded(false);
+    };
     document.body.appendChild(script);
 
+    // Тёмная тема для Яндекс.Карт (применяется всегда)
     const style = document.createElement('style');
+    style.id = 'yandex-map-dark-theme';
     style.textContent = `
       ymaps[class*="ground-pane"] {
         filter: invert(100%) hue-rotate(180deg) brightness(95%) contrast(90%);
@@ -35,8 +43,9 @@ const YandexMapContainer = ({ filteredMarkers, isPublic, onMarkerClick, onMapLoa
     document.head.appendChild(style);
 
     return () => {
-      document.body.removeChild(script);
-      document.head.removeChild(style);
+      if (script.parentNode) document.body.removeChild(script);
+      const existingStyle = document.getElementById('yandex-map-dark-theme');
+      if (existingStyle) document.head.removeChild(existingStyle);
     };
   }, []);
 

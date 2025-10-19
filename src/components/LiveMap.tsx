@@ -82,7 +82,16 @@ const LiveMap = ({ isPublic = false, onMarkerClick }: LiveMapProps = {}) => {
 
   const fetchMarkers = async () => {
     try {
-      const response = await fetch('https://functions.poehali.dev/e0c57b5b-aa36-4b28-8b31-c70ece513cae');
+      // Динамический импорт func2url.json
+      const funcUrls = await import('../../backend/func2url.json');
+      const mapDataUrl = funcUrls.default?.['map-data'] || funcUrls['map-data'];
+      
+      if (!mapDataUrl) {
+        console.error('map-data URL not found in func2url.json');
+        return;
+      }
+      
+      const response = await fetch(mapDataUrl);
       const data = await response.json();
       setMarkers(data.markers || []);
     } catch (error) {

@@ -17,24 +17,18 @@ export default function AdaptiveMapContainer(props: AdaptiveMapContainerProps) {
   const [yandexFailed, setYandexFailed] = useState(false);
 
   useEffect(() => {
-    // Проверяем наличие API ключа Яндекс.Карт
-    const checkYandexMapsAvailable = () => {
-      const script = document.querySelector('script[src*="api-maps.yandex.ru"]');
-      if (script) {
-        const src = script.getAttribute('src') || '';
-        const hasApiKey = src.includes('apikey=') && !src.includes('apikey=&');
-        
-        if (!hasApiKey) {
-          console.warn('Яндекс.Карты: API ключ не найден, переключаюсь на OpenStreetMap');
-          setYandexFailed(true);
-          setUseOpenStreetMap(true);
-        }
-      }
-    };
-
-    // Проверяем через 2 секунды после загрузки
-    const timer = setTimeout(checkYandexMapsAvailable, 2000);
-    return () => clearTimeout(timer);
+    // Проверяем наличие API ключа из переменных окружения
+    const apiKey = import.meta.env.VITE_YANDEX_MAPS_API_KEY;
+    
+    if (!apiKey) {
+      console.warn('Яндекс.Карты: API ключ не найден в .env, используется OpenStreetMap');
+      setYandexFailed(true);
+      setUseOpenStreetMap(true);
+    } else {
+      console.log('Яндекс.Карты: API ключ найден, используется Яндекс.Карты');
+      setYandexFailed(false);
+      setUseOpenStreetMap(false);
+    }
   }, []);
 
   const handleMapLoadError = () => {
