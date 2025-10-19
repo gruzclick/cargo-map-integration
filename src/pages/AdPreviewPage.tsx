@@ -77,10 +77,11 @@ export default function AdPreviewPage() {
                   </ul>
                 </div>
               </div>
-            </CardContent>
-          </Card>
+            </div>
+          </CardContent>
+        </Card>
 
-          <Card>
+        <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <Icon name="Smartphone" size={20} />
@@ -137,7 +138,7 @@ export default function AdPreviewPage() {
             </CardContent>
           </Card>
 
-          <Card className="border-yellow-500/50 bg-yellow-500/5">
+        <Card className="border-yellow-500/50 bg-yellow-500/5">
             <CardHeader>
               <CardTitle className="flex items-center gap-2 text-yellow-600 dark:text-yellow-500">
                 <Icon name="AlertTriangle" size={20} />
