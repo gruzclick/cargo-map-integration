@@ -11,7 +11,7 @@ interface CargoVehicleSelectorProps {
 
 const CargoVehicleSelector = ({ filters, onCargoTypeClick, onVehicleTypeClick }: CargoVehicleSelectorProps) => {
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-4 mb-3 md:mb-4">
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-4">
       <div>
         <h3 className="text-xs md:text-sm font-semibold mb-2 flex items-center gap-1.5">
           <Icon name="Package" size={14} className="text-sky-500" />
@@ -24,7 +24,9 @@ const CargoVehicleSelector = ({ filters, onCargoTypeClick, onVehicleTypeClick }:
             onClick={() => onCargoTypeClick('box', filters.userType === 'carrier')}
             className="justify-start text-xs h-8 md:h-9"
           >
-            <Icon name="Package" size={14} className="mr-1.5 text-sky-500 shrink-0" />
+            <div className="w-5 h-5 bg-sky-500 rounded flex items-center justify-center mr-1.5 shrink-0">
+              <span className="text-white font-bold text-xs">К</span>
+            </div>
             <span className="truncate">Коробки</span>
           </Button>
           <Button
@@ -33,7 +35,9 @@ const CargoVehicleSelector = ({ filters, onCargoTypeClick, onVehicleTypeClick }:
             onClick={() => onCargoTypeClick('pallet', filters.userType === 'carrier')}
             className="justify-start text-xs h-8 md:h-9"
           >
-            <Icon name="Layers" size={14} className="mr-1.5 text-sky-500 shrink-0" />
+            <div className="w-5 h-5 bg-sky-500 rounded flex items-center justify-center mr-1.5 shrink-0">
+              <span className="text-white font-bold text-xs">П</span>
+            </div>
             <span className="truncate">Паллеты</span>
           </Button>
           <Button

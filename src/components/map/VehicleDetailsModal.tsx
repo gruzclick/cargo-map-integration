@@ -15,6 +15,9 @@ interface VehicleDetailsModalProps {
 const VehicleDetailsModal = ({ modal, details, onDetailsChange, onSubmit, onClose }: VehicleDetailsModalProps) => {
   if (!modal) return null;
 
+  const showBoxes = modal.type !== 'truck';
+  const showPallets = modal.type !== 'car';
+
   return (
     <div 
       className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4"
@@ -30,33 +33,39 @@ const VehicleDetailsModal = ({ modal, details, onDetailsChange, onSubmit, onClos
             {modal.type === 'car' ? 'Легковой' : modal.type === 'truck' ? 'Грузовой' : 'Тягач'}
           </h3>
           <div className="space-y-3">
-            <div>
-              <label className="text-sm font-medium mb-1 block">Количество коробок</label>
-              <Input
-                type="number"
-                placeholder="Введите количество"
-                value={details.boxCount}
-                onChange={(e) => onDetailsChange({ ...details, boxCount: e.target.value })}
-              />
-            </div>
-            <div>
-              <label className="text-sm font-medium mb-1 block">Количество паллет</label>
-              <Input
-                type="number"
-                placeholder="Введите количество"
-                value={details.palletCount}
-                onChange={(e) => onDetailsChange({ ...details, palletCount: e.target.value })}
-              />
-            </div>
-            <div>
-              <label className="text-sm font-medium mb-1 block">Негабаритных паллет</label>
-              <Input
-                type="number"
-                placeholder="Введите количество"
-                value={details.oversizedCount}
-                onChange={(e) => onDetailsChange({ ...details, oversizedCount: e.target.value })}
-              />
-            </div>
+            {showBoxes && (
+              <div>
+                <label className="text-sm font-medium mb-1 block">Количество коробок</label>
+                <Input
+                  type="number"
+                  placeholder="Введите количество"
+                  value={details.boxCount}
+                  onChange={(e) => onDetailsChange({ ...details, boxCount: e.target.value })}
+                />
+              </div>
+            )}
+            {showPallets && (
+              <>
+                <div>
+                  <label className="text-sm font-medium mb-1 block">Количество паллет</label>
+                  <Input
+                    type="number"
+                    placeholder="Введите количество"
+                    value={details.palletCount}
+                    onChange={(e) => onDetailsChange({ ...details, palletCount: e.target.value })}
+                  />
+                </div>
+                <div>
+                  <label className="text-sm font-medium mb-1 block">Негабаритных паллет</label>
+                  <Input
+                    type="number"
+                    placeholder="Введите количество"
+                    value={details.oversizedCount}
+                    onChange={(e) => onDetailsChange({ ...details, oversizedCount: e.target.value })}
+                  />
+                </div>
+              </>
+            )}
             <div>
               <label className="text-sm font-medium mb-1 block">Объем груза (м³)</label>
               <Input

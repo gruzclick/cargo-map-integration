@@ -1,6 +1,5 @@
 import { useEffect, useState } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
-import MapLegend from './MapLegend';
 import MapFilters, { FilterState } from './MapFilters';
 import MapStats from './map/MapStats';
 import RouteSearchPanel from './map/RouteSearchPanel';
@@ -9,6 +8,7 @@ import YandexMapContainer from './map/YandexMapContainer';
 import MarkerDetailsModal from './map/MarkerDetailsModal';
 import CargoDetailsModal from './map/CargoDetailsModal';
 import VehicleDetailsModal from './map/VehicleDetailsModal';
+import StatusSelector from './map/StatusSelector';
 import { MapMarker, CargoDetailsModal as CargoDetailsModalType, VehicleDetailsModal as VehicleDetailsModalType, LiveMapProps } from './map/MapTypes';
 
 const LiveMap = ({ isPublic = false, onMarkerClick }: LiveMapProps = {}) => {
@@ -18,6 +18,9 @@ const LiveMap = ({ isPublic = false, onMarkerClick }: LiveMapProps = {}) => {
   const [mapLoaded, setMapLoaded] = useState(false);
   const [filters, setFilters] = useState<FilterState>({ userType: 'all' });
   const [routeSearch, setRouteSearch] = useState({ from: '', to: '' });
+  const [driverStatus, setDriverStatus] = useState('free');
+  const [cargoStatus, setCargoStatus] = useState('ready');
+  const [userLocation, setUserLocation] = useState<{ lat: number; lng: number } | null>(null);
   
   const [cargoDetailsModal, setCargoDetailsModal] = useState<CargoDetailsModalType | null>(null);
   const [cargoDetails, setCargoDetails] = useState({ quantity: '', weight: '', volume: '' });
@@ -114,16 +117,23 @@ const LiveMap = ({ isPublic = false, onMarkerClick }: LiveMapProps = {}) => {
     <div className="space-y-3 md:space-y-5">
       <MapStats cargoCount={cargoCount} driverCount={driverCount} />
 
+      {!isPublic && (
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+          <StatusSelector 
+            userType="driver"
+            status={driverStatus}
+            onStatusChange={setDriverStatus}
+          />
+          <StatusSelector 
+            userType="client"
+            status={cargoStatus}
+            onStatusChange={setCargoStatus}
+          />
+        </div>
+      )}
+
       <Card className="border border-gray-200/20 dark:border-gray-700/30 shadow-2xl bg-white/60 dark:bg-gray-900/60 backdrop-blur-2xl overflow-hidden animate-scale-in" style={{ animationDelay: '0.2s' }}>
         <CardContent className="p-3 md:p-5">
-          <RouteSearchPanel routeSearch={routeSearch} onRouteChange={setRouteSearch} />
-
-          <CargoVehicleSelector 
-            filters={filters}
-            onCargoTypeClick={handleCargoTypeClick}
-            onVehicleTypeClick={handleVehicleTypeClick}
-          />
-
           <YandexMapContainer 
             filteredMarkers={filteredMarkers}
             isPublic={isPublic}
@@ -133,8 +143,25 @@ const LiveMap = ({ isPublic = false, onMarkerClick }: LiveMapProps = {}) => {
         </CardContent>
       </Card>
 
+      <Card className="border border-gray-200/20 dark:border-gray-700/30 shadow-2xl bg-white/60 dark:bg-gray-900/60 backdrop-blur-2xl overflow-hidden animate-scale-in" style={{ animationDelay: '0.3s' }}>
+        <CardContent className="p-3 md:p-5">
+          <RouteSearchPanel 
+            routeSearch={routeSearch} 
+            onRouteChange={setRouteSearch}
+            onLocationDetected={setUserLocation}
+          />
+
+          <div className="border-t border-gray-200/30 dark:border-gray-700/30 my-3 md:my-4" />
+
+          <CargoVehicleSelector 
+            filters={filters}
+            onCargoTypeClick={handleCargoTypeClick}
+            onVehicleTypeClick={handleVehicleTypeClick}
+          />
+        </CardContent>
+      </Card>
+
       {!isPublic && <MapFilters onFilterChange={handleFilterChange} />}
-      <MapLegend />
 
       {!isPublic && (
         <MarkerDetailsModal 
