@@ -12,6 +12,7 @@ import AIAssistant from '@/components/AIAssistant';
 import QuickActions from '@/components/QuickActions';
 import PriceCalculator from '@/components/PriceCalculator';
 import FavoritesList from '@/components/FavoritesList';
+import ChatNotifications from '@/components/ChatNotifications';
 import { useTranslation } from 'react-i18next';
 import DeliveryForm from '@/components/DeliveryForm';
 import CarrierStatus from '@/components/CarrierStatus';
@@ -120,6 +121,7 @@ const Index = () => {
             </div>
           </div>
           <div className="flex items-center gap-1 md:gap-2">
+            <ChatNotifications currentUserId={user.user_id || user.phone} />
             <AccessibilityToggle />
             <ThemeToggle />
             <LanguageSelector />
