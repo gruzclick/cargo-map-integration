@@ -15,6 +15,8 @@ interface Message {
   text: string;
   timestamp: number;
   read: boolean;
+  image?: string;
+  imageType?: 'upload' | 'url';
 }
 
 interface OrderChatProps {
@@ -37,7 +39,10 @@ const OrderChat = ({
   const [messages, setMessages] = useState<Message[]>([]);
   const [newMessage, setNewMessage] = useState('');
   const [isTyping, setIsTyping] = useState(false);
+  const [selectedImage, setSelectedImage] = useState<string | null>(null);
+  const [imagePreview, setImagePreview] = useState<string | null>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const { toast } = useToast();
 
   useEffect(() => {
@@ -67,8 +72,30 @@ const OrderChat = ({
     }
   };
 
+  const handleImageSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (file.size > 5 * 1024 * 1024) {
+      toast({
+        title: 'Файл слишком большой',
+        description: 'Максимальный размер изображения: 5 МБ',
+        variant: 'destructive'
+      });
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      const base64String = reader.result as string;
+      setSelectedImage(base64String);
+      setImagePreview(base64String);
+    };
+    reader.readAsDataURL(file);
+  };
+
   const handleSendMessage = () => {
-    if (!newMessage.trim()) return;
+    if (!newMessage.trim() && !selectedImage) return;
 
     const message: Message = {
       id: `msg_${Date.now()}`,
@@ -77,13 +104,17 @@ const OrderChat = ({
       sender_type: currentUserType,
       text: newMessage.trim(),
       timestamp: Date.now(),
-      read: false
+      read: false,
+      image: selectedImage || undefined,
+      imageType: selectedImage ? 'upload' : undefined
     };
 
     const updatedMessages = [...messages, message];
     setMessages(updatedMessages);
     saveMessages(updatedMessages);
     setNewMessage('');
+    setSelectedImage(null);
+    setImagePreview(null);
 
     simulateRecipientTyping();
   };
@@ -181,13 +212,25 @@ const OrderChat = ({
                   
                   <div className={`flex flex-col max-w-[70%] ${isCurrentUser ? 'items-end' : 'items-start'}`}>
                     <div
-                      className={`rounded-2xl px-4 py-2 ${
+                      className={`rounded-2xl overflow-hidden ${
                         isCurrentUser
                           ? 'bg-primary text-primary-foreground'
                           : 'bg-secondary text-secondary-foreground'
                       }`}
                     >
-                      <p className="text-sm whitespace-pre-wrap break-words">{msg.text}</p>
+                      {msg.image && (
+                        <div className="relative">
+                          <img 
+                            src={msg.image} 
+                            alt="Прикрепленное изображение" 
+                            className="max-w-full max-h-64 object-cover cursor-pointer hover:opacity-90 transition-opacity"
+                            onClick={() => window.open(msg.image, '_blank')}
+                          />
+                        </div>
+                      )}
+                      {msg.text && (
+                        <p className="text-sm whitespace-pre-wrap break-words px-4 py-2">{msg.text}</p>
+                      )}
                     </div>
                     <div className="flex items-center gap-1 mt-1 px-2">
                       <span className="text-xs text-muted-foreground">
@@ -226,7 +269,46 @@ const OrderChat = ({
         </ScrollArea>
 
         <div className="border-t p-4">
+          {imagePreview && (
+            <div className="mb-3 relative inline-block">
+              <img 
+                src={imagePreview} 
+                alt="Превью" 
+                className="max-h-32 rounded-lg border-2 border-primary"
+              />
+              <Button
+                size="icon"
+                variant="destructive"
+                className="absolute -top-2 -right-2 h-6 w-6 rounded-full"
+                onClick={() => {
+                  setImagePreview(null);
+                  setSelectedImage(null);
+                  if (fileInputRef.current) {
+                    fileInputRef.current.value = '';
+                  }
+                }}
+              >
+                <Icon name="X" size={14} />
+              </Button>
+            </div>
+          )}
+          
           <div className="flex gap-2">
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept="image/*"
+              onChange={handleImageSelect}
+              className="hidden"
+            />
+            <Button
+              variant="outline"
+              size="icon"
+              onClick={() => fileInputRef.current?.click()}
+              className="flex-shrink-0"
+            >
+              <Icon name="Image" size={18} />
+            </Button>
             <Input
               value={newMessage}
               onChange={(e) => setNewMessage(e.target.value)}
@@ -236,7 +318,7 @@ const OrderChat = ({
             />
             <Button 
               onClick={handleSendMessage}
-              disabled={!newMessage.trim()}
+              disabled={!newMessage.trim() && !selectedImage}
               size="icon"
               className="flex-shrink-0"
             >
@@ -244,7 +326,7 @@ const OrderChat = ({
             </Button>
           </div>
           <p className="text-xs text-muted-foreground mt-2 px-1">
-            Enter — отправить, Shift+Enter — новая строка
+            Enter — отправить, Shift+Enter — новая строка • Макс. размер фото: 5 МБ
           </p>
         </div>
       </CardContent>
