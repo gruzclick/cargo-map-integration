@@ -105,13 +105,16 @@ export default function OpenStreetMapContainer({
     // Добавляем новые маркеры
     const bounds: L.LatLngExpression[] = [];
 
-    filteredMarkers.forEach((marker) => {
+    filteredMarkers.forEach((marker, index) => {
       const icon = createCustomIcon(
         marker.type,
         marker.type === 'cargo' ? '#3B82F6' : '#10B981'
       );
 
-      const leafletMarker = L.marker([marker.lat, marker.lng], { icon });
+      const leafletMarker = L.marker([marker.lat, marker.lng], { 
+        icon,
+        opacity: 0
+      });
 
       // Popup содержимое
       const popupContent = `
@@ -145,6 +148,12 @@ export default function OpenStreetMapContainer({
       }
 
       leafletMarker.addTo(markersLayer);
+      
+      // Анимация появления
+      setTimeout(() => {
+        leafletMarker.setOpacity(1);
+      }, index * 30);
+      
       bounds.push([marker.lat, marker.lng]);
     });
 

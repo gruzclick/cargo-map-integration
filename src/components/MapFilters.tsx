@@ -13,6 +13,7 @@ import {
 
 interface MapFiltersProps {
   onFilterChange: (filters: FilterState) => void;
+  className?: string;
 }
 
 export interface FilterState {
@@ -23,7 +24,7 @@ export interface FilterState {
   maxVolume?: number;
 }
 
-const MapFilters = ({ onFilterChange }: MapFiltersProps) => {
+const MapFilters = ({ onFilterChange, className }: MapFiltersProps) => {
   const { t } = useTranslation();
   const [isExpanded, setIsExpanded] = useState(false);
   const [filters, setFilters] = useState<FilterState>({
@@ -37,9 +38,9 @@ const MapFilters = ({ onFilterChange }: MapFiltersProps) => {
   };
 
   return (
-    <div className="fixed top-16 md:top-20 left-2 md:left-4 z-10 w-[calc(100vw-16px)] max-w-[320px] md:w-80 animate-slide-in-down">
-      <div className="bg-white/70 dark:bg-gray-900/70 backdrop-blur-2xl rounded-xl md:rounded-2xl shadow-2xl border border-gray-200/50 dark:border-gray-700/50 overflow-hidden transition-smooth">
-        <div className="p-3 md:p-4">
+    <div className={className}>
+      <div className={`${className ? 'border border-gray-200/20 dark:border-gray-700/30 shadow-2xl bg-white/60 dark:bg-gray-900/60 backdrop-blur-2xl rounded-lg overflow-hidden' : 'bg-white/70 dark:bg-gray-900/70 backdrop-blur-2xl rounded-xl md:rounded-2xl shadow-2xl border border-gray-200/50 dark:border-gray-700/50 overflow-hidden'} transition-smooth`}>
+        <div className={className ? "p-3 md:p-4" : "p-3 md:p-4"}>
           <div className="flex items-center justify-between mb-3 md:mb-4">
             <div className="flex items-center gap-2">
               <Icon name="Filter" size={18} className="text-gray-700 dark:text-gray-300 md:w-5 md:h-5" />

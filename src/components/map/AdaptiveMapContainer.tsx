@@ -37,23 +37,18 @@ export default function AdaptiveMapContainer(props: AdaptiveMapContainerProps) {
       )}
 
       {/* Кнопка переключения карт */}
-      <div className="absolute top-4 right-4 z-[1000] flex gap-2">
+      <div className="absolute top-3 right-3 z-[1000]">
         {!yandexFailed && (
           <button
             onClick={() => setUseOpenStreetMap(!useOpenStreetMap)}
-            className="bg-white/90 hover:bg-white backdrop-blur-sm px-3 py-2 rounded-lg shadow-lg transition-all flex items-center gap-2 text-sm font-medium"
+            className="bg-white/95 dark:bg-gray-800/95 hover:bg-white dark:hover:bg-gray-800 backdrop-blur-sm px-2.5 py-1.5 rounded-lg shadow-lg text-[11px] font-semibold transition-all hover:shadow-xl flex items-center gap-1.5 border border-gray-200/50 dark:border-gray-700/50"
             title={useOpenStreetMap ? 'Переключить на Яндекс.Карты' : 'Переключить на OpenStreetMap'}
           >
-            <Icon name="Map" size={16} />
-            {useOpenStreetMap ? 'Яндекс' : 'OSM'}
+            <Icon name="Map" size={14} className="text-gray-600 dark:text-gray-400" />
+            <span className="text-gray-900 dark:text-gray-100">
+              {useOpenStreetMap ? 'Яндекс' : 'OSM'}
+            </span>
           </button>
-        )}
-        
-        {yandexFailed && (
-          <div className="bg-yellow-50/90 backdrop-blur-sm px-3 py-2 rounded-lg shadow-lg text-xs text-yellow-800 flex items-center gap-2">
-            <Icon name="AlertTriangle" size={14} />
-            <span>API ключ не настроен</span>
-          </div>
         )}
       </div>
 
