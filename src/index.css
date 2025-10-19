@@ -125,6 +125,62 @@
   .high-contrast a {
     text-decoration: underline !important;
   }
+
+  .text-size-small {
+    font-size: 14px;
+  }
+
+  .text-size-medium {
+    font-size: 16px;
+  }
+
+  .text-size-large {
+    font-size: 18px;
+  }
+
+  .text-size-xlarge {
+    font-size: 20px;
+  }
+
+  .text-size-small h1 {
+    font-size: 1.75rem;
+  }
+  .text-size-small h2 {
+    font-size: 1.5rem;
+  }
+  .text-size-small h3 {
+    font-size: 1.25rem;
+  }
+
+  .text-size-medium h1 {
+    font-size: 2rem;
+  }
+  .text-size-medium h2 {
+    font-size: 1.75rem;
+  }
+  .text-size-medium h3 {
+    font-size: 1.5rem;
+  }
+
+  .text-size-large h1 {
+    font-size: 2.25rem;
+  }
+  .text-size-large h2 {
+    font-size: 2rem;
+  }
+  .text-size-large h3 {
+    font-size: 1.75rem;
+  }
+
+  .text-size-xlarge h1 {
+    font-size: 2.5rem;
+  }
+  .text-size-xlarge h2 {
+    font-size: 2.25rem;
+  }
+  .text-size-xlarge h3 {
+    font-size: 2rem;
+  }
 }
 
 @layer base {
