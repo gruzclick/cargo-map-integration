@@ -296,15 +296,18 @@ const Auth = ({ onSuccess }: AuthProps) => {
 
             {!isLogin && (
               <div className="space-y-2">
-                <Label htmlFor="email">Email *</Label>
+                <Label htmlFor="email">Email (необязательно)</Label>
                 <Input
                   id="email"
                   type="email"
-                  placeholder="email@example.com"
+                  placeholder="email@example.com (для восстановления доступа)"
                   value={formData.email}
                   onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                  required
                 />
+                <p className="text-xs text-muted-foreground">
+                  <Icon name="Info" size={12} className="inline mr-1" />
+                  Рекомендуем указать email для восстановления доступа к аккаунту. Вы сможете подтвердить его позже в настройках.
+                </p>
               </div>
             )}
 

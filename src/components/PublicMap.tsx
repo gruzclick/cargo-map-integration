@@ -37,7 +37,7 @@ const PublicMap = ({ onRegister }: PublicMapProps) => {
                   
                   if (navigator.share) {
                     navigator.share({
-                      title: '🚛 Грузовая биржа - Логистика',
+                      title: '🚛 Груз Клик',
                       text: shareText,
                       url: url
                     }).catch(() => {
