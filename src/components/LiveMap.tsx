@@ -10,6 +10,7 @@ import MarkerDetailsModal from './map/MarkerDetailsModal';
 import CargoDetailsModal from './map/CargoDetailsModal';
 import VehicleDetailsModal from './map/VehicleDetailsModal';
 import StatusSelector from './map/StatusSelector';
+import NearbyCargoNotification from './map/NearbyCargoNotification';
 import { MapMarker, CargoDetailsModal as CargoDetailsModalType, VehicleDetailsModal as VehicleDetailsModalType, LiveMapProps } from './map/MapTypes';
 
 const LiveMap = ({ isPublic = false, onMarkerClick }: LiveMapProps = {}) => {
@@ -122,52 +123,61 @@ const LiveMap = ({ isPublic = false, onMarkerClick }: LiveMapProps = {}) => {
 
   return (
     <div className="space-y-1.5 md:space-y-2.5">
+      <NearbyCargoNotification 
+        markers={markers}
+        userLocation={userLocation}
+        radiusKm={50}
+      />
+
       <div className="grid grid-cols-1 md:grid-cols-4 gap-1.5 md:gap-2">
         {!isPublic && <MapFilters onFilterChange={handleFilterChange} className="md:col-span-2" />}
         
-        <Card className="border border-gray-200/20 dark:border-gray-700/30 shadow-2xl bg-white/60 dark:bg-gray-900/60 backdrop-blur-2xl animate-scale-in">
-          <CardContent className="p-3 md:p-4">
-            <div className="flex items-center gap-2">
-              <div className="w-8 h-8 md:w-9 md:h-9 bg-gradient-to-br from-sky-400 to-sky-600 rounded-xl flex items-center justify-center shadow-lg shrink-0">
-                <Icon name="Package" size={16} className="text-white" />
+        <div className="space-y-1.5 md:space-y-2">
+          <Card className="border border-gray-200/20 dark:border-gray-700/30 shadow-2xl bg-white/60 dark:bg-gray-900/60 backdrop-blur-2xl animate-scale-in">
+            <CardContent className="p-2.5 md:p-3">
+              <div className="flex items-center gap-2">
+                <div className="w-7 h-7 md:w-8 md:h-8 bg-gradient-to-br from-sky-400 to-sky-600 rounded-lg flex items-center justify-center shadow-lg shrink-0">
+                  <Icon name="Package" size={14} className="text-white" />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="text-[9px] md:text-[10px] text-gray-600 dark:text-gray-400">Грузов ожидает</p>
+                  <p className="text-lg md:text-xl font-bold text-gray-900 dark:text-gray-100">{cargoCount}</p>
+                </div>
               </div>
-              <div className="flex-1 min-w-0">
-                <p className="text-[10px] md:text-xs text-gray-600 dark:text-gray-400">Грузов ожидает</p>
-                <p className="text-xl md:text-2xl font-bold text-gray-900 dark:text-gray-100">{cargoCount}</p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card className="border border-gray-200/20 dark:border-gray-700/30 shadow-2xl bg-white/60 dark:bg-gray-900/60 backdrop-blur-2xl animate-scale-in" style={{ animationDelay: '0.1s' }}>
-          <CardContent className="p-3 md:p-4">
-            <div className="flex items-center gap-2">
-              <div className="w-8 h-8 md:w-9 md:h-9 bg-gradient-to-br from-green-400 to-green-600 rounded-xl flex items-center justify-center shadow-lg shrink-0">
-                <Icon name="Truck" size={16} className="text-white" />
-              </div>
-              <div className="flex-1 min-w-0">
-                <p className="text-[10px] md:text-xs text-gray-600 dark:text-gray-400">Водителей свободно</p>
-                <p className="text-xl md:text-2xl font-bold text-gray-900 dark:text-gray-100">{driverCount}</p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
-
-      {!isPublic && (
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-1.5 md:gap-2">
-          <StatusSelector 
-            userType="driver"
-            status={driverStatus}
-            onStatusChange={setDriverStatus}
-          />
-          <StatusSelector 
-            userType="client"
-            status={cargoStatus}
-            onStatusChange={setCargoStatus}
-          />
+            </CardContent>
+          </Card>
+          {!isPublic && (
+            <StatusSelector 
+              userType="client"
+              status={cargoStatus}
+              onStatusChange={setCargoStatus}
+            />
+          )}
         </div>
-      )}
+
+        <div className="space-y-1.5 md:space-y-2">
+          <Card className="border border-gray-200/20 dark:border-gray-700/30 shadow-2xl bg-white/60 dark:bg-gray-900/60 backdrop-blur-2xl animate-scale-in" style={{ animationDelay: '0.1s' }}>
+            <CardContent className="p-2.5 md:p-3">
+              <div className="flex items-center gap-2">
+                <div className="w-7 h-7 md:w-8 md:h-8 bg-gradient-to-br from-green-400 to-green-600 rounded-lg flex items-center justify-center shadow-lg shrink-0">
+                  <Icon name="Truck" size={14} className="text-white" />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="text-[9px] md:text-[10px] text-gray-600 dark:text-gray-400">Водителей свободно</p>
+                  <p className="text-lg md:text-xl font-bold text-gray-900 dark:text-gray-100">{driverCount}</p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+          {!isPublic && (
+            <StatusSelector 
+              userType="driver"
+              status={driverStatus}
+              onStatusChange={setDriverStatus}
+            />
+          )}
+        </div>
+      </div>
 
       <Card className="border border-gray-200/20 dark:border-gray-700/30 shadow-2xl bg-white/60 dark:bg-gray-900/60 backdrop-blur-2xl overflow-hidden animate-scale-in" style={{ animationDelay: '0.2s' }}>
         <CardContent className="p-3 md:p-5">
