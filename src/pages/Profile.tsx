@@ -198,6 +198,68 @@ export default function Profile() {
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
+                  <Icon name="Mail" size={20} />
+                  Подтверждение Email
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="bg-yellow-500/10 border border-yellow-500/20 rounded-md p-4 flex items-start gap-3">
+                  <Icon name="AlertTriangle" size={20} className="text-yellow-500 mt-0.5 shrink-0" />
+                  <div className="flex-1">
+                    <p className="font-medium text-yellow-600 dark:text-yellow-500">Email не подтверждён</p>
+                    <p className="text-sm text-muted-foreground mt-1">
+                      Подтвердите email для восстановления доступа к аккаунту в случае утери телефона
+                    </p>
+                  </div>
+                </div>
+
+                <div className="space-y-3">
+                  <div>
+                    <label className="text-sm font-medium">Ваш email</label>
+                    <div className="mt-1.5 flex gap-2">
+                      <Input 
+                        type="email" 
+                        placeholder="example@email.com"
+                        defaultValue="carrier@test.ru"
+                      />
+                    </div>
+                  </div>
+
+                  <Button className="w-full">
+                    <Icon name="Send" size={18} className="mr-2" />
+                    Отправить код подтверждения
+                  </Button>
+
+                  <div className="bg-blue-500/10 border border-blue-500/20 rounded-md p-4">
+                    <p className="text-sm font-medium text-blue-600 dark:text-blue-400 mb-2">
+                      Зачем подтверждать email?
+                    </p>
+                    <ul className="text-sm text-muted-foreground space-y-1.5">
+                      <li className="flex items-start gap-2">
+                        <Icon name="Shield" size={14} className="text-blue-500 mt-0.5 shrink-0" />
+                        <span><strong>Восстановление доступа</strong> — если потеряете телефон или SIM-карту, сможете восстановить аккаунт через email</span>
+                      </li>
+                      <li className="flex items-start gap-2">
+                        <Icon name="Bell" size={14} className="text-blue-500 mt-0.5 shrink-0" />
+                        <span><strong>Важные уведомления</strong> — получайте информацию о новых заказах, изменениях в системе и обновлениях безопасности</span>
+                      </li>
+                      <li className="flex items-start gap-2">
+                        <Icon name="Lock" size={14} className="text-blue-500 mt-0.5 shrink-0" />
+                        <span><strong>Дополнительная защита</strong> — подтверждённый email повышает доверие клиентов и защищает от мошенников</span>
+                      </li>
+                      <li className="flex items-start gap-2">
+                        <Icon name="UserCheck" size={14} className="text-blue-500 mt-0.5 shrink-0" />
+                        <span><strong>Верификация аккаунта</strong> — подтверждённые пользователи получают больше заказов (+25% в среднем)</span>
+                      </li>
+                    </ul>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
                   <Icon name="QrCode" size={20} />
                   QR-код для доступа
                 </CardTitle>

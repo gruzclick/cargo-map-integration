@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
-import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import Icon from '@/components/ui/icon';
+import AddressAutocomplete from '@/components/AddressAutocomplete';
 import {
   Select,
   SelectContent,
@@ -104,19 +104,36 @@ const RouteSearchPanel = ({ routeSearch, onRouteChange, onLocationDetected }: Ro
         </Button>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
-        <Input
-          placeholder="Откуда"
-          value={routeSearch.from}
-          onChange={(e) => onRouteChange({ ...routeSearch, from: e.target.value })}
-          className="text-xs md:text-sm"
-        />
-        <Input
-          placeholder="Куда"
-          value={routeSearch.to}
-          onChange={(e) => onRouteChange({ ...routeSearch, to: e.target.value })}
-          className="text-xs md:text-sm"
-        />
+      <div className="space-y-2">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+          <AddressAutocomplete
+            value={routeSearch.from}
+            onChange={(value) => onRouteChange({ ...routeSearch, from: value })}
+            placeholder="Откуда (город, адрес, склад)"
+            className="text-xs md:text-sm"
+          />
+          <AddressAutocomplete
+            value={routeSearch.to}
+            onChange={(value) => onRouteChange({ ...routeSearch, to: value })}
+            placeholder="Куда (город, адрес, склад)"
+            className="text-xs md:text-sm"
+          />
+        </div>
+
+        {(routeSearch.from || routeSearch.to) && (
+          <Button 
+            className="w-full" 
+            size="sm"
+            onClick={() => {
+              if (routeSearch.from && routeSearch.to) {
+                console.log('Поиск маршрута:', routeSearch);
+              }
+            }}
+          >
+            <Icon name="Search" size={16} className="mr-2" />
+            Найти маршрут
+          </Button>
+        )}
       </div>
 
       {savedRoutes.length > 0 && (
