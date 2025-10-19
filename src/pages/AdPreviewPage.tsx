@@ -160,5 +160,6 @@ export default function AdPreviewPage() {
           </Card>
         </div>
       </div>
+    </div>
   );
 }
