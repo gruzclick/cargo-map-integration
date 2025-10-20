@@ -1,8 +1,6 @@
 import { useEffect, useState } from 'react';
-import { Card, CardContent } from '@/components/ui/card';
 import Icon from '@/components/ui/icon';
 import MapFilters, { FilterState } from './MapFilters';
-import MapStats from './map/MapStats';
 import RouteSearchPanel from './map/RouteSearchPanel';
 import CargoVehicleSelector from './map/CargoVehicleSelector';
 import AdaptiveMapContainer from './map/AdaptiveMapContainer';
@@ -31,7 +29,7 @@ const LiveMap = ({ isPublic = false, onMarkerClick }: LiveMapProps = {}) => {
   const [vehicleDetailsModal, setVehicleDetailsModal] = useState<VehicleDetailsModalType | null>(null);
   const [vehicleDetails, setVehicleDetails] = useState({ boxCount: '', palletCount: '', oversizedCount: '', volume: '' });
 
-  const [showSidebar, setShowSidebar] = useState(false);
+  const [showSearchPanel, setShowSearchPanel] = useState(false);
 
   useEffect(() => {
     fetchMarkers();
@@ -142,125 +140,129 @@ const LiveMap = ({ isPublic = false, onMarkerClick }: LiveMapProps = {}) => {
         />
       </div>
 
-      {/* Компактные счетчики вверху справа */}
-      <div className="absolute top-3 right-3 z-10 flex gap-2">
-        <button
-          onClick={() => setShowSidebar(true)}
-          className="flex items-center gap-2 px-3 py-2 rounded-xl bg-white/15 dark:bg-gray-900/15 backdrop-blur-md border border-white/20 dark:border-gray-700/20 shadow-lg hover:bg-white/25 dark:hover:bg-gray-900/25 transition-all"
-        >
-          <div className="w-8 h-8 bg-gradient-to-br from-blue-400 to-blue-600 rounded-lg flex items-center justify-center">
-            <Icon name="Package" size={16} className="text-white" />
+      {/* Блоки статистики вверху */}
+      <div className="absolute top-3 left-3 right-3 z-10 flex gap-2 pointer-events-none">
+        <div className="flex gap-2 pointer-events-auto">
+          {!isPublic && <MapFilters onFilterChange={handleFilterChange} className="md:w-auto" />}
+          
+          <div className="bg-white/15 dark:bg-gray-900/15 backdrop-blur-md border border-white/20 dark:border-gray-700/20 shadow-lg rounded-xl px-3 py-2 flex items-center gap-2">
+            <div className="w-8 h-8 bg-gradient-to-br from-blue-400 to-blue-600 rounded-lg flex items-center justify-center">
+              <Icon name="Package" size={16} className="text-white" />
+            </div>
+            <span className="text-lg font-bold text-gray-900 dark:text-white">{cargoCount}</span>
           </div>
-          <span className="text-lg font-bold text-gray-900 dark:text-white">{cargoCount}</span>
+
+          <div className="bg-white/15 dark:bg-gray-900/15 backdrop-blur-md border border-white/20 dark:border-gray-700/20 shadow-lg rounded-xl px-3 py-2 flex items-center gap-2">
+            <div className="w-8 h-8 bg-gradient-to-br from-green-400 to-green-600 rounded-lg flex items-center justify-center">
+              <Icon name="Truck" size={16} className="text-white" />
+            </div>
+            <span className="text-lg font-bold text-gray-900 dark:text-white">{driverCount}</span>
+          </div>
+        </div>
+      </div>
+
+      {/* Плавающие кнопки справа внизу */}
+      <div className="absolute right-4 bottom-4 z-10 flex flex-col gap-3">
+        {/* Кнопка поиска */}
+        <button
+          onClick={() => setShowSearchPanel(true)}
+          className="w-14 h-14 rounded-full bg-gradient-to-br from-blue-500 to-blue-600 shadow-2xl flex items-center justify-center hover:scale-110 active:scale-95 transition-all"
+          title="Поиск"
+        >
+          <Icon name="Search" size={24} className="text-white" />
         </button>
 
+        {/* Кнопка моё местоположение */}
         <button
-          onClick={() => setShowSidebar(true)}
-          className="flex items-center gap-2 px-3 py-2 rounded-xl bg-white/15 dark:bg-gray-900/15 backdrop-blur-md border border-white/20 dark:border-gray-700/20 shadow-lg hover:bg-white/25 dark:hover:bg-gray-900/25 transition-all"
+          onClick={() => {
+            if (navigator.geolocation) {
+              navigator.geolocation.getCurrentPosition(
+                (position) => {
+                  setUserLocation({
+                    lat: position.coords.latitude,
+                    lng: position.coords.longitude
+                  });
+                },
+                (error) => {
+                  console.error('Ошибка геолокации:', error);
+                  alert('Не удалось определить местоположение');
+                }
+              );
+            }
+          }}
+          className="w-14 h-14 rounded-full bg-white/15 dark:bg-gray-900/15 backdrop-blur-md border border-white/20 dark:border-gray-700/20 shadow-lg flex items-center justify-center hover:bg-white/25 dark:hover:bg-gray-900/25 transition-all hover:scale-110 active:scale-95"
+          title="Моё местоположение"
         >
-          <div className="w-8 h-8 bg-gradient-to-br from-green-400 to-green-600 rounded-lg flex items-center justify-center">
-            <Icon name="Truck" size={16} className="text-white" />
-          </div>
-          <span className="text-lg font-bold text-gray-900 dark:text-white">{driverCount}</span>
+          <Icon name="Crosshair" size={20} className="text-gray-900 dark:text-white" />
         </button>
       </div>
 
-      {/* Кнопка моё местоположение */}
-      <button
-        onClick={() => {
-          if (navigator.geolocation) {
-            navigator.geolocation.getCurrentPosition(
-              (position) => {
-                setUserLocation({
-                  lat: position.coords.latitude,
-                  lng: position.coords.longitude
-                });
-              },
-              (error) => {
-                console.error('Ошибка геолокации:', error);
-                alert('Не удалось определить местоположение');
-              }
-            );
-          }
-        }}
-        className="absolute bottom-3 left-3 z-10 w-12 h-12 rounded-full bg-white/15 dark:bg-gray-900/15 backdrop-blur-md border border-white/20 dark:border-gray-700/20 shadow-lg flex items-center justify-center hover:bg-white/25 dark:hover:bg-gray-900/25 transition-all hover:scale-110 active:scale-95"
-        title="Моё местоположение"
-      >
-        <Icon name="Crosshair" size={20} className="text-gray-900 dark:text-white" />
-      </button>
-
-      {/* Боковая панель */}
-      {showSidebar && (
+      {/* Боковая панель поиска */}
+      {showSearchPanel && (
         <>
           <div 
             className="absolute inset-0 bg-black/20 backdrop-blur-sm z-20 animate-fade-in"
-            onClick={() => setShowSidebar(false)}
+            onClick={() => setShowSearchPanel(false)}
           />
           
-          <div className="absolute top-0 right-0 bottom-0 w-full md:w-[400px] bg-white/95 dark:bg-gray-900/95 backdrop-blur-xl border-l border-white/20 dark:border-gray-700/20 shadow-2xl z-30 overflow-y-auto animate-slide-in-right">
-            <div className="p-4 space-y-4">
+          <div className="absolute top-0 right-0 bottom-0 w-full md:w-[420px] bg-white/95 dark:bg-gray-900/95 backdrop-blur-xl border-l border-white/20 dark:border-gray-700/20 shadow-2xl z-30 overflow-y-auto animate-slide-in-right">
+            <div className="p-5 space-y-5">
               <div className="flex items-center justify-between">
-                <h2 className="text-xl font-bold text-gray-900 dark:text-white flex items-center gap-2">
-                  <Icon name="Filter" size={24} />
-                  Фильтры и поиск
+                <h2 className="text-2xl font-bold text-gray-900 dark:text-white flex items-center gap-2">
+                  <Icon name="Search" size={28} />
+                  Поиск
                 </h2>
                 <button
-                  onClick={() => setShowSidebar(false)}
-                  className="rounded-full w-8 h-8 flex items-center justify-center hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+                  onClick={() => setShowSearchPanel(false)}
+                  className="rounded-full w-10 h-10 flex items-center justify-center hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
                 >
-                  <Icon name="X" size={20} />
+                  <Icon name="X" size={24} />
                 </button>
               </div>
 
-              <div className="space-y-3">
-                <div className="bg-gradient-to-br from-blue-50 to-blue-100 dark:from-blue-900/20 dark:to-blue-800/20 rounded-xl p-4 border border-blue-200/50 dark:border-blue-700/30">
-                  <div className="flex items-center gap-3 mb-3">
-                    <div className="w-10 h-10 bg-gradient-to-br from-blue-400 to-blue-600 rounded-lg flex items-center justify-center shadow-lg">
-                      <Icon name="Package" size={20} className="text-white" />
+              {/* Статистика */}
+              {!isPublic && (
+                <div className="space-y-3">
+                  <div className="bg-gradient-to-br from-blue-50 to-blue-100 dark:from-blue-900/20 dark:to-blue-800/20 rounded-xl p-4 border border-blue-200/50 dark:border-blue-700/30">
+                    <div className="flex items-center gap-3 mb-3">
+                      <div className="w-10 h-10 bg-gradient-to-br from-blue-400 to-blue-600 rounded-lg flex items-center justify-center shadow-lg">
+                        <Icon name="Package" size={20} className="text-white" />
+                      </div>
+                      <div>
+                        <p className="text-2xl font-bold text-gray-900 dark:text-white">{cargoCount}</p>
+                        <p className="text-xs text-gray-700 dark:text-gray-300">Всего грузов</p>
+                      </div>
                     </div>
-                    <div>
-                      <p className="text-2xl font-bold text-gray-900 dark:text-white">{cargoCount}</p>
-                      <p className="text-xs text-gray-700 dark:text-gray-300">Всего грузов</p>
-                    </div>
-                  </div>
-                  {!isPublic && (
                     <StatusSelector 
                       userType="client"
                       status={cargoStatus}
                       onStatusChange={setCargoStatus}
                     />
-                  )}
-                </div>
-
-                <div className="bg-gradient-to-br from-green-50 to-green-100 dark:from-green-900/20 dark:to-green-800/20 rounded-xl p-4 border border-green-200/50 dark:border-green-700/30">
-                  <div className="flex items-center gap-3 mb-3">
-                    <div className="w-10 h-10 bg-gradient-to-br from-green-400 to-green-600 rounded-lg flex items-center justify-center shadow-lg">
-                      <Icon name="Truck" size={20} className="text-white" />
-                    </div>
-                    <div>
-                      <p className="text-2xl font-bold text-gray-900 dark:text-white">{driverCount}</p>
-                      <p className="text-xs text-gray-700 dark:text-gray-300">Перевозчиков</p>
-                    </div>
                   </div>
-                  {!isPublic && (
+
+                  <div className="bg-gradient-to-br from-green-50 to-green-100 dark:from-green-900/20 dark:to-green-800/20 rounded-xl p-4 border border-green-200/50 dark:border-green-700/30">
+                    <div className="flex items-center gap-3 mb-3">
+                      <div className="w-10 h-10 bg-gradient-to-br from-green-400 to-green-600 rounded-lg flex items-center justify-center shadow-lg">
+                        <Icon name="Truck" size={20} className="text-white" />
+                      </div>
+                      <div>
+                        <p className="text-2xl font-bold text-gray-900 dark:text-white">{driverCount}</p>
+                        <p className="text-xs text-gray-700 dark:text-gray-300">Перевозчиков</p>
+                      </div>
+                    </div>
                     <StatusSelector 
                       userType="driver"
                       status={driverStatus}
                       onStatusChange={setDriverStatus}
                     />
-                  )}
-                </div>
-              </div>
-
-              {!isPublic && (
-                <div className="border-t border-gray-200/30 dark:border-gray-700/30 pt-4">
-                  <MapFilters onFilterChange={handleFilterChange} />
+                  </div>
                 </div>
               )}
 
-              <div className="border-t border-gray-200/30 dark:border-gray-700/30 pt-4">
+              {/* Поиск маршрутов */}
+              <div className="border-t border-gray-200/30 dark:border-gray-700/30 pt-5">
                 <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-3 flex items-center gap-2">
-                  <Icon name="Search" size={20} />
+                  <Icon name="MapPin" size={20} />
                   Поиск маршрутов
                 </h3>
                 <RouteSearchPanel 
@@ -270,7 +272,12 @@ const LiveMap = ({ isPublic = false, onMarkerClick }: LiveMapProps = {}) => {
                 />
               </div>
 
-              <div className="border-t border-gray-200/30 dark:border-gray-700/30 pt-4">
+              {/* Типы грузов/транспорта */}
+              <div className="border-t border-gray-200/30 dark:border-gray-700/30 pt-5">
+                <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-3 flex items-center gap-2">
+                  <Icon name="Package2" size={20} />
+                  Типы грузов и транспорта
+                </h3>
                 <CargoVehicleSelector 
                   filters={filters}
                   onCargoTypeClick={handleCargoTypeClick}
