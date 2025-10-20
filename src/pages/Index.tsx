@@ -190,9 +190,9 @@ const Index = () => {
         </div>
       </header>
 
-      <div className="container mx-auto px-0.5 md:px-1 py-2 md:py-4">
+      <div className="container mx-auto px-0.5 md:px-1 py-1 md:py-2">
         <Tabs defaultValue="map" className="w-full">
-          <TabsList className="grid w-full max-w-4xl mx-auto grid-cols-3 md:grid-cols-6 mb-3 md:mb-4 bg-white/60 dark:bg-gray-900/60 backdrop-blur-2xl border border-gray-200/20 dark:border-gray-700/30 p-1.5 rounded-2xl shadow-lg overflow-x-auto">
+          <TabsList className="grid w-full max-w-4xl mx-auto grid-cols-3 md:grid-cols-6 mb-2 bg-white/60 dark:bg-gray-900/60 backdrop-blur-2xl border border-gray-200/20 dark:border-gray-700/30 p-1.5 rounded-2xl shadow-lg overflow-x-auto">
             <TabsTrigger value="map" className="rounded-xl data-[state=active]:bg-white/80 dark:data-[state=active]:bg-gray-800/80 data-[state=active]:backdrop-blur-xl data-[state=active]:shadow-md text-xs md:text-sm">
               <Icon name="Map" size={16} className="md:mr-2" />
               <span className="hidden md:inline">Карта</span>

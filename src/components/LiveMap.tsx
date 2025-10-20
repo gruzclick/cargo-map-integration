@@ -122,97 +122,100 @@ const LiveMap = ({ isPublic = false, onMarkerClick }: LiveMapProps = {}) => {
   const driverCount = filteredMarkers.filter(m => m.type === 'driver').length;
 
   return (
-    <div className="space-y-0.75 md:space-y-1.25">
+    <div className="relative w-full h-[calc(100vh-80px)]">
       <NearbyCargoNotification 
         markers={markers}
         userLocation={userLocation}
         radiusKm={50}
       />
 
-      <div className="flex flex-col md:flex-row gap-1.5 md:gap-2">
-        {!isPublic && <MapFilters onFilterChange={handleFilterChange} className="md:w-[40%]" />}
-        
-        <div className="shadow-2xl bg-gradient-to-br from-white via-gray-50 to-gray-100 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 backdrop-blur-2xl animate-scale-in md:w-[30%] rounded-xl border border-gray-200/50 dark:border-gray-700/30">
-          <div className="p-2.5 md:p-3">
-            <div className="flex md:flex-col gap-1.5 md:gap-2">
-              <div className="flex-1 md:flex-none flex items-center gap-2">
-                <div className="w-9 h-9 md:w-11 md:h-11 bg-gradient-to-br from-blue-400 to-blue-600 rounded-xl flex items-center justify-center shadow-lg shrink-0">
-                  <Icon name="Package" size={18} className="text-white md:w-6 md:h-6" />
+      {/* Карта на весь экран */}
+      <div className="absolute inset-0 z-0">
+        <AdaptiveMapContainer 
+          filteredMarkers={filteredMarkers}
+          isPublic={isPublic}
+          onMarkerClick={handleMapMarkerClick}
+          onMapLoaded={setMapLoaded}
+        />
+      </div>
+
+      {/* Блоки поверх карты */}
+      <div className="absolute top-3 left-3 right-3 z-10 space-y-2 pointer-events-none">
+        <div className="flex flex-col md:flex-row gap-2 pointer-events-auto">
+          {!isPublic && <MapFilters onFilterChange={handleFilterChange} className="md:w-[40%]" />}
+          
+          <div className="bg-white/40 dark:bg-gray-900/40 backdrop-blur-xl border border-white/30 dark:border-gray-700/30 shadow-2xl animate-scale-in md:w-[30%] rounded-2xl">
+            <div className="p-2.5 md:p-3">
+              <div className="flex md:flex-col gap-1.5 md:gap-2">
+                <div className="flex-1 md:flex-none flex items-center gap-2">
+                  <div className="w-9 h-9 md:w-11 md:h-11 bg-gradient-to-br from-blue-400 to-blue-600 rounded-xl flex items-center justify-center shadow-lg shrink-0">
+                    <Icon name="Package" size={18} className="text-white md:w-6 md:h-6" />
+                  </div>
+                  <div className="flex flex-col">
+                    <p className="text-xl md:text-2xl font-bold text-gray-900 dark:text-white">{cargoCount}</p>
+                    <p className="text-xs md:text-sm text-gray-700 dark:text-gray-200">Всего грузов</p>
+                  </div>
                 </div>
-                <div className="flex flex-col">
-                  <p className="text-xl md:text-2xl font-bold text-gray-900 dark:text-white">{cargoCount}</p>
-                  <p className="text-xs md:text-sm text-gray-600 dark:text-gray-300">Всего грузов</p>
-                </div>
+                {!isPublic && (
+                  <div className="flex-1 md:flex-none">
+                    <StatusSelector 
+                      userType="client"
+                      status={cargoStatus}
+                      onStatusChange={setCargoStatus}
+                    />
+                  </div>
+                )}
               </div>
-              {!isPublic && (
-                <div className="flex-1 md:flex-none">
-                  <StatusSelector 
-                    userType="client"
-                    status={cargoStatus}
-                    onStatusChange={setCargoStatus}
-                  />
-                </div>
-              )}
             </div>
           </div>
-        </div>
 
-        <div className="shadow-2xl bg-gradient-to-br from-white via-gray-50 to-gray-100 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 backdrop-blur-2xl animate-scale-in md:w-[30%] rounded-xl border border-gray-200/50 dark:border-gray-700/30" style={{ animationDelay: '0.1s' }}>
-          <div className="p-2.5 md:p-3">
-            <div className="flex md:flex-col gap-1.5 md:gap-2">
-              <div className="flex-1 md:flex-none flex items-center gap-2">
-                <div className="w-9 h-9 md:w-11 md:h-11 bg-gradient-to-br from-green-400 to-green-600 rounded-xl flex items-center justify-center shadow-lg shrink-0">
-                  <Icon name="Truck" size={18} className="text-white md:w-6 md:h-6" />
+          <div className="bg-white/40 dark:bg-gray-900/40 backdrop-blur-xl border border-white/30 dark:border-gray-700/30 shadow-2xl animate-scale-in md:w-[30%] rounded-2xl" style={{ animationDelay: '0.1s' }}>
+            <div className="p-2.5 md:p-3">
+              <div className="flex md:flex-col gap-1.5 md:gap-2">
+                <div className="flex-1 md:flex-none flex items-center gap-2">
+                  <div className="w-9 h-9 md:w-11 md:h-11 bg-gradient-to-br from-green-400 to-green-600 rounded-xl flex items-center justify-center shadow-lg shrink-0">
+                    <Icon name="Truck" size={18} className="text-white md:w-6 md:h-6" />
+                  </div>
+                  <div className="flex flex-col">
+                    <p className="text-xl md:text-2xl font-bold text-gray-900 dark:text-white">{driverCount}</p>
+                    <p className="text-xs md:text-sm text-gray-700 dark:text-gray-200">Перевозчиков свободно</p>
+                  </div>
                 </div>
-                <div className="flex flex-col">
-                  <p className="text-xl md:text-2xl font-bold text-gray-900 dark:text-white">{driverCount}</p>
-                  <p className="text-xs md:text-sm text-gray-600 dark:text-gray-300">Перевозчиков свободно</p>
-                </div>
+                {!isPublic && (
+                  <div className="flex-1 md:flex-none">
+                    <StatusSelector 
+                      userType="driver"
+                      status={driverStatus}
+                      onStatusChange={setDriverStatus}
+                    />
+                  </div>
+                )}
               </div>
-              {!isPublic && (
-                <div className="flex-1 md:flex-none">
-                  <StatusSelector 
-                    userType="driver"
-                    status={driverStatus}
-                    onStatusChange={setDriverStatus}
-                  />
-                </div>
-              )}
             </div>
           </div>
         </div>
       </div>
 
-      <Card className="border border-gray-200/20 dark:border-gray-700/30 shadow-2xl bg-white/60 dark:bg-gray-900/60 backdrop-blur-2xl overflow-hidden animate-scale-in" style={{ animationDelay: '0.2s' }}>
-        <CardContent className="p-3 md:p-5">
-          <AdaptiveMapContainer 
-            filteredMarkers={filteredMarkers}
-            isPublic={isPublic}
-            onMarkerClick={handleMapMarkerClick}
-            onMapLoaded={setMapLoaded}
-          />
-        </CardContent>
-      </Card>
+      {/* Панель поиска маршрутов внизу */}
+      <div className="absolute bottom-3 left-3 right-3 z-10 pointer-events-auto">
+        <Card className="border border-white/30 dark:border-gray-700/30 shadow-2xl bg-white/40 dark:bg-gray-900/40 backdrop-blur-xl overflow-hidden animate-scale-in">
+          <CardContent className="p-3 md:p-4">
+            <RouteSearchPanel 
+              routeSearch={routeSearch} 
+              onRouteChange={setRouteSearch}
+              onLocationDetected={setUserLocation}
+            />
 
-      <Card className="border border-gray-200/20 dark:border-gray-700/30 shadow-2xl bg-white/60 dark:bg-gray-900/60 backdrop-blur-2xl overflow-hidden animate-scale-in" style={{ animationDelay: '0.3s' }}>
-        <CardContent className="p-3 md:p-5">
-          <RouteSearchPanel 
-            routeSearch={routeSearch} 
-            onRouteChange={setRouteSearch}
-            onLocationDetected={setUserLocation}
-          />
+            <div className="border-t border-gray-200/30 dark:border-gray-700/30 my-2" />
 
-          <div className="border-t border-gray-200/30 dark:border-gray-700/30 my-2 md:my-2" />
-
-          <CargoVehicleSelector 
-            filters={filters}
-            onCargoTypeClick={handleCargoTypeClick}
-            onVehicleTypeClick={handleVehicleTypeClick}
-          />
-        </CardContent>
-      </Card>
-
-
+            <CargoVehicleSelector 
+              filters={filters}
+              onCargoTypeClick={handleCargoTypeClick}
+              onVehicleTypeClick={handleVehicleTypeClick}
+            />
+          </CardContent>
+        </Card>
+      </div>
 
       {!isPublic && (
         <MarkerDetailsModal 
