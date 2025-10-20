@@ -70,8 +70,8 @@ const YandexMapContainer = ({ filteredMarkers, isPublic, onMarkerClick, onMapLoa
         const zoomControl = new (window as any).ymaps.control.ZoomControl({
           options: {
             position: {
-              right: 10,
-              top: 80
+              right: 16,
+              bottom: 80
             }
           }
         });

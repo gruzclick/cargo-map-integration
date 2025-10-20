@@ -182,7 +182,6 @@ const AIAssistant = () => {
             </div>
             <div>
               <h3 className="font-semibold text-sm">Справка</h3>
-              <p className="text-xs opacity-90">Вопросы о приложении</p>
             </div>
           </div>
           <Button

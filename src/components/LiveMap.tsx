@@ -35,6 +35,8 @@ const LiveMap = ({ isPublic = false, onMarkerClick }: LiveMapProps = {}) => {
   const [cargoBlockExpanded, setCargoBlockExpanded] = useState(true);
   const [driverBlockExpanded, setDriverBlockExpanded] = useState(true);
   const [lastInteraction, setLastInteraction] = useState(Date.now());
+  const [touchStart, setTouchStart] = useState<number | null>(null);
+  const [touchEnd, setTouchEnd] = useState<number | null>(null);
 
   useEffect(() => {
     fetchMarkers();
@@ -55,6 +57,24 @@ const LiveMap = ({ isPublic = false, onMarkerClick }: LiveMapProps = {}) => {
     }, 5000);
     return () => clearInterval(autoCollapseTimer);
   }, [lastInteraction]);
+
+  const handleTouchStart = (e: React.TouchEvent) => {
+    setTouchEnd(null);
+    setTouchStart(e.targetTouches[0].clientX);
+  };
+
+  const handleTouchMove = (e: React.TouchEvent) => {
+    setTouchEnd(e.targetTouches[0].clientX);
+  };
+
+  const handleTouchEnd = () => {
+    if (!touchStart || !touchEnd) return;
+    const distance = touchStart - touchEnd;
+    const isLeftSwipe = distance > 50;
+    if (isLeftSwipe) {
+      setShowSidebar(false);
+    }
+  };
 
   const applyFilters = () => {
     let filtered = [...markers];
@@ -145,8 +165,8 @@ const LiveMap = ({ isPublic = false, onMarkerClick }: LiveMapProps = {}) => {
         radiusKm={50}
       />
 
-      {/* Карта за границы экрана */}
-      <div className="fixed -left-8 -right-8 -top-8 -bottom-8 z-0">
+      {/* Карта на весь экран */}
+      <div className="fixed inset-0 z-0">
         <AdaptiveMapContainer 
           filteredMarkers={filteredMarkers}
           isPublic={isPublic}
@@ -196,7 +216,10 @@ const LiveMap = ({ isPublic = false, onMarkerClick }: LiveMapProps = {}) => {
       {showSidebar && (
         <div 
           onClick={() => setLastInteraction(Date.now())}
-          className="absolute top-3 left-1/2 md:left-3 -translate-x-1/2 md:translate-x-0 max-h-[calc(100vh-1.5rem)] w-[calc(100%-1.5rem)] md:w-72 bg-white/8 dark:bg-gray-900/8 backdrop-blur-3xl border border-white/40 dark:border-gray-700/40 shadow-2xl rounded-2xl z-10 overflow-hidden animate-slide-in-left flex flex-col">
+          onTouchStart={handleTouchStart}
+          onTouchMove={handleTouchMove}
+          onTouchEnd={handleTouchEnd}
+          className="absolute top-3 left-1/2 md:left-3 -translate-x-1/2 md:translate-x-0 max-h-[calc(100vh-1.5rem)] w-[calc(100%-1.5rem)] md:w-72 bg-white/15 dark:bg-gray-900/15 backdrop-blur-3xl border border-white/40 dark:border-gray-700/40 shadow-2xl rounded-2xl z-10 overflow-hidden animate-slide-in-left flex flex-col">
           {/* Табы - компактные + кнопка сворачивания */}
           <div className="flex items-center border-b border-white/20 dark:border-gray-700/20 p-1.5">
             <button
@@ -251,8 +274,8 @@ const LiveMap = ({ isPublic = false, onMarkerClick }: LiveMapProps = {}) => {
                             <Icon name="Package" size={14} className="text-white" />
                           </div>
                           <div>
-                            <p className="text-lg font-bold text-gray-900 dark:text-white">{cargoCount}</p>
-                            <p className="text-[10px] text-gray-700 dark:text-gray-300">Грузов</p>
+                            <p className="text-base font-bold text-gray-900 dark:text-white">{cargoCount}</p>
+                            <p className="text-xs text-gray-700 dark:text-gray-300">Грузов</p>
                           </div>
                         </div>
                         <Icon name={cargoBlockExpanded ? 'ChevronUp' : 'ChevronDown'} size={16} className="text-gray-600 dark:text-gray-400" />
@@ -282,8 +305,8 @@ const LiveMap = ({ isPublic = false, onMarkerClick }: LiveMapProps = {}) => {
                             <Icon name="Truck" size={14} className="text-white" />
                           </div>
                           <div>
-                            <p className="text-lg font-bold text-gray-900 dark:text-white">{driverCount}</p>
-                            <p className="text-[10px] text-gray-700 dark:text-gray-300">Перевозчиков</p>
+                            <p className="text-base font-bold text-gray-900 dark:text-white">{driverCount}</p>
+                            <p className="text-xs text-gray-700 dark:text-gray-300">Перевозчиков</p>
                           </div>
                         </div>
                         <Icon name={driverBlockExpanded ? 'ChevronUp' : 'ChevronDown'} size={16} className="text-gray-600 dark:text-gray-400" />

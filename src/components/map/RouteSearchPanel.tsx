@@ -92,10 +92,10 @@ const RouteSearchPanel = ({ routeSearch, onRouteChange, onLocationDetected }: Ro
   };
 
   return (
-    <div className="space-y-3">
+    <div className="space-y-2">
       <div className="flex items-center justify-between">
-        <h3 className="text-sm md:text-base font-semibold flex items-center gap-2">
-          <Icon name="Route" size={16} className="text-primary" />
+        <h3 className="text-xs font-semibold flex items-center gap-1.5 text-gray-900 dark:text-white">
+          <Icon name="Route" size={14} />
           Поиск по маршруту
         </h3>
         <Button
@@ -103,10 +103,10 @@ const RouteSearchPanel = ({ routeSearch, onRouteChange, onLocationDetected }: Ro
           size="sm"
           onClick={detectLocation}
           disabled={detectingLocation}
-          className="text-xs h-7 md:h-8"
+          className="text-xs h-7 px-2"
         >
-          <Icon name={detectingLocation ? "Loader2" : "MapPin"} size={14} className={`mr-1 ${detectingLocation ? 'animate-spin' : ''}`} />
-          Моя геопозиция
+          <Icon name={detectingLocation ? "Loader2" : "MapPin"} size={12} className={`mr-1 ${detectingLocation ? 'animate-spin' : ''}`} />
+          <span className="hidden md:inline">Моя геопозиция</span>
         </Button>
       </div>
 

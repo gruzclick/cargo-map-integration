@@ -67,7 +67,14 @@ export default function OpenStreetMapContainer({
   useEffect(() => {
     if (!mapRef.current || mapInstanceRef.current) return;
 
-    const map = L.map(mapRef.current).setView([55.7558, 37.6173], 10);
+    const map = L.map(mapRef.current, {
+      zoomControl: false
+    }).setView([55.7558, 37.6173], 10);
+    
+    // Добавляем зум-контрол в правый нижний угол
+    L.control.zoom({
+      position: 'bottomright'
+    }).addTo(map);
 
     // Используем тёмную тему карты по умолчанию
     L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {

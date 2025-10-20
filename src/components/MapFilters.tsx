@@ -50,34 +50,21 @@ const MapFilters = ({ onFilterChange, className }: MapFiltersProps) => {
         {isVisible ? 'Скрыть фильтры' : 'Показать фильтры'}
       </Button>
       
-      <div className={`${!isVisible ? 'hidden md:block' : ''} ${className ? '' : 'bg-white/15 dark:bg-gray-900/15 backdrop-blur-md rounded-2xl shadow-2xl border border-white/20 dark:border-gray-700/20 overflow-hidden'} transition-smooth`}>
-        <div className={className ? "p-3 md:p-3 flex-1 flex flex-col" : "p-3 md:p-4"}>
-          <div className="flex items-center justify-between mb-3">
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => setIsExpanded(!isExpanded)}
-              className="h-7 w-7 p-0 rounded-lg hover:bg-gray-100/50 dark:hover:bg-gray-800/50 ml-auto"
-            >
-              <Icon 
-                name={isExpanded ? "ChevronUp" : "ChevronDown"} 
-                size={16} 
-                className="text-gray-600 dark:text-gray-400"
-              />
-            </Button>
-          </div>
+      <div className={`${!isVisible ? 'hidden md:block' : ''} transition-smooth`}>
+        <div className="space-y-2">
+
 
           <div className="space-y-2 md:space-y-3">
             <div>
-              <label className="text-xs md:text-sm font-medium text-gray-700 dark:text-gray-300 mb-1 md:mb-1.5 block">
+              <label className="text-xs font-medium text-gray-900 dark:text-white mb-1.5 block">
                 Я ищу как:
               </label>
-              <div className="grid grid-cols-3 gap-1 md:gap-2">
+              <div className="grid grid-cols-3 gap-1.5">
                 <Button
                   variant={filters.userType === 'all' ? 'default' : 'outline'}
                   size="sm"
                   onClick={() => updateFilter('userType', 'all')}
-                  className="text-[10px] md:text-xs h-7 md:h-9 rounded-lg transition-spring hover:scale-105 px-1 md:px-2"
+                  className="text-xs h-8 rounded-lg px-2"
                 >
                   Все
                 </Button>
@@ -85,7 +72,7 @@ const MapFilters = ({ onFilterChange, className }: MapFiltersProps) => {
                   variant={filters.userType === 'client' ? 'default' : 'outline'}
                   size="sm"
                   onClick={() => updateFilter('userType', 'client')}
-                  className="text-[10px] md:text-xs h-7 md:h-9 rounded-lg transition-spring hover:scale-105 px-1 md:px-2"
+                  className="text-xs h-8 rounded-lg px-2 whitespace-nowrap"
                 >
                   Клиент
                 </Button>
@@ -93,7 +80,7 @@ const MapFilters = ({ onFilterChange, className }: MapFiltersProps) => {
                   variant={filters.userType === 'carrier' ? 'default' : 'outline'}
                   size="sm"
                   onClick={() => updateFilter('userType', 'carrier')}
-                  className="text-[10px] md:text-xs h-7 md:h-9 rounded-lg transition-spring hover:scale-105 px-1 md:px-2"
+                  className="text-xs h-8 rounded-lg px-1.5 whitespace-nowrap overflow-hidden text-ellipsis"
                 >
                   Перевозчик
                 </Button>
