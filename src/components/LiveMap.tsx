@@ -12,6 +12,12 @@ import VehicleDetailsModal from './map/VehicleDetailsModal';
 import StatusSelector from './map/StatusSelector';
 import NearbyCargoNotification from './map/NearbyCargoNotification';
 import { MapMarker, CargoDetailsModal as CargoDetailsModalType, VehicleDetailsModal as VehicleDetailsModalType, LiveMapProps } from './map/MapTypes';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 
 const LiveMap = ({ isPublic = false, onMarkerClick }: LiveMapProps = {}) => {
   const [markers, setMarkers] = useState<MapMarker[]>([]);
@@ -29,6 +35,10 @@ const LiveMap = ({ isPublic = false, onMarkerClick }: LiveMapProps = {}) => {
   
   const [vehicleDetailsModal, setVehicleDetailsModal] = useState<VehicleDetailsModalType | null>(null);
   const [vehicleDetails, setVehicleDetails] = useState({ boxCount: '', palletCount: '', oversizedCount: '', volume: '' });
+
+  const [showFiltersModal, setShowFiltersModal] = useState(false);
+  const [showStatsModal, setShowStatsModal] = useState(false);
+  const [showSearchModal, setShowSearchModal] = useState(false);
 
   useEffect(() => {
     fetchMarkers();
@@ -139,83 +149,138 @@ const LiveMap = ({ isPublic = false, onMarkerClick }: LiveMapProps = {}) => {
         />
       </div>
 
-      {/* Блоки поверх карты */}
-      <div className="absolute top-3 left-3 right-3 z-10 space-y-2 pointer-events-none">
-        <div className="flex flex-col md:flex-row gap-2 pointer-events-auto">
-          {!isPublic && <MapFilters onFilterChange={handleFilterChange} className="md:w-[40%]" />}
-          
-          <div className="bg-white/15 dark:bg-gray-900/15 backdrop-blur-md border border-white/20 dark:border-gray-700/20 shadow-2xl animate-scale-in md:w-[30%] rounded-2xl">
-            <div className="p-2.5 md:p-3">
-              <div className="flex md:flex-col gap-1.5 md:gap-2">
-                <div className="flex-1 md:flex-none flex items-center gap-2">
-                  <div className="w-9 h-9 md:w-11 md:h-11 bg-gradient-to-br from-blue-400 to-blue-600 rounded-xl flex items-center justify-center shadow-lg shrink-0">
-                    <Icon name="Package" size={18} className="text-white md:w-6 md:h-6" />
-                  </div>
-                  <div className="flex flex-col">
-                    <p className="text-xl md:text-2xl font-bold text-gray-900 dark:text-white">{cargoCount}</p>
-                    <p className="text-xs md:text-sm text-gray-700 dark:text-gray-200">Всего грузов</p>
-                  </div>
-                </div>
-                {!isPublic && (
-                  <div className="flex-1 md:flex-none">
-                    <StatusSelector 
-                      userType="client"
-                      status={cargoStatus}
-                      onStatusChange={setCargoStatus}
-                    />
-                  </div>
-                )}
-              </div>
+      {/* Плавающие кнопки справа */}
+      <div className="absolute right-4 top-4 z-10 flex flex-col gap-3">
+        {/* Кнопка статистики */}
+        <button
+          onClick={() => setShowStatsModal(true)}
+          className="w-14 h-14 rounded-full bg-white/15 dark:bg-gray-900/15 backdrop-blur-md border border-white/20 dark:border-gray-700/20 shadow-2xl flex items-center justify-center hover:bg-white/25 dark:hover:bg-gray-900/25 transition-all hover:scale-110 active:scale-95"
+        >
+          <div className="relative">
+            <Icon name="BarChart3" size={24} className="text-gray-900 dark:text-white" />
+            <div className="absolute -top-1 -right-1 w-5 h-5 bg-blue-500 rounded-full flex items-center justify-center">
+              <span className="text-[10px] font-bold text-white">{cargoCount}</span>
             </div>
           </div>
+        </button>
 
-          <div className="bg-white/15 dark:bg-gray-900/15 backdrop-blur-md border border-white/20 dark:border-gray-700/20 shadow-2xl animate-scale-in md:w-[30%] rounded-2xl" style={{ animationDelay: '0.1s' }}>
-            <div className="p-2.5 md:p-3">
-              <div className="flex md:flex-col gap-1.5 md:gap-2">
-                <div className="flex-1 md:flex-none flex items-center gap-2">
-                  <div className="w-9 h-9 md:w-11 md:h-11 bg-gradient-to-br from-green-400 to-green-600 rounded-xl flex items-center justify-center shadow-lg shrink-0">
-                    <Icon name="Truck" size={18} className="text-white md:w-6 md:h-6" />
-                  </div>
-                  <div className="flex flex-col">
-                    <p className="text-xl md:text-2xl font-bold text-gray-900 dark:text-white">{driverCount}</p>
-                    <p className="text-xs md:text-sm text-gray-700 dark:text-gray-200">Перевозчиков свободно</p>
-                  </div>
-                </div>
-                {!isPublic && (
-                  <div className="flex-1 md:flex-none">
-                    <StatusSelector 
-                      userType="driver"
-                      status={driverStatus}
-                      onStatusChange={setDriverStatus}
-                    />
-                  </div>
-                )}
-              </div>
-            </div>
-          </div>
-        </div>
+        {/* Кнопка фильтров */}
+        {!isPublic && (
+          <button
+            onClick={() => setShowFiltersModal(true)}
+            className="w-14 h-14 rounded-full bg-white/15 dark:bg-gray-900/15 backdrop-blur-md border border-white/20 dark:border-gray-700/20 shadow-2xl flex items-center justify-center hover:bg-white/25 dark:hover:bg-gray-900/25 transition-all hover:scale-110 active:scale-95"
+          >
+            <Icon name="Filter" size={24} className="text-gray-900 dark:text-white" />
+          </button>
+        )}
+
+        {/* Кнопка поиска */}
+        <button
+          onClick={() => setShowSearchModal(true)}
+          className="w-14 h-14 rounded-full bg-white/15 dark:bg-gray-900/15 backdrop-blur-md border border-white/20 dark:border-gray-700/20 shadow-2xl flex items-center justify-center hover:bg-white/25 dark:hover:bg-gray-900/25 transition-all hover:scale-110 active:scale-95"
+        >
+          <Icon name="Search" size={24} className="text-gray-900 dark:text-white" />
+        </button>
       </div>
 
-      {/* Панель поиска маршрутов внизу */}
-      <div className="absolute bottom-3 left-3 right-3 z-10 pointer-events-auto">
-        <Card className="border border-white/20 dark:border-gray-700/20 shadow-2xl bg-white/15 dark:bg-gray-900/15 backdrop-blur-md overflow-hidden animate-scale-in">
-          <CardContent className="p-3 md:p-4">
+      {/* Модальное окно статистики */}
+      <Dialog open={showStatsModal} onOpenChange={setShowStatsModal}>
+        <DialogContent className="bg-white/95 dark:bg-gray-900/95 backdrop-blur-xl border-white/20 dark:border-gray-700/20">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Icon name="BarChart3" size={20} />
+              Статистика
+            </DialogTitle>
+          </DialogHeader>
+          
+          <div className="space-y-4">
+            <div className="bg-gradient-to-br from-blue-50 to-blue-100 dark:from-blue-900/20 dark:to-blue-800/20 rounded-xl p-4 border border-blue-200/50 dark:border-blue-700/30">
+              <div className="flex items-center gap-3">
+                <div className="w-12 h-12 bg-gradient-to-br from-blue-400 to-blue-600 rounded-xl flex items-center justify-center shadow-lg">
+                  <Icon name="Package" size={24} className="text-white" />
+                </div>
+                <div className="flex-1">
+                  <p className="text-3xl font-bold text-gray-900 dark:text-white">{cargoCount}</p>
+                  <p className="text-sm text-gray-700 dark:text-gray-300">Всего грузов</p>
+                </div>
+              </div>
+              {!isPublic && (
+                <div className="mt-3">
+                  <StatusSelector 
+                    userType="client"
+                    status={cargoStatus}
+                    onStatusChange={setCargoStatus}
+                  />
+                </div>
+              )}
+            </div>
+
+            <div className="bg-gradient-to-br from-green-50 to-green-100 dark:from-green-900/20 dark:to-green-800/20 rounded-xl p-4 border border-green-200/50 dark:border-green-700/30">
+              <div className="flex items-center gap-3">
+                <div className="w-12 h-12 bg-gradient-to-br from-green-400 to-green-600 rounded-xl flex items-center justify-center shadow-lg">
+                  <Icon name="Truck" size={24} className="text-white" />
+                </div>
+                <div className="flex-1">
+                  <p className="text-3xl font-bold text-gray-900 dark:text-white">{driverCount}</p>
+                  <p className="text-sm text-gray-700 dark:text-gray-300">Перевозчиков свободно</p>
+                </div>
+              </div>
+              {!isPublic && (
+                <div className="mt-3">
+                  <StatusSelector 
+                    userType="driver"
+                    status={driverStatus}
+                    onStatusChange={setDriverStatus}
+                  />
+                </div>
+              )}
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Модальное окно фильтров */}
+      {!isPublic && (
+        <Dialog open={showFiltersModal} onOpenChange={setShowFiltersModal}>
+          <DialogContent className="bg-white/95 dark:bg-gray-900/95 backdrop-blur-xl border-white/20 dark:border-gray-700/20 max-w-md">
+            <DialogHeader>
+              <DialogTitle className="flex items-center gap-2">
+                <Icon name="Filter" size={20} />
+                Фильтры
+              </DialogTitle>
+            </DialogHeader>
+            <MapFilters onFilterChange={handleFilterChange} />
+          </DialogContent>
+        </Dialog>
+      )}
+
+      {/* Модальное окно поиска */}
+      <Dialog open={showSearchModal} onOpenChange={setShowSearchModal}>
+        <DialogContent className="bg-white/95 dark:bg-gray-900/95 backdrop-blur-xl border-white/20 dark:border-gray-700/20 max-w-2xl">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Icon name="Search" size={20} />
+              Поиск маршрутов
+            </DialogTitle>
+          </DialogHeader>
+          
+          <div className="space-y-4">
             <RouteSearchPanel 
               routeSearch={routeSearch} 
               onRouteChange={setRouteSearch}
               onLocationDetected={setUserLocation}
             />
 
-            <div className="border-t border-gray-200/30 dark:border-gray-700/30 my-2" />
+            <div className="border-t border-gray-200/30 dark:border-gray-700/30 pt-4" />
 
             <CargoVehicleSelector 
               filters={filters}
               onCargoTypeClick={handleCargoTypeClick}
               onVehicleTypeClick={handleVehicleTypeClick}
             />
-          </CardContent>
-        </Card>
-      </div>
+          </div>
+        </DialogContent>
+      </Dialog>
 
       {!isPublic && (
         <MarkerDetailsModal 
