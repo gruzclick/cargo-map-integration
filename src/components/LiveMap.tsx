@@ -12,12 +12,7 @@ import VehicleDetailsModal from './map/VehicleDetailsModal';
 import StatusSelector from './map/StatusSelector';
 import NearbyCargoNotification from './map/NearbyCargoNotification';
 import { MapMarker, CargoDetailsModal as CargoDetailsModalType, VehicleDetailsModal as VehicleDetailsModalType, LiveMapProps } from './map/MapTypes';
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
+
 
 const LiveMap = ({ isPublic = false, onMarkerClick }: LiveMapProps = {}) => {
   const [markers, setMarkers] = useState<MapMarker[]>([]);
@@ -36,9 +31,7 @@ const LiveMap = ({ isPublic = false, onMarkerClick }: LiveMapProps = {}) => {
   const [vehicleDetailsModal, setVehicleDetailsModal] = useState<VehicleDetailsModalType | null>(null);
   const [vehicleDetails, setVehicleDetails] = useState({ boxCount: '', palletCount: '', oversizedCount: '', volume: '' });
 
-  const [showFiltersModal, setShowFiltersModal] = useState(false);
-  const [showStatsModal, setShowStatsModal] = useState(false);
-  const [showSearchModal, setShowSearchModal] = useState(false);
+  const [showSidebar, setShowSidebar] = useState(false);
 
   useEffect(() => {
     fetchMarkers();
@@ -149,138 +142,145 @@ const LiveMap = ({ isPublic = false, onMarkerClick }: LiveMapProps = {}) => {
         />
       </div>
 
-      {/* Плавающие кнопки справа */}
-      <div className="absolute right-4 top-4 z-10 flex flex-col gap-3">
-        {/* Кнопка статистики */}
+      {/* Компактные счетчики вверху справа */}
+      <div className="absolute top-3 right-3 z-10 flex gap-2">
         <button
-          onClick={() => setShowStatsModal(true)}
-          className="w-14 h-14 rounded-full bg-white/15 dark:bg-gray-900/15 backdrop-blur-md border border-white/20 dark:border-gray-700/20 shadow-2xl flex items-center justify-center hover:bg-white/25 dark:hover:bg-gray-900/25 transition-all hover:scale-110 active:scale-95"
+          onClick={() => setShowSidebar(true)}
+          className="flex items-center gap-2 px-3 py-2 rounded-xl bg-white/15 dark:bg-gray-900/15 backdrop-blur-md border border-white/20 dark:border-gray-700/20 shadow-lg hover:bg-white/25 dark:hover:bg-gray-900/25 transition-all"
         >
-          <div className="relative">
-            <Icon name="BarChart3" size={24} className="text-gray-900 dark:text-white" />
-            <div className="absolute -top-1 -right-1 w-5 h-5 bg-blue-500 rounded-full flex items-center justify-center">
-              <span className="text-[10px] font-bold text-white">{cargoCount}</span>
-            </div>
+          <div className="w-8 h-8 bg-gradient-to-br from-blue-400 to-blue-600 rounded-lg flex items-center justify-center">
+            <Icon name="Package" size={16} className="text-white" />
           </div>
+          <span className="text-lg font-bold text-gray-900 dark:text-white">{cargoCount}</span>
         </button>
 
-        {/* Кнопка фильтров */}
-        {!isPublic && (
-          <button
-            onClick={() => setShowFiltersModal(true)}
-            className="w-14 h-14 rounded-full bg-white/15 dark:bg-gray-900/15 backdrop-blur-md border border-white/20 dark:border-gray-700/20 shadow-2xl flex items-center justify-center hover:bg-white/25 dark:hover:bg-gray-900/25 transition-all hover:scale-110 active:scale-95"
-          >
-            <Icon name="Filter" size={24} className="text-gray-900 dark:text-white" />
-          </button>
-        )}
-
-        {/* Кнопка поиска */}
         <button
-          onClick={() => setShowSearchModal(true)}
-          className="w-14 h-14 rounded-full bg-white/15 dark:bg-gray-900/15 backdrop-blur-md border border-white/20 dark:border-gray-700/20 shadow-2xl flex items-center justify-center hover:bg-white/25 dark:hover:bg-gray-900/25 transition-all hover:scale-110 active:scale-95"
+          onClick={() => setShowSidebar(true)}
+          className="flex items-center gap-2 px-3 py-2 rounded-xl bg-white/15 dark:bg-gray-900/15 backdrop-blur-md border border-white/20 dark:border-gray-700/20 shadow-lg hover:bg-white/25 dark:hover:bg-gray-900/25 transition-all"
         >
-          <Icon name="Search" size={24} className="text-gray-900 dark:text-white" />
+          <div className="w-8 h-8 bg-gradient-to-br from-green-400 to-green-600 rounded-lg flex items-center justify-center">
+            <Icon name="Truck" size={16} className="text-white" />
+          </div>
+          <span className="text-lg font-bold text-gray-900 dark:text-white">{driverCount}</span>
         </button>
       </div>
 
-      {/* Модальное окно статистики */}
-      <Dialog open={showStatsModal} onOpenChange={setShowStatsModal}>
-        <DialogContent className="bg-white/95 dark:bg-gray-900/95 backdrop-blur-xl border-white/20 dark:border-gray-700/20">
-          <DialogHeader>
-            <DialogTitle className="flex items-center gap-2">
-              <Icon name="BarChart3" size={20} />
-              Статистика
-            </DialogTitle>
-          </DialogHeader>
-          
-          <div className="space-y-4">
-            <div className="bg-gradient-to-br from-blue-50 to-blue-100 dark:from-blue-900/20 dark:to-blue-800/20 rounded-xl p-4 border border-blue-200/50 dark:border-blue-700/30">
-              <div className="flex items-center gap-3">
-                <div className="w-12 h-12 bg-gradient-to-br from-blue-400 to-blue-600 rounded-xl flex items-center justify-center shadow-lg">
-                  <Icon name="Package" size={24} className="text-white" />
-                </div>
-                <div className="flex-1">
-                  <p className="text-3xl font-bold text-gray-900 dark:text-white">{cargoCount}</p>
-                  <p className="text-sm text-gray-700 dark:text-gray-300">Всего грузов</p>
-                </div>
-              </div>
-              {!isPublic && (
-                <div className="mt-3">
-                  <StatusSelector 
-                    userType="client"
-                    status={cargoStatus}
-                    onStatusChange={setCargoStatus}
-                  />
-                </div>
-              )}
-            </div>
+      {/* Кнопка моё местоположение */}
+      <button
+        onClick={() => {
+          if (navigator.geolocation) {
+            navigator.geolocation.getCurrentPosition(
+              (position) => {
+                setUserLocation({
+                  lat: position.coords.latitude,
+                  lng: position.coords.longitude
+                });
+              },
+              (error) => {
+                console.error('Ошибка геолокации:', error);
+                alert('Не удалось определить местоположение');
+              }
+            );
+          }
+        }}
+        className="absolute bottom-3 left-3 z-10 w-12 h-12 rounded-full bg-white/15 dark:bg-gray-900/15 backdrop-blur-md border border-white/20 dark:border-gray-700/20 shadow-lg flex items-center justify-center hover:bg-white/25 dark:hover:bg-gray-900/25 transition-all hover:scale-110 active:scale-95"
+        title="Моё местоположение"
+      >
+        <Icon name="Crosshair" size={20} className="text-gray-900 dark:text-white" />
+      </button>
 
-            <div className="bg-gradient-to-br from-green-50 to-green-100 dark:from-green-900/20 dark:to-green-800/20 rounded-xl p-4 border border-green-200/50 dark:border-green-700/30">
-              <div className="flex items-center gap-3">
-                <div className="w-12 h-12 bg-gradient-to-br from-green-400 to-green-600 rounded-xl flex items-center justify-center shadow-lg">
-                  <Icon name="Truck" size={24} className="text-white" />
+      {/* Боковая панель */}
+      {showSidebar && (
+        <>
+          <div 
+            className="absolute inset-0 bg-black/20 backdrop-blur-sm z-20 animate-fade-in"
+            onClick={() => setShowSidebar(false)}
+          />
+          
+          <div className="absolute top-0 right-0 bottom-0 w-full md:w-[400px] bg-white/95 dark:bg-gray-900/95 backdrop-blur-xl border-l border-white/20 dark:border-gray-700/20 shadow-2xl z-30 overflow-y-auto animate-slide-in-right">
+            <div className="p-4 space-y-4">
+              <div className="flex items-center justify-between">
+                <h2 className="text-xl font-bold text-gray-900 dark:text-white flex items-center gap-2">
+                  <Icon name="Filter" size={24} />
+                  Фильтры и поиск
+                </h2>
+                <button
+                  onClick={() => setShowSidebar(false)}
+                  className="rounded-full w-8 h-8 flex items-center justify-center hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+                >
+                  <Icon name="X" size={20} />
+                </button>
+              </div>
+
+              <div className="space-y-3">
+                <div className="bg-gradient-to-br from-blue-50 to-blue-100 dark:from-blue-900/20 dark:to-blue-800/20 rounded-xl p-4 border border-blue-200/50 dark:border-blue-700/30">
+                  <div className="flex items-center gap-3 mb-3">
+                    <div className="w-10 h-10 bg-gradient-to-br from-blue-400 to-blue-600 rounded-lg flex items-center justify-center shadow-lg">
+                      <Icon name="Package" size={20} className="text-white" />
+                    </div>
+                    <div>
+                      <p className="text-2xl font-bold text-gray-900 dark:text-white">{cargoCount}</p>
+                      <p className="text-xs text-gray-700 dark:text-gray-300">Всего грузов</p>
+                    </div>
+                  </div>
+                  {!isPublic && (
+                    <StatusSelector 
+                      userType="client"
+                      status={cargoStatus}
+                      onStatusChange={setCargoStatus}
+                    />
+                  )}
                 </div>
-                <div className="flex-1">
-                  <p className="text-3xl font-bold text-gray-900 dark:text-white">{driverCount}</p>
-                  <p className="text-sm text-gray-700 dark:text-gray-300">Перевозчиков свободно</p>
+
+                <div className="bg-gradient-to-br from-green-50 to-green-100 dark:from-green-900/20 dark:to-green-800/20 rounded-xl p-4 border border-green-200/50 dark:border-green-700/30">
+                  <div className="flex items-center gap-3 mb-3">
+                    <div className="w-10 h-10 bg-gradient-to-br from-green-400 to-green-600 rounded-lg flex items-center justify-center shadow-lg">
+                      <Icon name="Truck" size={20} className="text-white" />
+                    </div>
+                    <div>
+                      <p className="text-2xl font-bold text-gray-900 dark:text-white">{driverCount}</p>
+                      <p className="text-xs text-gray-700 dark:text-gray-300">Перевозчиков</p>
+                    </div>
+                  </div>
+                  {!isPublic && (
+                    <StatusSelector 
+                      userType="driver"
+                      status={driverStatus}
+                      onStatusChange={setDriverStatus}
+                    />
+                  )}
                 </div>
               </div>
+
               {!isPublic && (
-                <div className="mt-3">
-                  <StatusSelector 
-                    userType="driver"
-                    status={driverStatus}
-                    onStatusChange={setDriverStatus}
-                  />
+                <div className="border-t border-gray-200/30 dark:border-gray-700/30 pt-4">
+                  <MapFilters onFilterChange={handleFilterChange} />
                 </div>
               )}
+
+              <div className="border-t border-gray-200/30 dark:border-gray-700/30 pt-4">
+                <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-3 flex items-center gap-2">
+                  <Icon name="Search" size={20} />
+                  Поиск маршрутов
+                </h3>
+                <RouteSearchPanel 
+                  routeSearch={routeSearch} 
+                  onRouteChange={setRouteSearch}
+                  onLocationDetected={setUserLocation}
+                />
+              </div>
+
+              <div className="border-t border-gray-200/30 dark:border-gray-700/30 pt-4">
+                <CargoVehicleSelector 
+                  filters={filters}
+                  onCargoTypeClick={handleCargoTypeClick}
+                  onVehicleTypeClick={handleVehicleTypeClick}
+                />
+              </div>
             </div>
           </div>
-        </DialogContent>
-      </Dialog>
-
-      {/* Модальное окно фильтров */}
-      {!isPublic && (
-        <Dialog open={showFiltersModal} onOpenChange={setShowFiltersModal}>
-          <DialogContent className="bg-white/95 dark:bg-gray-900/95 backdrop-blur-xl border-white/20 dark:border-gray-700/20 max-w-md">
-            <DialogHeader>
-              <DialogTitle className="flex items-center gap-2">
-                <Icon name="Filter" size={20} />
-                Фильтры
-              </DialogTitle>
-            </DialogHeader>
-            <MapFilters onFilterChange={handleFilterChange} />
-          </DialogContent>
-        </Dialog>
+        </>
       )}
-
-      {/* Модальное окно поиска */}
-      <Dialog open={showSearchModal} onOpenChange={setShowSearchModal}>
-        <DialogContent className="bg-white/95 dark:bg-gray-900/95 backdrop-blur-xl border-white/20 dark:border-gray-700/20 max-w-2xl">
-          <DialogHeader>
-            <DialogTitle className="flex items-center gap-2">
-              <Icon name="Search" size={20} />
-              Поиск маршрутов
-            </DialogTitle>
-          </DialogHeader>
-          
-          <div className="space-y-4">
-            <RouteSearchPanel 
-              routeSearch={routeSearch} 
-              onRouteChange={setRouteSearch}
-              onLocationDetected={setUserLocation}
-            />
-
-            <div className="border-t border-gray-200/30 dark:border-gray-700/30 pt-4" />
-
-            <CargoVehicleSelector 
-              filters={filters}
-              onCargoTypeClick={handleCargoTypeClick}
-              onVehicleTypeClick={handleVehicleTypeClick}
-            />
-          </div>
-        </DialogContent>
-      </Dialog>
 
       {!isPublic && (
         <MarkerDetailsModal 
