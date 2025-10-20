@@ -32,9 +32,9 @@ const LiveMap = ({ isPublic = false, onMarkerClick }: LiveMapProps = {}) => {
 
   const [showSidebar, setShowSidebar] = useState(true);
   const [activeTab, setActiveTab] = useState<'stats' | 'search'>('stats');
-  const [statsExpanded, setStatsExpanded] = useState(true);
   const [cargoBlockExpanded, setCargoBlockExpanded] = useState(true);
   const [driverBlockExpanded, setDriverBlockExpanded] = useState(true);
+  const [lastInteraction, setLastInteraction] = useState(Date.now());
 
   useEffect(() => {
     fetchMarkers();
@@ -45,6 +45,16 @@ const LiveMap = ({ isPublic = false, onMarkerClick }: LiveMapProps = {}) => {
   useEffect(() => {
     applyFilters();
   }, [markers, filters, routeSearch, driverStatus, cargoStatus]);
+
+  useEffect(() => {
+    const autoCollapseTimer = setInterval(() => {
+      if (Date.now() - lastInteraction > 10000) {
+        setCargoBlockExpanded(false);
+        setDriverBlockExpanded(false);
+      }
+    }, 5000);
+    return () => clearInterval(autoCollapseTimer);
+  }, [lastInteraction]);
 
   const applyFilters = () => {
     let filtered = [...markers];
@@ -136,7 +146,7 @@ const LiveMap = ({ isPublic = false, onMarkerClick }: LiveMapProps = {}) => {
       />
 
       {/* Карта за границы экрана */}
-      <div className="absolute -inset-4 z-0">
+      <div className="fixed -left-8 -right-8 -top-8 -bottom-8 z-0">
         <AdaptiveMapContainer 
           filteredMarkers={filteredMarkers}
           isPublic={isPublic}
@@ -145,14 +155,7 @@ const LiveMap = ({ isPublic = false, onMarkerClick }: LiveMapProps = {}) => {
         />
       </div>
 
-      {/* Кнопка показа/скрытия боковой панели - перенесена вниз */}
-      <button
-        onClick={() => setShowSidebar(!showSidebar)}
-        className="fixed bottom-24 left-4 z-20 w-12 h-12 bg-white/20 dark:bg-gray-900/20 backdrop-blur-3xl border border-white/40 dark:border-gray-700/40 shadow-2xl rounded-full flex items-center justify-center hover:bg-white/30 dark:hover:bg-gray-900/30 active:scale-95 transition-all"
-        title={showSidebar ? 'Скрыть панель' : 'Показать панель'}
-      >
-        <Icon name={showSidebar ? 'PanelLeftClose' : 'PanelLeftOpen'} size={20} className="text-gray-900 dark:text-white" />
-      </button>
+
 
       {/* Кнопка геолокации справа вверху */}
       <button
@@ -178,95 +181,84 @@ const LiveMap = ({ isPublic = false, onMarkerClick }: LiveMapProps = {}) => {
         <Icon name="Crosshair" size={20} className="text-gray-900 dark:text-white" />
       </button>
 
-      {/* Кнопки скачивания приложения - внизу слева */}
-      <div className="fixed bottom-4 left-4 z-20 flex flex-col gap-2">
-        <div className="bg-white/20 dark:bg-gray-900/20 backdrop-blur-3xl border border-white/40 dark:border-gray-700/40 shadow-2xl rounded-2xl p-3">
-          <p className="text-xs font-semibold text-gray-900 dark:text-white mb-2">Скачать приложение</p>
-          <div className="flex gap-2">
-            <a
-              href="https://play.google.com/store"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="w-10 h-10 bg-white/60 dark:bg-gray-800/60 backdrop-blur-sm border border-white/40 dark:border-gray-700/40 shadow-lg rounded-xl flex items-center justify-center hover:scale-110 active:scale-95 transition-all"
-              title="Android"
-            >
-              <Icon name="Smartphone" size={18} className="text-green-600 dark:text-green-400" />
-            </a>
-            <a
-              href="https://apps.apple.com"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="w-10 h-10 bg-white/60 dark:bg-gray-800/60 backdrop-blur-sm border border-white/40 dark:border-gray-700/40 shadow-lg rounded-xl flex items-center justify-center hover:scale-110 active:scale-95 transition-all"
-              title="iOS"
-            >
-              <Icon name="Apple" size={18} className="text-gray-900 dark:text-white" />
-            </a>
-            <a
-              href="#"
-              className="w-10 h-10 bg-white/60 dark:bg-gray-800/60 backdrop-blur-sm border border-white/40 dark:border-gray-700/40 shadow-lg rounded-xl flex items-center justify-center hover:scale-110 active:scale-95 transition-all"
-              title="Desktop"
-            >
-              <Icon name="Monitor" size={18} className="text-blue-600 dark:text-blue-400" />
-            </a>
-          </div>
-        </div>
-      </div>
+      {/* Кнопка скачивания приложения - внизу слева */}
+      <a
+        href="https://play.google.com/store"
+        target="_blank"
+        rel="noopener noreferrer"
+        className="fixed bottom-4 left-4 z-20 flex items-center gap-2 px-3 py-2 bg-white/15 dark:bg-gray-900/15 backdrop-blur-3xl border border-white/40 dark:border-gray-700/40 shadow-2xl rounded-full hover:bg-white/25 dark:hover:bg-gray-900/25 active:scale-95 transition-all"
+      >
+        <Icon name="Smartphone" size={16} className="text-gray-900 dark:text-white" />
+        <span className="text-xs font-medium text-gray-900 dark:text-white">Скачать</span>
+      </a>
 
-      {/* Боковая панель слева - Apple Glass Style */}
+      {/* Боковая панель слева - компактная */}
       {showSidebar && (
-        <div className="absolute top-3 left-1/2 md:left-3 -translate-x-1/2 md:translate-x-0 max-h-[calc(100vh-1.5rem)] w-[calc(100%-1.5rem)] md:w-80 bg-white/8 dark:bg-gray-900/8 backdrop-blur-3xl border border-white/40 dark:border-gray-700/40 shadow-2xl rounded-3xl z-10 overflow-hidden animate-slide-in-left flex flex-col">
-          {/* Табы - компактные */}
-          <div className="flex border-b border-white/20 dark:border-gray-700/20 p-2">
+        <div 
+          onClick={() => setLastInteraction(Date.now())}
+          className="absolute top-3 left-1/2 md:left-3 -translate-x-1/2 md:translate-x-0 max-h-[calc(100vh-1.5rem)] w-[calc(100%-1.5rem)] md:w-72 bg-white/8 dark:bg-gray-900/8 backdrop-blur-3xl border border-white/40 dark:border-gray-700/40 shadow-2xl rounded-2xl z-10 overflow-hidden animate-slide-in-left flex flex-col">
+          {/* Табы - компактные + кнопка сворачивания */}
+          <div className="flex items-center border-b border-white/20 dark:border-gray-700/20 p-1.5">
             <button
               onClick={() => setActiveTab('stats')}
-              className={`flex-1 px-3 py-2 text-xs font-semibold rounded-lg transition-all flex items-center justify-center gap-1.5 ${
+              className={`flex-1 px-2 py-1.5 text-xs font-semibold rounded-lg transition-all flex items-center justify-center gap-1 ${
                 activeTab === 'stats'
                   ? 'bg-white/60 dark:bg-gray-800/60 text-gray-900 dark:text-white shadow-md'
                   : 'text-gray-700 dark:text-gray-400 hover:bg-white/30 dark:hover:bg-gray-800/30'
               }`}
             >
-              <Icon name="BarChart3" size={14} />
-              Статистика
+              <Icon name="BarChart3" size={12} />
+              <span className="hidden md:inline">Статистика</span>
             </button>
             <button
               onClick={() => setActiveTab('search')}
-              className={`flex-1 px-3 py-2 text-xs font-semibold rounded-lg transition-all flex items-center justify-center gap-1.5 ml-1 ${
+              className={`flex-1 px-2 py-1.5 text-xs font-semibold rounded-lg transition-all flex items-center justify-center gap-1 ml-1 ${
                 activeTab === 'search'
                   ? 'bg-white/60 dark:bg-gray-800/60 text-gray-900 dark:text-white shadow-md'
                   : 'text-gray-700 dark:text-gray-400 hover:bg-white/30 dark:hover:bg-gray-800/30'
               }`}
             >
-              <Icon name="Search" size={14} />
-              Поиск
+              <Icon name="Search" size={12} />
+              <span className="hidden md:inline">Поиск</span>
+            </button>
+            <button
+              onClick={() => setShowSidebar(false)}
+              className="ml-1 p-1.5 rounded-lg text-gray-700 dark:text-gray-400 hover:bg-white/30 dark:hover:bg-gray-800/30 transition-all"
+              title="Свернуть"
+            >
+              <Icon name="ChevronLeft" size={14} />
             </button>
           </div>
 
           {/* Контент табов */}
-          <div className="flex-1 overflow-y-auto p-3 space-y-3">
+          <div className="flex-1 overflow-y-auto p-2 space-y-2">
             {/* Таб статистики */}
             {activeTab === 'stats' && (
               <div className="space-y-3">
                 {!isPublic && (
                   <>
                     {/* Блок грузов */}
-                    <div className="bg-white/10 dark:bg-gray-800/10 backdrop-blur-2xl rounded-2xl border border-white/30 dark:border-gray-700/30 overflow-hidden">
+                    <div className="bg-white/10 dark:bg-gray-800/10 backdrop-blur-3xl rounded-xl border border-white/30 dark:border-gray-700/30 overflow-hidden">
                       <div 
-                        onClick={() => setCargoBlockExpanded(!cargoBlockExpanded)}
-                        className="flex items-center justify-between p-3 cursor-pointer hover:bg-white/20 dark:hover:bg-gray-800/20 transition-all"
+                        onClick={() => {
+                          setCargoBlockExpanded(!cargoBlockExpanded);
+                          setLastInteraction(Date.now());
+                        }}
+                        className="flex items-center justify-between p-2 cursor-pointer hover:bg-white/20 dark:hover:bg-gray-800/20 transition-all"
                       >
                         <div className="flex items-center gap-2">
-                          <div className="w-8 h-8 bg-gradient-to-br from-blue-400 to-blue-600 rounded-xl flex items-center justify-center shadow-lg">
-                            <Icon name="Package" size={16} className="text-white" />
+                          <div className="w-7 h-7 bg-gradient-to-br from-blue-400 to-blue-600 rounded-lg flex items-center justify-center shadow-lg">
+                            <Icon name="Package" size={14} className="text-white" />
                           </div>
                           <div>
-                            <p className="text-xl font-bold text-gray-900 dark:text-white">{cargoCount}</p>
-                            <p className="text-xs text-gray-700 dark:text-gray-300">Грузов</p>
+                            <p className="text-lg font-bold text-gray-900 dark:text-white">{cargoCount}</p>
+                            <p className="text-[10px] text-gray-700 dark:text-gray-300">Грузов</p>
                           </div>
                         </div>
-                        <Icon name={cargoBlockExpanded ? 'ChevronUp' : 'ChevronDown'} size={18} className="text-gray-600 dark:text-gray-400" />
+                        <Icon name={cargoBlockExpanded ? 'ChevronUp' : 'ChevronDown'} size={16} className="text-gray-600 dark:text-gray-400" />
                       </div>
                       {cargoBlockExpanded && (
-                        <div className="px-3 pb-3">
+                        <div className="px-2 pb-2">
                           <StatusSelector 
                             userType="client"
                             status={cargoStatus}
@@ -277,24 +269,27 @@ const LiveMap = ({ isPublic = false, onMarkerClick }: LiveMapProps = {}) => {
                     </div>
 
                     {/* Блок перевозчиков */}
-                    <div className="bg-white/10 dark:bg-gray-800/10 backdrop-blur-2xl rounded-2xl border border-white/30 dark:border-gray-700/30 overflow-hidden">
+                    <div className="bg-white/10 dark:bg-gray-800/10 backdrop-blur-3xl rounded-xl border border-white/30 dark:border-gray-700/30 overflow-hidden">
                       <div 
-                        onClick={() => setDriverBlockExpanded(!driverBlockExpanded)}
-                        className="flex items-center justify-between p-3 cursor-pointer hover:bg-white/20 dark:hover:bg-gray-800/20 transition-all"
+                        onClick={() => {
+                          setDriverBlockExpanded(!driverBlockExpanded);
+                          setLastInteraction(Date.now());
+                        }}
+                        className="flex items-center justify-between p-2 cursor-pointer hover:bg-white/20 dark:hover:bg-gray-800/20 transition-all"
                       >
                         <div className="flex items-center gap-2">
-                          <div className="w-8 h-8 bg-gradient-to-br from-green-400 to-green-600 rounded-xl flex items-center justify-center shadow-lg">
-                            <Icon name="Truck" size={16} className="text-white" />
+                          <div className="w-7 h-7 bg-gradient-to-br from-green-400 to-green-600 rounded-lg flex items-center justify-center shadow-lg">
+                            <Icon name="Truck" size={14} className="text-white" />
                           </div>
                           <div>
-                            <p className="text-xl font-bold text-gray-900 dark:text-white">{driverCount}</p>
-                            <p className="text-xs text-gray-700 dark:text-gray-300">Перевозчиков</p>
+                            <p className="text-lg font-bold text-gray-900 dark:text-white">{driverCount}</p>
+                            <p className="text-[10px] text-gray-700 dark:text-gray-300">Перевозчиков</p>
                           </div>
                         </div>
-                        <Icon name={driverBlockExpanded ? 'ChevronUp' : 'ChevronDown'} size={18} className="text-gray-600 dark:text-gray-400" />
+                        <Icon name={driverBlockExpanded ? 'ChevronUp' : 'ChevronDown'} size={16} className="text-gray-600 dark:text-gray-400" />
                       </div>
                       {driverBlockExpanded && (
-                        <div className="px-3 pb-3">
+                        <div className="px-2 pb-2">
                           <StatusSelector 
                             userType="driver"
                             status={driverStatus}
@@ -310,16 +305,16 @@ const LiveMap = ({ isPublic = false, onMarkerClick }: LiveMapProps = {}) => {
 
             {/* Таб поиска + фильтры */}
             {activeTab === 'search' && (
-              <div className="space-y-3">
+              <div className="space-y-2">
                 {/* Фильтры */}
                 {!isPublic && (
-                  <div className="bg-white/10 dark:bg-gray-800/10 backdrop-blur-3xl rounded-2xl p-3 border border-white/30 dark:border-gray-700/30">
+                  <div className="bg-white/10 dark:bg-gray-800/10 backdrop-blur-3xl rounded-xl p-2 border border-white/30 dark:border-gray-700/30">
                     <MapFilters onFilterChange={handleFilterChange} />
                   </div>
                 )}
                 
                 {/* Поиск маршрутов */}
-                <div className="bg-white/10 dark:bg-gray-800/10 backdrop-blur-3xl rounded-2xl p-3 border border-white/30 dark:border-gray-700/30">
+                <div className="bg-white/10 dark:bg-gray-800/10 backdrop-blur-3xl rounded-xl p-2 border border-white/30 dark:border-gray-700/30">
                   <RouteSearchPanel 
                     routeSearch={routeSearch} 
                     onRouteChange={setRouteSearch}
@@ -328,8 +323,8 @@ const LiveMap = ({ isPublic = false, onMarkerClick }: LiveMapProps = {}) => {
                 </div>
                 
                 {/* Типы грузов и транспорта */}
-                <div className="bg-white/10 dark:bg-gray-800/10 backdrop-blur-3xl rounded-2xl p-3 border border-white/30 dark:border-gray-700/30">
-                  <h3 className="text-sm font-semibold text-gray-900 dark:text-white mb-2">Показать</h3>
+                <div className="bg-white/10 dark:bg-gray-800/10 backdrop-blur-3xl rounded-xl p-2 border border-white/30 dark:border-gray-700/30">
+                  <h3 className="text-xs font-semibold text-gray-900 dark:text-white mb-1.5">Показать</h3>
                   <CargoVehicleSelector 
                     filters={filters}
                     onCargoTypeClick={handleCargoTypeClick}

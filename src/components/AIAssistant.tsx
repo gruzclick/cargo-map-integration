@@ -162,13 +162,13 @@ const AIAssistant = () => {
 
   if (!isOpen) {
     return (
-      <Button
+      <button
         onClick={() => setIsOpen(true)}
-        className="fixed bottom-4 right-4 z-50 h-14 w-14 rounded-full shadow-2xl hover:scale-110 transition-transform"
-        size="icon"
+        className="fixed bottom-4 right-4 z-50 px-4 py-3 bg-white/15 dark:bg-gray-900/15 backdrop-blur-3xl border border-white/40 dark:border-gray-700/40 shadow-2xl rounded-full hover:bg-white/25 dark:hover:bg-gray-900/25 active:scale-95 transition-all flex items-center gap-2"
       >
-        <Icon name="MessageCircle" size={24} />
-      </Button>
+        <Icon name="HelpCircle" size={18} className="text-gray-900 dark:text-white" />
+        <span className="text-sm font-medium text-gray-900 dark:text-white">Справка</span>
+      </button>
     );
   }
 
@@ -181,8 +181,8 @@ const AIAssistant = () => {
               <Icon name="Bot" size={18} />
             </div>
             <div>
-              <h3 className="font-semibold text-sm">AI Помощник</h3>
-              <p className="text-xs opacity-90">Только вопросы о платформе</p>
+              <h3 className="font-semibold text-sm">Справка</h3>
+              <p className="text-xs opacity-90">Вопросы о приложении</p>
             </div>
           </div>
           <Button
