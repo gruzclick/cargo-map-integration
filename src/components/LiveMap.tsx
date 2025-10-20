@@ -132,7 +132,7 @@ const LiveMap = ({ isPublic = false, onMarkerClick }: LiveMapProps = {}) => {
       <div className="grid grid-cols-1 md:grid-cols-5 gap-1.5 md:gap-2">
         {!isPublic && <MapFilters onFilterChange={handleFilterChange} className="md:col-span-2" />}
         
-        <Card className="border border-gray-200/20 dark:border-gray-700/30 shadow-2xl bg-white/60 dark:bg-gray-900/60 backdrop-blur-2xl animate-scale-in">
+        <Card className="border border-gray-200/20 dark:border-gray-700/30 shadow-2xl bg-white/60 dark:bg-gray-900/60 backdrop-blur-2xl animate-scale-in md:col-span-1.5">
           <CardContent className="p-2.5 md:p-3">
             <div className="flex md:flex-col gap-1.5 md:gap-2">
               <div className="flex-1 md:flex-none flex items-center gap-2">
@@ -157,7 +157,7 @@ const LiveMap = ({ isPublic = false, onMarkerClick }: LiveMapProps = {}) => {
           </CardContent>
         </Card>
 
-        <Card className="border border-gray-200/20 dark:border-gray-700/30 shadow-2xl bg-white/60 dark:bg-gray-900/60 backdrop-blur-2xl animate-scale-in" style={{ animationDelay: '0.1s' }}>
+        <Card className="border border-gray-200/20 dark:border-gray-700/30 shadow-2xl bg-white/60 dark:bg-gray-900/60 backdrop-blur-2xl animate-scale-in md:col-span-1.5" style={{ animationDelay: '0.1s' }}>
           <CardContent className="p-2.5 md:p-3">
             <div className="flex md:flex-col gap-1.5 md:gap-2">
               <div className="flex-1 md:flex-none flex items-center gap-2">
