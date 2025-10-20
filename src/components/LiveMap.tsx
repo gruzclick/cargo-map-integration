@@ -122,7 +122,7 @@ const LiveMap = ({ isPublic = false, onMarkerClick }: LiveMapProps = {}) => {
   const driverCount = filteredMarkers.filter(m => m.type === 'driver').length;
 
   return (
-    <div className="space-y-1.5 md:space-y-2.5">
+    <div className="space-y-0.75 md:space-y-1.25">
       <NearbyCargoNotification 
         markers={markers}
         userLocation={userLocation}
@@ -132,7 +132,7 @@ const LiveMap = ({ isPublic = false, onMarkerClick }: LiveMapProps = {}) => {
       <div className="flex flex-col md:flex-row gap-1.5 md:gap-2">
         {!isPublic && <MapFilters onFilterChange={handleFilterChange} className="md:w-[40%]" />}
         
-        <div className="shadow-2xl bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 backdrop-blur-2xl animate-scale-in md:w-[30%] rounded-xl">
+        <div className="shadow-2xl bg-gradient-to-br from-white via-gray-50 to-gray-100 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 backdrop-blur-2xl animate-scale-in md:w-[30%] rounded-xl border border-gray-200/50 dark:border-gray-700/30">
           <div className="p-2.5 md:p-3">
             <div className="flex md:flex-col gap-1.5 md:gap-2">
               <div className="flex-1 md:flex-none flex items-center gap-2">
@@ -140,8 +140,8 @@ const LiveMap = ({ isPublic = false, onMarkerClick }: LiveMapProps = {}) => {
                   <Icon name="Package" size={18} className="text-white md:w-6 md:h-6" />
                 </div>
                 <div className="flex flex-col">
-                  <p className="text-2xl md:text-3xl font-bold text-white">{cargoCount}</p>
-                  <p className="text-xs md:text-sm text-gray-300">Всего грузов</p>
+                  <p className="text-xl md:text-2xl font-bold text-gray-900 dark:text-white">{cargoCount}</p>
+                  <p className="text-xs md:text-sm text-gray-600 dark:text-gray-300">Всего грузов</p>
                 </div>
               </div>
               {!isPublic && (
@@ -157,7 +157,7 @@ const LiveMap = ({ isPublic = false, onMarkerClick }: LiveMapProps = {}) => {
           </div>
         </div>
 
-        <div className="shadow-2xl bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 backdrop-blur-2xl animate-scale-in md:w-[30%] rounded-xl" style={{ animationDelay: '0.1s' }}>
+        <div className="shadow-2xl bg-gradient-to-br from-white via-gray-50 to-gray-100 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 backdrop-blur-2xl animate-scale-in md:w-[30%] rounded-xl border border-gray-200/50 dark:border-gray-700/30" style={{ animationDelay: '0.1s' }}>
           <div className="p-2.5 md:p-3">
             <div className="flex md:flex-col gap-1.5 md:gap-2">
               <div className="flex-1 md:flex-none flex items-center gap-2">
@@ -165,8 +165,8 @@ const LiveMap = ({ isPublic = false, onMarkerClick }: LiveMapProps = {}) => {
                   <Icon name="Truck" size={18} className="text-white md:w-6 md:h-6" />
                 </div>
                 <div className="flex flex-col">
-                  <p className="text-2xl md:text-3xl font-bold text-white">{driverCount}</p>
-                  <p className="text-xs md:text-sm text-gray-300">Перевозчиков свободно</p>
+                  <p className="text-xl md:text-2xl font-bold text-gray-900 dark:text-white">{driverCount}</p>
+                  <p className="text-xs md:text-sm text-gray-600 dark:text-gray-300">Перевозчиков свободно</p>
                 </div>
               </div>
               {!isPublic && (
