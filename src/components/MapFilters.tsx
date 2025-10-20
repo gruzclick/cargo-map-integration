@@ -50,7 +50,7 @@ const MapFilters = ({ onFilterChange, className }: MapFiltersProps) => {
         {isVisible ? 'Скрыть фильтры' : 'Показать фильтры'}
       </Button>
       
-      <div className={`${!isVisible ? 'hidden md:block' : ''} ${className ? 'border border-white/30 dark:border-gray-700/30 shadow-2xl bg-white/40 dark:bg-gray-900/40 backdrop-blur-xl rounded-2xl overflow-hidden h-full flex flex-col' : 'bg-white/40 dark:bg-gray-900/40 backdrop-blur-xl rounded-2xl shadow-2xl border border-white/30 dark:border-gray-700/30 overflow-hidden'} transition-smooth`}>
+      <div className={`${!isVisible ? 'hidden md:block' : ''} ${className ? 'border border-white/20 dark:border-gray-700/20 shadow-2xl bg-white/15 dark:bg-gray-900/15 backdrop-blur-md rounded-2xl overflow-hidden h-full flex flex-col' : 'bg-white/15 dark:bg-gray-900/15 backdrop-blur-md rounded-2xl shadow-2xl border border-white/20 dark:border-gray-700/20 overflow-hidden'} transition-smooth`}>
         <div className={className ? "p-3 md:p-3 flex-1 flex flex-col" : "p-3 md:p-4"}>
           <div className="flex items-center justify-between mb-3 md:mb-4">
             <div className="flex items-center gap-2">

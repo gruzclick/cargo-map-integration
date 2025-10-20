@@ -144,7 +144,7 @@ const LiveMap = ({ isPublic = false, onMarkerClick }: LiveMapProps = {}) => {
         <div className="flex flex-col md:flex-row gap-2 pointer-events-auto">
           {!isPublic && <MapFilters onFilterChange={handleFilterChange} className="md:w-[40%]" />}
           
-          <div className="bg-white/40 dark:bg-gray-900/40 backdrop-blur-xl border border-white/30 dark:border-gray-700/30 shadow-2xl animate-scale-in md:w-[30%] rounded-2xl">
+          <div className="bg-white/15 dark:bg-gray-900/15 backdrop-blur-md border border-white/20 dark:border-gray-700/20 shadow-2xl animate-scale-in md:w-[30%] rounded-2xl">
             <div className="p-2.5 md:p-3">
               <div className="flex md:flex-col gap-1.5 md:gap-2">
                 <div className="flex-1 md:flex-none flex items-center gap-2">
@@ -169,7 +169,7 @@ const LiveMap = ({ isPublic = false, onMarkerClick }: LiveMapProps = {}) => {
             </div>
           </div>
 
-          <div className="bg-white/40 dark:bg-gray-900/40 backdrop-blur-xl border border-white/30 dark:border-gray-700/30 shadow-2xl animate-scale-in md:w-[30%] rounded-2xl" style={{ animationDelay: '0.1s' }}>
+          <div className="bg-white/15 dark:bg-gray-900/15 backdrop-blur-md border border-white/20 dark:border-gray-700/20 shadow-2xl animate-scale-in md:w-[30%] rounded-2xl" style={{ animationDelay: '0.1s' }}>
             <div className="p-2.5 md:p-3">
               <div className="flex md:flex-col gap-1.5 md:gap-2">
                 <div className="flex-1 md:flex-none flex items-center gap-2">
@@ -198,7 +198,7 @@ const LiveMap = ({ isPublic = false, onMarkerClick }: LiveMapProps = {}) => {
 
       {/* Панель поиска маршрутов внизу */}
       <div className="absolute bottom-3 left-3 right-3 z-10 pointer-events-auto">
-        <Card className="border border-white/30 dark:border-gray-700/30 shadow-2xl bg-white/40 dark:bg-gray-900/40 backdrop-blur-xl overflow-hidden animate-scale-in">
+        <Card className="border border-white/20 dark:border-gray-700/20 shadow-2xl bg-white/15 dark:bg-gray-900/15 backdrop-blur-md overflow-hidden animate-scale-in">
           <CardContent className="p-3 md:p-4">
             <RouteSearchPanel 
               routeSearch={routeSearch} 
