@@ -9,6 +9,7 @@ import CargoDetailsModal from './map/CargoDetailsModal';
 import VehicleDetailsModal from './map/VehicleDetailsModal';
 import StatusSelector from './map/StatusSelector';
 import NearbyCargoNotification from './map/NearbyCargoNotification';
+import AIAssistant from './AIAssistant';
 import { MapMarker, CargoDetailsModal as CargoDetailsModalType, VehicleDetailsModal as VehicleDetailsModalType, LiveMapProps } from './map/MapTypes';
 
 
@@ -124,7 +125,7 @@ const LiveMap = ({ isPublic = false, onMarkerClick }: LiveMapProps = {}) => {
   const driverCount = filteredMarkers.filter(m => m.type === 'driver').length;
 
   return (
-    <div className="relative w-full h-screen">
+    <div className="relative w-full h-screen overflow-hidden">
       <NearbyCargoNotification 
         markers={markers}
         userLocation={userLocation}
@@ -150,33 +151,35 @@ const LiveMap = ({ isPublic = false, onMarkerClick }: LiveMapProps = {}) => {
         <Icon name={showSidebar ? 'PanelLeftClose' : 'PanelLeftOpen'} size={18} className="text-gray-900 dark:text-white" />
       </button>
 
-      {/* Кнопка геолокации - Apple Style */}
-      <button
-        onClick={() => {
-          if (navigator.geolocation) {
-            navigator.geolocation.getCurrentPosition(
-              (position) => {
-                setUserLocation({
-                  lat: position.coords.latitude,
-                  lng: position.coords.longitude
-                });
-              },
-              (error) => {
-                console.error('Ошибка геолокации:', error);
-                alert('Не удалось определить местоположение');
-              }
-            );
-          }
-        }}
-        className="absolute top-3 right-3 z-10 w-10 h-10 bg-white/30 dark:bg-gray-900/30 backdrop-blur-2xl border border-white/40 dark:border-gray-700/40 shadow-xl rounded-full flex items-center justify-center hover:bg-white/40 dark:hover:bg-gray-900/40 active:scale-95 transition-all"
-        title="Моё местоположение"
-      >
-        <Icon name="Crosshair" size={18} className="text-gray-900 dark:text-white" />
-      </button>
+      {/* Кнопки справа вверху - разделены */}
+      <div className="absolute top-3 right-3 z-10 flex gap-2">
+        <button
+          onClick={() => {
+            if (navigator.geolocation) {
+              navigator.geolocation.getCurrentPosition(
+                (position) => {
+                  setUserLocation({
+                    lat: position.coords.latitude,
+                    lng: position.coords.longitude
+                  });
+                },
+                (error) => {
+                  console.error('Ошибка геолокации:', error);
+                  alert('Не удалось определить местоположение');
+                }
+              );
+            }
+          }}
+          className="w-10 h-10 bg-white/30 dark:bg-gray-900/30 backdrop-blur-2xl border border-white/40 dark:border-gray-700/40 shadow-xl rounded-full flex items-center justify-center hover:bg-white/40 dark:hover:bg-gray-900/40 active:scale-95 transition-all"
+          title="Моё местоположение"
+        >
+          <Icon name="Crosshair" size={18} className="text-gray-900 dark:text-white" />
+        </button>
+      </div>
 
       {/* Боковая панель слева - Apple Glass Style */}
       {showSidebar && (
-        <div className="absolute top-3 left-3 bottom-3 w-full md:w-80 bg-white/30 dark:bg-gray-900/30 backdrop-blur-2xl border border-white/40 dark:border-gray-700/40 shadow-2xl rounded-3xl z-10 overflow-hidden animate-slide-in-left flex flex-col">
+        <div className="absolute top-3 left-3 max-h-[calc(100vh-1.5rem)] w-full md:w-80 bg-white/15 dark:bg-gray-900/15 backdrop-blur-3xl border border-white/40 dark:border-gray-700/40 shadow-2xl rounded-3xl z-10 overflow-hidden animate-slide-in-left flex flex-col">
           {/* Табы - компактные */}
           <div className="flex border-b border-white/20 dark:border-gray-700/20 p-2">
             <button
@@ -253,7 +256,7 @@ const LiveMap = ({ isPublic = false, onMarkerClick }: LiveMapProps = {}) => {
               <div className="space-y-3">
                 {/* Фильтры */}
                 {!isPublic && (
-                  <div className="bg-white/40 dark:bg-gray-800/40 backdrop-blur-sm rounded-2xl p-3 border border-white/30 dark:border-gray-700/30">
+                  <div>
                     <MapFilters onFilterChange={handleFilterChange} />
                   </div>
                 )}
@@ -304,6 +307,9 @@ const LiveMap = ({ isPublic = false, onMarkerClick }: LiveMapProps = {}) => {
         onSubmit={submitVehicleDetails}
         onClose={() => setVehicleDetailsModal(null)}
       />
+
+      {/* AI Помощник */}
+      <AIAssistant />
     </div>
   );
 };
