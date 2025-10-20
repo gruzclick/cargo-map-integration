@@ -132,16 +132,16 @@ const LiveMap = ({ isPublic = false, onMarkerClick }: LiveMapProps = {}) => {
       <div className="grid grid-cols-1 md:grid-cols-5 gap-1.5 md:gap-2">
         {!isPublic && <MapFilters onFilterChange={handleFilterChange} className="md:col-span-2" />}
         
-        <Card className="border border-gray-200/20 dark:border-gray-700/30 shadow-2xl bg-white/60 dark:bg-gray-900/60 backdrop-blur-2xl animate-scale-in md:col-span-1.5">
-          <CardContent className="p-2.5 md:p-3">
+        <div className="border-[3px] border-orange-500 shadow-2xl bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 backdrop-blur-2xl animate-scale-in md:col-span-1.5 rounded-xl">
+          <div className="p-2.5 md:p-3">
             <div className="flex md:flex-col gap-1.5 md:gap-2">
               <div className="flex-1 md:flex-none flex items-center gap-2">
-                <div className="w-7 h-7 md:w-8 md:h-8 bg-gradient-to-br from-sky-400 to-sky-600 rounded-lg flex items-center justify-center shadow-lg shrink-0">
-                  <Icon name="Package" size={14} className="text-white" />
+                <div className="w-9 h-9 md:w-11 md:h-11 bg-gradient-to-br from-blue-400 to-blue-600 rounded-xl flex items-center justify-center shadow-lg shrink-0">
+                  <Icon name="Package" size={18} className="text-white md:w-6 md:h-6" />
                 </div>
-                <div className="flex items-center gap-1.5">
-                  <p className="text-lg md:text-xl font-bold text-gray-900 dark:text-gray-100">{cargoCount}</p>
-                  <p className="text-xs md:text-sm text-gray-600 dark:text-gray-400">Всего грузов</p>
+                <div className="flex flex-col">
+                  <p className="text-2xl md:text-3xl font-bold text-white">{cargoCount}</p>
+                  <p className="text-xs md:text-sm text-gray-300">Всего грузов</p>
                 </div>
               </div>
               {!isPublic && (
@@ -154,19 +154,19 @@ const LiveMap = ({ isPublic = false, onMarkerClick }: LiveMapProps = {}) => {
                 </div>
               )}
             </div>
-          </CardContent>
-        </Card>
+          </div>
+        </div>
 
-        <Card className="border border-gray-200/20 dark:border-gray-700/30 shadow-2xl bg-white/60 dark:bg-gray-900/60 backdrop-blur-2xl animate-scale-in md:col-span-1.5" style={{ animationDelay: '0.1s' }}>
-          <CardContent className="p-2.5 md:p-3">
+        <div className="border-[3px] border-orange-500 shadow-2xl bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 backdrop-blur-2xl animate-scale-in md:col-span-1.5 rounded-xl" style={{ animationDelay: '0.1s' }}>
+          <div className="p-2.5 md:p-3">
             <div className="flex md:flex-col gap-1.5 md:gap-2">
               <div className="flex-1 md:flex-none flex items-center gap-2">
-                <div className="w-7 h-7 md:w-8 md:h-8 bg-gradient-to-br from-green-400 to-green-600 rounded-lg flex items-center justify-center shadow-lg shrink-0">
-                  <Icon name="Truck" size={14} className="text-white" />
+                <div className="w-9 h-9 md:w-11 md:h-11 bg-gradient-to-br from-green-400 to-green-600 rounded-xl flex items-center justify-center shadow-lg shrink-0">
+                  <Icon name="Truck" size={18} className="text-white md:w-6 md:h-6" />
                 </div>
-                <div className="flex items-center gap-1.5">
-                  <p className="text-lg md:text-xl font-bold text-gray-900 dark:text-gray-100">{driverCount}</p>
-                  <p className="text-xs md:text-sm text-gray-600 dark:text-gray-400">Перевозчиков свободно</p>
+                <div className="flex flex-col">
+                  <p className="text-2xl md:text-3xl font-bold text-white">{driverCount}</p>
+                  <p className="text-xs md:text-sm text-gray-300">Перевозчиков свободно</p>
                 </div>
               </div>
               {!isPublic && (
@@ -179,8 +179,8 @@ const LiveMap = ({ isPublic = false, onMarkerClick }: LiveMapProps = {}) => {
                 </div>
               )}
             </div>
-          </CardContent>
-        </Card>
+          </div>
+        </div>
       </div>
 
       <Card className="border border-gray-200/20 dark:border-gray-700/30 shadow-2xl bg-white/60 dark:bg-gray-900/60 backdrop-blur-2xl overflow-hidden animate-scale-in" style={{ animationDelay: '0.2s' }}>

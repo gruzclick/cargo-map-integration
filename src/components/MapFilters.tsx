@@ -91,9 +91,7 @@ const MapFilters = ({ onFilterChange, className }: MapFiltersProps) => {
                   onClick={() => updateFilter('userType', 'client')}
                   className="text-[10px] md:text-xs h-7 md:h-9 rounded-lg transition-spring hover:scale-105 px-1 md:px-2"
                 >
-                  <Icon name="Package" size={12} className="mr-0.5 md:mr-1 shrink-0 md:w-[14px] md:h-[14px]" />
-                  <span className="hidden md:inline">Клиент</span>
-                  <span className="md:hidden text-[9px]">Клиент</span>
+                  Клиент
                 </Button>
                 <Button
                   variant={filters.userType === 'carrier' ? 'default' : 'outline'}
@@ -101,9 +99,7 @@ const MapFilters = ({ onFilterChange, className }: MapFiltersProps) => {
                   onClick={() => updateFilter('userType', 'carrier')}
                   className="text-[10px] md:text-xs h-7 md:h-9 rounded-lg transition-spring hover:scale-105 px-1 md:px-2"
                 >
-                  <Icon name="Truck" size={12} className="mr-0.5 md:mr-1 shrink-0 md:w-[14px] md:h-[14px]" />
-                  <span className="hidden md:inline">Перевозчик</span>
-                  <span className="md:hidden text-[9px]">Перевозчик</span>
+                  Перевозчик
                 </Button>
               </div>
             </div>
