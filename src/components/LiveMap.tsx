@@ -29,8 +29,8 @@ const LiveMap = ({ isPublic = false, onMarkerClick }: LiveMapProps = {}) => {
   const [vehicleDetailsModal, setVehicleDetailsModal] = useState<VehicleDetailsModalType | null>(null);
   const [vehicleDetails, setVehicleDetails] = useState({ boxCount: '', palletCount: '', oversizedCount: '', volume: '' });
 
-  const [filtersExpanded, setFiltersExpanded] = useState(false);
-  const [statsExpanded, setStatsExpanded] = useState(false);
+  const [showSidebar, setShowSidebar] = useState(true);
+  const [activeTab, setActiveTab] = useState<'stats' | 'search' | 'filters'>('stats');
 
   useEffect(() => {
     fetchMarkers();
@@ -141,149 +141,163 @@ const LiveMap = ({ isPublic = false, onMarkerClick }: LiveMapProps = {}) => {
         />
       </div>
 
-      {/* Компактная панель вверху */}
-      <div className="absolute top-2 left-2 right-2 z-10 pointer-events-none">
-        <div className="flex flex-wrap md:flex-nowrap gap-1.5 pointer-events-auto">
-          {/* Фильтры компактно */}
-          {!isPublic && (
-            <button
-              onClick={() => setFiltersExpanded(!filtersExpanded)}
-              className="bg-white/15 dark:bg-gray-900/15 backdrop-blur-md border border-white/20 dark:border-gray-700/20 shadow-lg rounded-lg px-2.5 py-1.5 flex items-center gap-1.5 hover:bg-white/25 dark:hover:bg-gray-900/25 transition-all text-sm"
-            >
-              <Icon name="Filter" size={16} className="text-gray-900 dark:text-white" />
-              <span className="hidden md:inline text-xs font-medium text-gray-900 dark:text-white">Фильтры</span>
-            </button>
-          )}
-          
-          {/* Грузы */}
-          <button
-            onClick={() => setStatsExpanded(!statsExpanded)}
-            className="bg-white/15 dark:bg-gray-900/15 backdrop-blur-md border border-white/20 dark:border-gray-700/20 shadow-lg rounded-lg px-2.5 py-1.5 flex items-center gap-1.5 hover:bg-white/25 dark:hover:bg-gray-900/25 transition-all"
-          >
-            <div className="w-6 h-6 bg-gradient-to-br from-blue-400 to-blue-600 rounded flex items-center justify-center">
-              <Icon name="Package" size={12} className="text-white" />
-            </div>
-            <span className="text-sm font-bold text-gray-900 dark:text-white">{cargoCount}</span>
-          </button>
+      {/* Кнопка показа/скрытия боковой панели */}
+      <button
+        onClick={() => setShowSidebar(!showSidebar)}
+        className="absolute top-4 left-4 z-20 w-12 h-12 bg-white/95 dark:bg-gray-900/95 backdrop-blur-xl border border-white/20 dark:border-gray-700/20 shadow-2xl rounded-xl flex items-center justify-center hover:scale-110 active:scale-95 transition-all"
+        title={showSidebar ? 'Скрыть панель' : 'Показать панель'}
+      >
+        <Icon name={showSidebar ? 'PanelLeftClose' : 'PanelLeftOpen'} size={20} className="text-gray-900 dark:text-white" />
+      </button>
 
-          {/* Перевозчики */}
-          <button
-            onClick={() => setStatsExpanded(!statsExpanded)}
-            className="bg-white/15 dark:bg-gray-900/15 backdrop-blur-md border border-white/20 dark:border-gray-700/20 shadow-lg rounded-lg px-2.5 py-1.5 flex items-center gap-1.5 hover:bg-white/25 dark:hover:bg-gray-900/25 transition-all"
-          >
-            <div className="w-6 h-6 bg-gradient-to-br from-green-400 to-green-600 rounded flex items-center justify-center">
-              <Icon name="Truck" size={12} className="text-white" />
-            </div>
-            <span className="text-sm font-bold text-gray-900 dark:text-white">{driverCount}</span>
-          </button>
-
-          {/* Моё местоположение */}
-          <button
-            onClick={() => {
-              if (navigator.geolocation) {
-                navigator.geolocation.getCurrentPosition(
-                  (position) => {
-                    setUserLocation({
-                      lat: position.coords.latitude,
-                      lng: position.coords.longitude
-                    });
-                  },
-                  (error) => {
-                    console.error('Ошибка геолокации:', error);
-                    alert('Не удалось определить местоположение');
-                  }
-                );
+      {/* Кнопка геолокации */}
+      <button
+        onClick={() => {
+          if (navigator.geolocation) {
+            navigator.geolocation.getCurrentPosition(
+              (position) => {
+                setUserLocation({
+                  lat: position.coords.latitude,
+                  lng: position.coords.longitude
+                });
+              },
+              (error) => {
+                console.error('Ошибка геолокации:', error);
+                alert('Не удалось определить местоположение');
               }
-            }}
-            className="bg-white/15 dark:bg-gray-900/15 backdrop-blur-md border border-white/20 dark:border-gray-700/20 shadow-lg rounded-lg p-1.5 flex items-center justify-center hover:bg-white/25 dark:hover:bg-gray-900/25 transition-all"
-            title="Моё местоположение"
-          >
-            <Icon name="Crosshair" size={16} className="text-gray-900 dark:text-white" />
-          </button>
-        </div>
-      </div>
+            );
+          }
+        }}
+        className="absolute top-4 right-4 z-10 w-12 h-12 bg-white/95 dark:bg-gray-900/95 backdrop-blur-xl border border-white/20 dark:border-gray-700/20 shadow-2xl rounded-xl flex items-center justify-center hover:scale-110 active:scale-95 transition-all"
+        title="Моё местоположение"
+      >
+        <Icon name="Crosshair" size={20} className="text-gray-900 dark:text-white" />
+      </button>
 
-      {/* Выдвижная панель фильтров */}
-      {filtersExpanded && (
-        <div className="absolute top-12 left-2 z-20 w-[calc(100%-1rem)] md:w-96 bg-white/95 dark:bg-gray-900/95 backdrop-blur-xl border border-white/20 dark:border-gray-700/20 shadow-2xl rounded-xl p-3 animate-slide-in-down pointer-events-auto">
-          <div className="flex items-center justify-between mb-3">
-            <h3 className="text-sm font-bold text-gray-900 dark:text-white">Фильтры</h3>
-            <button onClick={() => setFiltersExpanded(false)} className="p-1 hover:bg-gray-100 dark:hover:bg-gray-800 rounded">
-              <Icon name="X" size={16} />
+      {/* Боковая панель слева */}
+      {showSidebar && (
+        <div className="absolute top-0 left-0 bottom-0 w-full md:w-[420px] bg-white/95 dark:bg-gray-900/95 backdrop-blur-xl border-r border-white/20 dark:border-gray-700/20 shadow-2xl z-10 overflow-hidden animate-slide-in-left flex flex-col">
+          {/* Табы */}
+          <div className="flex border-b border-gray-200/30 dark:border-gray-700/30 bg-gradient-to-r from-blue-50/50 to-purple-50/50 dark:from-blue-900/20 dark:to-purple-900/20">
+            <button
+              onClick={() => setActiveTab('stats')}
+              className={`flex-1 px-4 py-3 text-sm font-semibold transition-all flex items-center justify-center gap-2 ${
+                activeTab === 'stats'
+                  ? 'bg-white dark:bg-gray-800 text-blue-600 dark:text-blue-400 border-b-2 border-blue-600 dark:border-blue-400'
+                  : 'text-gray-600 dark:text-gray-400 hover:bg-white/50 dark:hover:bg-gray-800/50'
+              }`}
+            >
+              <Icon name="BarChart3" size={18} />
+              Статистика
             </button>
+            <button
+              onClick={() => setActiveTab('search')}
+              className={`flex-1 px-4 py-3 text-sm font-semibold transition-all flex items-center justify-center gap-2 ${
+                activeTab === 'search'
+                  ? 'bg-white dark:bg-gray-800 text-blue-600 dark:text-blue-400 border-b-2 border-blue-600 dark:border-blue-400'
+                  : 'text-gray-600 dark:text-gray-400 hover:bg-white/50 dark:hover:bg-gray-800/50'
+              }`}
+            >
+              <Icon name="Search" size={18} />
+              Поиск
+            </button>
+            {!isPublic && (
+              <button
+                onClick={() => setActiveTab('filters')}
+                className={`flex-1 px-4 py-3 text-sm font-semibold transition-all flex items-center justify-center gap-2 ${
+                  activeTab === 'filters'
+                    ? 'bg-white dark:bg-gray-800 text-blue-600 dark:text-blue-400 border-b-2 border-blue-600 dark:border-blue-400'
+                    : 'text-gray-600 dark:text-gray-400 hover:bg-white/50 dark:hover:bg-gray-800/50'
+                }`}
+              >
+                <Icon name="Filter" size={18} />
+                Фильтры
+              </button>
+            )}
           </div>
-          <MapFilters onFilterChange={handleFilterChange} />
+
+          {/* Контент табов */}
+          <div className="flex-1 overflow-y-auto p-5">
+            {/* Таб статистики */}
+            {activeTab === 'stats' && (
+              <div className="space-y-4">
+                <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-4">Статистика карты</h2>
+                
+                {!isPublic && (
+                  <>
+                    <div className="bg-gradient-to-br from-blue-50 to-blue-100 dark:from-blue-900/20 dark:to-blue-800/20 rounded-xl p-5 border border-blue-200/50 dark:border-blue-700/30">
+                      <div className="flex items-center gap-3 mb-4">
+                        <div className="w-12 h-12 bg-gradient-to-br from-blue-400 to-blue-600 rounded-xl flex items-center justify-center shadow-lg">
+                          <Icon name="Package" size={24} className="text-white" />
+                        </div>
+                        <div>
+                          <p className="text-3xl font-bold text-gray-900 dark:text-white">{cargoCount}</p>
+                          <p className="text-sm text-gray-700 dark:text-gray-300">Всего грузов</p>
+                        </div>
+                      </div>
+                      <StatusSelector 
+                        userType="client"
+                        status={cargoStatus}
+                        onStatusChange={setCargoStatus}
+                      />
+                    </div>
+
+                    <div className="bg-gradient-to-br from-green-50 to-green-100 dark:from-green-900/20 dark:to-green-800/20 rounded-xl p-5 border border-green-200/50 dark:border-green-700/30">
+                      <div className="flex items-center gap-3 mb-4">
+                        <div className="w-12 h-12 bg-gradient-to-br from-green-400 to-green-600 rounded-xl flex items-center justify-center shadow-lg">
+                          <Icon name="Truck" size={24} className="text-white" />
+                        </div>
+                        <div>
+                          <p className="text-3xl font-bold text-gray-900 dark:text-white">{driverCount}</p>
+                          <p className="text-sm text-gray-700 dark:text-gray-300">Перевозчиков</p>
+                        </div>
+                      </div>
+                      <StatusSelector 
+                        userType="driver"
+                        status={driverStatus}
+                        onStatusChange={setDriverStatus}
+                      />
+                    </div>
+                  </>
+                )}
+              </div>
+            )}
+
+            {/* Таб поиска */}
+            {activeTab === 'search' && (
+              <div className="space-y-5">
+                <div>
+                  <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-1">Поиск маршрутов</h2>
+                  <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">Найдите грузы и перевозчиков на нужном маршруте</p>
+                  
+                  <RouteSearchPanel 
+                    routeSearch={routeSearch} 
+                    onRouteChange={setRouteSearch}
+                    onLocationDetected={setUserLocation}
+                  />
+                </div>
+                
+                <div className="border-t border-gray-200/30 dark:border-gray-700/30 pt-5">
+                  <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-3">Типы грузов и транспорта</h3>
+                  <CargoVehicleSelector 
+                    filters={filters}
+                    onCargoTypeClick={handleCargoTypeClick}
+                    onVehicleTypeClick={handleVehicleTypeClick}
+                  />
+                </div>
+              </div>
+            )}
+
+            {/* Таб фильтров */}
+            {activeTab === 'filters' && !isPublic && (
+              <div>
+                <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-4">Фильтры карты</h2>
+                <MapFilters onFilterChange={handleFilterChange} />
+              </div>
+            )}
+          </div>
         </div>
       )}
-
-      {/* Выдвижная панель статистики */}
-      {statsExpanded && (
-        <div className="absolute top-12 left-2 z-20 w-[calc(100%-1rem)] md:w-96 bg-white/95 dark:bg-gray-900/95 backdrop-blur-xl border border-white/20 dark:border-gray-700/20 shadow-2xl rounded-xl p-3 space-y-3 animate-slide-in-down pointer-events-auto">
-          <div className="flex items-center justify-between mb-2">
-            <h3 className="text-sm font-bold text-gray-900 dark:text-white">Статистика</h3>
-            <button onClick={() => setStatsExpanded(false)} className="p-1 hover:bg-gray-100 dark:hover:bg-gray-800 rounded">
-              <Icon name="X" size={16} />
-            </button>
-          </div>
-          
-          {!isPublic && (
-            <>
-              <div className="bg-gradient-to-br from-blue-50 to-blue-100 dark:from-blue-900/20 dark:to-blue-800/20 rounded-lg p-3 border border-blue-200/50 dark:border-blue-700/30">
-                <div className="flex items-center gap-2 mb-2">
-                  <div className="w-8 h-8 bg-gradient-to-br from-blue-400 to-blue-600 rounded flex items-center justify-center">
-                    <Icon name="Package" size={16} className="text-white" />
-                  </div>
-                  <div>
-                    <p className="text-xl font-bold text-gray-900 dark:text-white">{cargoCount}</p>
-                    <p className="text-xs text-gray-700 dark:text-gray-300">Всего грузов</p>
-                  </div>
-                </div>
-                <StatusSelector 
-                  userType="client"
-                  status={cargoStatus}
-                  onStatusChange={setCargoStatus}
-                />
-              </div>
-
-              <div className="bg-gradient-to-br from-green-50 to-green-100 dark:from-green-900/20 dark:to-green-800/20 rounded-lg p-3 border border-green-200/50 dark:border-green-700/30">
-                <div className="flex items-center gap-2 mb-2">
-                  <div className="w-8 h-8 bg-gradient-to-br from-green-400 to-green-600 rounded flex items-center justify-center">
-                    <Icon name="Truck" size={16} className="text-white" />
-                  </div>
-                  <div>
-                    <p className="text-xl font-bold text-gray-900 dark:text-white">{driverCount}</p>
-                    <p className="text-xs text-gray-700 dark:text-gray-300">Перевозчиков</p>
-                  </div>
-                </div>
-                <StatusSelector 
-                  userType="driver"
-                  status={driverStatus}
-                  onStatusChange={setDriverStatus}
-                />
-              </div>
-            </>
-          )}
-        </div>
-      )}
-
-      {/* Панель поиска внизу */}
-      <div className="absolute bottom-2 left-2 right-2 z-10 pointer-events-auto">
-        <div className="bg-white/95 dark:bg-gray-900/95 backdrop-blur-xl border border-white/20 dark:border-gray-700/20 shadow-2xl rounded-xl p-3">
-          <RouteSearchPanel 
-            routeSearch={routeSearch} 
-            onRouteChange={setRouteSearch}
-            onLocationDetected={setUserLocation}
-          />
-          
-          <div className="mt-2 pt-2 border-t border-gray-200/30 dark:border-gray-700/30">
-            <CargoVehicleSelector 
-              filters={filters}
-              onCargoTypeClick={handleCargoTypeClick}
-              onVehicleTypeClick={handleVehicleTypeClick}
-            />
-          </div>
-        </div>
-      </div>
 
       {!isPublic && (
         <MarkerDetailsModal 
