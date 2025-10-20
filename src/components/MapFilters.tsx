@@ -39,8 +39,8 @@ const MapFilters = ({ onFilterChange, className }: MapFiltersProps) => {
 
   return (
     <div className={className}>
-      <div className={`${className ? 'border border-gray-200/20 dark:border-gray-700/30 shadow-2xl bg-white/60 dark:bg-gray-900/60 backdrop-blur-2xl rounded-lg overflow-hidden' : 'bg-white/70 dark:bg-gray-900/70 backdrop-blur-2xl rounded-xl md:rounded-2xl shadow-2xl border border-gray-200/50 dark:border-gray-700/50 overflow-hidden'} transition-smooth`}>
-        <div className={className ? "p-3 md:p-4" : "p-3 md:p-4"}>
+      <div className={`${className ? 'border border-gray-200/20 dark:border-gray-700/30 shadow-2xl bg-white/60 dark:bg-gray-900/60 backdrop-blur-2xl rounded-lg overflow-hidden h-full flex flex-col' : 'bg-white/70 dark:bg-gray-900/70 backdrop-blur-2xl rounded-xl md:rounded-2xl shadow-2xl border border-gray-200/50 dark:border-gray-700/50 overflow-hidden'} transition-smooth`}>
+        <div className={className ? "p-3 md:p-3 flex-1 flex flex-col" : "p-3 md:p-4"}>
           <div className="flex items-center justify-between mb-3 md:mb-4">
             <div className="flex items-center gap-2">
               <Icon name="Filter" size={18} className="text-gray-700 dark:text-gray-300 md:w-5 md:h-5" />
@@ -62,7 +62,7 @@ const MapFilters = ({ onFilterChange, className }: MapFiltersProps) => {
 
           <div className="space-y-2 md:space-y-3">
             <div>
-              <label className="text-[10px] md:text-xs font-medium text-gray-700 dark:text-gray-300 mb-1 md:mb-1.5 block">
+              <label className="text-xs md:text-sm font-medium text-gray-700 dark:text-gray-300 mb-1 md:mb-1.5 block">
                 Я ищу как:
               </label>
               <div className="grid grid-cols-3 gap-1 md:gap-2">
