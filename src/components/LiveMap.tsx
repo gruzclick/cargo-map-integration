@@ -32,6 +32,9 @@ const LiveMap = ({ isPublic = false, onMarkerClick }: LiveMapProps = {}) => {
 
   const [showSidebar, setShowSidebar] = useState(true);
   const [activeTab, setActiveTab] = useState<'stats' | 'search'>('stats');
+  const [statsExpanded, setStatsExpanded] = useState(true);
+  const [cargoBlockExpanded, setCargoBlockExpanded] = useState(true);
+  const [driverBlockExpanded, setDriverBlockExpanded] = useState(true);
 
   useEffect(() => {
     fetchMarkers();
@@ -125,15 +128,15 @@ const LiveMap = ({ isPublic = false, onMarkerClick }: LiveMapProps = {}) => {
   const driverCount = filteredMarkers.filter(m => m.type === 'driver').length;
 
   return (
-    <div className="relative w-full h-screen overflow-hidden">
+    <div className="relative w-full h-screen overflow-hidden bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-950">
       <NearbyCargoNotification 
         markers={markers}
         userLocation={userLocation}
         radiusKm={50}
       />
 
-      {/* Карта на весь экран */}
-      <div className="absolute inset-0 z-0">
+      {/* Карта за границы экрана */}
+      <div className="absolute -inset-4 z-0">
         <AdaptiveMapContainer 
           filteredMarkers={filteredMarkers}
           isPublic={isPublic}
@@ -142,46 +145,71 @@ const LiveMap = ({ isPublic = false, onMarkerClick }: LiveMapProps = {}) => {
         />
       </div>
 
-      {/* Кнопка показа/скрытия боковой панели - Apple Style */}
+      {/* Кнопка показа/скрытия боковой панели - перенесена вниз */}
       <button
         onClick={() => setShowSidebar(!showSidebar)}
-        className="absolute top-3 left-3 z-20 w-10 h-10 bg-white/30 dark:bg-gray-900/30 backdrop-blur-2xl border border-white/40 dark:border-gray-700/40 shadow-xl rounded-full flex items-center justify-center hover:bg-white/40 dark:hover:bg-gray-900/40 active:scale-95 transition-all"
+        className="fixed bottom-24 left-4 z-20 w-12 h-12 bg-white/20 dark:bg-gray-900/20 backdrop-blur-3xl border border-white/40 dark:border-gray-700/40 shadow-2xl rounded-full flex items-center justify-center hover:bg-white/30 dark:hover:bg-gray-900/30 active:scale-95 transition-all"
         title={showSidebar ? 'Скрыть панель' : 'Показать панель'}
       >
-        <Icon name={showSidebar ? 'PanelLeftClose' : 'PanelLeftOpen'} size={18} className="text-gray-900 dark:text-white" />
+        <Icon name={showSidebar ? 'PanelLeftClose' : 'PanelLeftOpen'} size={20} className="text-gray-900 dark:text-white" />
       </button>
 
-      {/* Кнопки справа вверху - разделены */}
-      <div className="absolute top-3 right-3 z-10 flex flex-col gap-2">
-        <button
-          onClick={() => window.open('https://play.google.com/store', '_blank')}
-          className="w-10 h-10 bg-white/30 dark:bg-gray-900/30 backdrop-blur-2xl border border-white/40 dark:border-gray-700/40 shadow-xl rounded-full flex items-center justify-center hover:bg-white/40 dark:hover:bg-gray-900/40 active:scale-95 transition-all"
-          title="Скачать приложение"
-        >
-          <Icon name="Download" size={18} className="text-gray-900 dark:text-white" />
-        </button>
-        <button
-          onClick={() => {
-            if (navigator.geolocation) {
-              navigator.geolocation.getCurrentPosition(
-                (position) => {
-                  setUserLocation({
-                    lat: position.coords.latitude,
-                    lng: position.coords.longitude
-                  });
-                },
-                (error) => {
-                  console.error('Ошибка геолокации:', error);
-                  alert('Не удалось определить местоположение');
-                }
-              );
-            }
-          }}
-          className="w-10 h-10 bg-white/30 dark:bg-gray-900/30 backdrop-blur-2xl border border-white/40 dark:border-gray-700/40 shadow-xl rounded-full flex items-center justify-center hover:bg-white/40 dark:hover:bg-gray-900/40 active:scale-95 transition-all"
-          title="Моё местоположение"
-        >
-          <Icon name="Crosshair" size={18} className="text-gray-900 dark:text-white" />
-        </button>
+      {/* Кнопка геолокации справа вверху */}
+      <button
+        onClick={() => {
+          if (navigator.geolocation) {
+            navigator.geolocation.getCurrentPosition(
+              (position) => {
+                setUserLocation({
+                  lat: position.coords.latitude,
+                  lng: position.coords.longitude
+                });
+              },
+              (error) => {
+                console.error('Ошибка геолокации:', error);
+                alert('Не удалось определить местоположение');
+              }
+            );
+          }
+        }}
+        className="fixed top-20 right-4 z-10 w-12 h-12 bg-white/20 dark:bg-gray-900/20 backdrop-blur-3xl border border-white/40 dark:border-gray-700/40 shadow-2xl rounded-full flex items-center justify-center hover:bg-white/30 dark:hover:bg-gray-900/30 active:scale-95 transition-all"
+        title="Моё местоположение"
+      >
+        <Icon name="Crosshair" size={20} className="text-gray-900 dark:text-white" />
+      </button>
+
+      {/* Кнопки скачивания приложения - внизу слева */}
+      <div className="fixed bottom-4 left-4 z-20 flex flex-col gap-2">
+        <div className="bg-white/20 dark:bg-gray-900/20 backdrop-blur-3xl border border-white/40 dark:border-gray-700/40 shadow-2xl rounded-2xl p-3">
+          <p className="text-xs font-semibold text-gray-900 dark:text-white mb-2">Скачать приложение</p>
+          <div className="flex gap-2">
+            <a
+              href="https://play.google.com/store"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="w-10 h-10 bg-white/60 dark:bg-gray-800/60 backdrop-blur-sm border border-white/40 dark:border-gray-700/40 shadow-lg rounded-xl flex items-center justify-center hover:scale-110 active:scale-95 transition-all"
+              title="Android"
+            >
+              <Icon name="Smartphone" size={18} className="text-green-600 dark:text-green-400" />
+            </a>
+            <a
+              href="https://apps.apple.com"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="w-10 h-10 bg-white/60 dark:bg-gray-800/60 backdrop-blur-sm border border-white/40 dark:border-gray-700/40 shadow-lg rounded-xl flex items-center justify-center hover:scale-110 active:scale-95 transition-all"
+              title="iOS"
+            >
+              <Icon name="Apple" size={18} className="text-gray-900 dark:text-white" />
+            </a>
+            <a
+              href="#"
+              className="w-10 h-10 bg-white/60 dark:bg-gray-800/60 backdrop-blur-sm border border-white/40 dark:border-gray-700/40 shadow-lg rounded-xl flex items-center justify-center hover:scale-110 active:scale-95 transition-all"
+              title="Desktop"
+            >
+              <Icon name="Monitor" size={18} className="text-blue-600 dark:text-blue-400" />
+            </a>
+          </div>
+        </div>
       </div>
 
       {/* Боковая панель слева - Apple Glass Style */}
@@ -220,38 +248,60 @@ const LiveMap = ({ isPublic = false, onMarkerClick }: LiveMapProps = {}) => {
               <div className="space-y-3">
                 {!isPublic && (
                   <>
-                    <div className="bg-gradient-to-br from-blue-50/30 to-blue-100/30 dark:from-blue-900/15 dark:to-blue-800/15 rounded-2xl p-3 border border-blue-200/20 dark:border-blue-700/15 backdrop-blur-sm">
-                      <div className="flex items-center gap-2 mb-2">
-                        <div className="w-10 h-10 bg-gradient-to-br from-blue-400 to-blue-600 rounded-xl flex items-center justify-center shadow-lg">
-                          <Icon name="Package" size={20} className="text-white" />
+                    {/* Блок грузов */}
+                    <div className="bg-white/10 dark:bg-gray-800/10 backdrop-blur-2xl rounded-2xl border border-white/30 dark:border-gray-700/30 overflow-hidden">
+                      <div 
+                        onClick={() => setCargoBlockExpanded(!cargoBlockExpanded)}
+                        className="flex items-center justify-between p-3 cursor-pointer hover:bg-white/20 dark:hover:bg-gray-800/20 transition-all"
+                      >
+                        <div className="flex items-center gap-2">
+                          <div className="w-8 h-8 bg-gradient-to-br from-blue-400 to-blue-600 rounded-xl flex items-center justify-center shadow-lg">
+                            <Icon name="Package" size={16} className="text-white" />
+                          </div>
+                          <div>
+                            <p className="text-xl font-bold text-gray-900 dark:text-white">{cargoCount}</p>
+                            <p className="text-xs text-gray-700 dark:text-gray-300">Грузов</p>
+                          </div>
                         </div>
-                        <div>
-                          <p className="text-2xl font-bold text-gray-900 dark:text-white">{cargoCount}</p>
-                          <p className="text-xs text-gray-700 dark:text-gray-300">Грузов</p>
-                        </div>
+                        <Icon name={cargoBlockExpanded ? 'ChevronUp' : 'ChevronDown'} size={18} className="text-gray-600 dark:text-gray-400" />
                       </div>
-                      <StatusSelector 
-                        userType="client"
-                        status={cargoStatus}
-                        onStatusChange={setCargoStatus}
-                      />
+                      {cargoBlockExpanded && (
+                        <div className="px-3 pb-3">
+                          <StatusSelector 
+                            userType="client"
+                            status={cargoStatus}
+                            onStatusChange={setCargoStatus}
+                          />
+                        </div>
+                      )}
                     </div>
 
-                    <div className="bg-gradient-to-br from-green-50/30 to-green-100/30 dark:from-green-900/15 dark:to-green-800/15 rounded-2xl p-3 border border-green-200/20 dark:border-green-700/15 backdrop-blur-sm">
-                      <div className="flex items-center gap-2 mb-2">
-                        <div className="w-10 h-10 bg-gradient-to-br from-green-400 to-green-600 rounded-xl flex items-center justify-center shadow-lg">
-                          <Icon name="Truck" size={20} className="text-white" />
+                    {/* Блок перевозчиков */}
+                    <div className="bg-white/10 dark:bg-gray-800/10 backdrop-blur-2xl rounded-2xl border border-white/30 dark:border-gray-700/30 overflow-hidden">
+                      <div 
+                        onClick={() => setDriverBlockExpanded(!driverBlockExpanded)}
+                        className="flex items-center justify-between p-3 cursor-pointer hover:bg-white/20 dark:hover:bg-gray-800/20 transition-all"
+                      >
+                        <div className="flex items-center gap-2">
+                          <div className="w-8 h-8 bg-gradient-to-br from-green-400 to-green-600 rounded-xl flex items-center justify-center shadow-lg">
+                            <Icon name="Truck" size={16} className="text-white" />
+                          </div>
+                          <div>
+                            <p className="text-xl font-bold text-gray-900 dark:text-white">{driverCount}</p>
+                            <p className="text-xs text-gray-700 dark:text-gray-300">Перевозчиков</p>
+                          </div>
                         </div>
-                        <div>
-                          <p className="text-2xl font-bold text-gray-900 dark:text-white">{driverCount}</p>
-                          <p className="text-xs text-gray-700 dark:text-gray-300">Перевозчиков</p>
-                        </div>
+                        <Icon name={driverBlockExpanded ? 'ChevronUp' : 'ChevronDown'} size={18} className="text-gray-600 dark:text-gray-400" />
                       </div>
-                      <StatusSelector 
-                        userType="driver"
-                        status={driverStatus}
-                        onStatusChange={setDriverStatus}
-                      />
+                      {driverBlockExpanded && (
+                        <div className="px-3 pb-3">
+                          <StatusSelector 
+                            userType="driver"
+                            status={driverStatus}
+                            onStatusChange={setDriverStatus}
+                          />
+                        </div>
+                      )}
                     </div>
                   </>
                 )}
@@ -263,13 +313,13 @@ const LiveMap = ({ isPublic = false, onMarkerClick }: LiveMapProps = {}) => {
               <div className="space-y-3">
                 {/* Фильтры */}
                 {!isPublic && (
-                  <div>
+                  <div className="bg-white/10 dark:bg-gray-800/10 backdrop-blur-3xl rounded-2xl p-3 border border-white/30 dark:border-gray-700/30">
                     <MapFilters onFilterChange={handleFilterChange} />
                   </div>
                 )}
                 
                 {/* Поиск маршрутов */}
-                <div className="bg-white/40 dark:bg-gray-800/40 backdrop-blur-sm rounded-2xl p-3 border border-white/30 dark:border-gray-700/30">
+                <div className="bg-white/10 dark:bg-gray-800/10 backdrop-blur-3xl rounded-2xl p-3 border border-white/30 dark:border-gray-700/30">
                   <RouteSearchPanel 
                     routeSearch={routeSearch} 
                     onRouteChange={setRouteSearch}
@@ -278,7 +328,7 @@ const LiveMap = ({ isPublic = false, onMarkerClick }: LiveMapProps = {}) => {
                 </div>
                 
                 {/* Типы грузов и транспорта */}
-                <div className="bg-white/40 dark:bg-gray-800/40 backdrop-blur-sm rounded-2xl p-3 border border-white/30 dark:border-gray-700/30">
+                <div className="bg-white/10 dark:bg-gray-800/10 backdrop-blur-3xl rounded-2xl p-3 border border-white/30 dark:border-gray-700/30">
                   <h3 className="text-sm font-semibold text-gray-900 dark:text-white mb-2">Показать</h3>
                   <CargoVehicleSelector 
                     filters={filters}
