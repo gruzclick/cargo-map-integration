@@ -129,10 +129,10 @@ const LiveMap = ({ isPublic = false, onMarkerClick }: LiveMapProps = {}) => {
         radiusKm={50}
       />
 
-      <div className="grid grid-cols-1 md:grid-cols-5 gap-1.5 md:gap-2">
-        {!isPublic && <MapFilters onFilterChange={handleFilterChange} className="md:col-span-2" />}
+      <div className="flex flex-col md:flex-row gap-1.5 md:gap-2">
+        {!isPublic && <MapFilters onFilterChange={handleFilterChange} className="md:w-[40%]" />}
         
-        <div className="border-[3px] border-orange-500 shadow-2xl bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 backdrop-blur-2xl animate-scale-in md:col-span-1.5 rounded-xl">
+        <div className="shadow-2xl bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 backdrop-blur-2xl animate-scale-in md:w-[30%] rounded-xl">
           <div className="p-2.5 md:p-3">
             <div className="flex md:flex-col gap-1.5 md:gap-2">
               <div className="flex-1 md:flex-none flex items-center gap-2">
@@ -157,7 +157,7 @@ const LiveMap = ({ isPublic = false, onMarkerClick }: LiveMapProps = {}) => {
           </div>
         </div>
 
-        <div className="border-[3px] border-orange-500 shadow-2xl bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 backdrop-blur-2xl animate-scale-in md:col-span-1.5 rounded-xl" style={{ animationDelay: '0.1s' }}>
+        <div className="shadow-2xl bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 backdrop-blur-2xl animate-scale-in md:w-[30%] rounded-xl" style={{ animationDelay: '0.1s' }}>
           <div className="p-2.5 md:p-3">
             <div className="flex md:flex-col gap-1.5 md:gap-2">
               <div className="flex-1 md:flex-none flex items-center gap-2">
