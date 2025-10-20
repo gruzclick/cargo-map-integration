@@ -30,7 +30,7 @@ const LiveMap = ({ isPublic = false, onMarkerClick }: LiveMapProps = {}) => {
   const [vehicleDetails, setVehicleDetails] = useState({ boxCount: '', palletCount: '', oversizedCount: '', volume: '' });
 
   const [showSidebar, setShowSidebar] = useState(true);
-  const [activeTab, setActiveTab] = useState<'stats' | 'search' | 'filters'>('stats');
+  const [activeTab, setActiveTab] = useState<'stats' | 'search'>('stats');
 
   useEffect(() => {
     fetchMarkers();
@@ -124,7 +124,7 @@ const LiveMap = ({ isPublic = false, onMarkerClick }: LiveMapProps = {}) => {
   const driverCount = filteredMarkers.filter(m => m.type === 'driver').length;
 
   return (
-    <div className="relative w-full h-[calc(100vh-80px)]">
+    <div className="relative w-full h-screen">
       <NearbyCargoNotification 
         markers={markers}
         userLocation={userLocation}
@@ -141,16 +141,16 @@ const LiveMap = ({ isPublic = false, onMarkerClick }: LiveMapProps = {}) => {
         />
       </div>
 
-      {/* Кнопка показа/скрытия боковой панели */}
+      {/* Кнопка показа/скрытия боковой панели - Apple Style */}
       <button
         onClick={() => setShowSidebar(!showSidebar)}
-        className="absolute top-4 left-4 z-20 w-12 h-12 bg-white/95 dark:bg-gray-900/95 backdrop-blur-xl border border-white/20 dark:border-gray-700/20 shadow-2xl rounded-xl flex items-center justify-center hover:scale-110 active:scale-95 transition-all"
+        className="absolute top-3 left-3 z-20 w-10 h-10 bg-white/30 dark:bg-gray-900/30 backdrop-blur-2xl border border-white/40 dark:border-gray-700/40 shadow-xl rounded-full flex items-center justify-center hover:bg-white/40 dark:hover:bg-gray-900/40 active:scale-95 transition-all"
         title={showSidebar ? 'Скрыть панель' : 'Показать панель'}
       >
-        <Icon name={showSidebar ? 'PanelLeftClose' : 'PanelLeftOpen'} size={20} className="text-gray-900 dark:text-white" />
+        <Icon name={showSidebar ? 'PanelLeftClose' : 'PanelLeftOpen'} size={18} className="text-gray-900 dark:text-white" />
       </button>
 
-      {/* Кнопка геолокации */}
+      {/* Кнопка геолокации - Apple Style */}
       <button
         onClick={() => {
           if (navigator.geolocation) {
@@ -168,71 +168,56 @@ const LiveMap = ({ isPublic = false, onMarkerClick }: LiveMapProps = {}) => {
             );
           }
         }}
-        className="absolute top-4 right-4 z-10 w-12 h-12 bg-white/95 dark:bg-gray-900/95 backdrop-blur-xl border border-white/20 dark:border-gray-700/20 shadow-2xl rounded-xl flex items-center justify-center hover:scale-110 active:scale-95 transition-all"
+        className="absolute top-3 right-3 z-10 w-10 h-10 bg-white/30 dark:bg-gray-900/30 backdrop-blur-2xl border border-white/40 dark:border-gray-700/40 shadow-xl rounded-full flex items-center justify-center hover:bg-white/40 dark:hover:bg-gray-900/40 active:scale-95 transition-all"
         title="Моё местоположение"
       >
-        <Icon name="Crosshair" size={20} className="text-gray-900 dark:text-white" />
+        <Icon name="Crosshair" size={18} className="text-gray-900 dark:text-white" />
       </button>
 
-      {/* Боковая панель слева */}
+      {/* Боковая панель слева - Apple Glass Style */}
       {showSidebar && (
-        <div className="absolute top-0 left-0 bottom-0 w-full md:w-[420px] bg-white/95 dark:bg-gray-900/95 backdrop-blur-xl border-r border-white/20 dark:border-gray-700/20 shadow-2xl z-10 overflow-hidden animate-slide-in-left flex flex-col">
-          {/* Табы */}
-          <div className="flex border-b border-gray-200/30 dark:border-gray-700/30 bg-gradient-to-r from-blue-50/50 to-purple-50/50 dark:from-blue-900/20 dark:to-purple-900/20">
+        <div className="absolute top-3 left-3 bottom-3 w-full md:w-80 bg-white/30 dark:bg-gray-900/30 backdrop-blur-2xl border border-white/40 dark:border-gray-700/40 shadow-2xl rounded-3xl z-10 overflow-hidden animate-slide-in-left flex flex-col">
+          {/* Табы - компактные */}
+          <div className="flex border-b border-white/20 dark:border-gray-700/20 p-2">
             <button
               onClick={() => setActiveTab('stats')}
-              className={`flex-1 px-4 py-3 text-sm font-semibold transition-all flex items-center justify-center gap-2 ${
+              className={`flex-1 px-3 py-2 text-xs font-semibold rounded-lg transition-all flex items-center justify-center gap-1.5 ${
                 activeTab === 'stats'
-                  ? 'bg-white dark:bg-gray-800 text-blue-600 dark:text-blue-400 border-b-2 border-blue-600 dark:border-blue-400'
-                  : 'text-gray-600 dark:text-gray-400 hover:bg-white/50 dark:hover:bg-gray-800/50'
+                  ? 'bg-white/60 dark:bg-gray-800/60 text-gray-900 dark:text-white shadow-md'
+                  : 'text-gray-700 dark:text-gray-400 hover:bg-white/30 dark:hover:bg-gray-800/30'
               }`}
             >
-              <Icon name="BarChart3" size={18} />
+              <Icon name="BarChart3" size={14} />
               Статистика
             </button>
             <button
               onClick={() => setActiveTab('search')}
-              className={`flex-1 px-4 py-3 text-sm font-semibold transition-all flex items-center justify-center gap-2 ${
+              className={`flex-1 px-3 py-2 text-xs font-semibold rounded-lg transition-all flex items-center justify-center gap-1.5 ml-1 ${
                 activeTab === 'search'
-                  ? 'bg-white dark:bg-gray-800 text-blue-600 dark:text-blue-400 border-b-2 border-blue-600 dark:border-blue-400'
-                  : 'text-gray-600 dark:text-gray-400 hover:bg-white/50 dark:hover:bg-gray-800/50'
+                  ? 'bg-white/60 dark:bg-gray-800/60 text-gray-900 dark:text-white shadow-md'
+                  : 'text-gray-700 dark:text-gray-400 hover:bg-white/30 dark:hover:bg-gray-800/30'
               }`}
             >
-              <Icon name="Search" size={18} />
+              <Icon name="Search" size={14} />
               Поиск
             </button>
-            {!isPublic && (
-              <button
-                onClick={() => setActiveTab('filters')}
-                className={`flex-1 px-4 py-3 text-sm font-semibold transition-all flex items-center justify-center gap-2 ${
-                  activeTab === 'filters'
-                    ? 'bg-white dark:bg-gray-800 text-blue-600 dark:text-blue-400 border-b-2 border-blue-600 dark:border-blue-400'
-                    : 'text-gray-600 dark:text-gray-400 hover:bg-white/50 dark:hover:bg-gray-800/50'
-                }`}
-              >
-                <Icon name="Filter" size={18} />
-                Фильтры
-              </button>
-            )}
           </div>
 
           {/* Контент табов */}
-          <div className="flex-1 overflow-y-auto p-5">
+          <div className="flex-1 overflow-y-auto p-3 space-y-3">
             {/* Таб статистики */}
             {activeTab === 'stats' && (
-              <div className="space-y-4">
-                <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-4">Статистика карты</h2>
-                
+              <div className="space-y-3">
                 {!isPublic && (
                   <>
-                    <div className="bg-gradient-to-br from-blue-50 to-blue-100 dark:from-blue-900/20 dark:to-blue-800/20 rounded-xl p-5 border border-blue-200/50 dark:border-blue-700/30">
-                      <div className="flex items-center gap-3 mb-4">
-                        <div className="w-12 h-12 bg-gradient-to-br from-blue-400 to-blue-600 rounded-xl flex items-center justify-center shadow-lg">
-                          <Icon name="Package" size={24} className="text-white" />
+                    <div className="bg-gradient-to-br from-blue-50/50 to-blue-100/50 dark:from-blue-900/20 dark:to-blue-800/20 rounded-2xl p-3 border border-blue-200/30 dark:border-blue-700/20 backdrop-blur-sm">
+                      <div className="flex items-center gap-2 mb-2">
+                        <div className="w-10 h-10 bg-gradient-to-br from-blue-400 to-blue-600 rounded-xl flex items-center justify-center shadow-lg">
+                          <Icon name="Package" size={20} className="text-white" />
                         </div>
                         <div>
-                          <p className="text-3xl font-bold text-gray-900 dark:text-white">{cargoCount}</p>
-                          <p className="text-sm text-gray-700 dark:text-gray-300">Всего грузов</p>
+                          <p className="text-2xl font-bold text-gray-900 dark:text-white">{cargoCount}</p>
+                          <p className="text-xs text-gray-700 dark:text-gray-300">Грузов</p>
                         </div>
                       </div>
                       <StatusSelector 
@@ -242,14 +227,14 @@ const LiveMap = ({ isPublic = false, onMarkerClick }: LiveMapProps = {}) => {
                       />
                     </div>
 
-                    <div className="bg-gradient-to-br from-green-50 to-green-100 dark:from-green-900/20 dark:to-green-800/20 rounded-xl p-5 border border-green-200/50 dark:border-green-700/30">
-                      <div className="flex items-center gap-3 mb-4">
-                        <div className="w-12 h-12 bg-gradient-to-br from-green-400 to-green-600 rounded-xl flex items-center justify-center shadow-lg">
-                          <Icon name="Truck" size={24} className="text-white" />
+                    <div className="bg-gradient-to-br from-green-50/50 to-green-100/50 dark:from-green-900/20 dark:to-green-800/20 rounded-2xl p-3 border border-green-200/30 dark:border-green-700/20 backdrop-blur-sm">
+                      <div className="flex items-center gap-2 mb-2">
+                        <div className="w-10 h-10 bg-gradient-to-br from-green-400 to-green-600 rounded-xl flex items-center justify-center shadow-lg">
+                          <Icon name="Truck" size={20} className="text-white" />
                         </div>
                         <div>
-                          <p className="text-3xl font-bold text-gray-900 dark:text-white">{driverCount}</p>
-                          <p className="text-sm text-gray-700 dark:text-gray-300">Перевозчиков</p>
+                          <p className="text-2xl font-bold text-gray-900 dark:text-white">{driverCount}</p>
+                          <p className="text-xs text-gray-700 dark:text-gray-300">Перевозчиков</p>
                         </div>
                       </div>
                       <StatusSelector 
@@ -263,13 +248,18 @@ const LiveMap = ({ isPublic = false, onMarkerClick }: LiveMapProps = {}) => {
               </div>
             )}
 
-            {/* Таб поиска */}
+            {/* Таб поиска + фильтры */}
             {activeTab === 'search' && (
-              <div className="space-y-5">
-                <div>
-                  <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-1">Поиск маршрутов</h2>
-                  <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">Найдите грузы и перевозчиков на нужном маршруте</p>
-                  
+              <div className="space-y-3">
+                {/* Фильтры */}
+                {!isPublic && (
+                  <div className="bg-white/40 dark:bg-gray-800/40 backdrop-blur-sm rounded-2xl p-3 border border-white/30 dark:border-gray-700/30">
+                    <MapFilters onFilterChange={handleFilterChange} />
+                  </div>
+                )}
+                
+                {/* Поиск маршрутов */}
+                <div className="bg-white/40 dark:bg-gray-800/40 backdrop-blur-sm rounded-2xl p-3 border border-white/30 dark:border-gray-700/30">
                   <RouteSearchPanel 
                     routeSearch={routeSearch} 
                     onRouteChange={setRouteSearch}
@@ -277,22 +267,15 @@ const LiveMap = ({ isPublic = false, onMarkerClick }: LiveMapProps = {}) => {
                   />
                 </div>
                 
-                <div className="border-t border-gray-200/30 dark:border-gray-700/30 pt-5">
-                  <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-3">Типы грузов и транспорта</h3>
+                {/* Типы грузов и транспорта */}
+                <div className="bg-white/40 dark:bg-gray-800/40 backdrop-blur-sm rounded-2xl p-3 border border-white/30 dark:border-gray-700/30">
+                  <h3 className="text-sm font-semibold text-gray-900 dark:text-white mb-2">Типы</h3>
                   <CargoVehicleSelector 
                     filters={filters}
                     onCargoTypeClick={handleCargoTypeClick}
                     onVehicleTypeClick={handleVehicleTypeClick}
                   />
                 </div>
-              </div>
-            )}
-
-            {/* Таб фильтров */}
-            {activeTab === 'filters' && !isPublic && (
-              <div>
-                <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-4">Фильтры карты</h2>
-                <MapFilters onFilterChange={handleFilterChange} />
               </div>
             )}
           </div>
