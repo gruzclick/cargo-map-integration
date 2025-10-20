@@ -27,6 +27,7 @@ export interface FilterState {
 const MapFilters = ({ onFilterChange, className }: MapFiltersProps) => {
   const { t } = useTranslation();
   const [isExpanded, setIsExpanded] = useState(false);
+  const [isVisible, setIsVisible] = useState(true);
   const [filters, setFilters] = useState<FilterState>({
     userType: 'all',
   });
@@ -39,7 +40,17 @@ const MapFilters = ({ onFilterChange, className }: MapFiltersProps) => {
 
   return (
     <div className={className}>
-      <div className={`${className ? 'border border-gray-200/20 dark:border-gray-700/30 shadow-2xl bg-white/60 dark:bg-gray-900/60 backdrop-blur-2xl rounded-lg overflow-hidden h-full flex flex-col' : 'bg-white/70 dark:bg-gray-900/70 backdrop-blur-2xl rounded-xl md:rounded-2xl shadow-2xl border border-gray-200/50 dark:border-gray-700/50 overflow-hidden'} transition-smooth`}>
+      <Button
+        variant="outline"
+        size="sm"
+        onClick={() => setIsVisible(!isVisible)}
+        className="md:hidden w-full mb-2 h-9 rounded-lg bg-white/60 dark:bg-gray-900/60 backdrop-blur-2xl border-gray-200/20 dark:border-gray-700/30 hover:bg-white/80 dark:hover:bg-gray-900/80"
+      >
+        <Icon name="Filter" size={16} className="mr-2" />
+        {isVisible ? 'Скрыть фильтры' : 'Показать фильтры'}
+      </Button>
+      
+      <div className={`${!isVisible ? 'hidden md:block' : ''} ${className ? 'border border-gray-200/20 dark:border-gray-700/30 shadow-2xl bg-white/60 dark:bg-gray-900/60 backdrop-blur-2xl rounded-lg overflow-hidden h-full flex flex-col' : 'bg-white/70 dark:bg-gray-900/70 backdrop-blur-2xl rounded-xl md:rounded-2xl shadow-2xl border border-gray-200/50 dark:border-gray-700/50 overflow-hidden'} transition-smooth`}>
         <div className={className ? "p-3 md:p-3 flex-1 flex flex-col" : "p-3 md:p-4"}>
           <div className="flex items-center justify-between mb-3 md:mb-4">
             <div className="flex items-center gap-2">

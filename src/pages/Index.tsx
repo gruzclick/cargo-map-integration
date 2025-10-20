@@ -113,7 +113,7 @@ const Index = () => {
       {user && <TermsUpdateNotification userId={user.user_id || user.phone} />}
       <PWAInstallPrompt />
       <header className="border-b border-gray-200/20 dark:border-gray-700/30 sticky top-0 bg-white/60 dark:bg-gray-900/60 backdrop-blur-2xl z-50 shadow-lg animate-slide-in-down">
-        <div className="container mx-auto px-4 md:px-6 py-2.5 flex items-center justify-between gap-4">
+        <div className="container mx-auto px-1 md:px-2 py-2.5 flex items-center justify-between gap-4">
           <div className="flex items-center gap-3 flex-shrink-0">
             <div className="w-9 h-9 bg-gray-900 dark:bg-gray-100 rounded-xl flex items-center justify-center">
               <Icon name="Truck" size={18} className="text-white dark:text-gray-900" />
@@ -190,7 +190,7 @@ const Index = () => {
         </div>
       </header>
 
-      <div className="container mx-auto px-4 md:px-6 py-4 md:py-8">
+      <div className="container mx-auto px-1 md:px-2 py-4 md:py-8">
         <Tabs defaultValue="map" className="w-full">
           <TabsList className="grid w-full max-w-4xl mx-auto grid-cols-3 md:grid-cols-6 mb-6 md:mb-8 bg-white/60 dark:bg-gray-900/60 backdrop-blur-2xl border border-gray-200/20 dark:border-gray-700/30 p-1.5 rounded-2xl shadow-lg overflow-x-auto">
             <TabsTrigger value="map" className="rounded-xl data-[state=active]:bg-white/80 dark:data-[state=active]:bg-gray-800/80 data-[state=active]:backdrop-blur-xl data-[state=active]:shadow-md text-xs md:text-sm">

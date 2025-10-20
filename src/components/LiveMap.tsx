@@ -129,7 +129,7 @@ const LiveMap = ({ isPublic = false, onMarkerClick }: LiveMapProps = {}) => {
         radiusKm={50}
       />
 
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-1.5 md:gap-2">
+      <div className="grid grid-cols-1 md:grid-cols-5 gap-1.5 md:gap-2">
         {!isPublic && <MapFilters onFilterChange={handleFilterChange} className="md:col-span-2" />}
         
         <Card className="border border-gray-200/20 dark:border-gray-700/30 shadow-2xl bg-white/60 dark:bg-gray-900/60 backdrop-blur-2xl animate-scale-in">
@@ -140,7 +140,7 @@ const LiveMap = ({ isPublic = false, onMarkerClick }: LiveMapProps = {}) => {
                   <Icon name="Package" size={14} className="text-white" />
                 </div>
                 <div className="flex items-center gap-1.5">
-                  <p className="text-xl md:text-2xl font-bold text-gray-900 dark:text-gray-100">{cargoCount}</p>
+                  <p className="text-lg md:text-xl font-bold text-gray-900 dark:text-gray-100">{cargoCount}</p>
                   <p className="text-xs md:text-sm text-gray-600 dark:text-gray-400">Всего грузов</p>
                 </div>
               </div>
@@ -165,7 +165,7 @@ const LiveMap = ({ isPublic = false, onMarkerClick }: LiveMapProps = {}) => {
                   <Icon name="Truck" size={14} className="text-white" />
                 </div>
                 <div className="flex items-center gap-1.5">
-                  <p className="text-xl md:text-2xl font-bold text-gray-900 dark:text-gray-100">{driverCount}</p>
+                  <p className="text-lg md:text-xl font-bold text-gray-900 dark:text-gray-100">{driverCount}</p>
                   <p className="text-xs md:text-sm text-gray-600 dark:text-gray-400">Перевозчиков свободно</p>
                 </div>
               </div>
