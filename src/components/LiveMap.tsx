@@ -152,7 +152,14 @@ const LiveMap = ({ isPublic = false, onMarkerClick }: LiveMapProps = {}) => {
       </button>
 
       {/* Кнопки справа вверху - разделены */}
-      <div className="absolute top-3 right-3 z-10 flex gap-2">
+      <div className="absolute top-3 right-3 z-10 flex flex-col gap-2">
+        <button
+          onClick={() => window.open('https://play.google.com/store', '_blank')}
+          className="w-10 h-10 bg-white/30 dark:bg-gray-900/30 backdrop-blur-2xl border border-white/40 dark:border-gray-700/40 shadow-xl rounded-full flex items-center justify-center hover:bg-white/40 dark:hover:bg-gray-900/40 active:scale-95 transition-all"
+          title="Скачать приложение"
+        >
+          <Icon name="Download" size={18} className="text-gray-900 dark:text-white" />
+        </button>
         <button
           onClick={() => {
             if (navigator.geolocation) {
@@ -179,7 +186,7 @@ const LiveMap = ({ isPublic = false, onMarkerClick }: LiveMapProps = {}) => {
 
       {/* Боковая панель слева - Apple Glass Style */}
       {showSidebar && (
-        <div className="absolute top-3 left-3 max-h-[calc(100vh-1.5rem)] w-full md:w-80 bg-white/15 dark:bg-gray-900/15 backdrop-blur-3xl border border-white/40 dark:border-gray-700/40 shadow-2xl rounded-3xl z-10 overflow-hidden animate-slide-in-left flex flex-col">
+        <div className="absolute top-3 left-1/2 md:left-3 -translate-x-1/2 md:translate-x-0 max-h-[calc(100vh-1.5rem)] w-[calc(100%-1.5rem)] md:w-80 bg-white/8 dark:bg-gray-900/8 backdrop-blur-3xl border border-white/40 dark:border-gray-700/40 shadow-2xl rounded-3xl z-10 overflow-hidden animate-slide-in-left flex flex-col">
           {/* Табы - компактные */}
           <div className="flex border-b border-white/20 dark:border-gray-700/20 p-2">
             <button
@@ -213,7 +220,7 @@ const LiveMap = ({ isPublic = false, onMarkerClick }: LiveMapProps = {}) => {
               <div className="space-y-3">
                 {!isPublic && (
                   <>
-                    <div className="bg-gradient-to-br from-blue-50/50 to-blue-100/50 dark:from-blue-900/20 dark:to-blue-800/20 rounded-2xl p-3 border border-blue-200/30 dark:border-blue-700/20 backdrop-blur-sm">
+                    <div className="bg-gradient-to-br from-blue-50/30 to-blue-100/30 dark:from-blue-900/15 dark:to-blue-800/15 rounded-2xl p-3 border border-blue-200/20 dark:border-blue-700/15 backdrop-blur-sm">
                       <div className="flex items-center gap-2 mb-2">
                         <div className="w-10 h-10 bg-gradient-to-br from-blue-400 to-blue-600 rounded-xl flex items-center justify-center shadow-lg">
                           <Icon name="Package" size={20} className="text-white" />
@@ -230,7 +237,7 @@ const LiveMap = ({ isPublic = false, onMarkerClick }: LiveMapProps = {}) => {
                       />
                     </div>
 
-                    <div className="bg-gradient-to-br from-green-50/50 to-green-100/50 dark:from-green-900/20 dark:to-green-800/20 rounded-2xl p-3 border border-green-200/30 dark:border-green-700/20 backdrop-blur-sm">
+                    <div className="bg-gradient-to-br from-green-50/30 to-green-100/30 dark:from-green-900/15 dark:to-green-800/15 rounded-2xl p-3 border border-green-200/20 dark:border-green-700/15 backdrop-blur-sm">
                       <div className="flex items-center gap-2 mb-2">
                         <div className="w-10 h-10 bg-gradient-to-br from-green-400 to-green-600 rounded-xl flex items-center justify-center shadow-lg">
                           <Icon name="Truck" size={20} className="text-white" />
@@ -272,7 +279,7 @@ const LiveMap = ({ isPublic = false, onMarkerClick }: LiveMapProps = {}) => {
                 
                 {/* Типы грузов и транспорта */}
                 <div className="bg-white/40 dark:bg-gray-800/40 backdrop-blur-sm rounded-2xl p-3 border border-white/30 dark:border-gray-700/30">
-                  <h3 className="text-sm font-semibold text-gray-900 dark:text-white mb-2">Типы</h3>
+                  <h3 className="text-sm font-semibold text-gray-900 dark:text-white mb-2">Показать</h3>
                   <CargoVehicleSelector 
                     filters={filters}
                     onCargoTypeClick={handleCargoTypeClick}

@@ -52,21 +52,17 @@ const MapFilters = ({ onFilterChange, className }: MapFiltersProps) => {
       
       <div className={`${!isVisible ? 'hidden md:block' : ''} ${className ? '' : 'bg-white/15 dark:bg-gray-900/15 backdrop-blur-md rounded-2xl shadow-2xl border border-white/20 dark:border-gray-700/20 overflow-hidden'} transition-smooth`}>
         <div className={className ? "p-3 md:p-3 flex-1 flex flex-col" : "p-3 md:p-4"}>
-          <div className="flex items-center justify-between mb-3 md:mb-4">
-            <div className="flex items-center gap-2">
-              <Icon name="Filter" size={18} className="text-gray-700 dark:text-gray-300 md:w-5 md:h-5" />
-              <h3 className="text-sm md:text-base font-semibold text-gray-900 dark:text-gray-100">Фильтры</h3>
-            </div>
+          <div className="flex items-center justify-between mb-3">
             <Button
               variant="ghost"
               size="sm"
               onClick={() => setIsExpanded(!isExpanded)}
-              className="h-7 w-7 md:h-8 md:w-8 p-0 rounded-lg hover:bg-gray-100/50 dark:hover:bg-gray-800/50"
+              className="h-7 w-7 p-0 rounded-lg hover:bg-gray-100/50 dark:hover:bg-gray-800/50 ml-auto"
             >
               <Icon 
                 name={isExpanded ? "ChevronUp" : "ChevronDown"} 
                 size={16} 
-                className="text-gray-600 dark:text-gray-400 md:w-[18px] md:h-[18px]"
+                className="text-gray-600 dark:text-gray-400"
               />
             </Button>
           </div>

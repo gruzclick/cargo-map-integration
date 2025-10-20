@@ -59,13 +59,23 @@ const YandexMapContainer = ({ filteredMarkers, isPublic, onMarkerClick, onMapLoa
         const map = new (window as any).ymaps.Map(mapRef.current, {
           center: [55.7558, 37.6173],
           zoom: 13,
-          controls: ['zoomControl', 'fullscreenControl'],
+          controls: [],
           options: {
             copyrightLogoVisible: false,
             copyrightProvidersVisible: false,
             copyrightUaVisible: false
           }
         });
+        
+        const zoomControl = new (window as any).ymaps.control.ZoomControl({
+          options: {
+            position: {
+              right: 10,
+              top: 80
+            }
+          }
+        });
+        map.controls.add(zoomControl);
 
         map.behaviors.disable('scrollZoom');
 
