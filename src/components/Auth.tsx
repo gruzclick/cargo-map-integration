@@ -147,8 +147,8 @@ const Auth = ({ onSuccess }: AuthProps) => {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center p-4 bg-gradient-to-br from-background via-background to-accent/5">
-      <Card className="w-full max-w-md border-0 shadow-2xl rounded-3xl relative">
+    <div className="min-h-screen flex items-center justify-center p-4 bg-gradient-to-br from-blue-50 via-white to-purple-50 dark:from-gray-900 dark:via-gray-950 dark:to-blue-950">
+      <Card className="w-full max-w-md shadow-2xl rounded-3xl relative bg-white/80 dark:bg-gray-900/80 backdrop-blur-2xl border-white/30 dark:border-gray-700/30">
         <button
           onClick={() => window.location.href = '/'}
           className="absolute top-4 right-4 z-10 p-2 rounded-full hover:bg-muted/50 transition-colors"
@@ -225,27 +225,26 @@ const Auth = ({ onSuccess }: AuthProps) => {
                   </Select>
                 </div>
 
+                <div className="space-y-2">
+                  <Label htmlFor="inn">ИНН (при наличии)</Label>
+                  <Input
+                    id="inn"
+                    placeholder="1234567890"
+                    value={formData.inn}
+                    onChange={(e) => setFormData({ ...formData, inn: e.target.value })}
+                  />
+                </div>
+
                 {formData.entity_type === 'legal' && (
-                  <>
-                    <div className="space-y-2">
-                      <Label htmlFor="inn">ИНН</Label>
-                      <Input
-                        id="inn"
-                        placeholder="1234567890"
-                        value={formData.inn}
-                        onChange={(e) => setFormData({ ...formData, inn: e.target.value })}
-                      />
-                    </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="organization_name">Наименование организации</Label>
-                      <Input
-                        id="organization_name"
-                        placeholder="ООО Компания"
-                        value={formData.organization_name}
-                        onChange={(e) => setFormData({ ...formData, organization_name: e.target.value })}
-                      />
-                    </div>
-                  </>
+                  <div className="space-y-2">
+                    <Label htmlFor="organization_name">Наименование организации</Label>
+                    <Input
+                      id="organization_name"
+                      placeholder="ООО Компания"
+                      value={formData.organization_name}
+                      onChange={(e) => setFormData({ ...formData, organization_name: e.target.value })}
+                    />
+                  </div>
                 )}
 
                 <div className="space-y-2">
@@ -425,6 +424,59 @@ const Auth = ({ onSuccess }: AuthProps) => {
               </button>
             </div>
           </form>
+
+          {!isLogin && (
+            <div className="space-y-3 mt-6 pt-6 border-t">
+              <p className="text-sm text-center text-muted-foreground mb-4">
+                Или зарегистрируйтесь через
+              </p>
+              
+              <Button
+                type="button"
+                variant="outline"
+                className="w-full h-12 text-base rounded-xl bg-blue-600 hover:bg-blue-700 text-white border-blue-600"
+                onClick={() => {
+                  toast({
+                    title: 'Интеграция в разработке',
+                    description: 'Вход через Госуслуги скоро будет доступен',
+                  });
+                }}
+              >
+                <Icon name="Shield" size={18} className="mr-2" />
+                Подтвердить через Госуслуги
+              </Button>
+
+              <Button
+                type="button"
+                variant="outline"
+                className="w-full h-12 text-base rounded-xl bg-green-600 hover:bg-green-700 text-white border-green-600"
+                onClick={() => {
+                  toast({
+                    title: 'Интеграция в разработке',
+                    description: 'Вход через Сбер ID скоро будет доступен',
+                  });
+                }}
+              >
+                <Icon name="CreditCard" size={18} className="mr-2" />
+                Войти через Сбер ID
+              </Button>
+
+              <Button
+                type="button"
+                variant="outline"
+                className="w-full h-12 text-base rounded-xl bg-yellow-500 hover:bg-yellow-600 text-white border-yellow-500"
+                onClick={() => {
+                  toast({
+                    title: 'Интеграция в разработке',
+                    description: 'Вход через Т-Банк ID скоро будет доступен',
+                  });
+                }}
+              >
+                <Icon name="Landmark" size={18} className="mr-2" />
+                Войти через Т-Банк ID
+              </Button>
+            </div>
+          )}
         </CardContent>
       </Card>
 

@@ -102,7 +102,6 @@ export default function PrivacyPolicy() {
                 <li>Исправить неточные или неполные данные</li>
                 <li>Удалить свои данные (право на забвение)</li>
                 <li>Ограничить обработку данных</li>
-                <li>Возразить против обработки данных</li>
                 <li>Получить копию данных в структурированном формате</li>
               </ul>
               <p className="text-muted-foreground mt-2">
@@ -159,7 +158,7 @@ export default function PrivacyPolicy() {
             <section>
               <h2 className="text-xl font-semibold mb-3">13. Контакты</h2>
               <p className="text-muted-foreground">
-                По вопросам, связанным с обработкой персональных данных и данной политикой конфиденциальности, вы можете связаться с нами через форму обратной связи в приложении или написать в наше сообщество: https://t.me/+QgiLIa1gFRY4Y2Iy
+                По вопросам, связанным с обработкой персональных данных и данной политикой конфиденциальности, вы можете связаться с нами через форму обратной связи в приложении или написать в наше сообщество: <a href="https://t.me/+QgiLIa1gFRY4Y2Iy" target="_blank" rel="noopener noreferrer" className="text-blue-600 dark:text-blue-400 hover:underline">https://t.me/+QgiLIa1gFRY4Y2Iy</a>
               </p>
             </section>
 

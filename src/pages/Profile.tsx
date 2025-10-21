@@ -18,28 +18,25 @@ export default function Profile() {
   const mockUserId = 'user-123';
   const mockUserName = 'Сергей Иванов';
   const [countryInfo, setCountryInfo] = useState<CountryInfo | null>(null);
-  const [show2FAModal, setShow2FAModal] = useState(false);
-  const [authMethod, setAuthMethod] = useState<'telegram' | 'email'>('telegram');
   const [entityType, setEntityType] = useState('individual');
+  const [showEmailVerification, setShowEmailVerification] = useState(false);
+  const [emailVerified, setEmailVerified] = useState(false);
   const { toast } = useToast();
 
   useEffect(() => {
     const loadCountryInfo = async () => {
       const info = await detectUserCountry();
       setCountryInfo(info);
-      if (info.isTelegramBlocked) {
-        setAuthMethod('email');
-      }
     };
     loadCountryInfo();
   }, []);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 dark:from-gray-900 dark:via-gray-950 dark:to-blue-950">
       <div className="container mx-auto px-4 py-8">
         <div className="mb-8">
-          <h1 className="text-4xl font-bold mb-2">Мой профиль</h1>
-          <p className="text-gray-600">Управление данными и настройками аккаунта</p>
+          <h1 className="text-4xl font-bold mb-2 text-gray-900 dark:text-gray-100">Мой профиль</h1>
+          <p className="text-gray-600 dark:text-gray-400">Управление данными и настройками аккаунта</p>
         </div>
 
         <Tabs defaultValue="overview" className="w-full">
@@ -80,8 +77,8 @@ export default function Profile() {
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <div className="text-4xl font-bold text-blue-600">127</div>
-                  <div className="text-sm text-gray-600 mt-1">Всего выполнено</div>
+                  <div className="text-4xl font-bold text-blue-600 dark:text-blue-400">127</div>
+                  <div className="text-sm text-gray-600 dark:text-gray-400 mt-1">Всего выполнено</div>
                 </CardContent>
               </Card>
 
@@ -93,8 +90,8 @@ export default function Profile() {
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <div className="text-4xl font-bold text-yellow-500">4.8</div>
-                  <div className="text-sm text-gray-600 mt-1">Средняя оценка</div>
+                  <div className="text-4xl font-bold text-yellow-500 dark:text-yellow-400">4.8</div>
+                  <div className="text-sm text-gray-600 dark:text-gray-400 mt-1">Средняя оценка</div>
                 </CardContent>
               </Card>
 
@@ -106,8 +103,8 @@ export default function Profile() {
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <div className="text-4xl font-bold text-green-600">1.2M ₽</div>
-                  <div className="text-sm text-gray-600 mt-1">За всё время</div>
+                  <div className="text-4xl font-bold text-green-600 dark:text-green-400">1.2M ₽</div>
+                  <div className="text-sm text-gray-600 dark:text-gray-400 mt-1">За всё время</div>
                 </CardContent>
               </Card>
             </div>
@@ -122,8 +119,8 @@ export default function Profile() {
                     СИ
                   </div>
                   <div>
-                    <div className="font-semibold text-lg">{mockUserName}</div>
-                    <div className="text-sm text-gray-600">
+                    <div className="font-semibold text-lg text-gray-900 dark:text-gray-100">{mockUserName}</div>
+                    <div className="text-sm text-gray-600 dark:text-gray-400">
                       {userType === 'driver' ? 'Водитель-перевозчик' : 'Клиент'}
                     </div>
                   </div>
@@ -131,20 +128,20 @@ export default function Profile() {
                 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-4">
                   <div>
-                    <div className="text-sm text-gray-600">Телефон</div>
-                    <div className="font-medium">+7 (999) 222-22-22</div>
+                    <div className="text-sm text-gray-600 dark:text-gray-400">Телефон</div>
+                    <div className="font-medium text-gray-900 dark:text-gray-100">+7 (999) 222-22-22</div>
                   </div>
                   <div>
-                    <div className="text-sm text-gray-600">Email</div>
-                    <div className="font-medium">carrier@test.ru</div>
+                    <div className="text-sm text-gray-600 dark:text-gray-400">Email</div>
+                    <div className="font-medium text-gray-900 dark:text-gray-100">carrier@test.ru</div>
                   </div>
                   <div>
-                    <div className="text-sm text-gray-600">Транспорт</div>
-                    <div className="font-medium">Грузовик средний (5 тонн)</div>
+                    <div className="text-sm text-gray-600 dark:text-gray-400">Транспорт</div>
+                    <div className="font-medium text-gray-900 dark:text-gray-100">Грузовик средний (5 тонн)</div>
                   </div>
                   <div>
-                    <div className="text-sm text-gray-600">Статус</div>
-                    <div className="font-medium text-green-600">✓ Активен</div>
+                    <div className="text-sm text-gray-600 dark:text-gray-400">Статус</div>
+                    <div className="font-medium text-green-600 dark:text-green-400">✓ Активен</div>
                   </div>
                 </div>
               </CardContent>
@@ -248,32 +245,37 @@ export default function Profile() {
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
-                <div className="bg-yellow-500/10 border border-yellow-500/20 rounded-md p-4 flex items-start gap-3">
-                  <Icon name="AlertTriangle" size={20} className="text-yellow-500 mt-0.5 shrink-0" />
-                  <div className="flex-1">
-                    <p className="font-medium text-yellow-600 dark:text-yellow-500">Email не подтверждён</p>
-                    <p className="text-sm text-muted-foreground mt-1">
-                      Подтвердите email для восстановления доступа к аккаунту в случае утери телефона
-                    </p>
-                  </div>
-                </div>
+                {!emailVerified ? (
+                  <>
+                    <div className="bg-yellow-500/10 border border-yellow-500/20 rounded-md p-4 flex items-start gap-3">
+                      <Icon name="AlertTriangle" size={20} className="text-yellow-500 mt-0.5 shrink-0" />
+                      <div className="flex-1">
+                        <p className="font-medium text-yellow-600 dark:text-yellow-500">Email не подтверждён</p>
+                        <p className="text-sm text-muted-foreground mt-1">
+                          Подтвердите email для восстановления доступа к аккаунту в случае утери телефона
+                        </p>
+                      </div>
+                    </div>
 
-                <div className="space-y-3">
-                  <div>
-                    <label className="text-sm font-medium">Ваш email</label>
-                    <div className="mt-1.5 flex gap-2">
-                      <Input 
-                        type="email" 
-                        placeholder="example@email.com"
-                        defaultValue="carrier@test.ru"
-                      />
+                    <Button 
+                      className="w-full"
+                      onClick={() => setShowEmailVerification(true)}
+                    >
+                      <Icon name="Send" size={18} className="mr-2" />
+                      Подтвердить email
+                    </Button>
+                  </>
+                ) : (
+                  <div className="bg-green-500/10 border border-green-500/20 rounded-md p-4 flex items-start gap-3">
+                    <Icon name="CheckCircle2" size={20} className="text-green-500 mt-0.5 shrink-0" />
+                    <div className="flex-1">
+                      <p className="font-medium text-green-600 dark:text-green-400">Email подтверждён</p>
+                      <p className="text-sm text-muted-foreground mt-1">
+                        Ваш email успешно подтверждён и защищен
+                      </p>
                     </div>
                   </div>
-
-                  <Button className="w-full">
-                    <Icon name="Send" size={18} className="mr-2" />
-                    Отправить код подтверждения
-                  </Button>
+                )}
 
                   <div className="bg-blue-500/10 border border-blue-500/20 rounded-md p-4">
                     <p className="text-sm font-medium text-blue-600 dark:text-blue-400 mb-2">
@@ -302,32 +304,7 @@ export default function Profile() {
               </CardContent>
             </Card>
 
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Icon name="QrCode" size={20} />
-                  QR-код для доступа
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <p className="text-sm text-muted-foreground">
-                  Создайте QR-код для быстрого доступа к платформе с телефона
-                </p>
-                <Button onClick={() => window.location.href = '/qr'} className="w-full">
-                  <Icon name="QrCode" size={18} className="mr-2" />
-                  Открыть генератор QR-кода
-                </Button>
-                <div className="bg-muted/50 rounded-lg p-4 text-sm">
-                  <p className="font-semibold mb-2">Зачем нужен QR-код:</p>
-                  <ul className="list-disc list-inside space-y-1 text-muted-foreground">
-                    <li>Быстрый доступ с телефона без ввода URL</li>
-                    <li>Можно распечатать на визитках</li>
-                    <li>Удобно показывать клиентам</li>
-                    <li>Скачать и использовать в рекламе</li>
-                  </ul>
-                </div>
-              </CardContent>
-            </Card>
+
           </TabsContent>
 
           <TabsContent value="security" className="space-y-4">
@@ -335,85 +312,26 @@ export default function Profile() {
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                   <Icon name="Shield" size={20} />
-                  Двухфакторная аутентификация (2FA)
+                  Безопасность аккаунта
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
-                {countryInfo && countryInfo.isTelegramBlocked && (
-                  <div className="bg-yellow-500/10 border border-yellow-500/20 rounded-md p-4 flex items-start gap-3">
-                    <Icon name="AlertCircle" size={20} className="text-yellow-500 mt-0.5" />
-                    <div>
-                      <p className="font-medium text-yellow-500">Telegram недоступен в {countryInfo.countryName}</p>
-                      <p className="text-sm text-muted-foreground mt-1">
-                        Для вашей страны автоматически включена email-аутентификация
-                      </p>
-                    </div>
+                <div className="bg-green-500/10 border border-green-500/20 rounded-md p-4 flex items-start gap-3">
+                  <Icon name="CheckCircle2" size={20} className="text-green-500 mt-0.5" />
+                  <div>
+                    <p className="font-medium text-green-600 dark:text-green-400">Аккаунт защищен</p>
+                    <p className="text-sm text-muted-foreground mt-1">
+                      Ваш аккаунт использует современные методы защиты
+                    </p>
                   </div>
-                )}
-
-                <div className="space-y-3">
-                  <h4 className="font-medium">Выберите метод аутентификации:</h4>
-                  
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                    <button
-                      onClick={() => setAuthMethod('telegram')}
-                      disabled={countryInfo?.isTelegramBlocked}
-                      className={`p-4 border rounded-lg text-left transition-all ${
-                        authMethod === 'telegram' && !countryInfo?.isTelegramBlocked
-                          ? 'border-primary bg-primary/5'
-                          : 'border-border hover:border-primary/50'
-                      } ${countryInfo?.isTelegramBlocked ? 'opacity-50 cursor-not-allowed' : ''}`}
-                    >
-                      <div className="flex items-center gap-3 mb-2">
-                        <Icon name="MessageCircle" size={24} className="text-blue-500" />
-                        <span className="font-semibold">Telegram</span>
-                        {countryInfo?.isTelegramBlocked && (
-                          <span className="text-xs bg-red-500/20 text-red-500 px-2 py-1 rounded">Недоступен</span>
-                        )}
-                      </div>
-                      <p className="text-sm text-muted-foreground">
-                        Коды приходят в Telegram бот
-                      </p>
-                    </button>
-
-                    <button
-                      onClick={() => setAuthMethod('email')}
-                      className={`p-4 border rounded-lg text-left transition-all ${
-                        authMethod === 'email'
-                          ? 'border-primary bg-primary/5'
-                          : 'border-border hover:border-primary/50'
-                      }`}
-                    >
-                      <div className="flex items-center gap-3 mb-2">
-                        <Icon name="Mail" size={24} className="text-green-500" />
-                        <span className="font-semibold">Email</span>
-                        {countryInfo?.isTelegramBlocked && (
-                          <span className="text-xs bg-green-500/20 text-green-500 px-2 py-1 rounded">Рекомендуется</span>
-                        )}
-                      </div>
-                      <p className="text-sm text-muted-foreground">
-                        Коды приходят на email
-                      </p>
-                    </button>
-                  </div>
-                </div>
-
-                <div className="pt-4 border-t">
-                  <Button
-                    onClick={() => setShow2FAModal(true)}
-                    className="w-full"
-                  >
-                    <Icon name="Key" size={18} className="mr-2" />
-                    Настроить {authMethod === 'telegram' ? 'Telegram' : 'Email'} 2FA
-                  </Button>
                 </div>
 
                 <div className="text-sm text-muted-foreground">
-                  <p className="font-medium mb-2">Текущие настройки:</p>
+                  <p className="font-medium mb-2 text-gray-900 dark:text-gray-100">Текущие настройки безопасности:</p>
                   <ul className="space-y-1 ml-4">
-                    <li>• Метод: {authMethod === 'telegram' ? 'Telegram Bot' : 'Email коды'}</li>
-                    <li>• Страна: {countryInfo?.countryName || 'Определяется...'}</li>
-                    <li>• Статус: <span className="text-green-600">Активно</span></li>
+                    <li>• Постоянная сессия до выхода</li>
+                    <li>• Защита данных через localStorage</li>
+                    <li>• Статус: <span className="text-green-600 dark:text-green-400">Активно</span></li>
                   </ul>
                 </div>
               </CardContent>
@@ -450,15 +368,19 @@ export default function Profile() {
         </div>
       </div>
 
-      {show2FAModal && authMethod === 'email' && (
+      {showEmailVerification && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
           <div className="max-w-md w-full">
             <EmailAuth
               onSuccess={(email) => {
-                setShow2FAModal(false);
-                alert(`Email 2FA настроен для ${email}`);
+                setShowEmailVerification(false);
+                setEmailVerified(true);
+                toast({
+                  title: 'Email подтверждён',
+                  description: `Ваш email ${email} успешно подтверждён`,
+                });
               }}
-              onCancel={() => setShow2FAModal(false)}
+              onCancel={() => setShowEmailVerification(false)}
             />
           </div>
         </div>

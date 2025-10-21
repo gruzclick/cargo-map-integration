@@ -56,20 +56,20 @@ const MapFilters = ({ onFilterChange, className }: MapFiltersProps) => {
 
           <div className="space-y-2 md:space-y-3">
             <div>
-              <div className="flex items-center justify-between mb-1.5">
-                <label className="text-xs font-medium text-gray-900 dark:text-white">
+              <div className="mb-1.5">
+                <label className="text-xs font-medium text-gray-900 dark:text-white block mb-1.5">
                   Я ищу как:
                 </label>
+              </div>
+              <div className="grid grid-cols-3 gap-1.5">
                 <Button
                   variant={filters.userType === 'all' ? 'default' : 'outline'}
                   size="sm"
                   onClick={() => updateFilter('userType', 'all')}
-                  className="text-xs h-8 rounded-lg px-3"
+                  className="text-xs h-8 rounded-lg px-2 whitespace-nowrap flex-1"
                 >
                   Показать все
                 </Button>
-              </div>
-              <div className="grid grid-cols-2 gap-1.5">
                 <Button
                   variant={filters.userType === 'client' ? 'default' : 'outline'}
                   size="sm"

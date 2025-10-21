@@ -1,18 +1,46 @@
 import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Switch } from '@/components/ui/switch';
+import { Label } from '@/components/ui/label';
 import Icon from '@/components/ui/icon';
 import { usePWA } from '@/hooks/usePWA';
+import { useToast } from '@/hooks/use-toast';
 
 const NotificationSettings = () => {
   const { requestNotificationPermission } = usePWA();
+  const { toast } = useToast();
   const [notificationStatus, setNotificationStatus] = useState<'default' | 'granted' | 'denied'>('default');
+  const [notifications, setNotifications] = useState({
+    nearbyOrders: true,
+    nearbyDrivers: true,
+    chatMessages: true,
+    statusUpdates: true,
+    newReviews: true,
+    priceChanges: true,
+  });
 
   useEffect(() => {
     if ('Notification' in window) {
       setNotificationStatus(Notification.permission);
     }
+    
+    // Load saved notification preferences or use defaults (all true)
+    const saved = localStorage.getItem('notification_preferences');
+    if (saved) {
+      setNotifications(JSON.parse(saved));
+    }
   }, []);
+
+  const handleToggleNotification = (key: keyof typeof notifications) => {
+    const updated = { ...notifications, [key]: !notifications[key] };
+    setNotifications(updated);
+    localStorage.setItem('notification_preferences', JSON.stringify(updated));
+    toast({
+      title: 'Настройки сохранены',
+      description: `Уведомления ${!notifications[key] ? 'включены' : 'отключены'}`,
+    });
+  };
 
   const handleEnableNotifications = async () => {
     const permission = await requestNotificationPermission();
@@ -29,7 +57,7 @@ const NotificationSettings = () => {
   };
 
   return (
-    <Card className="border border-gray-200/50 dark:border-gray-700/50">
+    <Card className="bg-white/80 dark:bg-gray-900/80 backdrop-blur-xl border-white/30 dark:border-gray-700/30">
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
           <Icon name="Bell" size={20} />
@@ -91,28 +119,108 @@ const NotificationSettings = () => {
           </div>
         )}
 
-        <div className="space-y-2 pt-3 border-t border-gray-200 dark:border-gray-700">
+        <div className="space-y-4 pt-4 border-t border-gray-200 dark:border-gray-700">
           <h4 className="text-sm font-medium text-gray-900 dark:text-gray-100">
-            Вы будете получать уведомления о:
+            Настройте типы уведомлений:
           </h4>
-          <ul className="space-y-1.5 text-xs text-gray-700 dark:text-gray-300">
-            <li className="flex items-start gap-2">
-              <Icon name="Check" size={14} className="text-green-600 dark:text-green-400 mt-0.5" />
-              <span>Новых грузах в вашем радиусе (50 км)</span>
-            </li>
-            <li className="flex items-start gap-2">
-              <Icon name="Check" size={14} className="text-green-600 dark:text-green-400 mt-0.5" />
-              <span>Водителях поблизости от вашего груза</span>
-            </li>
-            <li className="flex items-start gap-2">
-              <Icon name="Check" size={14} className="text-green-600 dark:text-green-400 mt-0.5" />
-              <span>Сообщениях в чате с клиентами/водителями</span>
-            </li>
-            <li className="flex items-start gap-2">
-              <Icon name="Check" size={14} className="text-green-600 dark:text-green-400 mt-0.5" />
-              <span>Изменении статуса доставки</span>
-            </li>
-          </ul>
+          
+          <div className="space-y-3">
+            <div className="flex items-center justify-between p-3 rounded-lg bg-gray-50 dark:bg-gray-800/50">
+              <div className="flex-1">
+                <Label htmlFor="nearby-orders" className="text-sm font-medium cursor-pointer">
+                  Новые грузы в радиусе (50 км)
+                </Label>
+                <p className="text-xs text-gray-600 dark:text-gray-400 mt-0.5">
+                  Получайте уведомления о заказах поблизости
+                </p>
+              </div>
+              <Switch
+                id="nearby-orders"
+                checked={notifications.nearbyOrders}
+                onCheckedChange={() => handleToggleNotification('nearbyOrders')}
+              />
+            </div>
+
+            <div className="flex items-center justify-between p-3 rounded-lg bg-gray-50 dark:bg-gray-800/50">
+              <div className="flex-1">
+                <Label htmlFor="nearby-drivers" className="text-sm font-medium cursor-pointer">
+                  Водители поблизости
+                </Label>
+                <p className="text-xs text-gray-600 dark:text-gray-400 mt-0.5">
+                  Уведомления о свободных водителях рядом с грузом
+                </p>
+              </div>
+              <Switch
+                id="nearby-drivers"
+                checked={notifications.nearbyDrivers}
+                onCheckedChange={() => handleToggleNotification('nearbyDrivers')}
+              />
+            </div>
+
+            <div className="flex items-center justify-between p-3 rounded-lg bg-gray-50 dark:bg-gray-800/50">
+              <div className="flex-1">
+                <Label htmlFor="chat-messages" className="text-sm font-medium cursor-pointer">
+                  Сообщения в чате
+                </Label>
+                <p className="text-xs text-gray-600 dark:text-gray-400 mt-0.5">
+                  Новые сообщения от клиентов и водителей
+                </p>
+              </div>
+              <Switch
+                id="chat-messages"
+                checked={notifications.chatMessages}
+                onCheckedChange={() => handleToggleNotification('chatMessages')}
+              />
+            </div>
+
+            <div className="flex items-center justify-between p-3 rounded-lg bg-gray-50 dark:bg-gray-800/50">
+              <div className="flex-1">
+                <Label htmlFor="status-updates" className="text-sm font-medium cursor-pointer">
+                  Изменение статуса доставки
+                </Label>
+                <p className="text-xs text-gray-600 dark:text-gray-400 mt-0.5">
+                  Обновления по текущим заказам
+                </p>
+              </div>
+              <Switch
+                id="status-updates"
+                checked={notifications.statusUpdates}
+                onCheckedChange={() => handleToggleNotification('statusUpdates')}
+              />
+            </div>
+
+            <div className="flex items-center justify-between p-3 rounded-lg bg-gray-50 dark:bg-gray-800/50">
+              <div className="flex-1">
+                <Label htmlFor="new-reviews" className="text-sm font-medium cursor-pointer">
+                  Новые отзывы
+                </Label>
+                <p className="text-xs text-gray-600 dark:text-gray-400 mt-0.5">
+                  Когда кто-то оставил вам отзыв или оценку
+                </p>
+              </div>
+              <Switch
+                id="new-reviews"
+                checked={notifications.newReviews}
+                onCheckedChange={() => handleToggleNotification('newReviews')}
+              />
+            </div>
+
+            <div className="flex items-center justify-between p-3 rounded-lg bg-gray-50 dark:bg-gray-800/50">
+              <div className="flex-1">
+                <Label htmlFor="price-changes" className="text-sm font-medium cursor-pointer">
+                  Изменения цен
+                </Label>
+                <p className="text-xs text-gray-600 dark:text-gray-400 mt-0.5">
+                  Уведомления о конкурентных предложениях
+                </p>
+              </div>
+              <Switch
+                id="price-changes"
+                checked={notifications.priceChanges}
+                onCheckedChange={() => handleToggleNotification('priceChanges')}
+              />
+            </div>
+          </div>
         </div>
       </CardContent>
     </Card>

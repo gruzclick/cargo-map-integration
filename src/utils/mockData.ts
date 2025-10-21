@@ -77,6 +77,9 @@ function generatePhone(): string {
 }
 
 export function generateMockCargos(count: number = 30): MapMarker[] {
+  // Test mode disabled - return empty array
+  // Uncomment below to enable test data generation
+  /*
   const cargos: MapMarker[] = [];
   
   for (let i = 0; i < count; i++) {
@@ -112,9 +115,14 @@ export function generateMockCargos(count: number = 30): MapMarker[] {
   }
   
   return cargos;
+  */
+  return [];
 }
 
 export function generateMockDrivers(count: number = 30): MapMarker[] {
+  // Test mode disabled - return empty array
+  // Uncomment below to enable test data generation
+  /*
   const drivers: MapMarker[] = [];
   
   for (let i = 0; i < count; i++) {
@@ -146,6 +154,8 @@ export function generateMockDrivers(count: number = 30): MapMarker[] {
   }
   
   return drivers;
+  */
+  return [];
 }
 
 export function generateAllMockData(): MapMarker[] {

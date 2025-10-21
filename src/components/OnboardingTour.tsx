@@ -33,7 +33,7 @@ const driverSteps: TourStep[] = [
   },
   {
     title: 'Типы грузов',
-    description: 'Выберите, какие грузы готовы везти: коробки, паллеты или негабарит. Система покажет подходящие заказы.',
+    description: 'Выберите, какие грузы готовы везти: коробки, Паллеты или негабарит. Система покажет подходящие заказы.',
     position: 'top'
   }
 ];
@@ -61,7 +61,7 @@ const clientSteps: TourStep[] = [
   },
   {
     title: 'Выбор транспорта',
-    description: 'Укажите тип транспорта и параметры груза. Для легкового — только коробки, для грузового — паллеты и негабарит.',
+    description: 'Укажите тип транспорта и параметры груза. Для легкового — только коробки, для грузового — Паллеты или негабарит.',
     position: 'top'
   }
 ];
@@ -95,6 +95,12 @@ const OnboardingTour = ({ userRole, onComplete }: OnboardingTourProps) => {
     }
   };
 
+  const handleBack = () => {
+    if (currentStep > 0) {
+      setCurrentStep(currentStep - 1);
+    }
+  };
+
   const handleSkip = () => {
     handleComplete();
   };
@@ -110,7 +116,7 @@ const OnboardingTour = ({ userRole, onComplete }: OnboardingTourProps) => {
       <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[100]" onClick={handleSkip} />
       
       <div className="fixed inset-0 z-[101] flex items-center justify-center p-4 pointer-events-none">
-        <Card className="max-w-md w-full pointer-events-auto animate-scale-in">
+        <Card className="max-w-md w-full pointer-events-auto animate-scale-in bg-white/90 dark:bg-gray-900/90 backdrop-blur-2xl border-white/30 dark:border-gray-700/30 shadow-2xl">
           <CardContent className="p-6">
             <div className="flex items-start gap-3 mb-4">
               <div className="w-10 h-10 bg-primary/10 rounded-full flex items-center justify-center shrink-0">
@@ -134,9 +140,17 @@ const OnboardingTour = ({ userRole, onComplete }: OnboardingTourProps) => {
             </div>
 
             <div className="flex items-center justify-between">
-              <Button variant="ghost" onClick={handleSkip} className="text-xs">
-                Пропустить
-              </Button>
+              <div className="flex items-center gap-2">
+                <Button variant="ghost" onClick={handleSkip} className="text-xs">
+                  Пропустить
+                </Button>
+                {currentStep > 0 && (
+                  <Button variant="ghost" onClick={handleBack} size="sm" className="text-xs">
+                    <Icon name="ChevronLeft" size={16} className="mr-1" />
+                    Назад
+                  </Button>
+                )}
+              </div>
               <div className="flex items-center gap-2">
                 <span className="text-xs text-muted-foreground">
                   {currentStep + 1} из {steps.length}

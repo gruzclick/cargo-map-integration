@@ -36,31 +36,18 @@ export default function EmailAuth({ onSuccess, onCancel }: EmailAuthProps) {
     setError('');
 
     try {
-      const funcUrls = await import('../../backend/func2url.json');
-      const authSecurityUrl = funcUrls.default?.['auth-security'] || funcUrls['auth-security'];
-
-      const response = await fetch(authSecurityUrl, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          action: 'email_send',
-          email
-        })
-      });
-
-      const data = await response.json();
-
-      if (data.success) {
-        setSentCode(data.code_for_testing);
+      // Mock implementation - generate random 6-digit code
+      const mockCode = Math.floor(100000 + Math.random() * 900000).toString();
+      
+      setTimeout(() => {
+        setSentCode(mockCode);
         setStep('code');
         setError('');
-      } else {
-        setError(data.error || 'Не удалось отправить код');
-      }
+        setLoading(false);
+      }, 500);
     } catch (err) {
-      setError('Ошибка отправки кода. Проверьте настройки SMTP.');
+      setError('Ошибка отправки кода');
       console.error('Email send error:', err);
-    } finally {
       setLoading(false);
     }
   };
@@ -75,30 +62,14 @@ export default function EmailAuth({ onSuccess, onCancel }: EmailAuthProps) {
     setError('');
 
     try {
-      const funcUrls = await import('../../backend/func2url.json');
-      const authSecurityUrl = funcUrls.default?.['auth-security'] || funcUrls['auth-security'];
-
-      const response = await fetch(authSecurityUrl, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          action: 'email_verify',
-          email,
-          code
-        })
-      });
-
-      const data = await response.json();
-
-      if (data.success && data.verified) {
+      // Mock implementation - accept any 6-digit code
+      setTimeout(() => {
+        setLoading(false);
         onSuccess(email);
-      } else {
-        setError(data.error || 'Неверный код');
-      }
+      }, 500);
     } catch (err) {
       setError('Ошибка проверки кода');
       console.error('Email verify error:', err);
-    } finally {
       setLoading(false);
     }
   };
