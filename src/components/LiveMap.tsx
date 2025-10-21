@@ -229,33 +229,35 @@ const LiveMap = ({ isPublic = false, onMarkerClick }: LiveMapProps = {}) => {
           onTouchMove={handleTouchMove}
           onTouchEnd={handleTouchEnd}
           className="absolute top-3 left-1/2 md:left-3 -translate-x-1/2 md:translate-x-0 max-h-[calc(100vh-1.5rem)] w-[calc(100%-1.5rem)] md:w-72 bg-white/15 dark:bg-gray-900/15 backdrop-blur-3xl border border-white/40 dark:border-gray-700/40 shadow-2xl rounded-2xl z-10 overflow-hidden animate-slide-in-left flex flex-col touch-pan-y overscroll-contain">
-          {/* Табы - компактные + кнопка сворачивания */}
-          <div className="flex items-center border-b border-white/20 dark:border-gray-700/20 p-1.5">
-            <button
-              onClick={() => setActiveTab('stats')}
-              className={`flex-1 px-2 py-1.5 text-xs font-semibold rounded-lg transition-all flex items-center justify-center gap-1 ${
-                activeTab === 'stats'
-                  ? 'bg-white/60 dark:bg-gray-800/60 text-gray-900 dark:text-white shadow-md'
-                  : 'text-gray-700 dark:text-gray-400 hover:bg-white/30 dark:hover:bg-gray-800/30'
-              }`}
-            >
-              <Icon name="BarChart3" size={12} />
-              <span className="hidden md:inline">Статистика</span>
-            </button>
-            <button
-              onClick={() => setActiveTab('search')}
-              className={`flex-1 px-2 py-1.5 text-xs font-semibold rounded-lg transition-all flex items-center justify-center gap-1 ml-1 ${
-                activeTab === 'search'
-                  ? 'bg-white/60 dark:bg-gray-800/60 text-gray-900 dark:text-white shadow-md'
-                  : 'text-gray-700 dark:text-gray-400 hover:bg-white/30 dark:hover:bg-gray-800/30'
-              }`}
-            >
-              <Icon name="Search" size={12} />
-              <span className="hidden md:inline">Поиск</span>
-            </button>
+          {/* Табы и Поиск/Статистика */}
+          <div className="flex items-center justify-between p-2">
+            <div className="flex items-center gap-1.5">
+              <button
+                onClick={() => setActiveTab('stats')}
+                className={`px-2 py-1.5 text-xs font-semibold rounded-lg transition-all flex items-center justify-center gap-1 ${
+                  activeTab === 'stats'
+                    ? 'bg-white/60 dark:bg-gray-800/60 text-gray-900 dark:text-white shadow-md'
+                    : 'text-gray-700 dark:text-gray-400 hover:bg-white/30 dark:hover:bg-gray-800/30'
+                }`}
+              >
+                <Icon name="BarChart3" size={12} />
+                <span className="hidden md:inline">Статистика</span>
+              </button>
+              <button
+                onClick={() => setActiveTab('search')}
+                className={`px-2 py-1.5 text-xs font-semibold rounded-lg transition-all flex items-center justify-center gap-1 ${
+                  activeTab === 'search'
+                    ? 'bg-white/60 dark:bg-gray-800/60 text-gray-900 dark:text-white shadow-md'
+                    : 'text-gray-700 dark:text-gray-400 hover:bg-white/30 dark:hover:bg-gray-800/30'
+                }`}
+              >
+                <Icon name="Search" size={12} />
+                <span className="hidden md:inline">Поиск</span>
+              </button>
+            </div>
             <button
               onClick={() => setShowSidebar(false)}
-              className="ml-1 p-1.5 rounded-lg text-gray-700 dark:text-gray-400 hover:bg-white/30 dark:hover:bg-gray-800/30 transition-all"
+              className="p-1.5 rounded-lg text-gray-700 dark:text-gray-400 hover:bg-white/30 dark:hover:bg-gray-800/30 transition-all"
               title="Свернуть"
             >
               <Icon name="ChevronLeft" size={14} />

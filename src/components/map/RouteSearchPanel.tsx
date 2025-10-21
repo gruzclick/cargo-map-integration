@@ -96,7 +96,7 @@ const RouteSearchPanel = ({ routeSearch, onRouteChange, onLocationDetected }: Ro
       <div className="flex items-center justify-between">
         <h3 className="text-xs font-semibold flex items-center gap-1.5 text-gray-900 dark:text-white">
           <Icon name="Route" size={14} />
-          Поиск по маршруту
+          По маршруту
         </h3>
         <Button
           variant="outline"

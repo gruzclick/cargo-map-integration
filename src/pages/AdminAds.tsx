@@ -123,6 +123,18 @@ export default function AdminAds() {
               <Icon name="Plus" size={18} className="mr-2" />
               Добавить баннер
             </Button>
+            <Button 
+              variant="destructive" 
+              onClick={() => {
+                if (window.confirm('Очистить все демо-данные? Это действие нельзя отменить.')) {
+                  localStorage.removeItem('ad_banners');
+                  window.location.reload();
+                }
+              }}
+            >
+              <Icon name="Trash2" size={18} className="mr-2" />
+              Очистить демо-данные
+            </Button>
             <Button variant="outline" onClick={() => window.location.href = '/'}>
               <Icon name="ArrowLeft" size={18} className="mr-2" />
               На главную

@@ -320,7 +320,7 @@ const TermsAgreement = ({ onAccept, onDecline }: TermsAgreementProps) => {
                     e.preventDefault();
                     window.open('/terms', '_blank');
                   }}
-                  className="text-accent hover:underline font-medium"
+                  className="text-blue-600 dark:text-blue-400 hover:underline font-semibold underline decoration-2"
                 >
                   пользовательского соглашения
                 </button>
@@ -331,7 +331,7 @@ const TermsAgreement = ({ onAccept, onDecline }: TermsAgreementProps) => {
                     e.preventDefault();
                     window.open('/privacy', '_blank');
                   }}
-                  className="text-accent hover:underline font-medium"
+                  className="text-blue-600 dark:text-blue-400 hover:underline font-semibold underline decoration-2"
                 >
                   политикой конфиденциальности
                 </button>. 

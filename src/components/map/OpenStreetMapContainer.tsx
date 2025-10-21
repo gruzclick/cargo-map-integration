@@ -76,12 +76,34 @@ export default function OpenStreetMapContainer({
       position: 'bottomright'
     }).addTo(map);
 
-    // Используем тёмную тему карты по умолчанию
-    L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+    // Определяем тему (светлая/тёмная)
+    const isDark = document.documentElement.classList.contains('dark');
+    
+    // Выбираем стиль карты в зависимости от темы
+    const tileLayerUrl = isDark 
+      ? 'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png'
+      : 'https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png';
+
+    const tileLayer = L.tileLayer(tileLayerUrl, {
       attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>',
       maxZoom: 19,
       subdomains: 'abcd',
     }).addTo(map);
+
+    // Слушаем изменения темы
+    const observer = new MutationObserver(() => {
+      const isDarkNow = document.documentElement.classList.contains('dark');
+      const newUrl = isDarkNow
+        ? 'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png'
+        : 'https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png';
+      
+      tileLayer.setUrl(newUrl);
+    });
+
+    observer.observe(document.documentElement, {
+      attributes: true,
+      attributeFilter: ['class']
+    });
 
     const markersLayer = L.layerGroup().addTo(map);
     
@@ -93,6 +115,7 @@ export default function OpenStreetMapContainer({
     }
 
     return () => {
+      observer.disconnect();
       map.remove();
       mapInstanceRef.current = null;
       markersLayerRef.current = null;

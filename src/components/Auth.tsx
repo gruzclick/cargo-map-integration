@@ -148,7 +148,14 @@ const Auth = ({ onSuccess }: AuthProps) => {
 
   return (
     <div className="min-h-screen flex items-center justify-center p-4 bg-gradient-to-br from-background via-background to-accent/5">
-      <Card className="w-full max-w-md border-0 shadow-2xl rounded-3xl">
+      <Card className="w-full max-w-md border-0 shadow-2xl rounded-3xl relative">
+        <button
+          onClick={() => window.location.href = '/'}
+          className="absolute top-4 right-4 z-10 p-2 rounded-full hover:bg-muted/50 transition-colors"
+          title="Закрыть"
+        >
+          <Icon name="X" size={24} className="text-muted-foreground hover:text-foreground" />
+        </button>
         <CardHeader className="space-y-2 pb-6">
           <div className="w-16 h-16 bg-accent rounded-2xl flex items-center justify-center mx-auto mb-4">
             <Icon name="Truck" size={32} className="text-accent-foreground" />
@@ -167,19 +174,26 @@ const Auth = ({ onSuccess }: AuthProps) => {
               <>
                 <div className="space-y-3 pb-4 border-b">
                   <Label className="text-sm font-semibold">Тип пользователя</Label>
-                  <RadioGroup value={userType} onValueChange={(val: any) => setUserType(val)} className="flex gap-4">
-                    <div className="flex items-center space-x-2 flex-1">
+                  <RadioGroup value={userType} onValueChange={(val: any) => setUserType(val)} className="grid grid-cols-3 gap-3">
+                    <div className="flex items-center space-x-2">
                       <RadioGroupItem value="client" id="client" />
-                      <Label htmlFor="client" className="cursor-pointer flex items-center gap-2">
-                        <Icon name="Package" size={18} />
+                      <Label htmlFor="client" className="cursor-pointer flex items-center gap-1.5 text-sm">
+                        <Icon name="Package" size={16} />
                         Клиент
                       </Label>
                     </div>
-                    <div className="flex items-center space-x-2 flex-1">
+                    <div className="flex items-center space-x-2">
                       <RadioGroupItem value="carrier" id="carrier" />
-                      <Label htmlFor="carrier" className="cursor-pointer flex items-center gap-2">
-                        <Icon name="Truck" size={18} />
+                      <Label htmlFor="carrier" className="cursor-pointer flex items-center gap-1.5 text-sm">
+                        <Icon name="Truck" size={16} />
                         Перевозчик
+                      </Label>
+                    </div>
+                    <div className="flex items-center space-x-2">
+                      <RadioGroupItem value="logistician" id="logistician" />
+                      <Label htmlFor="logistician" className="cursor-pointer flex items-center gap-1.5 text-sm">
+                        <Icon name="ClipboardList" size={16} />
+                        Логист
                       </Label>
                     </div>
                   </RadioGroup>
@@ -204,6 +218,8 @@ const Auth = ({ onSuccess }: AuthProps) => {
                     </SelectTrigger>
                     <SelectContent>
                       <SelectItem value="individual">Физическое лицо</SelectItem>
+                      <SelectItem value="self_employed">Самозанятый</SelectItem>
+                      <SelectItem value="individual_entrepreneur">Индивидуальный предприниматель (ИП)</SelectItem>
                       <SelectItem value="legal">Юридическое лицо</SelectItem>
                     </SelectContent>
                   </Select>
@@ -290,17 +306,34 @@ const Auth = ({ onSuccess }: AuthProps) => {
                         </SelectContent>
                       </Select>
                     </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="capacity">Грузоподъёмность (тонн)</Label>
-                      <Input
-                        id="capacity"
-                        type="number"
-                        step="0.1"
-                        placeholder="3.5"
-                        value={formData.capacity}
-                        onChange={(e) => setFormData({ ...formData, capacity: e.target.value })}
-                      />
-                    </div>
+                    {formData.vehicle_type !== 'fleet' && (
+                      <div className="space-y-2">
+                        <Label htmlFor="capacity">Грузоподъёмность (тонн)</Label>
+                        <Input
+                          id="capacity"
+                          type="number"
+                          step="0.1"
+                          placeholder="3.5"
+                          value={formData.capacity}
+                          onChange={(e) => setFormData({ ...formData, capacity: e.target.value })}
+                        />
+                      </div>
+                    )}
+                    
+                    {formData.vehicle_type === 'fleet' && (
+                      <div className="p-4 bg-blue-50 dark:bg-blue-950/20 border border-blue-200 dark:border-blue-800 rounded-lg">
+                        <div className="flex items-start gap-2 mb-2">
+                          <Icon name="Info" size={18} className="text-blue-600 dark:text-blue-400 mt-0.5" />
+                          <div>
+                            <p className="text-sm font-semibold text-blue-900 dark:text-blue-100">Управление автопарком</p>
+                            <p className="text-xs text-blue-700 dark:text-blue-300 mt-1">
+                              После регистрации вы сможете добавить все ваши автомобили в разделе "Автопарк" в личном кабинете. 
+                              Каждое авто можно будет настроить отдельно: указать характеристики, загрузить фото и назначить водителя.
+                            </p>
+                          </div>
+                        </div>
+                      </div>
+                    )}
                   </>
                 )}
               </>

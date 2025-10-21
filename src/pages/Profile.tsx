@@ -3,6 +3,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import DataExport from '@/components/DataExport';
 import RatingSystem from '@/components/RatingSystem';
 import PriceCalculator from '@/components/PriceCalculator';
@@ -10,6 +11,7 @@ import EmailAuth from '@/components/EmailAuth';
 import NotificationSettings from '@/components/NotificationSettings';
 import Icon from '@/components/ui/icon';
 import { detectUserCountry, type CountryInfo } from '@/utils/countryDetection';
+import { useToast } from '@/hooks/use-toast';
 
 export default function Profile() {
   const [userType] = useState<'client' | 'driver'>('driver');
@@ -18,6 +20,8 @@ export default function Profile() {
   const [countryInfo, setCountryInfo] = useState<CountryInfo | null>(null);
   const [show2FAModal, setShow2FAModal] = useState(false);
   const [authMethod, setAuthMethod] = useState<'telegram' | 'email'>('telegram');
+  const [entityType, setEntityType] = useState('individual');
+  const { toast } = useToast();
 
   useEffect(() => {
     const loadCountryInfo = async () => {
@@ -149,6 +153,43 @@ export default function Profile() {
 
           <TabsContent value="settings" className="space-y-4">
             <NotificationSettings />
+            
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Icon name="Building" size={20} />
+                  Тип лица
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <p className="text-sm text-muted-foreground">
+                  Изменить тип регистрации вашего аккаунта
+                </p>
+                <div className="flex gap-4 items-end">
+                  <div className="flex-1">
+                    <Select value={entityType} onValueChange={setEntityType}>
+                      <SelectTrigger>
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="individual">Физическое лицо</SelectItem>
+                        <SelectItem value="self_employed">Самозанятый</SelectItem>
+                        <SelectItem value="individual_entrepreneur">Индивидуальный предприниматель (ИП)</SelectItem>
+                        <SelectItem value="legal">Юридическое лицо</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <Button onClick={() => {
+                    toast({
+                      title: 'Тип лица обновлён',
+                      description: 'Изменения сохранены в вашем профиле'
+                    });
+                  }}>
+                    Сохранить
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
             
             <Card>
               <CardHeader>

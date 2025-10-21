@@ -8,43 +8,43 @@
 @layer base {
   :root {
     --background: 0 0% 100%;
-    --foreground: 0 0% 7%;
+    --foreground: 0 0% 3%;
 
     --card: 0 0% 100%;
-    --card-foreground: 0 0% 7%;
+    --card-foreground: 0 0% 3%;
 
     --popover: 0 0% 100%;
-    --popover-foreground: 0 0% 7%;
+    --popover-foreground: 0 0% 3%;
 
-    --primary: 0 0% 7%;
+    --primary: 0 0% 3%;
     --primary-foreground: 0 0% 100%;
 
     --secondary: 0 0% 96%;
-    --secondary-foreground: 0 0% 7%;
+    --secondary-foreground: 0 0% 3%;
 
     --muted: 0 0% 96%;
-    --muted-foreground: 0 0% 45%;
+    --muted-foreground: 0 0% 25%;
 
     --accent: 0 0% 96%;
-    --accent-foreground: 0 0% 7%;
+    --accent-foreground: 0 0% 3%;
 
     --destructive: 0 72% 55%;
     --destructive-foreground: 0 0% 100%;
 
-    --border: 0 0% 89%;
-    --input: 0 0% 89%;
-    --ring: 0 0% 7%;
+    --border: 0 0% 82%;
+    --input: 0 0% 82%;
+    --ring: 0 0% 3%;
 
     --radius: 0.75rem;
 
     --sidebar-background: 0 0% 100%;
-    --sidebar-foreground: 0 0% 7%;
-    --sidebar-primary: 0 0% 7%;
+    --sidebar-foreground: 0 0% 3%;
+    --sidebar-primary: 0 0% 3%;
     --sidebar-primary-foreground: 0 0% 100%;
     --sidebar-accent: 0 0% 96%;
-    --sidebar-accent-foreground: 0 0% 7%;
-    --sidebar-border: 0 0% 89%;
-    --sidebar-ring: 0 0% 7%;
+    --sidebar-accent-foreground: 0 0% 3%;
+    --sidebar-border: 0 0% 82%;
+    --sidebar-ring: 0 0% 3%;
   }
 
   .dark {
@@ -128,18 +128,26 @@
 
   .text-size-small {
     font-size: 16px;
+    font-weight: 450;
+    letter-spacing: 0.01em;
   }
 
   .text-size-medium {
     font-size: 18px;
+    font-weight: 450;
+    letter-spacing: 0.01em;
   }
 
   .text-size-large {
     font-size: 20px;
+    font-weight: 500;
+    letter-spacing: 0.01em;
   }
 
   .text-size-xlarge {
     font-size: 22px;
+    font-weight: 500;
+    letter-spacing: 0.01em;
   }
 
   .text-size-small h1 {
