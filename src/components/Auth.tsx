@@ -9,6 +9,7 @@ import { Checkbox } from '@/components/ui/checkbox';
 import Icon from '@/components/ui/icon';
 import { useToast } from '@/hooks/use-toast';
 import TermsAgreement from './TermsAgreement';
+import { sanitizeInput, secureLocalStorage, rateLimit, validateEmail, validatePhone, validateINN } from '@/utils/security';
 
 interface AuthProps {
   onSuccess: (userData: any) => void;
@@ -44,20 +45,30 @@ const Auth = ({ onSuccess }: AuthProps) => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    if (!rateLimit('auth-form', 5, 60000)) {
+      toast({
+        variant: 'destructive',
+        title: 'Слишком много попыток',
+        description: 'Подождите минуту перед следующей попыткой'
+      });
+      return;
+    }
+    
     setLoading(true);
 
     try {
       if (isLogin) {
         const mockUser = {
           id: '1',
-          full_name: formData.full_name || 'Тестовый пользователь',
+          full_name: sanitizeInput(formData.full_name || 'Тестовый пользователь'),
           phone: formData.phone,
           user_type: userType,
           entity_type: formData.entity_type
         };
         
-        localStorage.setItem('auth_token', 'mock_token_' + Date.now());
-        localStorage.setItem('user_data', JSON.stringify(mockUser));
+        secureLocalStorage.set('auth_token', 'mock_token_' + Date.now());
+        secureLocalStorage.set('user_data', JSON.stringify(mockUser));
         onSuccess(mockUser);
         
         toast({
@@ -75,21 +86,31 @@ const Auth = ({ onSuccess }: AuthProps) => {
           return;
         }
 
+        if (formData.email && !validateEmail(formData.email)) {
+          throw new Error('Некорректный email');
+        }
+        if (formData.phone && !validatePhone(formData.phone)) {
+          throw new Error('Некорректный номер телефона');
+        }
+        if (formData.inn && !validateINN(formData.inn)) {
+          throw new Error('Некорректный ИНН');
+        }
+
         const mockUser = {
           id: Date.now().toString(),
-          full_name: formData.full_name,
+          full_name: sanitizeInput(formData.full_name),
           phone: formData.phone,
           email: formData.email,
           user_type: userType,
           entity_type: formData.entity_type,
           inn: formData.inn || null,
-          organization_name: formData.organization_name || null,
+          organization_name: sanitizeInput(formData.organization_name || ''),
           vehicle_type: userType === 'carrier' ? formData.vehicle_type : null,
           capacity: userType === 'carrier' && formData.capacity ? parseFloat(formData.capacity) : null
         };
         
-        localStorage.setItem('auth_token', 'mock_token_' + Date.now());
-        localStorage.setItem('user_data', JSON.stringify(mockUser));
+        secureLocalStorage.set('auth_token', 'mock_token_' + Date.now());
+        secureLocalStorage.set('user_data', JSON.stringify(mockUser));
         onSuccess(mockUser);
         
         toast({

@@ -158,15 +158,15 @@ const LiveMap = ({ isPublic = false, onMarkerClick }: LiveMapProps = {}) => {
   const driverCount = filteredMarkers.filter(m => m.type === 'driver').length;
 
   return (
-    <div className="relative w-full h-screen overflow-hidden bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-950">
+    <div className="relative w-full h-screen overflow-hidden touch-pan-y">
       <NearbyCargoNotification 
         markers={markers}
         userLocation={userLocation}
         radiusKm={50}
       />
 
-      {/* Карта на весь экран */}
-      <div className="fixed inset-0 z-0">
+      {/* Карта на весь экран без свободного места */}
+      <div className="absolute inset-0 z-0">
         <AdaptiveMapContainer 
           filteredMarkers={filteredMarkers}
           isPublic={isPublic}
@@ -175,7 +175,16 @@ const LiveMap = ({ isPublic = false, onMarkerClick }: LiveMapProps = {}) => {
         />
       </div>
 
-
+      {/* Кнопка разворачивания боковой панели */}
+      {!showSidebar && (
+        <button
+          onClick={() => setShowSidebar(true)}
+          className="fixed top-3 left-3 z-10 w-10 h-10 bg-white/20 dark:bg-gray-900/20 backdrop-blur-3xl border border-white/40 dark:border-gray-700/40 shadow-2xl rounded-full flex items-center justify-center hover:bg-white/30 dark:hover:bg-gray-900/30 active:scale-95 transition-all"
+          title="Открыть панель"
+        >
+          <Icon name="ChevronRight" size={20} className="text-gray-900 dark:text-white" />
+        </button>
+      )}
 
       {/* Кнопка геолокации справа вверху */}
       <button
@@ -219,7 +228,7 @@ const LiveMap = ({ isPublic = false, onMarkerClick }: LiveMapProps = {}) => {
           onTouchStart={handleTouchStart}
           onTouchMove={handleTouchMove}
           onTouchEnd={handleTouchEnd}
-          className="absolute top-3 left-1/2 md:left-3 -translate-x-1/2 md:translate-x-0 max-h-[calc(100vh-1.5rem)] w-[calc(100%-1.5rem)] md:w-72 bg-white/15 dark:bg-gray-900/15 backdrop-blur-3xl border border-white/40 dark:border-gray-700/40 shadow-2xl rounded-2xl z-10 overflow-hidden animate-slide-in-left flex flex-col">
+          className="absolute top-3 left-1/2 md:left-3 -translate-x-1/2 md:translate-x-0 max-h-[calc(100vh-1.5rem)] w-[calc(100%-1.5rem)] md:w-72 bg-white/15 dark:bg-gray-900/15 backdrop-blur-3xl border border-white/40 dark:border-gray-700/40 shadow-2xl rounded-2xl z-10 overflow-hidden animate-slide-in-left flex flex-col touch-pan-y overscroll-contain">
           {/* Табы - компактные + кнопка сворачивания */}
           <div className="flex items-center border-b border-white/20 dark:border-gray-700/20 p-1.5">
             <button
@@ -273,7 +282,7 @@ const LiveMap = ({ isPublic = false, onMarkerClick }: LiveMapProps = {}) => {
                           <div className="w-7 h-7 bg-gradient-to-br from-blue-400 to-blue-600 rounded-lg flex items-center justify-center shadow-lg">
                             <Icon name="Package" size={14} className="text-white" />
                           </div>
-                          <div>
+                          <div className="flex items-center gap-1.5">
                             <p className="text-base font-bold text-gray-900 dark:text-white">{cargoCount}</p>
                             <p className="text-xs text-gray-700 dark:text-gray-300">Грузов</p>
                           </div>
@@ -304,7 +313,7 @@ const LiveMap = ({ isPublic = false, onMarkerClick }: LiveMapProps = {}) => {
                           <div className="w-7 h-7 bg-gradient-to-br from-green-400 to-green-600 rounded-lg flex items-center justify-center shadow-lg">
                             <Icon name="Truck" size={14} className="text-white" />
                           </div>
-                          <div>
+                          <div className="flex items-center gap-1.5">
                             <p className="text-base font-bold text-gray-900 dark:text-white">{driverCount}</p>
                             <p className="text-xs text-gray-700 dark:text-gray-300">Перевозчиков</p>
                           </div>

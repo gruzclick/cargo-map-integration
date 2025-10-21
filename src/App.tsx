@@ -13,6 +13,7 @@ import AdPreviewPage from "./pages/AdPreviewPage";
 import QRPage from "./pages/QRPage";
 import NotFound from "./pages/NotFound";
 import './i18n/config';
+import { secureLocalStorage } from './utils/security';
 
 const queryClient = new QueryClient();
 

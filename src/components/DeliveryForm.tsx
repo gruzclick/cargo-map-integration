@@ -7,6 +7,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import Icon from '@/components/ui/icon';
 import { useToast } from '@/hooks/use-toast';
+import { sanitizeInput, secureLocalStorage, rateLimit } from '@/utils/security';
 
 interface DeliveryFormProps {
   onSuccess: () => void;
@@ -53,14 +54,36 @@ const DeliveryForm = ({ onSuccess }: DeliveryFormProps) => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    if (!rateLimit('delivery-form', 5, 60000)) {
+      toast({
+        variant: 'destructive',
+        title: 'Слишком много запросов',
+        description: 'Подождите минуту перед следующей отправкой'
+      });
+      return;
+    }
+    
     setLoading(true);
 
     try {
-      const token = localStorage.getItem('auth_token');
+      const token = secureLocalStorage.get('auth_token');
       
       if (!token) {
         throw new Error('Требуется авторизация');
       }
+
+      const sanitizedData = {
+        pickup_address: sanitizeInput(formData.pickup_address, 500),
+        delivery_address: sanitizeInput(formData.delivery_address, 500),
+        warehouse_address: sanitizeInput(formData.warehouse_address, 500),
+        cargo_quantity: parseInt(formData.cargo_quantity),
+        cargo_unit: formData.cargo_unit,
+        weight: parseFloat(formData.weight),
+        delivery_date: formData.delivery_date,
+        delivery_price: parseFloat(formData.delivery_price),
+        cargo_photo: cargoPhoto
+      };
 
       const response = await fetch('https://functions.poehali.dev/408b238a-389b-4a3c-9dfd-2cbbb8b83330', {
         method: 'POST',
@@ -68,13 +91,7 @@ const DeliveryForm = ({ onSuccess }: DeliveryFormProps) => {
           'Content-Type': 'application/json',
           'X-Auth-Token': token
         },
-        body: JSON.stringify({
-          ...formData,
-          cargo_quantity: parseInt(formData.cargo_quantity),
-          weight: parseFloat(formData.weight),
-          delivery_price: parseFloat(formData.delivery_price),
-          cargo_photo: cargoPhoto
-        })
+        body: JSON.stringify(sanitizedData)
       });
 
       const data = await response.json();

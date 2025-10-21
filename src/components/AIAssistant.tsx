@@ -167,7 +167,7 @@ const AIAssistant = () => {
         className="fixed bottom-4 right-4 z-50 px-4 py-3 bg-white/15 dark:bg-gray-900/15 backdrop-blur-3xl border border-white/40 dark:border-gray-700/40 shadow-2xl rounded-full hover:bg-white/25 dark:hover:bg-gray-900/25 active:scale-95 transition-all flex items-center gap-2"
       >
         <Icon name="HelpCircle" size={18} className="text-gray-900 dark:text-white" />
-        <span className="text-sm font-medium text-gray-900 dark:text-white">Справка</span>
+        <span className="text-sm font-medium text-gray-900 dark:text-white">Спроси</span>
       </button>
     );
   }
@@ -181,7 +181,7 @@ const AIAssistant = () => {
               <Icon name="Bot" size={18} />
             </div>
             <div>
-              <h3 className="font-semibold text-sm">Справка</h3>
+              <h3 className="font-semibold text-sm">Спроси</h3>
             </div>
           </div>
           <Button
@@ -253,9 +253,7 @@ const AIAssistant = () => {
               <Icon name="Send" size={16} />
             </Button>
           </div>
-          <p className="text-[10px] text-gray-600 dark:text-gray-400 mt-1 text-center">
-            🔒 Безопасный режим: только об использовании приложения
-          </p>
+
         </div>
       </CardContent>
     </Card>

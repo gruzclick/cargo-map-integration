@@ -56,23 +56,25 @@ const MapFilters = ({ onFilterChange, className }: MapFiltersProps) => {
 
           <div className="space-y-2 md:space-y-3">
             <div>
-              <label className="text-xs font-medium text-gray-900 dark:text-white mb-1.5 block">
-                Я ищу как:
-              </label>
-              <div className="grid grid-cols-3 gap-1.5">
+              <div className="flex items-center justify-between mb-1.5">
+                <label className="text-xs font-medium text-gray-900 dark:text-white">
+                  Я ищу как:
+                </label>
                 <Button
                   variant={filters.userType === 'all' ? 'default' : 'outline'}
                   size="sm"
                   onClick={() => updateFilter('userType', 'all')}
-                  className="text-xs h-8 rounded-lg px-2"
+                  className="text-xs h-7 rounded-lg px-3"
                 >
                   Все
                 </Button>
+              </div>
+              <div className="grid grid-cols-2 gap-1.5">
                 <Button
                   variant={filters.userType === 'client' ? 'default' : 'outline'}
                   size="sm"
                   onClick={() => updateFilter('userType', 'client')}
-                  className="text-xs h-8 rounded-lg px-2 whitespace-nowrap"
+                  className="text-xs h-8 rounded-lg px-2 whitespace-nowrap flex-1"
                 >
                   Клиент
                 </Button>
@@ -80,7 +82,7 @@ const MapFilters = ({ onFilterChange, className }: MapFiltersProps) => {
                   variant={filters.userType === 'carrier' ? 'default' : 'outline'}
                   size="sm"
                   onClick={() => updateFilter('userType', 'carrier')}
-                  className="text-xs h-8 rounded-lg px-1.5 whitespace-nowrap overflow-hidden text-ellipsis"
+                  className="text-xs h-8 rounded-lg px-2 whitespace-nowrap flex-1"
                 >
                   Перевозчик
                 </Button>
