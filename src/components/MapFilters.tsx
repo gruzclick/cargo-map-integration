@@ -64,7 +64,7 @@ const MapFilters = ({ onFilterChange, className }: MapFiltersProps) => {
                   variant={filters.userType === 'all' ? 'default' : 'outline'}
                   size="sm"
                   onClick={() => updateFilter('userType', 'all')}
-                  className="text-xs h-7 rounded-lg px-3"
+                  className="text-xs h-8 rounded-lg px-3"
                 >
                   Показать все
                 </Button>

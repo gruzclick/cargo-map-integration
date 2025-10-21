@@ -161,7 +161,7 @@ const YandexMapContainer = ({ filteredMarkers, isPublic, onMarkerClick, onMapLoa
     <div 
       ref={mapRef} 
       className="w-full rounded-xl overflow-hidden border border-gray-200/30 dark:border-gray-700/40 shadow-lg"
-      style={{ height: '400px' }}
+      style={{ height: '800px' }}
     />
   );
 };

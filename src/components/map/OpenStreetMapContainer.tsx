@@ -203,7 +203,7 @@ export default function OpenStreetMapContainer({
   }, [routePath]);
 
   return (
-    <div className="relative w-full h-[400px] md:h-[500px] rounded-lg overflow-hidden">
+    <div className="relative w-full h-[800px] rounded-lg overflow-hidden">
       <div ref={mapRef} className="w-full h-full rounded-lg" />
       
       <div className="absolute bottom-4 right-4 bg-white/90 backdrop-blur-sm px-3 py-1.5 rounded-lg shadow-lg text-xs text-gray-600 z-[1000] pointer-events-none">

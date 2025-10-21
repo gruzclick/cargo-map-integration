@@ -54,9 +54,13 @@ const PublicMap = ({ onRegister }: PublicMapProps) => {
                 <Icon name="Share2" size={14} className="md:mr-1.5" />
                 <span className="text-xs hidden md:inline">Поделиться</span>
               </Button>
-              <ThemeToggle />
-              <LanguageSelector />
-              <Button onClick={onRegister} className="rounded-lg bg-gray-900 dark:bg-gray-100 text-white dark:text-gray-900 hover:bg-gray-800 dark:hover:bg-gray-200 text-[10px] md:text-xs px-2 md:px-3 py-1.5 md:py-2 h-8 md:h-auto">
+              <div className="h-8 md:h-10">
+                <ThemeToggle />
+              </div>
+              <div className="h-8 md:h-10">
+                <LanguageSelector />
+              </div>
+              <Button onClick={onRegister} className="rounded-lg bg-gray-900 dark:bg-gray-100 text-white dark:text-gray-900 hover:bg-gray-800 dark:hover:bg-gray-200 text-[10px] md:text-xs px-2 md:px-3 py-1.5 md:py-2 h-8 md:h-10">
                 <Icon name="LogIn" size={12} className="md:mr-1.5 md:w-[14px] md:h-[14px]" />
                 <span className="hidden sm:inline whitespace-nowrap">{t('login')} / {t('register')}</span>
                 <span className="sm:hidden">Вход</span>

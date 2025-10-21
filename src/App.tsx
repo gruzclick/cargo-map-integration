@@ -12,6 +12,8 @@ import AdminAds from "./pages/AdminAds";
 import AdPreviewPage from "./pages/AdPreviewPage";
 import QRPage from "./pages/QRPage";
 import NotFound from "./pages/NotFound";
+import PrivacyPolicy from "./pages/PrivacyPolicy";
+import TermsOfService from "./pages/TermsOfService";
 import './i18n/config';
 import { secureLocalStorage } from './utils/security';
 
@@ -49,6 +51,8 @@ const App = () => {
               <Route path="/admin/ads" element={<AdminAds />} />
               <Route path="/ad-preview" element={<AdPreviewPage />} />
               <Route path="/qr" element={<QRPage />} />
+              <Route path="/privacy" element={<PrivacyPolicy />} />
+              <Route path="/terms" element={<TermsOfService />} />
               {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
               <Route path="*" element={<NotFound />} />
             </Routes>

@@ -313,7 +313,28 @@ const TermsAgreement = ({ onAccept, onDecline }: TermsAgreementProps) => {
                 htmlFor="terms"
                 className="text-sm leading-relaxed cursor-pointer"
               >
-                Я ознакомился и согласен с условиями пользовательского соглашения. 
+                Я ознакомился и согласен с условиями {' '}
+                <button
+                  type="button"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    window.open('/terms', '_blank');
+                  }}
+                  className="text-accent hover:underline font-medium"
+                >
+                  пользовательского соглашения
+                </button>
+                {' '} и с {' '}
+                <button
+                  type="button"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    window.open('/privacy', '_blank');
+                  }}
+                  className="text-accent hover:underline font-medium"
+                >
+                  политикой конфиденциальности
+                </button>. 
                 Я понимаю, что платформа носит информационный характер, и я несу 
                 полную ответственность за свои действия как {' '}
                 <button
