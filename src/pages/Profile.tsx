@@ -2,10 +2,12 @@ import { useState, useEffect } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
 import DataExport from '@/components/DataExport';
 import RatingSystem from '@/components/RatingSystem';
 import PriceCalculator from '@/components/PriceCalculator';
 import EmailAuth from '@/components/EmailAuth';
+import NotificationSettings from '@/components/NotificationSettings';
 import Icon from '@/components/ui/icon';
 import { detectUserCountry, type CountryInfo } from '@/utils/countryDetection';
 
@@ -146,6 +148,8 @@ export default function Profile() {
           </TabsContent>
 
           <TabsContent value="settings" className="space-y-4">
+            <NotificationSettings />
+            
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">

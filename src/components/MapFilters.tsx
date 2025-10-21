@@ -66,7 +66,7 @@ const MapFilters = ({ onFilterChange, className }: MapFiltersProps) => {
                   onClick={() => updateFilter('userType', 'all')}
                   className="text-xs h-7 rounded-lg px-3"
                 >
-                  Все
+                  Показать все
                 </Button>
               </div>
               <div className="grid grid-cols-2 gap-1.5">

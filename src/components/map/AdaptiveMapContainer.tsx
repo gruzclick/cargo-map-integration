@@ -36,18 +36,15 @@ export default function AdaptiveMapContainer(props: AdaptiveMapContainerProps) {
         <YandexMapContainer {...props} />
       )}
 
-      {/* Кнопка переключения карт */}
-      <div className="absolute top-3 right-3 z-[1000]">
+      {/* Кнопка переключения карт - внизу слева рядом с геолокацией */}
+      <div className="fixed bottom-4 left-4 z-20">
         {!yandexFailed && (
           <button
             onClick={() => setUseOpenStreetMap(!useOpenStreetMap)}
-            className="bg-white/95 dark:bg-gray-800/95 hover:bg-white dark:hover:bg-gray-800 backdrop-blur-sm px-2.5 py-1.5 rounded-lg shadow-lg text-[11px] font-semibold transition-all hover:shadow-xl flex items-center gap-1.5 border border-gray-200/50 dark:border-gray-700/50"
+            className="w-12 h-12 bg-white/90 dark:bg-gray-800/90 hover:bg-white dark:hover:bg-gray-700 backdrop-blur-3xl border border-gray-300 dark:border-gray-600 shadow-2xl rounded-full flex items-center justify-center transition-all active:scale-95"
             title={useOpenStreetMap ? 'Переключить на Яндекс.Карты' : 'Переключить на OpenStreetMap'}
           >
-            <Icon name="Map" size={14} className="text-gray-600 dark:text-gray-400" />
-            <span className="text-gray-900 dark:text-gray-100">
-              {useOpenStreetMap ? 'Яндекс' : 'OSM'}
-            </span>
+            <Icon name="Map" size={20} className="text-gray-900 dark:text-white" />
           </button>
         )}
       </div>
