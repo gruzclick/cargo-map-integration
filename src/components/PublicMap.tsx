@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { Card } from './ui/card';
 import { Button } from './ui/button';
 import Icon from './ui/icon';
@@ -5,6 +6,13 @@ import LanguageSelector from './LanguageSelector';
 import ThemeToggle from './ThemeToggle';
 import { useTranslation } from 'react-i18next';
 import LiveMap from './LiveMap';
+import AppDownload from './AppDownload';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 
 interface PublicMapProps {
   onRegister: () => void;
@@ -12,9 +20,19 @@ interface PublicMapProps {
 
 const PublicMap = ({ onRegister }: PublicMapProps) => {
   const { t } = useTranslation();
+  const [showDownload, setShowDownload] = useState(false);
   
   return (
     <div className="min-h-screen bg-background animate-fade-in">
+      <Dialog open={showDownload} onOpenChange={setShowDownload}>
+        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>Скачать приложение ГрузКлик</DialogTitle>
+          </DialogHeader>
+          <AppDownload />
+        </DialogContent>
+      </Dialog>
+
       <header className="border-b border-gray-200/20 dark:border-gray-700/30 sticky top-0 bg-white/60 dark:bg-gray-900/60 backdrop-blur-2xl z-50 shadow-lg animate-slide-in-down">
         <div className="container mx-auto px-3 md:px-6 py-2.5">
           <div className="flex items-center justify-between gap-2">
@@ -28,6 +46,15 @@ const PublicMap = ({ onRegister }: PublicMapProps) => {
               </div>
             </div>
             <div className="flex items-center gap-1 md:gap-2 shrink-0">
+              <Button 
+                variant="ghost" 
+                size="sm" 
+                onClick={() => setShowDownload(true)}
+                className="rounded-lg text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 h-8 md:h-10 px-2 md:px-3"
+              >
+                <Icon name="Download" size={14} className="md:mr-1.5" />
+                <span className="text-xs hidden md:inline">Скачать</span>
+              </Button>
               <Button 
                 variant="ghost" 
                 size="sm" 

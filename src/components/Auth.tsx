@@ -72,8 +72,7 @@ const Auth = ({ onSuccess }: AuthProps) => {
         onSuccess(mockUser);
         
         toast({
-          title: 'Успешный вход',
-          description: `Добро пожаловать, ${mockUser.full_name}!`
+          title: 'Успешный вход'
         });
       } else {
         if (!termsAccepted) {
@@ -114,8 +113,7 @@ const Auth = ({ onSuccess }: AuthProps) => {
         onSuccess(mockUser);
         
         toast({
-          title: 'Регистрация успешна!',
-          description: `Добро пожаловать, ${mockUser.full_name}!`
+          title: 'Регистрация успешна!'
         });
       }
     } catch (error: any) {

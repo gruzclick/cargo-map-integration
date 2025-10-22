@@ -146,7 +146,7 @@ const Index = () => {
                   alert('✅ Ссылка скопирована в буфер обмена!\n\nОтправьте её в WhatsApp, Telegram или Email своим клиентам');
                 }
               }}
-              className="rounded-lg text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800"
+              className="h-9 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800"
             >
               <Icon name="Share2" size={14} className="mr-1.5" />
               <span className="text-xs hidden md:inline">Поделиться</span>
@@ -156,15 +156,20 @@ const Index = () => {
               variant="ghost" 
               size="sm" 
               onClick={() => window.location.href = '/profile'}
-              className="rounded-lg text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800"
+              className="h-9 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800"
             >
               <Icon name="User" size={14} className="mr-1.5" />
               <span className="text-xs hidden md:inline">Профиль</span>
             </Button>
-            <ChatNotifications currentUserId={user.user_id || user.phone} />
-
-            <ThemeToggle />
-            <LanguageSelector />
+            <div className="h-9 flex items-center">
+              <ChatNotifications currentUserId={user.user_id || user.phone} />
+            </div>
+            <div className="h-9 flex items-center">
+              <ThemeToggle />
+            </div>
+            <div className="h-9 flex items-center">
+              <LanguageSelector />
+            </div>
             <div className="hidden lg:flex items-center gap-2 px-2.5 py-1.5 bg-gray-100 dark:bg-gray-800 rounded-lg">
               <Icon 
                 name={user.user_type === 'client' ? 'Package' : 'Truck'} 
@@ -175,7 +180,7 @@ const Index = () => {
                 {user.user_type === 'client' ? 'Клиент' : 'Перевозчик'}
               </span>
             </div>
-            <Button variant="ghost" size="sm" onClick={handleLogout} className="rounded-lg text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800">
+            <Button variant="ghost" size="sm" onClick={handleLogout} className="h-9 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800">
               <Icon name="LogOut" size={14} className="mr-1.5" />
               <span className="text-xs hidden md:inline">Выйти</span>
             </Button>

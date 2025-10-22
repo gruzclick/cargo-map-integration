@@ -155,14 +155,24 @@ const DeliveryForm = ({ onSuccess }: DeliveryFormProps) => {
           </div>
           <div className="space-y-2">
             <Label htmlFor="cargo_photo">Фото груза *</Label>
-            <Input
-              id="cargo_photo"
-              type="file"
-              accept="image/*"
-              onChange={handlePhotoChange}
-              required
-              className="cursor-pointer file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-primary file:text-primary-foreground hover:file:bg-primary/90"
-            />
+            <div className="relative">
+              <Input
+                id="cargo_photo"
+                type="file"
+                accept="image/*"
+                onChange={handlePhotoChange}
+                required
+                className="opacity-0 absolute inset-0 w-full h-full cursor-pointer z-10"
+              />
+              <Button
+                type="button"
+                variant="outline"
+                className="w-full pointer-events-none"
+              >
+                <Icon name="Upload" size={18} className="mr-2" />
+                Выбрать файл
+              </Button>
+            </div>
             {photoPreview && (
               <img
                 src={photoPreview}
@@ -173,7 +183,7 @@ const DeliveryForm = ({ onSuccess }: DeliveryFormProps) => {
           </div>
           <div className="grid md:grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label htmlFor="pickup_address">Адрес забора груза *</Label>
+              <Label htmlFor="pickup_address">Адрес груза *</Label>
               <div className="flex gap-2">
                 <Textarea
                   id="pickup_address"
@@ -249,7 +259,7 @@ const DeliveryForm = ({ onSuccess }: DeliveryFormProps) => {
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="weight">Вес (кг) *</Label>
+                <Label htmlFor="weight">Вес (кг)</Label>
                 <Input
                   id="weight"
                   type="number"
@@ -257,7 +267,6 @@ const DeliveryForm = ({ onSuccess }: DeliveryFormProps) => {
                   placeholder="150.5"
                   value={formData.weight}
                   onChange={(e) => setFormData({ ...formData, weight: e.target.value })}
-                  required
                 />
               </div>
             </div>

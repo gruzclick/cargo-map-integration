@@ -36,19 +36,6 @@ export default function AdaptiveMapContainer(props: AdaptiveMapContainerProps) {
         <YandexMapContainer {...props} />
       )}
 
-      {/* Кнопка переключения карт - внизу слева рядом с геолокацией */}
-      <div className="fixed bottom-4 left-4 z-20">
-        {!yandexFailed && (
-          <button
-            onClick={() => setUseOpenStreetMap(!useOpenStreetMap)}
-            className="w-12 h-12 bg-white/90 dark:bg-gray-800/90 hover:bg-white dark:hover:bg-gray-700 backdrop-blur-3xl border border-gray-300 dark:border-gray-600 shadow-2xl rounded-full flex items-center justify-center transition-all active:scale-95"
-            title={useOpenStreetMap ? 'Переключить на Яндекс.Карты' : 'Переключить на OpenStreetMap'}
-          >
-            <Icon name="Map" size={20} className="text-gray-900 dark:text-white" />
-          </button>
-        )}
-      </div>
-
       {/* Подсказка про API ключ */}
       {yandexFailed && (
         <div className="mt-4 p-4 bg-blue-50 border border-blue-200 rounded-lg">
