@@ -191,47 +191,113 @@ export default function Profile() {
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
-                  <Icon name="Type" size={20} />
-                  Размер текста
+                  <Icon name="Eye" size={20} />
+                  Специальные возможности
                 </CardTitle>
               </CardHeader>
-              <CardContent className="space-y-4">
-                <p className="text-sm text-muted-foreground">
-                  Выберите комфортный размер текста для всего приложения
-                </p>
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-                  {[
-                    { value: 'small', label: 'Маленький', size: '14px' },
-                    { value: 'medium', label: 'Средний', size: '16px' },
-                    { value: 'large', label: 'Большой', size: '18px' },
-                    { value: 'xlarge', label: 'Очень большой', size: '20px' }
-                  ].map(({ value, label, size }) => {
-                    const currentSize = localStorage.getItem('textSize') || 'medium';
-                    return (
-                      <button
-                        key={value}
+              <CardContent className="space-y-6">
+                <div className="space-y-4">
+                  <div>
+                    <h3 className="font-semibold mb-2">Размер текста</h3>
+                    <p className="text-sm text-muted-foreground mb-3">
+                      Выберите комфортный размер текста для всего приложения
+                    </p>
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                      {[
+                        { value: 'small', label: 'Маленький', size: '14px' },
+                        { value: 'medium', label: 'Средний', size: '16px' },
+                        { value: 'large', label: 'Большой', size: '18px' },
+                        { value: 'xlarge', label: 'Очень большой', size: '20px' }
+                      ].map(({ value, label, size }) => {
+                        const currentSize = localStorage.getItem('textSize') || 'medium';
+                        return (
+                          <button
+                            key={value}
+                            onClick={() => {
+                              localStorage.setItem('textSize', value);
+                              window.dispatchEvent(new CustomEvent('textSizeChange', { detail: value }));
+                              toast({
+                                title: 'Размер текста изменён',
+                                description: `Установлен ${label.toLowerCase()} размер текста`
+                              });
+                            }}
+                            className={`p-4 border rounded-lg text-left transition-all ${
+                              currentSize === value
+                                ? 'border-primary bg-primary/5'
+                                : 'border-border hover:border-primary/50'
+                            }`}
+                          >
+                            <div className="font-semibold mb-1">{label}</div>
+                            <div className="text-muted-foreground" style={{ fontSize: size }}>
+                              Aa
+                            </div>
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </div>
+
+                  <div className="border-t pt-4">
+                    <h3 className="font-semibold mb-2">Режим высокой контрастности</h3>
+                    <p className="text-sm text-muted-foreground mb-3">
+                      Улучшает читаемость текста и элементов интерфейса
+                    </p>
+                    <div className="flex gap-3">
+                      <Button
+                        variant="outline"
                         onClick={() => {
-                          localStorage.setItem('textSize', value);
-                          window.dispatchEvent(new CustomEvent('textSizeChange', { detail: value }));
+                          const root = document.documentElement;
+                          const isHighContrast = root.classList.contains('high-contrast');
+                          
+                          if (isHighContrast) {
+                            root.classList.remove('high-contrast');
+                            localStorage.setItem('highContrast', 'false');
+                          } else {
+                            root.classList.add('high-contrast');
+                            localStorage.setItem('highContrast', 'true');
+                          }
+                          
+                          toast({
+                            title: isHighContrast ? 'Высокая контрастность выключена' : 'Высокая контрастность включена',
+                          });
                         }}
-                        className={`p-4 border rounded-lg text-left transition-all ${
-                          currentSize === value
-                            ? 'border-primary bg-primary/5'
-                            : 'border-border hover:border-primary/50'
-                        }`}
                       >
-                        <div className="font-semibold mb-1">{label}</div>
-                        <div className="text-muted-foreground" style={{ fontSize: size }}>
-                          Aa
-                        </div>
-                      </button>
-                    );
-                  })}
+                        <Icon name="Contrast" size={18} className="mr-2" />
+                        {document.documentElement.classList.contains('high-contrast') 
+                          ? 'Выключить' 
+                          : 'Включить'}
+                      </Button>
+                    </div>
+                  </div>
+
+                  <div className="border-t pt-4">
+                    <h3 className="font-semibold mb-2">Обучение</h3>
+                    <p className="text-sm text-muted-foreground mb-3">
+                      Пройдите обучение работе с платформой заново
+                    </p>
+                    <Button
+                      variant="outline"
+                      onClick={() => {
+                        localStorage.removeItem('onboarding_completed');
+                        toast({
+                          title: 'Обучение сброшено',
+                          description: 'Перезагрузите страницу, чтобы пройти обучение снова'
+                        });
+                        setTimeout(() => {
+                          window.location.reload();
+                        }, 1500);
+                      }}
+                    >
+                      <Icon name="GraduationCap" size={18} className="mr-2" />
+                      Пройти обучение заново
+                    </Button>
+                  </div>
                 </div>
+
                 <div className="bg-blue-500/10 border border-blue-500/20 rounded-md p-4 flex items-start gap-3">
                   <Icon name="Info" size={20} className="text-blue-500 mt-0.5" />
                   <p className="text-sm">
-                    Изменения применятся сразу ко всему приложению
+                    Все изменения применяются мгновенно и сохраняются автоматически
                   </p>
                 </div>
               </CardContent>

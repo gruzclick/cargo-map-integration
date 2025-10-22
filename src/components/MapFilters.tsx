@@ -68,7 +68,7 @@ const MapFilters = ({ onFilterChange, className }: MapFiltersProps) => {
                   onClick={() => updateFilter('userType', 'all')}
                   className="text-xs h-8 rounded-lg px-2 whitespace-nowrap flex-1"
                 >
-                  Показать все
+                  Логист
                 </Button>
                 <Button
                   variant={filters.userType === 'client' ? 'default' : 'outline'}

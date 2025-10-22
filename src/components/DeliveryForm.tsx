@@ -17,12 +17,13 @@ const DeliveryForm = ({ onSuccess }: DeliveryFormProps) => {
   const [loading, setLoading] = useState(false);
   const { toast } = useToast();
 
+  const [documentType, setDocumentType] = useState<'delivery' | 'receipt' | 'invoice'>('delivery');
+  
   const [formData, setFormData] = useState({
     pickup_address: '',
     delivery_address: '',
-    warehouse_address: '',
-    cargo_quantity: '',
     cargo_unit: 'boxes',
+    cargo_quantity: '',
     weight: '',
     delivery_date: '',
     delivery_price: ''
@@ -74,11 +75,11 @@ const DeliveryForm = ({ onSuccess }: DeliveryFormProps) => {
       }
 
       const sanitizedData = {
+        document_type: documentType,
         pickup_address: sanitizeInput(formData.pickup_address, 500),
         delivery_address: sanitizeInput(formData.delivery_address, 500),
-        warehouse_address: sanitizeInput(formData.warehouse_address, 500),
-        cargo_quantity: parseInt(formData.cargo_quantity),
         cargo_unit: formData.cargo_unit,
+        cargo_quantity: parseInt(formData.cargo_quantity),
         weight: parseFloat(formData.weight),
         delivery_date: formData.delivery_date,
         delivery_price: parseFloat(formData.delivery_price),
@@ -104,9 +105,8 @@ const DeliveryForm = ({ onSuccess }: DeliveryFormProps) => {
         setFormData({
           pickup_address: '',
           delivery_address: '',
-          warehouse_address: '',
-          cargo_quantity: '',
           cargo_unit: 'boxes',
+          cargo_quantity: '',
           weight: '',
           delivery_date: '',
           delivery_price: ''
@@ -141,6 +141,19 @@ const DeliveryForm = ({ onSuccess }: DeliveryFormProps) => {
       <CardContent>
         <form onSubmit={handleSubmit} className="space-y-5">
           <div className="space-y-2">
+            <Label htmlFor="document_type">Тип документа *</Label>
+            <Select value={documentType} onValueChange={(value: any) => setDocumentType(value)}>
+              <SelectTrigger>
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="delivery">Поставка</SelectItem>
+                <SelectItem value="receipt">Приемка</SelectItem>
+                <SelectItem value="invoice">Счет-фактура</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+          <div className="space-y-2">
             <Label htmlFor="cargo_photo">Фото груза *</Label>
             <Input
               id="cargo_photo"
@@ -148,7 +161,7 @@ const DeliveryForm = ({ onSuccess }: DeliveryFormProps) => {
               accept="image/*"
               onChange={handlePhotoChange}
               required
-              className="cursor-pointer"
+              className="cursor-pointer file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-primary file:text-primary-foreground hover:file:bg-primary/90"
             />
             {photoPreview && (
               <img
@@ -205,31 +218,23 @@ const DeliveryForm = ({ onSuccess }: DeliveryFormProps) => {
               </div>
             </div>
 
-            <div className="space-y-2">
-              <Label htmlFor="warehouse_address">Адрес склада поставки *</Label>
-              <div className="flex gap-2">
-                <Textarea
-                  id="warehouse_address"
-                  placeholder="Москва, ул. Складская, д. 5"
-                  value={formData.warehouse_address}
-                  onChange={(e) => setFormData({ ...formData, warehouse_address: e.target.value })}
-                  required
-                  className="min-h-[80px]"
-                />
-                <Button
-                  type="button"
-                  variant="outline"
-                  size="icon"
-                  onClick={() => copyToClipboard(formData.warehouse_address, 'Адрес склада')}
-                  disabled={!formData.warehouse_address}
-                >
-                  <Icon name="Copy" size={18} />
-                </Button>
-              </div>
-            </div>
-
             <div className="space-y-4">
               <div className="grid grid-cols-2 gap-3">
+                <div className="space-y-2">
+                  <Label htmlFor="cargo_unit">Единицы *</Label>
+                  <Select value={formData.cargo_unit} onValueChange={(val) => setFormData({ ...formData, cargo_unit: val })}>
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="boxes">Коробки</SelectItem>
+                      <SelectItem value="pallets">Паллеты</SelectItem>
+                      <SelectItem value="pieces">Штуки</SelectItem>
+                      <SelectItem value="tons">Тонны</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                
                 <div className="space-y-2">
                   <Label htmlFor="cargo_quantity">Количество *</Label>
                   <Input
@@ -240,18 +245,6 @@ const DeliveryForm = ({ onSuccess }: DeliveryFormProps) => {
                     onChange={(e) => setFormData({ ...formData, cargo_quantity: e.target.value })}
                     required
                   />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="cargo_unit">Единица</Label>
-                  <Select value={formData.cargo_unit} onValueChange={(val) => setFormData({ ...formData, cargo_unit: val })}>
-                    <SelectTrigger>
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="boxes">Коробки</SelectItem>
-                      <SelectItem value="pallets">Паллеты</SelectItem>
-                    </SelectContent>
-                  </Select>
                 </div>
               </div>
 
@@ -270,32 +263,111 @@ const DeliveryForm = ({ onSuccess }: DeliveryFormProps) => {
             </div>
           </div>
 
-          <div className="grid md:grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <Label htmlFor="delivery_date">Дата поставки *</Label>
-              <Input
-                id="delivery_date"
-                type="date"
-                value={formData.delivery_date}
-                onChange={(e) => setFormData({ ...formData, delivery_date: e.target.value })}
-                required
-              />
-            </div>
+          {documentType === 'delivery' && (
+            <div className="grid md:grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="delivery_date">Дата поставки *</Label>
+                <Input
+                  id="delivery_date"
+                  type="date"
+                  value={formData.delivery_date}
+                  onChange={(e) => setFormData({ ...formData, delivery_date: e.target.value })}
+                  required
+                />
+              </div>
 
-            <div className="space-y-2">
-              <Label htmlFor="delivery_price">Цена за доставку (₽) *</Label>
-              <Input
-                id="delivery_price"
-                type="number"
-                step="0.01"
-                placeholder="5000"
-                value={formData.delivery_price}
-                onChange={(e) => setFormData({ ...formData, delivery_price: e.target.value })}
-                required
-              />
+              <div className="space-y-2">
+                <Label htmlFor="delivery_price">Цена за доставку (₽) *</Label>
+                <Input
+                  id="delivery_price"
+                  type="number"
+                  step="0.01"
+                  placeholder="5000"
+                  value={formData.delivery_price}
+                  onChange={(e) => setFormData({ ...formData, delivery_price: e.target.value })}
+                  required
+                />
+              </div>
             </div>
+          )}
 
-          </div>
+          {documentType === 'receipt' && (
+            <div className="space-y-4">
+              <div className="space-y-2">
+                <Label htmlFor="receipt_number">Номер приемки *</Label>
+                <Input
+                  id="receipt_number"
+                  type="text"
+                  placeholder="ПР-00001"
+                  required
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="receipt_date">Дата приемки *</Label>
+                <Input
+                  id="receipt_date"
+                  type="date"
+                  required
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="quality_status">Статус качества *</Label>
+                <Select defaultValue="good">
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="good">Товар в отличном состоянии</SelectItem>
+                    <SelectItem value="acceptable">Незначительные повреждения</SelectItem>
+                    <SelectItem value="damaged">Существенные повреждения</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+          )}
+
+          {documentType === 'invoice' && (
+            <div className="space-y-4">
+              <div className="space-y-2">
+                <Label htmlFor="invoice_number">Номер счет-фактуры *</Label>
+                <Input
+                  id="invoice_number"
+                  type="text"
+                  placeholder="СФ-00001"
+                  required
+                />
+              </div>
+              <div className="grid md:grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="invoice_date">Дата выставления *</Label>
+                  <Input
+                    id="invoice_date"
+                    type="date"
+                    required
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="payment_terms">Срок оплаты (дней) *</Label>
+                  <Input
+                    id="payment_terms"
+                    type="number"
+                    placeholder="30"
+                    required
+                  />
+                </div>
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="total_amount">Общая сумма (₽) *</Label>
+                <Input
+                  id="total_amount"
+                  type="number"
+                  step="0.01"
+                  placeholder="50000"
+                  required
+                />
+              </div>
+            </div>
+          )}
           
           <div className="bg-blue-500/10 border border-blue-500/30 rounded-lg p-3 flex gap-2">
             <Icon name="MessageSquare" size={18} className="text-blue-400 flex-shrink-0 mt-0.5" />

@@ -6,12 +6,9 @@ import Auth from '@/components/Auth';
 import PublicMap from '@/components/PublicMap';
 import LanguageSelector from '@/components/LanguageSelector';
 import ThemeToggle from '@/components/ThemeToggle';
-import AccessibilityToggle from '@/components/AccessibilityToggle';
 import OnboardingTour from '@/components/OnboardingTour';
 import AIAssistant from '@/components/AIAssistant';
-import QuickActions from '@/components/QuickActions';
 import PriceCalculator from '@/components/PriceCalculator';
-import FavoritesList from '@/components/FavoritesList';
 import ChatNotifications from '@/components/ChatNotifications';
 import { useTranslation } from 'react-i18next';
 import DeliveryForm from '@/components/DeliveryForm';
@@ -118,6 +115,10 @@ const Index = () => {
             <div className="w-9 h-9 bg-gray-900 dark:bg-gray-100 rounded-xl flex items-center justify-center">
               <Icon name="Truck" size={18} className="text-white dark:text-gray-900" />
             </div>
+            <div className="flex flex-col">
+              <span className="text-base font-bold text-gray-900 dark:text-gray-100">ГрузКлик</span>
+              <span className="text-[10px] text-gray-500 dark:text-gray-400 leading-none">Информационная платформа</span>
+            </div>
           </div>
           
           <div className="flex-1 max-w-md hidden md:block">
@@ -150,15 +151,7 @@ const Index = () => {
               <Icon name="Share2" size={14} className="mr-1.5" />
               <span className="text-xs hidden md:inline">Поделиться</span>
             </Button>
-            <Button 
-              variant="ghost" 
-              size="sm" 
-              onClick={() => window.location.href = '/routes'}
-              className="rounded-lg text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800"
-            >
-              <Icon name="Route" size={14} className="mr-1.5" />
-              <span className="text-xs hidden md:inline">Маршруты</span>
-            </Button>
+
             <Button 
               variant="ghost" 
               size="sm" 
@@ -169,7 +162,7 @@ const Index = () => {
               <span className="text-xs hidden md:inline">Профиль</span>
             </Button>
             <ChatNotifications currentUserId={user.user_id || user.phone} />
-            <AccessibilityToggle />
+
             <ThemeToggle />
             <LanguageSelector />
             <div className="hidden lg:flex items-center gap-2 px-2.5 py-1.5 bg-gray-100 dark:bg-gray-800 rounded-lg">
@@ -238,26 +231,11 @@ const Index = () => {
           <TabsContent value="map" className="space-y-3 md:space-y-4 animate-slide-in-up">
             <div className="text-center mb-2 md:mb-3">
               <h2 className="text-xl md:text-3xl lg:text-4xl font-semibold mb-1 md:mb-2 text-foreground tracking-tight">
-                Информационная платформа Груз Клик
+                ГрузКлик
               </h2>
               <p className="text-xs md:text-base text-muted-foreground">
-                Все доступные грузы и свободные водители в реальном времени
+                Информационная платформа
               </p>
-            </div>
-
-            <div className="grid md:grid-cols-3 gap-3 mb-3 max-w-6xl mx-auto">
-              <QuickActions 
-                userRole={user.user_type === 'client' ? 'client' : 'carrier'}
-                onAction={(action) => {
-                  if (action === 'calculator') {
-                    const calcTab = document.querySelector('[value="calculator"]') as HTMLElement;
-                    calcTab?.click();
-                  }
-                }}
-              />
-              <div className="md:col-span-2">
-                <FavoritesList userRole={user.user_type === 'client' ? 'client' : 'carrier'} />
-              </div>
             </div>
             
             {user.user_type === 'client' && (

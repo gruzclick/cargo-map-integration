@@ -9,6 +9,7 @@ import Index from "./pages/Index";
 import Profile from "./pages/Profile";
 import RoutesPage from "./pages/Routes";
 import AdminAds from "./pages/AdminAds";
+import AdminUsers from "./pages/AdminUsers";
 import AdPreviewPage from "./pages/AdPreviewPage";
 import QRPage from "./pages/QRPage";
 import NotFound from "./pages/NotFound";
@@ -49,6 +50,7 @@ const App = () => {
               <Route path="/profile" element={<Profile />} />
               <Route path="/routes" element={<RoutesPage />} />
               <Route path="/admin/ads" element={<AdminAds />} />
+              <Route path="/admin/users" element={<AdminUsers />} />
               <Route path="/ad-preview" element={<AdPreviewPage />} />
               <Route path="/qr" element={<QRPage />} />
               <Route path="/privacy" element={<PrivacyPolicy />} />

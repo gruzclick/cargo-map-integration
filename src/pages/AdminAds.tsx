@@ -123,6 +123,10 @@ export default function AdminAds() {
               <Icon name="Plus" size={18} className="mr-2" />
               Добавить баннер
             </Button>
+            <Button variant="outline" onClick={() => window.location.href = '/admin/users'}>
+              <Icon name="Users" size={18} className="mr-2" />
+              Пользователи
+            </Button>
             <Button 
               variant="destructive" 
               onClick={() => {

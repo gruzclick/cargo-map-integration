@@ -243,7 +243,7 @@ export default function DocumentGenerator() {
             <Textarea value={formData.additional_info} onChange={(e) => updateField('additional_info', e.target.value)} placeholder="Особые условия, требования к упаковке..." rows={3} />
           </div>
 
-          <div className="flex gap-3 pt-4">
+          <div className="flex flex-col md:flex-row gap-3 pt-4">
             <Button onClick={handleSend} className="flex-1 gap-2">
               <Icon name="Send" size={18} />
               Отправить документ
