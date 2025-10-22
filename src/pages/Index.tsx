@@ -31,6 +31,7 @@ import RotatingAdBanner from '@/components/RotatingAdBanner';
 import AppDownload from '@/components/AppDownload';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { detectUserCountry, getCurrencyByCountry, getLanguageByCountry } from '@/utils/geoip';
+import { secureLocalStorage } from '@/utils/security';
 
 const Index = () => {
   const { t, i18n } = useTranslation();

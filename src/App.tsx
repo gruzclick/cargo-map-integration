@@ -8,6 +8,7 @@ import { useEffect, useState } from "react";
 import Index from "./pages/Index";
 import Profile from "./pages/Profile";
 import RoutesPage from "./pages/Routes";
+import Admin from "./pages/Admin";
 import AdminAds from "./pages/AdminAds";
 import AdminUsers from "./pages/AdminUsers";
 import AdPreviewPage from "./pages/AdPreviewPage";
@@ -49,6 +50,7 @@ const App = () => {
               <Route path="/" element={<Index />} />
               <Route path="/profile" element={<Profile />} />
               <Route path="/routes" element={<RoutesPage />} />
+              <Route path="/admin" element={<Admin />} />
               <Route path="/admin/ads" element={<AdminAds />} />
               <Route path="/admin/users" element={<AdminUsers />} />
               <Route path="/ad-preview" element={<AdPreviewPage />} />
