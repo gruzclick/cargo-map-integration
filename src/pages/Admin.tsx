@@ -7,6 +7,7 @@ import Icon from '@/components/ui/icon';
 import { useToast } from '@/hooks/use-toast';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { secureLocalStorage } from '@/utils/security';
+import AdminSecurity from './AdminSecurity';
 
 const Admin = () => {
   const { toast } = useToast();
@@ -278,9 +279,10 @@ const Admin = () => {
         </div>
 
         <Tabs defaultValue="users" className="w-full">
-          <TabsList className="grid w-full grid-cols-2 md:grid-cols-5">
+          <TabsList className="grid w-full grid-cols-2 md:grid-cols-6">
             <TabsTrigger value="users">Пользователи</TabsTrigger>
             <TabsTrigger value="orders">Заказы</TabsTrigger>
+            <TabsTrigger value="security">Безопасность</TabsTrigger>
             <TabsTrigger value="ads">Реклама</TabsTrigger>
             <TabsTrigger value="settings">Настройки</TabsTrigger>
             <TabsTrigger value="logs">Логи</TabsTrigger>
@@ -312,6 +314,10 @@ const Admin = () => {
                 </p>
               </CardContent>
             </Card>
+          </TabsContent>
+
+          <TabsContent value="security" className="mt-6">
+            <AdminSecurity />
           </TabsContent>
 
           <TabsContent value="ads" className="mt-6">

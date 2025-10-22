@@ -162,9 +162,6 @@ export default function AppDownload() {
                   <Icon name="Download" size={24} />
                   Скачать приложение
                 </Button>
-                <p className="text-sm text-muted-foreground text-center">
-                  Нажмите кнопку выше, чтобы установить приложение на ваше устройство
-                </p>
               </>
             )}
               <div className="bg-blue-500/10 border border-blue-500/20 rounded-lg p-4">

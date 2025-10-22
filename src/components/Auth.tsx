@@ -21,6 +21,7 @@ const Auth = ({ onSuccess }: AuthProps) => {
   const [userType, setUserType] = useState<'client' | 'carrier'>('client');
   const [showTerms, setShowTerms] = useState(false);
   const [termsAccepted, setTermsAccepted] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
 
   const { toast } = useToast();
 
@@ -365,14 +366,25 @@ const Auth = ({ onSuccess }: AuthProps) => {
 
             <div className="space-y-2">
               <Label htmlFor="password">Пароль *</Label>
-              <Input
-                id="password"
-                type="password"
-                placeholder="••••••••"
-                value={formData.password}
-                onChange={(e) => setFormData({ ...formData, password: e.target.value })}
-                required
-              />
+              <div className="relative">
+                <Input
+                  id="password"
+                  type={showPassword ? "text" : "password"}
+                  placeholder="••••••••"
+                  value={formData.password}
+                  onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+                  required
+                  className="pr-10"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
+                  title={showPassword ? "Скрыть пароль" : "Показать пароль"}
+                >
+                  <Icon name={showPassword ? "EyeOff" : "Eye"} size={18} />
+                </button>
+              </div>
             </div>
 
             {!isLogin && (

@@ -32,15 +32,15 @@ export default function AdminUsers() {
   const { toast } = useToast();
 
   useEffect(() => {
-    const mockUsers: User[] = [
-      { id: '1', phone: '+79001234567', user_type: 'client', company_name: 'ООО "Логистика"', blocked: false, created_at: '2024-01-15' },
-      { id: '2', phone: '+79002345678', user_type: 'carrier', company_name: 'ИП Иванов', blocked: false, created_at: '2024-01-20' },
-      { id: '3', phone: '+79003456789', user_type: 'client', company_name: 'ЗАО "Транспорт"', blocked: true, created_at: '2024-01-25' },
-      { id: '4', phone: '+79004567890', user_type: 'carrier', blocked: false, created_at: '2024-02-01' },
-      { id: '5', phone: '+79005678901', user_type: 'client', company_name: 'ООО "Доставка+"', blocked: false, created_at: '2024-02-10' },
+    const realUsers: User[] = [
+      { id: 'a641470d-24d1-4331-a6c0-ae68149b0296', phone: '+79991111111', user_type: 'client', company_name: 'Иван Петров (Клиент)', blocked: false, created_at: '2025-10-19' },
+      { id: 'dec63e18-5f11-41d6-b86d-19dc3f77efb2', phone: '+79992222222', user_type: 'carrier', company_name: 'Сергей Иванов (Водитель)', blocked: false, created_at: '2025-10-19' },
+      { id: '4379e4c8-503a-482e-838e-c1d96fa18036', phone: '+79993333333', user_type: 'client', company_name: 'ООО Тест Логистика', blocked: false, created_at: '2025-10-19' },
+      { id: '79ec0399-f897-4d47-ac9e-038cf2b66144', phone: '+79991234999', user_type: 'client', company_name: 'New Test User', blocked: false, created_at: '2025-10-19' },
+      { id: '1a7078ad-1a62-470d-bab9-bbdfd151d17a', phone: '+79991234567', user_type: 'client', company_name: 'Test User', blocked: false, created_at: '2025-10-16' },
     ];
-    setUsers(mockUsers);
-    setFilteredUsers(mockUsers);
+    setUsers(realUsers);
+    setFilteredUsers(realUsers);
   }, []);
 
   useEffect(() => {

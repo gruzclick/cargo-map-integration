@@ -12,6 +12,8 @@ import NotificationSettings from '@/components/NotificationSettings';
 import OneSIntegration from '@/components/OneSIntegration';
 import DigitalSignature from '@/components/DigitalSignature';
 import ProfileVerification from '@/components/ProfileVerification';
+import AuctionBids from '@/components/AuctionBids';
+import DealsHistory from '@/components/DealsHistory';
 import Icon from '@/components/ui/icon';
 import { detectUserCountry, type CountryInfo } from '@/utils/countryDetection';
 import { useToast } from '@/hooks/use-toast';
@@ -43,10 +45,18 @@ export default function Profile() {
         </div>
 
         <Tabs defaultValue="overview" className="w-full">
-          <TabsList className="grid w-full grid-cols-2 md:grid-cols-7 gap-2 mb-8">
+          <TabsList className="grid w-full grid-cols-2 md:grid-cols-9 gap-2 mb-8">
             <TabsTrigger value="overview" className="w-full justify-start md:justify-center">
               <Icon name="User" size={16} className="mr-2" />
               Обзор
+            </TabsTrigger>
+            <TabsTrigger value="auction" className="w-full justify-start md:justify-center">
+              <Icon name="Gavel" size={16} className="mr-2" />
+              Аукцион
+            </TabsTrigger>
+            <TabsTrigger value="deals" className="w-full justify-start md:justify-center">
+              <Icon name="History" size={16} className="mr-2" />
+              Сделки
             </TabsTrigger>
             <TabsTrigger value="settings" className="w-full justify-start md:justify-center">
               <Icon name="Settings" size={16} className="mr-2" />
@@ -153,6 +163,14 @@ export default function Profile() {
                 </div>
               </CardContent>
             </Card>
+          </TabsContent>
+
+          <TabsContent value="auction" className="space-y-4">
+            <AuctionBids />
+          </TabsContent>
+
+          <TabsContent value="deals" className="space-y-4">
+            <DealsHistory />
           </TabsContent>
 
           <TabsContent value="settings" className="space-y-4">

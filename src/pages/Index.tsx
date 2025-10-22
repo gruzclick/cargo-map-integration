@@ -25,7 +25,6 @@ import RestStatusManager from '@/components/RestStatusManager';
 import RouteOptimizer from '@/components/RouteOptimizer';
 import DeliveryPhotoUpload from '@/components/DeliveryPhotoUpload';
 import RatingSystem from '@/components/RatingSystem';
-import TermsUpdateNotification from '@/components/TermsUpdateNotification';
 import PWAInstallPrompt from '@/components/PWAInstallPrompt';
 import RotatingAdBanner from '@/components/RotatingAdBanner';
 import AppDownload from '@/components/AppDownload';
@@ -115,7 +114,6 @@ const Index = () => {
 
   return (
     <div className="min-h-screen bg-background animate-fade-in">
-      {user && <TermsUpdateNotification userId={user.user_id || user.phone} />}
       <PWAInstallPrompt />
       <header className="border-b border-gray-200/20 dark:border-gray-700/30 sticky top-0 bg-white/60 dark:bg-gray-900/60 backdrop-blur-2xl z-50 shadow-lg animate-slide-in-down">
         <div className="container mx-auto px-1 md:px-2 py-2.5 flex items-center justify-between gap-4">
@@ -186,7 +184,7 @@ const Index = () => {
 
       <div className="container mx-auto px-0.5 md:px-1 py-1 md:py-2">
         <Tabs defaultValue="map" className="w-full">
-          <TabsList className="grid w-full max-w-4xl mx-auto grid-cols-3 md:grid-cols-6 mb-2 bg-white/60 dark:bg-gray-900/60 backdrop-blur-2xl border border-gray-200/20 dark:border-gray-700/30 p-1.5 rounded-2xl shadow-lg overflow-x-auto">
+          <TabsList className="grid w-full max-w-4xl mx-auto grid-cols-3 md:grid-cols-7 mb-2 bg-white/60 dark:bg-gray-900/60 backdrop-blur-2xl border border-gray-200/20 dark:border-gray-700/30 p-1.5 rounded-2xl shadow-lg overflow-x-auto">
             <TabsTrigger value="map" className="rounded-xl data-[state=active]:bg-white/80 dark:data-[state=active]:bg-gray-800/80 data-[state=active]:backdrop-blur-xl data-[state=active]:shadow-md text-xs md:text-sm">
               <Icon name="Map" size={16} className="md:mr-2" />
               <span className="hidden md:inline">Карта</span>
@@ -226,6 +224,10 @@ const Index = () => {
             <TabsTrigger value="profile" className="rounded-xl data-[state=active]:bg-white/80 dark:data-[state=active]:bg-gray-800/80 data-[state=active]:backdrop-blur-xl data-[state=active]:shadow-md text-xs md:text-sm">
               <Icon name="User" size={16} className="md:mr-2" />
               <span className="hidden md:inline">Профиль</span>
+            </TabsTrigger>
+            <TabsTrigger value="download" className="rounded-xl data-[state=active]:bg-white/80 dark:data-[state=active]:bg-gray-800/80 data-[state=active]:backdrop-blur-xl data-[state=active]:shadow-md text-xs md:text-sm">
+              <Icon name="Download" size={16} className="md:mr-2" />
+              <span className="hidden md:inline">Скачать</span>
             </TabsTrigger>
           </TabsList>
 
@@ -350,12 +352,13 @@ const Index = () => {
               )}
             </div>
           </TabsContent>
+
+          <TabsContent value="download" className="animate-slide-in-up">
+            <div className="max-w-4xl mx-auto">
+              <AppDownload />
+            </div>
+          </TabsContent>
         </Tabs>
-        
-        {/* Секция скачивания приложения внизу сайта */}
-        <div className="mt-8 pb-8">
-          <AppDownload />
-        </div>
       </div>
     </div>
   );

@@ -176,11 +176,11 @@ const LiveMap = ({ isPublic = false, onMarkerClick }: LiveMapProps = {}) => {
         />
       </div>
 
-      {/* Кнопка разворачивания боковой панели - в верхнем левом углу */}
+      {/* Кнопка разворачивания боковой панели - в левой части карты */}
       {!showSidebar && (
         <button
           onClick={() => setShowSidebar(true)}
-          className="fixed top-4 left-4 z-20 w-12 h-12 bg-white/90 dark:bg-gray-800/90 backdrop-blur-3xl border border-gray-300 dark:border-gray-600 shadow-2xl rounded-full flex items-center justify-center hover:bg-white dark:hover:bg-gray-700 active:scale-95 transition-all"
+          className="fixed bottom-24 left-4 z-20 w-12 h-12 bg-white/90 dark:bg-gray-800/90 backdrop-blur-3xl border border-gray-300 dark:border-gray-600 shadow-2xl rounded-full flex items-center justify-center hover:bg-white dark:hover:bg-gray-700 active:scale-95 transition-all"
           title="Открыть панель"
         >
           <Icon name="Menu" size={20} className="text-gray-900 dark:text-white" />
