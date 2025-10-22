@@ -70,7 +70,7 @@ const RouteSearchPanel = ({ routeSearch, onRouteChange, onLocationDetected }: Ro
     localStorage.setItem('savedRoutes', JSON.stringify(updated));
   };
 
-  const detectLocation = () => {
+  const detectLocation = async () => {
     if (!navigator.geolocation) {
       alert('Геолокация не поддерживается вашим браузером');
       return;
@@ -78,9 +78,22 @@ const RouteSearchPanel = ({ routeSearch, onRouteChange, onLocationDetected }: Ro
 
     setDetectingLocation(true);
     navigator.geolocation.getCurrentPosition(
-      (position) => {
+      async (position) => {
         const { latitude, longitude } = position.coords;
         onLocationDetected?.({ lat: latitude, lng: longitude });
+        
+        try {
+          const response = await fetch(
+            `https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}&accept-language=ru`
+          );
+          const data = await response.json();
+          const address = data.display_name || `${latitude.toFixed(4)}, ${longitude.toFixed(4)}`;
+          onRouteChange({ ...routeSearch, from: address });
+        } catch (error) {
+          console.error('Ошибка получения адреса:', error);
+          onRouteChange({ ...routeSearch, from: `${latitude.toFixed(4)}, ${longitude.toFixed(4)}` });
+        }
+        
         setDetectingLocation(false);
       },
       (error) => {

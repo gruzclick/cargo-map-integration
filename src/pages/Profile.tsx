@@ -9,6 +9,9 @@ import RatingSystem from '@/components/RatingSystem';
 import PriceCalculator from '@/components/PriceCalculator';
 import EmailAuth from '@/components/EmailAuth';
 import NotificationSettings from '@/components/NotificationSettings';
+import OneSIntegration from '@/components/OneSIntegration';
+import DigitalSignature from '@/components/DigitalSignature';
+import ProfileVerification from '@/components/ProfileVerification';
 import Icon from '@/components/ui/icon';
 import { detectUserCountry, type CountryInfo } from '@/utils/countryDetection';
 import { useToast } from '@/hooks/use-toast';
@@ -40,20 +43,32 @@ export default function Profile() {
         </div>
 
         <Tabs defaultValue="overview" className="w-full">
-          <TabsList className="grid w-full md:grid-cols-4 grid-cols-2 gap-2 mb-8 md:flex md:flex-row">
-            <TabsTrigger value="overview" className="w-full md:w-auto justify-start md:justify-center">
+          <TabsList className="grid w-full grid-cols-2 md:grid-cols-7 gap-2 mb-8">
+            <TabsTrigger value="overview" className="w-full justify-start md:justify-center">
               <Icon name="User" size={16} className="mr-2" />
               Обзор
             </TabsTrigger>
-            <TabsTrigger value="settings" className="w-full md:w-auto justify-start md:justify-center">
+            <TabsTrigger value="settings" className="w-full justify-start md:justify-center">
               <Icon name="Settings" size={16} className="mr-2" />
               Настройки
             </TabsTrigger>
-            <TabsTrigger value="ratings" className="w-full md:w-auto justify-start md:justify-center">
+            <TabsTrigger value="ratings" className="w-full justify-start md:justify-center">
               <Icon name="Star" size={16} className="mr-2" />
               Рейтинг
             </TabsTrigger>
-            <TabsTrigger value="export" className="w-full md:w-auto justify-start md:justify-center">
+            <TabsTrigger value="verification" className="w-full justify-start md:justify-center">
+              <Icon name="ShieldCheck" size={16} className="mr-2" />
+              Верификация
+            </TabsTrigger>
+            <TabsTrigger value="documents" className="w-full justify-start md:justify-center">
+              <Icon name="FileSignature" size={16} className="mr-2" />
+              Документы
+            </TabsTrigger>
+            <TabsTrigger value="integration" className="w-full justify-start md:justify-center">
+              <Icon name="Box" size={16} className="mr-2" />
+              1С
+            </TabsTrigger>
+            <TabsTrigger value="export" className="w-full justify-start md:justify-center">
               <Icon name="Download" size={16} className="mr-2" />
               Экспорт
             </TabsTrigger>
@@ -370,6 +385,32 @@ export default function Profile() {
               carrierName={mockUserName}
               canReview={false}
             />
+          </TabsContent>
+
+          <TabsContent value="verification">
+            <div className="max-w-2xl mx-auto">
+              <ProfileVerification
+                userId={mockUserId}
+                onVerificationComplete={(method) => {
+                  toast({
+                    title: 'Верификация завершена',
+                    description: `Профиль подтвержден через ${method}`
+                  });
+                }}
+              />
+            </div>
+          </TabsContent>
+
+          <TabsContent value="documents">
+            <div className="max-w-2xl mx-auto">
+              <DigitalSignature userType="carrier" />
+            </div>
+          </TabsContent>
+
+          <TabsContent value="integration">
+            <div className="max-w-2xl mx-auto">
+              <OneSIntegration />
+            </div>
           </TabsContent>
 
           <TabsContent value="export">

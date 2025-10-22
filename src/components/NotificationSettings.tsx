@@ -11,6 +11,7 @@ const NotificationSettings = () => {
   const { requestNotificationPermission } = usePWA();
   const { toast } = useToast();
   const [notificationStatus, setNotificationStatus] = useState<'default' | 'granted' | 'denied'>('default');
+  const [isExpanded, setIsExpanded] = useState(false);
   const [notifications, setNotifications] = useState({
     nearbyOrders: true,
     nearbyDrivers: true,
@@ -120,11 +121,18 @@ const NotificationSettings = () => {
         )}
 
         <div className="space-y-4 pt-4 border-t border-gray-200 dark:border-gray-700">
-          <h4 className="text-sm font-medium text-gray-900 dark:text-gray-100">
-            Настройте типы уведомлений:
-          </h4>
+          <button
+            onClick={() => setIsExpanded(!isExpanded)}
+            className="w-full flex items-center justify-between p-3 rounded-lg bg-gray-50 dark:bg-gray-800/50 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+          >
+            <h4 className="text-sm font-medium text-gray-900 dark:text-gray-100">
+              Настройте типы уведомлений
+            </h4>
+            <Icon name={isExpanded ? "ChevronUp" : "ChevronDown"} size={20} className="text-gray-600 dark:text-gray-400" />
+          </button>
           
-          <div className="space-y-3">
+          {isExpanded && (
+            <div className="space-y-3">
             <div className="flex items-center justify-between p-3 rounded-lg bg-gray-50 dark:bg-gray-800/50">
               <div className="flex-1">
                 <Label htmlFor="nearby-orders" className="text-sm font-medium cursor-pointer">
@@ -221,6 +229,7 @@ const NotificationSettings = () => {
               />
             </div>
           </div>
+          )}
         </div>
       </CardContent>
     </Card>

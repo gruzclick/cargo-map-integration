@@ -40,11 +40,17 @@ const Index = () => {
   const [trackingDeliveryId, setTrackingDeliveryId] = useState<string | null>(null);
 
   useEffect(() => {
-    const token = localStorage.getItem('auth_token');
-    const userData = localStorage.getItem('user_data');
+    const token = secureLocalStorage.get('auth_token');
+    const userData = secureLocalStorage.get('user_data');
     
     if (token && userData) {
-      setUser(JSON.parse(userData));
+      try {
+        setUser(JSON.parse(userData));
+      } catch (error) {
+        console.error('Failed to parse user data:', error);
+        secureLocalStorage.remove('auth_token');
+        secureLocalStorage.remove('user_data');
+      }
     }
 
     const initializeGeoSettings = async () => {
@@ -72,8 +78,8 @@ const Index = () => {
   }, [i18n]);
 
   const handleLogout = () => {
-    localStorage.removeItem('auth_token');
-    localStorage.removeItem('user_data');
+    secureLocalStorage.remove('auth_token');
+    secureLocalStorage.remove('user_data');
     setUser(null);
     setShowAuth(false);
   };
@@ -116,10 +122,7 @@ const Index = () => {
             <div className="w-9 h-9 bg-gray-900 dark:bg-gray-100 rounded-xl flex items-center justify-center">
               <Icon name="Truck" size={18} className="text-white dark:text-gray-900" />
             </div>
-            <div className="flex flex-col">
-              <span className="text-base font-bold text-gray-900 dark:text-gray-100">ГрузКлик</span>
-              <span className="text-[10px] text-gray-500 dark:text-gray-400 leading-none">Информационная платформа</span>
-            </div>
+            <span className="text-base font-bold text-gray-900 dark:text-gray-100">ГрузКлик</span>
           </div>
           
           <div className="flex-1 max-w-md hidden md:block">
@@ -153,15 +156,6 @@ const Index = () => {
               <span className="text-xs hidden md:inline">Поделиться</span>
             </Button>
 
-            <Button 
-              variant="ghost" 
-              size="sm" 
-              onClick={() => window.location.href = '/profile'}
-              className="h-9 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800"
-            >
-              <Icon name="User" size={14} className="mr-1.5" />
-              <span className="text-xs hidden md:inline">Профиль</span>
-            </Button>
             <div className="h-9 flex items-center">
               <ChatNotifications currentUserId={user.user_id || user.phone} />
             </div>

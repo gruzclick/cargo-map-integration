@@ -339,15 +339,6 @@ const LiveMap = ({ isPublic = false, onMarkerClick }: LiveMapProps = {}) => {
                   </div>
                 )}
                 
-                {/* Поиск маршрутов */}
-                <div className="bg-white/10 dark:bg-gray-800/10 backdrop-blur-3xl rounded-xl p-2 border border-white/30 dark:border-gray-700/30">
-                  <RouteSearchPanel 
-                    routeSearch={routeSearch} 
-                    onRouteChange={setRouteSearch}
-                    onLocationDetected={setUserLocation}
-                  />
-                </div>
-                
                 {/* Типы грузов и транспорта */}
                 <div className="bg-white/10 dark:bg-gray-800/10 backdrop-blur-3xl rounded-xl p-2 border border-white/30 dark:border-gray-700/30">
                   <h3 className="text-xs font-semibold text-gray-900 dark:text-white mb-1.5">Показать</h3>
@@ -355,6 +346,15 @@ const LiveMap = ({ isPublic = false, onMarkerClick }: LiveMapProps = {}) => {
                     filters={filters}
                     onCargoTypeClick={handleCargoTypeClick}
                     onVehicleTypeClick={handleVehicleTypeClick}
+                  />
+                </div>
+                
+                {/* Поиск маршрутов */}
+                <div className="bg-white/10 dark:bg-gray-800/10 backdrop-blur-3xl rounded-xl p-2 border border-white/30 dark:border-gray-700/30">
+                  <RouteSearchPanel 
+                    routeSearch={routeSearch} 
+                    onRouteChange={setRouteSearch}
+                    onLocationDetected={setUserLocation}
                   />
                 </div>
               </div>
