@@ -231,12 +231,8 @@ const Index = () => {
 
           <TabsContent value="map" className="space-y-3 md:space-y-4 animate-slide-in-up">
             <div className="text-center mb-2 md:mb-3">
-              <h2 className="text-xl md:text-3xl lg:text-4xl font-semibold mb-1 md:mb-2 text-foreground tracking-tight">
-                ГрузКлик
-              </h2>
-              <p className="text-xs md:text-base text-muted-foreground">
-                Информационная платформа
-              </p>
+              <h2 className="text-xl md:text-3xl lg:text-4xl font-semibold mb-1 md:mb-2 text-foreground tracking-tight"></h2>
+              <p className="text-xs md:text-base text-muted-foreground"></p>
             </div>
             
             {user.user_type === 'client' && (
