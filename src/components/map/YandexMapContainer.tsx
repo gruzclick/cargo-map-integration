@@ -7,9 +7,10 @@ interface YandexMapContainerProps {
   isPublic: boolean;
   onMarkerClick?: (marker: MapMarker) => void;
   onMapLoaded: (loaded: boolean) => void;
+  userLocation?: { lat: number; lng: number } | null;
 }
 
-const YandexMapContainer = ({ filteredMarkers, isPublic, onMarkerClick, onMapLoaded }: YandexMapContainerProps) => {
+const YandexMapContainer = ({ filteredMarkers, isPublic, onMarkerClick, onMapLoaded, userLocation }: YandexMapContainerProps) => {
   const mapRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -51,7 +52,7 @@ const YandexMapContainer = ({ filteredMarkers, isPublic, onMarkerClick, onMapLoa
 
   useEffect(() => {
     updateMarkers();
-  }, [filteredMarkers]);
+  }, [filteredMarkers, userLocation]);
 
   const initMap = () => {
     if (typeof window !== 'undefined' && (window as any).ymaps && mapRef.current) {
@@ -155,6 +156,31 @@ const YandexMapContainer = ({ filteredMarkers, isPublic, onMarkerClick, onMapLoa
         map.geoObjects.add(placemark);
       }
     });
+
+    // Добавление маркера текущей геопозиции пользователя
+    if (userLocation) {
+      const userIconContent = `<div style="width: 40px; height: 40px; background: #10B981; border: 3px solid white; border-radius: 50%; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 12px rgba(0,0,0,0.3);"><svg width="20" height="20" viewBox="0 0 24 24" fill="white"><circle cx="12" cy="12" r="4"/></svg></div>`;
+      
+      const userPlacemark = new (window as any).ymaps.Placemark(
+        [userLocation.lat, userLocation.lng],
+        {
+          hintContent: 'Ваше местоположение',
+          balloonContent: '<div style="padding: 8px;"><strong>Вы здесь</strong></div>'
+        },
+        {
+          iconLayout: 'default#imageWithContent',
+          iconImageHref: '',
+          iconImageSize: [40, 40],
+          iconImageOffset: [-20, -20],
+          iconContentLayout: (window as any).ymaps.templateLayoutFactory.createClass(userIconContent)
+        }
+      );
+
+      map.geoObjects.add(userPlacemark);
+      
+      // Центрировать карту на пользователя при первом определении геопозиции
+      map.setCenter([userLocation.lat, userLocation.lng], 14);
+    }
   };
 
   return (

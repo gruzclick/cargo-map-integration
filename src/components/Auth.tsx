@@ -71,9 +71,7 @@ const Auth = ({ onSuccess }: AuthProps) => {
         secureLocalStorage.set('user_data', JSON.stringify(mockUser));
         onSuccess(mockUser);
         
-        toast({
-          title: 'Успешный вход'
-        });
+        // Silent login - no toast notification
       } else {
         if (!termsAccepted) {
           toast({

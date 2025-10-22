@@ -28,6 +28,7 @@ import RatingSystem from '@/components/RatingSystem';
 import TermsUpdateNotification from '@/components/TermsUpdateNotification';
 import PWAInstallPrompt from '@/components/PWAInstallPrompt';
 import RotatingAdBanner from '@/components/RotatingAdBanner';
+import AppDownload from '@/components/AppDownload';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { detectUserCountry, getCurrencyByCountry, getLanguageByCountry } from '@/utils/geoip';
 
@@ -359,6 +360,11 @@ const Index = () => {
             </div>
           </TabsContent>
         </Tabs>
+        
+        {/* Секция скачивания приложения внизу сайта */}
+        <div className="mt-8 pb-8">
+          <AppDownload />
+        </div>
       </div>
     </div>
   );

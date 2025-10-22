@@ -49,6 +49,7 @@ interface OpenStreetMapContainerProps {
   onMarkerClick?: (marker: MapMarker) => void;
   onMapLoaded?: (loaded: boolean) => void;
   routePath?: [number, number][];
+  userLocation?: { lat: number; lng: number } | null;
 }
 
 export default function OpenStreetMapContainer({ 
@@ -56,7 +57,8 @@ export default function OpenStreetMapContainer({
   isPublic = false, 
   onMarkerClick,
   onMapLoaded,
-  routePath 
+  routePath,
+  userLocation 
 }: OpenStreetMapContainerProps) {
   const mapRef = useRef<HTMLDivElement>(null);
   const mapInstanceRef = useRef<L.Map | null>(null);
@@ -187,11 +189,43 @@ export default function OpenStreetMapContainer({
       bounds.push([marker.lat, marker.lng]);
     });
 
-    // Подгоняем карту под маркеры
-    if (bounds.length > 0 && !routePath) {
-      map.fitBounds(bounds, { padding: [50, 50], maxZoom: 13 });
+    // Добавляем маркер текущей геопозиции пользователя
+    if (userLocation) {
+      const userIcon = L.divIcon({
+        className: 'custom-marker',
+        html: `
+          <div style="
+            background: #10B981;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 3px solid white;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+          ">
+            <div style="width: 12px; height: 12px; background: white; border-radius: 50%;"></div>
+          </div>
+        `,
+        iconSize: [40, 40],
+        iconAnchor: [20, 20],
+        popupAnchor: [0, -20],
+      });
+
+      const userMarker = L.marker([userLocation.lat, userLocation.lng], { icon: userIcon })
+        .bindPopup('<div style="padding: 8px;"><strong>Вы здесь</strong></div>')
+        .addTo(markersLayer);
+
+      // Центрировать карту на пользователя при первом определении геопозиции
+      map.setView([userLocation.lat, userLocation.lng], 14);
+    } else {
+      // Подгоняем карту под маркеры
+      if (bounds.length > 0 && !routePath) {
+        map.fitBounds(bounds, { padding: [50, 50], maxZoom: 13 });
+      }
     }
-  }, [filteredMarkers, onMarkerClick, routePath]);
+  }, [filteredMarkers, onMarkerClick, routePath, userLocation]);
 
   // Отображение маршрута
   useEffect(() => {

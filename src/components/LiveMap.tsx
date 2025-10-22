@@ -172,17 +172,18 @@ const LiveMap = ({ isPublic = false, onMarkerClick }: LiveMapProps = {}) => {
           isPublic={isPublic}
           onMarkerClick={handleMapMarkerClick}
           onMapLoaded={setMapLoaded}
+          userLocation={userLocation}
         />
       </div>
 
-      {/* Кнопка разворачивания боковой панели - пульсирующая */}
+      {/* Кнопка разворачивания боковой панели - в верхнем левом углу */}
       {!showSidebar && (
         <button
           onClick={() => setShowSidebar(true)}
-          className="fixed top-3 left-3 z-10 w-12 h-12 bg-white/90 dark:bg-gray-800/90 backdrop-blur-3xl border-2 border-blue-500 dark:border-blue-400 shadow-2xl rounded-full flex items-center justify-center hover:bg-white dark:hover:bg-gray-700 active:scale-95 transition-all animate-pulse"
+          className="fixed top-4 left-4 z-20 w-12 h-12 bg-white/90 dark:bg-gray-800/90 backdrop-blur-3xl border border-gray-300 dark:border-gray-600 shadow-2xl rounded-full flex items-center justify-center hover:bg-white dark:hover:bg-gray-700 active:scale-95 transition-all"
           title="Открыть панель"
         >
-          <Icon name="ChevronRight" size={24} className="text-blue-600 dark:text-blue-400" />
+          <Icon name="Menu" size={20} className="text-gray-900 dark:text-white" />
         </button>
       )}
 
@@ -210,16 +211,7 @@ const LiveMap = ({ isPublic = false, onMarkerClick }: LiveMapProps = {}) => {
         <Icon name="Crosshair" size={20} className="text-gray-900 dark:text-white" />
       </button>
 
-      {/* Кнопка скачивания приложения - внизу справа рядом с AI */}
-      <a
-        href="https://play.google.com/store"
-        target="_blank"
-        rel="noopener noreferrer"
-        className="fixed bottom-4 right-44 z-20 flex items-center gap-2 px-4 py-3 bg-white/15 dark:bg-gray-900/15 backdrop-blur-3xl border border-white/40 dark:border-gray-700/40 shadow-2xl rounded-full hover:bg-white/25 dark:hover:bg-gray-900/25 active:scale-95 transition-all"
-      >
-        <Icon name="Smartphone" size={18} className="text-gray-900 dark:text-white" />
-        <span className="text-sm font-medium text-gray-900 dark:text-white">Скачать</span>
-      </a>
+
 
       {/* Боковая панель слева - компактная */}
       {showSidebar && (

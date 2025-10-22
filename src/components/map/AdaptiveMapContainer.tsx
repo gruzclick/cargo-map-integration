@@ -9,6 +9,7 @@ interface AdaptiveMapContainerProps {
   isPublic: boolean;
   onMarkerClick?: (marker: MapMarker) => void;
   onMapLoaded: (loaded: boolean) => void;
+  userLocation?: { lat: number; lng: number } | null;
 }
 
 export default function AdaptiveMapContainer(props: AdaptiveMapContainerProps) {
@@ -31,9 +32,9 @@ export default function AdaptiveMapContainer(props: AdaptiveMapContainerProps) {
   return (
     <div className="relative">
       {useOpenStreetMap ? (
-        <OpenStreetMapContainer {...props} />
+        <OpenStreetMapContainer {...props} userLocation={props.userLocation} />
       ) : (
-        <YandexMapContainer {...props} />
+        <YandexMapContainer {...props} userLocation={props.userLocation} />
       )}
 
       {/* Подсказка про API ключ */}

@@ -40,30 +40,22 @@ export default function Profile() {
         </div>
 
         <Tabs defaultValue="overview" className="w-full">
-          <TabsList className="grid w-full grid-cols-6 mb-8">
-            <TabsTrigger value="overview">
+          <TabsList className="grid w-full md:grid-cols-4 grid-cols-2 gap-2 mb-8 md:flex md:flex-row">
+            <TabsTrigger value="overview" className="w-full md:w-auto justify-start md:justify-center">
               <Icon name="User" size={16} className="mr-2" />
               Обзор
             </TabsTrigger>
-            <TabsTrigger value="settings">
+            <TabsTrigger value="settings" className="w-full md:w-auto justify-start md:justify-center">
               <Icon name="Settings" size={16} className="mr-2" />
               Настройки
             </TabsTrigger>
-            <TabsTrigger value="security">
-              <Icon name="Shield" size={16} className="mr-2" />
-              Безопасность
-            </TabsTrigger>
-            <TabsTrigger value="ratings">
+            <TabsTrigger value="ratings" className="w-full md:w-auto justify-start md:justify-center">
               <Icon name="Star" size={16} className="mr-2" />
               Рейтинг
             </TabsTrigger>
-            <TabsTrigger value="export">
+            <TabsTrigger value="export" className="w-full md:w-auto justify-start md:justify-center">
               <Icon name="Download" size={16} className="mr-2" />
               Экспорт
-            </TabsTrigger>
-            <TabsTrigger value="calculator">
-              <Icon name="Calculator" size={16} className="mr-2" />
-              Калькулятор
             </TabsTrigger>
           </TabsList>
 
@@ -372,37 +364,6 @@ export default function Profile() {
 
           </TabsContent>
 
-          <TabsContent value="security" className="space-y-4">
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Icon name="Shield" size={20} />
-                  Безопасность аккаунта
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="bg-green-500/10 border border-green-500/20 rounded-md p-4 flex items-start gap-3">
-                  <Icon name="CheckCircle2" size={20} className="text-green-500 mt-0.5" />
-                  <div>
-                    <p className="font-medium text-green-600 dark:text-green-400">Аккаунт защищен</p>
-                    <p className="text-sm text-muted-foreground mt-1">
-                      Ваш аккаунт использует современные методы защиты
-                    </p>
-                  </div>
-                </div>
-
-                <div className="text-sm text-muted-foreground">
-                  <p className="font-medium mb-2 text-gray-900 dark:text-gray-100">Текущие настройки безопасности:</p>
-                  <ul className="space-y-1 ml-4">
-                    <li>• Постоянная сессия до выхода</li>
-                    <li>• Защита данных через localStorage</li>
-                    <li>• Статус: <span className="text-green-600 dark:text-green-400">Активно</span></li>
-                  </ul>
-                </div>
-              </CardContent>
-            </Card>
-          </TabsContent>
-
           <TabsContent value="ratings">
             <RatingSystem
               carrierId={mockUserId}
@@ -418,10 +379,6 @@ export default function Profile() {
                 userName={mockUserName}
               />
             </div>
-          </TabsContent>
-
-          <TabsContent value="calculator">
-            <PriceCalculator />
           </TabsContent>
         </Tabs>
 

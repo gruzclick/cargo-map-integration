@@ -94,14 +94,14 @@ export default function AppDownload() {
 
   return (
     <div className="space-y-6">
-      <Card className="border-2 border-primary/20">
+      <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-3">
             <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-purple-500 rounded-xl flex items-center justify-center">
               <Icon name="Smartphone" size={24} className="text-white" />
             </div>
             <div>
-              <div className="text-xl">Скачать приложение ГрузКлик</div>
+              <div className="text-xl">ГрузКлик</div>
               <div className="text-sm font-normal text-muted-foreground mt-1">
                 Установите приложение для быстрого доступа
               </div>
@@ -151,22 +151,22 @@ export default function AppDownload() {
             </div>
           </div>
 
-          {isInstallable && !isIOS ? (
-            <div className="space-y-4">
-              <Button 
-                onClick={handleInstallClick}
-                size="lg"
-                className="w-full h-14 text-lg gap-3"
-              >
-                <Icon name="Download" size={24} />
-                Скачать приложение
-              </Button>
-              <p className="text-sm text-muted-foreground text-center">
-                Нажмите кнопку выше, чтобы установить приложение на ваше устройство
-              </p>
-            </div>
-          ) : (
-            <div className="space-y-4">
+          <div className="space-y-4">
+            {isInstallable && !isIOS && (
+              <>
+                <Button 
+                  onClick={handleInstallClick}
+                  size="lg"
+                  className="w-full h-14 text-lg gap-3"
+                >
+                  <Icon name="Download" size={24} />
+                  Скачать приложение
+                </Button>
+                <p className="text-sm text-muted-foreground text-center">
+                  Нажмите кнопку выше, чтобы установить приложение на ваше устройство
+                </p>
+              </>
+            )}
               <div className="bg-blue-500/10 border border-blue-500/20 rounded-lg p-4">
                 <div className="flex items-start gap-3">
                   <Icon name="Info" size={20} className="text-blue-500 mt-0.5 shrink-0" />
@@ -186,16 +186,15 @@ export default function AppDownload() {
                 </div>
               </div>
 
-              {isIOS && (
-                <div className="flex flex-col items-center gap-4 p-6 bg-gray-100 dark:bg-gray-800 rounded-lg">
-                  <Icon name="Share" size={48} className="text-blue-500" />
-                  <p className="text-center text-sm text-muted-foreground">
-                    Используйте кнопку "Поделиться" в Safari для установки
-                  </p>
-                </div>
-              )}
-            </div>
-          )}
+            {isIOS && (
+              <div className="flex flex-col items-center gap-4 p-6 bg-gray-100 dark:bg-gray-800 rounded-lg">
+                <Icon name="Share" size={48} className="text-blue-500" />
+                <p className="text-center text-sm text-muted-foreground">
+                  Используйте кнопку "Поделиться" в Safari для установки
+                </p>
+              </div>
+            )}
+          </div>
 
           <div className="grid md:grid-cols-3 gap-4 pt-4 border-t">
             <div className="text-center">
@@ -208,7 +207,7 @@ export default function AppDownload() {
             </div>
             <div className="text-center">
               <div className="text-2xl font-bold text-primary mb-1">Бесплатно</div>
-              <div className="text-sm text-muted-foreground">Без подписок</div>
+              <div className="text-sm text-muted-foreground">Навсегда</div>
             </div>
           </div>
         </CardContent>

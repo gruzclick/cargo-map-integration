@@ -29,8 +29,7 @@ const DeliveryForm = ({ onSuccess }: DeliveryFormProps) => {
     delivery_price: ''
   });
 
-  const [cargoPhoto, setCargoPhoto] = useState<string>('');
-  const [photoPreview, setPhotoPreview] = useState<string>('');
+  const [cargoPhotos, setCargoPhotos] = useState<string[]>([]);
 
   const copyToClipboard = (text: string, label: string) => {
     navigator.clipboard.writeText(text);
@@ -41,16 +40,24 @@ const DeliveryForm = ({ onSuccess }: DeliveryFormProps) => {
   };
 
   const handlePhotoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        const base64 = reader.result as string;
-        setCargoPhoto(base64);
-        setPhotoPreview(base64);
-      };
-      reader.readAsDataURL(file);
+    const files = e.target.files;
+    if (files && files.length > 0) {
+      const filePromises = Array.from(files).map(file => {
+        return new Promise<string>((resolve) => {
+          const reader = new FileReader();
+          reader.onloadend = () => resolve(reader.result as string);
+          reader.readAsDataURL(file);
+        });
+      });
+      
+      Promise.all(filePromises).then(base64Images => {
+        setCargoPhotos(prev => [...prev, ...base64Images]);
+      });
     }
+  };
+
+  const removePhoto = (index: number) => {
+    setCargoPhotos(prev => prev.filter((_, i) => i !== index));
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -83,7 +90,7 @@ const DeliveryForm = ({ onSuccess }: DeliveryFormProps) => {
         weight: parseFloat(formData.weight),
         delivery_date: formData.delivery_date,
         delivery_price: parseFloat(formData.delivery_price),
-        cargo_photo: cargoPhoto
+        cargo_photos: cargoPhotos
       };
 
       const response = await fetch('https://functions.poehali.dev/408b238a-389b-4a3c-9dfd-2cbbb8b83330', {
@@ -111,8 +118,7 @@ const DeliveryForm = ({ onSuccess }: DeliveryFormProps) => {
           delivery_date: '',
           delivery_price: ''
         });
-        setCargoPhoto('');
-        setPhotoPreview('');
+        setCargoPhotos([]);
         onSuccess();
       } else {
         throw new Error(data.error || 'Ошибка создания поставки');
@@ -141,27 +147,15 @@ const DeliveryForm = ({ onSuccess }: DeliveryFormProps) => {
       <CardContent>
         <form onSubmit={handleSubmit} className="space-y-5">
           <div className="space-y-2">
-            <Label htmlFor="document_type">Тип документа *</Label>
-            <Select value={documentType} onValueChange={(value: any) => setDocumentType(value)}>
-              <SelectTrigger>
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="delivery">Поставка</SelectItem>
-                <SelectItem value="receipt">Приемка</SelectItem>
-                <SelectItem value="invoice">Счет-фактура</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-          <div className="space-y-2">
-            <Label htmlFor="cargo_photo">Фото груза *</Label>
+            <Label htmlFor="cargo_photo">Фото груза (можно выбрать несколько) *</Label>
             <div className="relative">
               <Input
                 id="cargo_photo"
                 type="file"
                 accept="image/*"
                 onChange={handlePhotoChange}
-                required
+                multiple
+                required={cargoPhotos.length === 0}
                 className="opacity-0 absolute inset-0 w-full h-full cursor-pointer z-10"
               />
               <Button
@@ -170,15 +164,30 @@ const DeliveryForm = ({ onSuccess }: DeliveryFormProps) => {
                 className="w-full pointer-events-none"
               >
                 <Icon name="Upload" size={18} className="mr-2" />
-                Выбрать файл
+                {cargoPhotos.length === 0 ? 'Выбрать файлы' : `Выбрано файлов: ${cargoPhotos.length}`}
               </Button>
             </div>
-            {photoPreview && (
-              <img
-                src={photoPreview}
-                alt="Груз"
-                className="mt-3 w-full h-48 object-cover rounded-xl border border-border"
-              />
+            {cargoPhotos.length > 0 && (
+              <div className="grid grid-cols-2 md:grid-cols-3 gap-3 mt-3">
+                {cargoPhotos.map((photo, index) => (
+                  <div key={index} className="relative group">
+                    <img
+                      src={photo}
+                      alt={`Груз ${index + 1}`}
+                      className="w-full h-32 object-cover rounded-xl border border-border"
+                    />
+                    <Button
+                      type="button"
+                      variant="destructive"
+                      size="icon"
+                      className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity w-8 h-8"
+                      onClick={() => removePhoto(index)}
+                    >
+                      <Icon name="X" size={16} />
+                    </Button>
+                  </div>
+                ))}
+              </div>
             )}
           </div>
           <div className="grid md:grid-cols-2 gap-4">
