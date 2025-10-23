@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -8,6 +8,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import Icon from '@/components/ui/icon';
 import { useToast } from '@/hooks/use-toast';
 import { sanitizeInput, secureLocalStorage, rateLimit } from '@/utils/security';
+import { searchWarehouses, type MarketplaceWarehouse } from '@/data/marketplaceWarehouses';
 
 interface DeliveryFormProps {
   onSuccess: () => void;
@@ -30,6 +31,57 @@ const DeliveryForm = ({ onSuccess }: DeliveryFormProps) => {
   });
 
   const [cargoPhotos, setCargoPhotos] = useState<string[]>([]);
+  const [pickupSuggestions, setPickupSuggestions] = useState<MarketplaceWarehouse[]>([]);
+  const [deliverySuggestions, setDeliverySuggestions] = useState<MarketplaceWarehouse[]>([]);
+  const [showPickupSuggestions, setShowPickupSuggestions] = useState(false);
+  const [showDeliverySuggestions, setShowDeliverySuggestions] = useState(false);
+  const pickupRef = useRef<HTMLDivElement>(null);
+  const deliveryRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (pickupRef.current && !pickupRef.current.contains(event.target as Node)) {
+        setShowPickupSuggestions(false);
+      }
+      if (deliveryRef.current && !deliveryRef.current.contains(event.target as Node)) {
+        setShowDeliverySuggestions(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
+  const handlePickupAddressChange = (value: string) => {
+    setFormData({ ...formData, pickup_address: value });
+    if (value.length > 2) {
+      const results = searchWarehouses(value);
+      setPickupSuggestions(results);
+      setShowPickupSuggestions(results.length > 0);
+    } else {
+      setShowPickupSuggestions(false);
+    }
+  };
+
+  const handleDeliveryAddressChange = (value: string) => {
+    setFormData({ ...formData, delivery_address: value });
+    if (value.length > 2) {
+      const results = searchWarehouses(value);
+      setDeliverySuggestions(results);
+      setShowDeliverySuggestions(results.length > 0);
+    } else {
+      setShowDeliverySuggestions(false);
+    }
+  };
+
+  const selectPickupWarehouse = (warehouse: MarketplaceWarehouse) => {
+    setFormData({ ...formData, pickup_address: warehouse.address });
+    setShowPickupSuggestions(false);
+  };
+
+  const selectDeliveryWarehouse = (warehouse: MarketplaceWarehouse) => {
+    setFormData({ ...formData, delivery_address: warehouse.address });
+    setShowDeliverySuggestions(false);
+  };
 
   const copyToClipboard = (text: string, label: string) => {
     navigator.clipboard.writeText(text);
@@ -75,13 +127,8 @@ const DeliveryForm = ({ onSuccess }: DeliveryFormProps) => {
     setLoading(true);
 
     try {
-      const token = secureLocalStorage.get('auth_token');
-      
-      if (!token) {
-        throw new Error('Требуется авторизация');
-      }
-
       const sanitizedData = {
+        id: crypto.randomUUID(),
         document_type: documentType,
         pickup_address: sanitizeInput(formData.pickup_address, 500),
         delivery_address: sanitizeInput(formData.delivery_address, 500),
@@ -90,43 +137,35 @@ const DeliveryForm = ({ onSuccess }: DeliveryFormProps) => {
         weight: parseFloat(formData.weight),
         delivery_date: formData.delivery_date,
         delivery_price: parseFloat(formData.delivery_price),
-        cargo_photos: cargoPhotos
+        cargo_photos: cargoPhotos,
+        created_at: new Date().toISOString(),
+        status: 'pending'
       };
 
-      const response = await fetch('https://functions.poehali.dev/408b238a-389b-4a3c-9dfd-2cbbb8b83330', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'X-Auth-Token': token
-        },
-        body: JSON.stringify(sanitizedData)
+      const existingDeliveries = JSON.parse(localStorage.getItem('deliveries') || '[]');
+      existingDeliveries.push(sanitizedData);
+      localStorage.setItem('deliveries', JSON.stringify(existingDeliveries));
+
+      toast({
+        title: 'Поставка создана!',
+        description: 'Ваша заявка принята и ожидает перевозчика'
       });
-
-      const data = await response.json();
-
-      if (response.ok) {
-        toast({
-          title: 'Поставка создана!',
-          description: 'Ваша заявка принята и ожидает перевозчика'
-        });
-        setFormData({
-          pickup_address: '',
-          delivery_address: '',
-          cargo_unit: 'boxes',
-          cargo_quantity: '',
-          weight: '',
-          delivery_date: '',
-          delivery_price: ''
-        });
-        setCargoPhotos([]);
-        onSuccess();
-      } else {
-        throw new Error(data.error || 'Ошибка создания поставки');
-      }
+      
+      setFormData({
+        pickup_address: '',
+        delivery_address: '',
+        cargo_unit: 'boxes',
+        cargo_quantity: '',
+        weight: '',
+        delivery_date: '',
+        delivery_price: ''
+      });
+      setCargoPhotos([]);
+      onSuccess();
     } catch (error: any) {
       toast({
         title: 'Ошибка',
-        description: error.message,
+        description: error.message || 'Произошла ошибка при создании поставки',
         variant: 'destructive'
       });
     } finally {
@@ -191,17 +230,41 @@ const DeliveryForm = ({ onSuccess }: DeliveryFormProps) => {
             )}
           </div>
           <div className="grid md:grid-cols-2 gap-4">
-            <div className="space-y-2">
+            <div className="space-y-2" ref={pickupRef}>
               <Label htmlFor="pickup_address">Адрес груза *</Label>
-              <div className="flex gap-2">
-                <Textarea
-                  id="pickup_address"
-                  placeholder="Москва, ул. Ленина, д. 1"
-                  value={formData.pickup_address}
-                  onChange={(e) => setFormData({ ...formData, pickup_address: e.target.value })}
-                  required
-                  className="min-h-[80px]"
-                />
+              <div className="text-xs text-gray-500 mb-1">Начните вводить название маркетплейса (Wildberries, Ozon, Яндекс Маркет...)</div>
+              <div className="flex gap-2 relative">
+                <div className="flex-1 relative">
+                  <Textarea
+                    id="pickup_address"
+                    placeholder="Wildberries, Ozon, Яндекс Маркет или адрес"
+                    value={formData.pickup_address}
+                    onChange={(e) => handlePickupAddressChange(e.target.value)}
+                    onFocus={() => {
+                      if (formData.pickup_address.length > 2) {
+                        const results = searchWarehouses(formData.pickup_address);
+                        if (results.length > 0) setShowPickupSuggestions(true);
+                      }
+                    }}
+                    required
+                    className="min-h-[80px]"
+                  />
+                  {showPickupSuggestions && pickupSuggestions.length > 0 && (
+                    <div className="absolute top-full left-0 right-0 mt-1 bg-white dark:bg-gray-800 border rounded-lg shadow-lg max-h-60 overflow-y-auto z-50">
+                      {pickupSuggestions.map((warehouse, idx) => (
+                        <button
+                          key={idx}
+                          type="button"
+                          onClick={() => selectPickupWarehouse(warehouse)}
+                          className="w-full px-3 py-2 text-left hover:bg-gray-100 dark:hover:bg-gray-700 border-b last:border-b-0"
+                        >
+                          <div className="font-semibold text-sm">{warehouse.marketplace} — {warehouse.city}</div>
+                          <div className="text-xs text-gray-600 dark:text-gray-400">{warehouse.address}</div>
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                </div>
                 <Button
                   type="button"
                   variant="outline"
@@ -214,17 +277,41 @@ const DeliveryForm = ({ onSuccess }: DeliveryFormProps) => {
               </div>
             </div>
 
-            <div className="space-y-2">
+            <div className="space-y-2" ref={deliveryRef}>
               <Label htmlFor="delivery_address">Адрес доставки *</Label>
-              <div className="flex gap-2">
-                <Textarea
-                  id="delivery_address"
-                  placeholder="Санкт-Петербург, пр. Невский, д. 10"
-                  value={formData.delivery_address}
-                  onChange={(e) => setFormData({ ...formData, delivery_address: e.target.value })}
-                  required
-                  className="min-h-[80px]"
-                />
+              <div className="text-xs text-gray-500 mb-1">Начните вводить название маркетплейса или адрес</div>
+              <div className="flex gap-2 relative">
+                <div className="flex-1 relative">
+                  <Textarea
+                    id="delivery_address"
+                    placeholder="Wildberries, Ozon, Яндекс Маркет или адрес"
+                    value={formData.delivery_address}
+                    onChange={(e) => handleDeliveryAddressChange(e.target.value)}
+                    onFocus={() => {
+                      if (formData.delivery_address.length > 2) {
+                        const results = searchWarehouses(formData.delivery_address);
+                        if (results.length > 0) setShowDeliverySuggestions(true);
+                      }
+                    }}
+                    required
+                    className="min-h-[80px]"
+                  />
+                  {showDeliverySuggestions && deliverySuggestions.length > 0 && (
+                    <div className="absolute top-full left-0 right-0 mt-1 bg-white dark:bg-gray-800 border rounded-lg shadow-lg max-h-60 overflow-y-auto z-50">
+                      {deliverySuggestions.map((warehouse, idx) => (
+                        <button
+                          key={idx}
+                          type="button"
+                          onClick={() => selectDeliveryWarehouse(warehouse)}
+                          className="w-full px-3 py-2 text-left hover:bg-gray-100 dark:hover:bg-gray-700 border-b last:border-b-0"
+                        >
+                          <div className="font-semibold text-sm">{warehouse.marketplace} — {warehouse.city}</div>
+                          <div className="text-xs text-gray-600 dark:text-gray-400">{warehouse.address}</div>
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                </div>
                 <Button
                   type="button"
                   variant="outline"

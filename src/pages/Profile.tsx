@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -17,8 +18,10 @@ import DealsHistory from '@/components/DealsHistory';
 import Icon from '@/components/ui/icon';
 import { detectUserCountry, type CountryInfo } from '@/utils/countryDetection';
 import { useToast } from '@/hooks/use-toast';
+import { secureLocalStorage } from '@/utils/security';
 
 export default function Profile() {
+  const navigate = useNavigate();
   const [userType] = useState<'client' | 'driver'>('driver');
   const mockUserId = 'user-123';
   const mockUserName = 'Сергей Иванов';
@@ -29,17 +32,31 @@ export default function Profile() {
   const { toast } = useToast();
 
   useEffect(() => {
+    const token = secureLocalStorage.get('auth_token');
+    if (!token) {
+      navigate('/');
+      return;
+    }
+
     const loadCountryInfo = async () => {
       const info = await detectUserCountry();
       setCountryInfo(info);
     };
     loadCountryInfo();
-  }, []);
+  }, [navigate]);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 dark:from-gray-900 dark:via-gray-950 dark:to-blue-950">
       <div className="container mx-auto px-4 py-8">
         <div className="mb-8">
+          <Button
+            variant="ghost"
+            onClick={() => navigate('/')}
+            className="mb-4 hover:bg-gray-100 dark:hover:bg-gray-800"
+          >
+            <Icon name="ArrowLeft" size={18} className="mr-2" />
+            Вернуться на главную
+          </Button>
           <h1 className="text-4xl font-bold mb-2 text-gray-900 dark:text-gray-100">Мой профиль</h1>
           <p className="text-gray-600 dark:text-gray-400">Управление данными и настройками аккаунта</p>
         </div>
