@@ -17,6 +17,8 @@ export default function AdminSecurity() {
   });
   const [showCurrentPassword, setShowCurrentPassword] = useState(false);
   const [showNewPassword, setShowNewPassword] = useState(false);
+  const currentUser = JSON.parse(localStorage.getItem('user_data') || '{}');
+  const userEmail = currentUser.email || 'Не указан';
 
   const handleChangePassword = () => {
     if (passwordData.currentPassword !== 'admin123') {
@@ -173,7 +175,9 @@ export default function AdminSecurity() {
                 <Icon name="Mail" size={24} />
                 <div>
                   <p className="font-medium">Восстановление пароля</p>
-                  <p className="text-sm text-gray-600 dark:text-gray-400">Получите ссылку на email</p>
+                  <p className="text-sm text-gray-600 dark:text-gray-400">
+                    Проверочный код будет отправлен на: <span className="font-semibold text-gray-900 dark:text-white">{userEmail}</span>
+                  </p>
                 </div>
               </div>
               <Button variant="outline" onClick={handlePasswordRecovery}>

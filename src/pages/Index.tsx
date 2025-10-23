@@ -164,16 +164,7 @@ const Index = () => {
             <div className="h-9 flex items-center">
               <LanguageSelector />
             </div>
-            <div className="hidden lg:flex items-center gap-2 px-2.5 py-1.5 bg-gray-100 dark:bg-gray-800 rounded-lg">
-              <Icon 
-                name={user.user_type === 'client' ? 'Package' : 'Truck'} 
-                size={14} 
-                className="text-gray-700 dark:text-gray-300" 
-              />
-              <span className="text-xs font-medium text-gray-700 dark:text-gray-300">
-                {user.user_type === 'client' ? 'Клиент' : 'Перевозчик'}
-              </span>
-            </div>
+
             <Button variant="ghost" size="sm" onClick={handleLogout} className="h-9 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800">
               <Icon name="LogOut" size={14} className="mr-1.5" />
               <span className="text-xs hidden md:inline">Выйти</span>
