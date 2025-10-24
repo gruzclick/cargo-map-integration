@@ -64,17 +64,33 @@ const Auth = ({ onSuccess }: AuthProps) => {
 
     try {
       if (isLogin) {
-        const mockUser = {
-          id: '1',
-          full_name: sanitizeInput(formData.full_name || 'Тестовый пользователь'),
-          phone: formData.phone,
-          user_type: userType,
-          entity_type: formData.entity_type
-        };
+        if (!formData.email || !formData.password) {
+          throw new Error('Заполните email и пароль');
+        }
+
+        const response = await fetch('https://d5dho5lmmrb9rmhfv3fs.apigw.yandexcloud.net/auth', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            action: 'login',
+            email: formData.email,
+            password: formData.password
+          })
+        });
+
+        const data = await response.json();
+
+        if (!response.ok) {
+          throw new Error(data.error || 'Ошибка входа');
+        }
+
+        secureLocalStorage.set('auth_token', data.token);
+        secureLocalStorage.set('user_data', JSON.stringify(data.user));
+        onSuccess(data.user);
         
-        secureLocalStorage.set('auth_token', 'mock_token_' + Date.now());
-        secureLocalStorage.set('user_data', JSON.stringify(mockUser));
-        onSuccess(mockUser);
+        toast({
+          title: 'Вход выполнен успешно!'
+        });
       } else {
         if (!termsAccepted) {
           toast({
@@ -96,25 +112,31 @@ const Auth = ({ onSuccess }: AuthProps) => {
           throw new Error('Некорректный ИНН');
         }
 
-        const mockUser = {
-          id: Date.now().toString(),
-          full_name: sanitizeInput(formData.full_name),
-          phone: formData.phone,
-          email: formData.email,
-          user_type: userType,
-          entity_type: formData.entity_type,
-          inn: formData.inn || null,
-          organization_name: sanitizeInput(formData.organization_name || ''),
-          vehicle_type: userType === 'carrier' ? formData.vehicle_type : null,
-          capacity: userType === 'carrier' && formData.capacity ? parseFloat(formData.capacity) : null,
-          language: formData.language,
-          currency: formData.currency,
-          created_at: new Date().toISOString()
-        };
-        
-        secureLocalStorage.set('auth_token', 'mock_token_' + Date.now());
-        secureLocalStorage.set('user_data', JSON.stringify(mockUser));
-        onSuccess(mockUser);
+        const response = await fetch('https://d5dho5lmmrb9rmhfv3fs.apigw.yandexcloud.net/auth', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            action: 'register',
+            email: formData.email,
+            password: formData.password,
+            full_name: sanitizeInput(formData.full_name),
+            phone: formData.phone,
+            user_type: userType,
+            entity_type: formData.entity_type,
+            inn: formData.inn || null,
+            organization_name: sanitizeInput(formData.organization_name || '')
+          })
+        });
+
+        const data = await response.json();
+
+        if (!response.ok) {
+          throw new Error(data.error || 'Ошибка регистрации');
+        }
+
+        secureLocalStorage.set('auth_token', data.token);
+        secureLocalStorage.set('user_data', JSON.stringify(data.user));
+        onSuccess(data.user);
         
         toast({
           title: 'Регистрация успешна!'

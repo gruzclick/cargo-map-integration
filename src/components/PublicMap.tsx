@@ -2,7 +2,6 @@ import { useState } from 'react';
 import { Card } from './ui/card';
 import { Button } from './ui/button';
 import Icon from './ui/icon';
-import LanguageSelector from './LanguageSelector';
 import ThemeToggle from './ThemeToggle';
 import { useTranslation } from 'react-i18next';
 import LiveMap from './LiveMap';
@@ -40,7 +39,7 @@ const PublicMap = ({ onRegister }: PublicMapProps) => {
               <div className="w-8 h-8 md:w-9 md:h-9 bg-gray-900 dark:bg-gray-100 rounded-xl flex items-center justify-center shrink-0">
                 <Icon name="Truck" size={16} className="text-white dark:text-gray-900 md:w-[18px] md:h-[18px]" />
               </div>
-              <div className="min-w-0">
+              <div className="min-w-0 hidden md:block">
                 <h1 className="text-sm md:text-lg font-semibold tracking-tight text-gray-900 dark:text-gray-100 truncate">{t('appTitle')}</h1>
                 <p className="text-[9px] md:text-[10px] text-gray-600 dark:text-gray-400 hidden sm:block">{t('appSubtitle')}</p>
               </div>
@@ -83,9 +82,6 @@ const PublicMap = ({ onRegister }: PublicMapProps) => {
               </Button>
               <div className="h-8 md:h-10">
                 <ThemeToggle />
-              </div>
-              <div className="h-8 md:h-10">
-                <LanguageSelector />
               </div>
               <Button onClick={onRegister} className="rounded-lg bg-gray-900 dark:bg-gray-100 text-white dark:text-gray-900 hover:bg-gray-800 dark:hover:bg-gray-200 text-[10px] md:text-xs px-2 md:px-3 py-1.5 md:py-2 h-8 md:h-10">
                 <Icon name="LogIn" size={12} className="md:mr-1.5 md:w-[14px] md:h-[14px]" />

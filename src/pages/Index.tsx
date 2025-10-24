@@ -133,7 +133,7 @@ const Index = () => {
             <div className="w-9 h-9 bg-gray-900 dark:bg-gray-100 rounded-xl flex items-center justify-center">
               <Icon name="Truck" size={18} className="text-white dark:text-gray-900" />
             </div>
-            <span className="text-base font-bold text-gray-900 dark:text-gray-100">ГрузКлик</span>
+            <span className="text-base font-bold text-gray-900 dark:text-gray-100 hidden md:inline">ГрузКлик</span>
           </div>
           
           <div className="flex-1 max-w-md hidden md:block">
