@@ -10,6 +10,7 @@ import OnboardingTour from '@/components/OnboardingTour';
 import AIAssistant from '@/components/AIAssistant';
 import PriceCalculator from '@/components/PriceCalculator';
 import ChatNotifications from '@/components/ChatNotifications';
+import CookieBanner from '@/components/CookieBanner';
 import { useTranslation } from 'react-i18next';
 import DeliveryForm from '@/components/DeliveryForm';
 import CarrierStatus from '@/components/CarrierStatus';
@@ -105,16 +106,27 @@ const Index = () => {
   };
 
   if (!user && !showAuth) {
-    return <PublicMap onRegister={() => setShowAuth(true)} />;
+    return (
+      <>
+        <PublicMap onRegister={() => setShowAuth(true)} />
+        <CookieBanner />
+      </>
+    );
   }
 
   if (!user && showAuth) {
-    return <Auth onSuccess={handleAuthSuccess} />;
+    return (
+      <>
+        <Auth onSuccess={handleAuthSuccess} />
+        <CookieBanner />
+      </>
+    );
   }
 
   return (
     <div className="min-h-screen bg-background animate-fade-in">
       <PWAInstallPrompt />
+      <CookieBanner />
       <header className="border-b border-gray-200/20 dark:border-gray-700/30 sticky top-0 bg-white/60 dark:bg-gray-900/60 backdrop-blur-2xl z-50 shadow-lg animate-slide-in-down">
         <div className="container mx-auto px-1 md:px-2 py-2.5 flex items-center justify-between gap-4">
           <div className="flex items-center gap-3 flex-shrink-0">
