@@ -1,14 +1,16 @@
 import { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Checkbox } from '@/components/ui/checkbox';
 import Icon from '@/components/ui/icon';
 import { useToast } from '@/hooks/use-toast';
 import TermsAgreement from './TermsAgreement';
+import LanguageCurrencyFields from './auth/LanguageCurrencyFields';
+import UserTypeSelector from './auth/UserTypeSelector';
+import BasicInfoFields from './auth/BasicInfoFields';
+import CarrierFields from './auth/CarrierFields';
+import PassportFields from './auth/PassportFields';
+import AgreementFields from './auth/AgreementFields';
+import LoginFields from './auth/LoginFields';
 import { sanitizeInput, secureLocalStorage, rateLimit, validateEmail, validatePhone, validateINN } from '@/utils/security';
 
 interface AuthProps {
@@ -73,8 +75,6 @@ const Auth = ({ onSuccess }: AuthProps) => {
         secureLocalStorage.set('auth_token', 'mock_token_' + Date.now());
         secureLocalStorage.set('user_data', JSON.stringify(mockUser));
         onSuccess(mockUser);
-        
-        // Silent login - no toast notification
       } else {
         if (!termsAccepted) {
           toast({
@@ -131,8 +131,6 @@ const Auth = ({ onSuccess }: AuthProps) => {
     }
   };
 
-
-
   if (showTerms) {
     return (
       <TermsAgreement
@@ -174,362 +172,98 @@ const Auth = ({ onSuccess }: AuthProps) => {
           <form onSubmit={handleSubmit} className="space-y-4">
             {!isLogin && (
               <>
-                <div className="space-y-2">
-                  <Label htmlFor="language">Язык *</Label>
-                  <Select value={formData.language} onValueChange={(val) => setFormData({ ...formData, language: val })}>
-                    <SelectTrigger>
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="ru">🇷🇺 Русский</SelectItem>
-                      <SelectItem value="en">🇬🇧 English</SelectItem>
-                      <SelectItem value="es">🇪🇸 Español</SelectItem>
-                      <SelectItem value="de">🇩🇪 Deutsch</SelectItem>
-                      <SelectItem value="fr">🇫🇷 Français</SelectItem>
-                      <SelectItem value="zh">🇨🇳 中文</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
+                <LanguageCurrencyFields
+                  language={formData.language}
+                  currency={formData.currency}
+                  onLanguageChange={(val) => setFormData({ ...formData, language: val })}
+                  onCurrencyChange={(val) => setFormData({ ...formData, currency: val })}
+                />
 
-                <div className="space-y-2">
-                  <Label htmlFor="currency">Валюта *</Label>
-                  <Select value={formData.currency} onValueChange={(val) => setFormData({ ...formData, currency: val })}>
-                    <SelectTrigger>
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="RUB">₽ Российский рубль (RUB)</SelectItem>
-                      <SelectItem value="USD">$ Доллар США (USD)</SelectItem>
-                      <SelectItem value="EUR">€ Евро (EUR)</SelectItem>
-                      <SelectItem value="GBP">£ Фунт стерлингов (GBP)</SelectItem>
-                      <SelectItem value="CNY">¥ Китайский юань (CNY)</SelectItem>
-                      <SelectItem value="KZT">₸ Казахстанский тенге (KZT)</SelectItem>
-                      <SelectItem value="BYN">Br Белорусский рубль (BYN)</SelectItem>
-                      <SelectItem value="UAH">₴ Украинская гривна (UAH)</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
+                <UserTypeSelector
+                  userType={userType}
+                  onUserTypeChange={setUserType}
+                />
 
-                <div className="space-y-3 pb-4 border-b">
-                  <Label className="text-sm font-semibold">Тип пользователя</Label>
-                  <RadioGroup value={userType} onValueChange={(val: any) => setUserType(val)} className="grid grid-cols-3 gap-3">
-                    <div className="flex items-center space-x-2">
-                      <RadioGroupItem value="client" id="client" />
-                      <Label htmlFor="client" className="cursor-pointer flex items-center gap-1.5 text-sm">
-                        <Icon name="Package" size={16} />
-                        Клиент
-                      </Label>
-                    </div>
-                    <div className="flex items-center space-x-2">
-                      <RadioGroupItem value="carrier" id="carrier" />
-                      <Label htmlFor="carrier" className="cursor-pointer flex items-center gap-1.5 text-sm">
-                        <Icon name="Truck" size={16} />
-                        Перевозчик
-                      </Label>
-                    </div>
-                    <div className="flex items-center space-x-2">
-                      <RadioGroupItem value="logistician" id="logistician" />
-                      <Label htmlFor="logistician" className="cursor-pointer flex items-center gap-1.5 text-sm">
-                        <Icon name="ClipboardList" size={16} />
-                        Логист
-                      </Label>
-                    </div>
-                  </RadioGroup>
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="full_name">ФИО *</Label>
-                  <Input
-                    id="full_name"
-                    placeholder="Иванов Иван Иванович"
-                    value={formData.full_name}
-                    onChange={(e) => setFormData({ ...formData, full_name: e.target.value })}
-                    required
-                  />
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="entity_type">Тип лица *</Label>
-                  <Select value={formData.entity_type} onValueChange={(val) => setFormData({ ...formData, entity_type: val })}>
-                    <SelectTrigger>
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="individual">Физическое лицо</SelectItem>
-                      <SelectItem value="self_employed">Самозанятый</SelectItem>
-                      <SelectItem value="individual_entrepreneur">Индивидуальный предприниматель (ИП)</SelectItem>
-                      <SelectItem value="legal">Юридическое лицо</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="inn">ИНН (при наличии)</Label>
-                  <Input
-                    id="inn"
-                    placeholder="1234567890"
-                    value={formData.inn}
-                    onChange={(e) => setFormData({ ...formData, inn: e.target.value })}
-                  />
-                </div>
-
-                {formData.entity_type === 'legal' && (
-                  <div className="space-y-2">
-                    <Label htmlFor="organization_name">Наименование организации</Label>
-                    <Input
-                      id="organization_name"
-                      placeholder="ООО Компания"
-                      value={formData.organization_name}
-                      onChange={(e) => setFormData({ ...formData, organization_name: e.target.value })}
-                    />
-                  </div>
-                )}
-
-                <div className="space-y-2">
-                  <Label htmlFor="phone">Телефон *</Label>
-                  <Input
-                    id="phone"
-                    placeholder="+79991234567"
-                    value={formData.phone}
-                    onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-                    required
-                  />
-                </div>
-
-                <div className="flex items-start space-x-3 p-4 bg-gradient-to-r from-blue-500/10 to-accent/10 rounded-xl border border-blue-500/30">
-                  <Checkbox 
-                    id="gosuslugi" 
-                    checked={formData.use_gosuslugi}
-                    onCheckedChange={(checked) => setFormData({ ...formData, use_gosuslugi: checked === true })}
-                    className="mt-1"
-                  />
-                  <label htmlFor="gosuslugi" className="text-sm leading-relaxed cursor-pointer">
-                    <div className="flex items-center gap-2 mb-1">
-                      <Icon name="Shield" size={16} className="text-blue-500" />
-                      <span className="font-semibold">Подтвердить данные через Госуслуги</span>
-                    </div>
-                    <p className="text-xs text-muted-foreground">
-                      Рекомендуем подтвердить паспортные данные через Госуслуги — это даёт вам преимущество перед другими пользователями. 
-                      Клиенты видят отметку "Проверено" и больше доверяют проверенным перевозчикам, что приводит к увеличению количества заказов на 40-60%.
-                    </p>
-                  </label>
-                </div>
+                <BasicInfoFields
+                  formData={{
+                    full_name: formData.full_name,
+                    entity_type: formData.entity_type,
+                    inn: formData.inn,
+                    organization_name: formData.organization_name,
+                    phone: formData.phone
+                  }}
+                  onFormDataChange={(data) => setFormData({ ...formData, ...data })}
+                />
 
                 {userType === 'carrier' && (
-                  <>
-                    <div className="space-y-2">
-                      <Label htmlFor="vehicle_type">Тип автомобиля *</Label>
-                      <Select value={formData.vehicle_type} onValueChange={(val) => setFormData({ ...formData, vehicle_type: val })}>
-                        <SelectTrigger>
-                          <SelectValue />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="car_small">Легковой автомобиль</SelectItem>
-                          <SelectItem value="fleet">Автопарк</SelectItem>
-                          <SelectItem value="van_small">Малый фургон (Газель)</SelectItem>
-                          <SelectItem value="van_medium">Средний фургон</SelectItem>
-                          <SelectItem value="van_large">Большой фургон</SelectItem>
-                          <SelectItem value="truck_1.5t">Грузовик до 1.5т</SelectItem>
-                          <SelectItem value="truck_3t">Грузовик до 3т</SelectItem>
-                          <SelectItem value="truck_5t">Грузовик до 5т</SelectItem>
-                          <SelectItem value="truck_10t">Грузовик до 10т</SelectItem>
-                          <SelectItem value="truck_20t">Грузовик до 20т</SelectItem>
-                          <SelectItem value="truck_flatbed">Бортовой грузовик</SelectItem>
-                          <SelectItem value="truck_isothermal">Изотермический фургон</SelectItem>
-                          <SelectItem value="truck_refrigerator">Рефрижератор</SelectItem>
-                          <SelectItem value="truck_trailer">Грузовик с прицепом</SelectItem>
-                          <SelectItem value="truck_container">Контейнеровоз</SelectItem>
-                          <SelectItem value="semi_truck">Седельный тягач</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </div>
-                    {formData.vehicle_type !== 'fleet' && (
-                      <div className="space-y-2">
-                        <Label htmlFor="capacity">Грузоподъёмность (тонн)</Label>
-                        <Input
-                          id="capacity"
-                          type="number"
-                          step="0.1"
-                          placeholder="3.5"
-                          value={formData.capacity}
-                          onChange={(e) => setFormData({ ...formData, capacity: e.target.value })}
-                        />
-                      </div>
-                    )}
-                    
-                    {formData.vehicle_type === 'fleet' && (
-                      <div className="p-4 bg-blue-50 dark:bg-blue-950/20 border border-blue-200 dark:border-blue-800 rounded-lg">
-                        <div className="flex items-start gap-2 mb-2">
-                          <Icon name="Info" size={18} className="text-blue-600 dark:text-blue-400 mt-0.5" />
-                          <div>
-                            <p className="text-sm font-semibold text-blue-900 dark:text-blue-100">Управление автопарком</p>
-                            <p className="text-xs text-blue-700 dark:text-blue-300 mt-1">
-                              После регистрации вы сможете добавить все ваши автомобили в разделе "Автопарк" в личном кабинете. 
-                              Каждое авто можно будет настроить отдельно: указать характеристики, загрузить фото и назначить водителя.
-                            </p>
-                          </div>
-                        </div>
-                      </div>
-                    )}
-                  </>
+                  <CarrierFields
+                    vehicleType={formData.vehicle_type}
+                    capacity={formData.capacity}
+                    onVehicleTypeChange={(val) => setFormData({ ...formData, vehicle_type: val })}
+                    onCapacityChange={(val) => setFormData({ ...formData, capacity: val })}
+                  />
                 )}
+
+                <PassportFields
+                  passportData={{
+                    passport_series: formData.passport_series,
+                    passport_number: formData.passport_number,
+                    passport_date: formData.passport_date,
+                    passport_issued_by: formData.passport_issued_by
+                  }}
+                  onPassportDataChange={(data) => setFormData({ ...formData, ...data })}
+                />
+
+                <AgreementFields
+                  agreeGeolocation={formData.agree_geolocation}
+                  agreeVerification={formData.agree_verification}
+                  useGosuslugi={formData.use_gosuslugi}
+                  onAgreeGeolocationChange={(val) => setFormData({ ...formData, agree_geolocation: val })}
+                  onAgreeVerificationChange={(val) => setFormData({ ...formData, agree_verification: val })}
+                  onUseGosuslugirChange={(val) => setFormData({ ...formData, use_gosuslugi: val })}
+                  onShowTerms={() => setShowTerms(true)}
+                />
               </>
             )}
 
-            {!isLogin && (
-              <div className="space-y-2">
-                <Label htmlFor="email">Email (необязательно)</Label>
-                <Input
-                  id="email"
-                  type="email"
-                  placeholder="email@example.com (для восстановления доступа)"
-                  value={formData.email}
-                  onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                />
-                <p className="text-xs text-muted-foreground">
-                  <Icon name="Info" size={12} className="inline mr-1" />
-                  Рекомендуем указать email для восстановления доступа к аккаунту. Вы сможете подтвердить его позже в настройках.
-                </p>
-              </div>
-            )}
-
-            <div className="space-y-2">
-              <Label htmlFor="phone">Телефон *</Label>
-              <Input
-                id="phone"
-                type="tel"
-                placeholder="+7 (999) 123-45-67"
-                value={formData.phone}
-                onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-                required
+            {isLogin && (
+              <LoginFields
+                email={formData.email}
+                password={formData.password}
+                showPassword={showPassword}
+                onEmailChange={(val) => setFormData({ ...formData, email: val })}
+                onPasswordChange={(val) => setFormData({ ...formData, password: val })}
+                onTogglePassword={() => setShowPassword(!showPassword)}
               />
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="password">Пароль *</Label>
-              <div className="relative">
-                <Input
-                  id="password"
-                  type={showPassword ? "text" : "password"}
-                  placeholder="••••••••"
-                  value={formData.password}
-                  onChange={(e) => setFormData({ ...formData, password: e.target.value })}
-                  required
-                  className="pr-10"
-                />
-                <button
-                  type="button"
-                  onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
-                  title={showPassword ? "Скрыть пароль" : "Показать пароль"}
-                >
-                  <Icon name={showPassword ? "EyeOff" : "Eye"} size={18} />
-                </button>
-              </div>
-            </div>
-
-            {!isLogin && (
-              <div className="flex items-start space-x-3 p-3 bg-accent/5 rounded-xl">
-                <Checkbox 
-                  id="terms" 
-                  checked={termsAccepted}
-                  onCheckedChange={(checked) => setTermsAccepted(checked === true)}
-                  className="mt-1"
-                />
-                <label
-                  htmlFor="terms"
-                  className="text-sm leading-relaxed cursor-pointer"
-                >
-                  Я согласен с{' '}
-                  <button
-                    type="button"
-                    onClick={() => setShowTerms(true)}
-                    className="text-accent hover:underline font-medium"
-                  >
-                    пользовательским соглашением
-                  </button>
-                </label>
-              </div>
             )}
 
-            <Button type="submit" className="w-full h-12 text-base rounded-xl" disabled={loading || (!isLogin && !termsAccepted)}>
+            <Button type="submit" className="w-full h-12 text-base rounded-xl" disabled={loading}>
               {loading ? (
                 <>
                   <Icon name="Loader2" size={18} className="animate-spin mr-2" />
-                  Загрузка...
+                  {isLogin ? 'Вход...' : 'Регистрация...'}
                 </>
               ) : (
-                isLogin ? 'Войти' : 'Зарегистрироваться'
+                <>
+                  <Icon name={isLogin ? 'LogIn' : 'UserPlus'} size={18} className="mr-2" />
+                  {isLogin ? 'Войти' : 'Зарегистрироваться'}
+                </>
               )}
             </Button>
 
-            <div className="text-center pt-4">
-              <button
+            <div className="text-center">
+              <Button
                 type="button"
+                variant="link"
                 onClick={() => setIsLogin(!isLogin)}
-                className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+                className="text-sm"
               >
                 {isLogin ? 'Нет аккаунта? Зарегистрируйтесь' : 'Уже есть аккаунт? Войдите'}
-              </button>
+              </Button>
             </div>
           </form>
-
-          {!isLogin && (
-            <div className="space-y-3 mt-6 pt-6 border-t">
-              <p className="text-sm text-center text-muted-foreground mb-4">
-                Или зарегистрируйтесь через
-              </p>
-              
-              <Button
-                type="button"
-                variant="outline"
-                className="w-full h-12 text-base rounded-xl bg-blue-600 hover:bg-blue-700 text-white border-blue-600"
-                onClick={() => {
-                  toast({
-                    title: 'Интеграция в разработке',
-                    description: 'Вход через Госуслуги скоро будет доступен',
-                  });
-                }}
-              >
-                <Icon name="Shield" size={18} className="mr-2" />
-                Подтвердить через Госуслуги
-              </Button>
-
-              <Button
-                type="button"
-                variant="outline"
-                className="w-full h-12 text-base rounded-xl bg-green-600 hover:bg-green-700 text-white border-green-600"
-                onClick={() => {
-                  toast({
-                    title: 'Интеграция в разработке',
-                    description: 'Вход через Сбер ID скоро будет доступен',
-                  });
-                }}
-              >
-                <Icon name="CreditCard" size={18} className="mr-2" />
-                Войти через Сбер ID
-              </Button>
-
-              <Button
-                type="button"
-                variant="outline"
-                className="w-full h-12 text-base rounded-xl bg-yellow-500 hover:bg-yellow-600 text-white border-yellow-500"
-                onClick={() => {
-                  toast({
-                    title: 'Интеграция в разработке',
-                    description: 'Вход через Т-Банк ID скоро будет доступен',
-                  });
-                }}
-              >
-                <Icon name="Landmark" size={18} className="mr-2" />
-                Войти через Т-Банк ID
-              </Button>
-            </div>
-          )}
         </CardContent>
       </Card>
-
-
     </div>
   );
 };
