@@ -51,6 +51,21 @@ export const secureLocalStorage = {
     }
   },
   
+  getItem: (key: string): string | null => {
+    try {
+      const encrypted = localStorage.getItem(key);
+      if (!encrypted) return null;
+      return atob(encrypted);
+    } catch (e) {
+      console.error('Failed to read from localStorage:', e);
+      return null;
+    }
+  },
+  
+  removeItem: (key: string) => {
+    localStorage.removeItem(key);
+  },
+  
   remove: (key: string) => {
     localStorage.removeItem(key);
   }
