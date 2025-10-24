@@ -346,8 +346,9 @@ def register_user(data: Dict[str, Any], database_url: str, jwt_secret: str,
         cur.execute("""
             INSERT INTO t_p93479485_cargo_map_integratio.users 
             (email, password_hash, full_name, user_type, entity_type, 
-             inn, organization_name, phone, phone_verified, last_login_ip)
-            VALUES (%s, %s, %s, %s, %s, %s, %s, %s, TRUE, %s)
+             inn, organization_name, phone, phone_verified, last_login_ip,
+             terms_version, privacy_version, terms_accepted_at, privacy_accepted_at)
+            VALUES (%s, %s, %s, %s, %s, %s, %s, %s, TRUE, %s, 1, 1, NOW(), NOW())
             RETURNING user_id
         """, (email, password_hash, full_name, user_type, entity_type, 
               inn if inn else None, organization_name if organization_name else None, 
@@ -468,7 +469,8 @@ def login_user(data: Dict[str, Any], database_url: str, jwt_secret: str,
         # Поиск пользователя по телефону
         cur = conn.cursor()
         cur.execute("""
-            SELECT user_id, email, password_hash, full_name, user_type, phone
+            SELECT user_id, email, password_hash, full_name, user_type, phone, 
+                   terms_version, privacy_version
             FROM t_p93479485_cargo_map_integratio.users 
             WHERE phone = %s
         """, (phone,))
@@ -487,7 +489,7 @@ def login_user(data: Dict[str, Any], database_url: str, jwt_secret: str,
                 'isBase64Encoded': False
             }
         
-        user_id, email, password_hash, full_name, user_type, user_phone = result
+        user_id, email, password_hash, full_name, user_type, user_phone, terms_version, privacy_version = result
         
         # Проверка пароля с bcrypt
         if not bcrypt.checkpw(password.encode('utf-8'), password_hash.encode('utf-8')):
@@ -515,6 +517,12 @@ def login_user(data: Dict[str, Any], database_url: str, jwt_secret: str,
             'iat': datetime.utcnow()
         }, jwt_secret, algorithm='HS256')
         
+        # Проверка актуальности версий документов
+        CURRENT_TERMS_VERSION = 1
+        CURRENT_PRIVACY_VERSION = 1
+        needs_agreement = (terms_version is None or terms_version < CURRENT_TERMS_VERSION or 
+                          privacy_version is None or privacy_version < CURRENT_PRIVACY_VERSION)
+        
         return {
             'statusCode': 200,
             'headers': {
@@ -529,7 +537,8 @@ def login_user(data: Dict[str, Any], database_url: str, jwt_secret: str,
                     'full_name': full_name,
                     'user_type': user_type,
                     'phone': user_phone
-                }
+                },
+                'needs_agreement': needs_agreement
             }),
             'isBase64Encoded': False
         }

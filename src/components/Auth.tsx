@@ -24,6 +24,7 @@ const Auth = ({ onSuccess }: AuthProps) => {
   const [showTerms, setShowTerms] = useState(false);
   const [termsAccepted, setTermsAccepted] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+  const [showForgotPassword, setShowForgotPassword] = useState(false);
 
   const { toast } = useToast();
 
@@ -82,6 +83,13 @@ const Auth = ({ onSuccess }: AuthProps) => {
 
         if (!response.ok) {
           throw new Error(data.error || 'Ошибка входа');
+        }
+
+        if (data.needs_agreement) {
+          secureLocalStorage.set('pending_auth', JSON.stringify({ token: data.token, user: data.user }));
+          secureLocalStorage.set('needs_terms_update', 'true');
+          window.location.reload();
+          return;
         }
 
         secureLocalStorage.set('auth_token', data.token);
@@ -183,11 +191,14 @@ const Auth = ({ onSuccess }: AuthProps) => {
             <Icon name="Truck" size={32} className="text-accent-foreground" />
           </div>
           <CardTitle className="text-3xl font-bold text-center">
-            Информационная платформа Груз Клик
+            ГрузКлик
           </CardTitle>
           <CardDescription className="text-center text-base">
-            {isLogin ? 'Войдите в свой аккаунт' : 'Создайте новый аккаунт'}
+            Информационная панель
           </CardDescription>
+          <p className="text-center text-sm text-muted-foreground">
+            {isLogin ? 'Войдите в свой аккаунт' : 'Создайте новый аккаунт'}
+          </p>
         </CardHeader>
 
         <CardContent>
@@ -205,6 +216,9 @@ const Auth = ({ onSuccess }: AuthProps) => {
                   userType={userType}
                   onUserTypeChange={setUserType}
                 />
+                <p className="text-xs text-muted-foreground -mt-2 px-1">
+                  Можно изменить в настройках профиля
+                </p>
 
                 <BasicInfoFields
                   formData={{
@@ -225,16 +239,6 @@ const Auth = ({ onSuccess }: AuthProps) => {
                     onCapacityChange={(val) => setFormData({ ...formData, capacity: val })}
                   />
                 )}
-
-                <PassportFields
-                  passportData={{
-                    passport_series: formData.passport_series,
-                    passport_number: formData.passport_number,
-                    passport_date: formData.passport_date,
-                    passport_issued_by: formData.passport_issued_by
-                  }}
-                  onPassportDataChange={(data) => setFormData({ ...formData, ...data })}
-                />
 
                 <AgreementFields
                   agreeGeolocation={formData.agree_geolocation}
@@ -259,7 +263,11 @@ const Auth = ({ onSuccess }: AuthProps) => {
               />
             )}
 
-            <Button type="submit" className="w-full h-12 text-base rounded-xl" disabled={loading}>
+            <Button 
+              type="submit" 
+              className="w-full h-12 text-base rounded-xl" 
+              disabled={loading || (!isLogin && !termsAccepted)}
+            >
               {loading ? (
                 <>
                   <Icon name="Loader2" size={18} className="animate-spin mr-2" />
@@ -273,7 +281,7 @@ const Auth = ({ onSuccess }: AuthProps) => {
               )}
             </Button>
 
-            <div className="text-center">
+            <div className="text-center space-y-1">
               <Button
                 type="button"
                 variant="link"
@@ -282,10 +290,66 @@ const Auth = ({ onSuccess }: AuthProps) => {
               >
                 {isLogin ? 'Нет аккаунта? Зарегистрируйтесь' : 'Уже есть аккаунт? Войдите'}
               </Button>
+              {isLogin && (
+                <div>
+                  <Button
+                    type="button"
+                    variant="link"
+                    onClick={() => setShowForgotPassword(true)}
+                    className="text-sm text-muted-foreground hover:text-primary"
+                  >
+                    Забыли пароль?
+                  </Button>
+                </div>
+              )}
             </div>
           </form>
         </CardContent>
       </Card>
+
+      {showForgotPassword && (
+        <Card className="w-full max-w-md shadow-2xl rounded-3xl mt-4 bg-white/80 dark:bg-gray-900/80 backdrop-blur-2xl border-white/30 dark:border-gray-700/30">
+          <CardHeader>
+            <div className="flex items-center justify-between">
+              <CardTitle className="text-xl">Восстановление пароля</CardTitle>
+              <button
+                onClick={() => setShowForgotPassword(false)}
+                className="p-2 rounded-full hover:bg-muted/50 transition-colors"
+              >
+                <Icon name="X" size={20} />
+              </button>
+            </div>
+            <CardDescription>
+              Введите email или телефон, указанный при регистрации
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <form
+              onSubmit={(e) => {
+                e.preventDefault();
+                toast({
+                  title: 'Функция в разработке',
+                  description: 'Восстановление пароля будет доступно в ближайшее время. Пожалуйста, свяжитесь с поддержкой.'
+                });
+              }}
+              className="space-y-4"
+            >
+              <div className="space-y-2">
+                <label className="text-sm font-medium">Email или телефон</label>
+                <input
+                  type="text"
+                  placeholder="+7 или email@example.com"
+                  className="w-full px-4 py-3 rounded-xl border bg-background"
+                />
+              </div>
+              <Button type="submit" className="w-full h-12 rounded-xl">
+                <Icon name="Send" size={18} className="mr-2" />
+                Отправить код восстановления
+              </Button>
+            </form>
+          </CardContent>
+        </Card>
+      )}
     </div>
   );
 };

@@ -155,13 +155,6 @@ export default function PrivacyPolicy() {
               </p>
             </section>
 
-            <section>
-              <h2 className="text-xl font-semibold mb-3">13. Контакты</h2>
-              <p className="text-muted-foreground">
-                По вопросам, связанным с обработкой персональных данных и данной политикой конфиденциальности, вы можете связаться с нами через форму обратной связи в приложении или написать в наше сообщество: <a href="https://t.me/+QgiLIa1gFRY4Y2Iy" target="_blank" rel="noopener noreferrer" className="text-blue-600 dark:text-blue-400 hover:underline">https://t.me/+QgiLIa1gFRY4Y2Iy</a>
-              </p>
-            </section>
-
             <section className="bg-muted/50 p-4 rounded-lg border">
               <p className="text-sm text-muted-foreground">
                 Используя данный сервис, вы подтверждаете, что ознакомились с настоящей Политикой конфиденциальности и согласны с её условиями. Если вы не согласны с условиями, пожалуйста, прекратите использование сервиса.

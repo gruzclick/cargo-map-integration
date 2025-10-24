@@ -16,6 +16,7 @@ import QRPage from "./pages/QRPage";
 import NotFound from "./pages/NotFound";
 import PrivacyPolicy from "./pages/PrivacyPolicy";
 import TermsOfService from "./pages/TermsOfService";
+import TermsUpdateDialog from "./components/TermsUpdateDialog";
 import './i18n/config';
 import { secureLocalStorage } from './utils/security';
 
@@ -23,8 +24,9 @@ const queryClient = new QueryClient();
 
 const App = () => {
   const [textSize, setTextSize] = useState<'small' | 'medium' | 'large' | 'xlarge'>('medium');
+  const [showTermsUpdate, setShowTermsUpdate] = useState(false);
 
-  useEffect(() => {
+useEffect(() => {
     const savedSize = localStorage.getItem('textSize') as 'small' | 'medium' | 'large' | 'xlarge' | null;
     if (savedSize) {
       setTextSize(savedSize);
@@ -39,12 +41,33 @@ const App = () => {
     return () => window.removeEventListener('textSizeChange' as any, handleTextSizeChange as EventListener);
   }, []);
 
+  useEffect(() => {
+    const needsUpdate = secureLocalStorage.getItem('needs_terms_update');
+    if (needsUpdate === 'true') {
+      setShowTermsUpdate(true);
+    }
+  }, []);
+
+  const handleTermsAccept = async () => {
+    const pendingAuth = secureLocalStorage.getItem('pending_auth');
+    if (pendingAuth) {
+      const { token, user } = JSON.parse(pendingAuth);
+      secureLocalStorage.set('auth_token', token);
+      secureLocalStorage.set('user_data', JSON.stringify(user));
+      secureLocalStorage.removeItem('pending_auth');
+      secureLocalStorage.removeItem('needs_terms_update');
+      setShowTermsUpdate(false);
+      window.location.href = '/';
+    }
+  };
+
   return (
     <QueryClientProvider client={queryClient}>
       <TooltipProvider>
         <div className={`text-size-${textSize}`}>
           <Toaster />
           <Sonner />
+          <TermsUpdateDialog open={showTermsUpdate} onAccept={handleTermsAccept} />
           <BrowserRouter>
             <Routes>
               <Route path="/" element={<Index />} />
