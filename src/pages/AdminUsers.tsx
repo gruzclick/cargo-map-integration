@@ -73,6 +73,25 @@ export default function AdminUsers() {
     }
   };
 
+  const deleteUsers = (userIds: string[]) => {
+    if (!window.confirm(`Удалить ${userIds.length} пользователей навсегда? Это действие необратимо.`)) {
+      return;
+    }
+    
+    const updatedUsers = users.filter(user => !userIds.includes(user.id));
+    setUsers(updatedUsers);
+    setFilteredUsers(updatedUsers.filter(user => 
+      user.phone.includes(searchQuery) || 
+      (user.company_name?.toLowerCase().includes(searchQuery.toLowerCase()))
+    ));
+    setSelectedUsers(new Set());
+    toast({
+      title: 'Пользователи удалены',
+      description: `Удалено пользователей: ${userIds.length}`,
+      variant: 'destructive'
+    });
+  };
+
   const blockUsers = (userIds: string[]) => {
     const updatedUsers = users.map(user => 
       userIds.includes(user.id) ? { ...user, blocked: true } : user
@@ -105,7 +124,7 @@ export default function AdminUsers() {
     });
   };
 
-  const handleBulkAction = (action: 'block' | 'unblock') => {
+  const handleBulkAction = (action: 'block' | 'unblock' | 'delete') => {
     if (selectedUsers.size === 0) {
       toast({
         variant: 'destructive',
@@ -118,8 +137,10 @@ export default function AdminUsers() {
     const selectedUserIds = Array.from(selectedUsers);
     if (action === 'block') {
       blockUsers(selectedUserIds);
-    } else {
+    } else if (action === 'unblock') {
       unblockUsers(selectedUserIds);
+    } else if (action === 'delete') {
+      deleteUsers(selectedUserIds);
     }
   };
 
@@ -173,6 +194,14 @@ export default function AdminUsers() {
               >
                 <Icon name="Unlock" size={16} className="mr-2" />
                 Разблокировать
+              </Button>
+              <Button
+                variant="destructive"
+                onClick={() => handleBulkAction('delete')}
+                disabled={selectedUsers.size === 0}
+              >
+                <Icon name="Trash2" size={16} className="mr-2" />
+                Удалить
               </Button>
             </div>
 
@@ -238,25 +267,34 @@ export default function AdminUsers() {
                       </TableCell>
                       <TableCell>{new Date(user.created_at).toLocaleDateString('ru-RU')}</TableCell>
                       <TableCell className="text-right">
-                        {user.blocked ? (
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            onClick={() => unblockUsers([user.id])}
-                          >
-                            <Icon name="Unlock" size={14} className="mr-1" />
-                            Разблокировать
-                          </Button>
-                        ) : (
+                        <div className="flex gap-2 justify-end">
+                          {user.blocked ? (
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              onClick={() => unblockUsers([user.id])}
+                            >
+                              <Icon name="Unlock" size={14} className="mr-1" />
+                              Разблокировать
+                            </Button>
+                          ) : (
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              onClick={() => blockUsers([user.id])}
+                            >
+                              <Icon name="Ban" size={14} className="mr-1" />
+                              Заблокировать
+                            </Button>
+                          )}
                           <Button
                             size="sm"
                             variant="destructive"
-                            onClick={() => blockUsers([user.id])}
+                            onClick={() => deleteUsers([user.id])}
                           >
-                            <Icon name="Ban" size={14} className="mr-1" />
-                            Заблокировать
+                            <Icon name="Trash2" size={14} />
                           </Button>
-                        )}
+                        </div>
                       </TableCell>
                     </TableRow>
                   ))}

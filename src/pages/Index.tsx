@@ -161,9 +161,6 @@ const Index = () => {
             <div className="h-9 flex items-center">
               <ThemeToggle />
             </div>
-            <div className="h-9 flex items-center">
-              <LanguageSelector />
-            </div>
 
             <Button 
               variant="ghost" 

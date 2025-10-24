@@ -41,7 +41,9 @@ const Auth = ({ onSuccess }: AuthProps) => {
     capacity: '',
     agree_geolocation: false,
     agree_verification: false,
-    use_gosuslugi: false
+    use_gosuslugi: false,
+    language: 'ru',
+    currency: 'RUB'
   });
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -104,7 +106,10 @@ const Auth = ({ onSuccess }: AuthProps) => {
           inn: formData.inn || null,
           organization_name: sanitizeInput(formData.organization_name || ''),
           vehicle_type: userType === 'carrier' ? formData.vehicle_type : null,
-          capacity: userType === 'carrier' && formData.capacity ? parseFloat(formData.capacity) : null
+          capacity: userType === 'carrier' && formData.capacity ? parseFloat(formData.capacity) : null,
+          language: formData.language,
+          currency: formData.currency,
+          created_at: new Date().toISOString()
         };
         
         secureLocalStorage.set('auth_token', 'mock_token_' + Date.now());
@@ -169,6 +174,42 @@ const Auth = ({ onSuccess }: AuthProps) => {
           <form onSubmit={handleSubmit} className="space-y-4">
             {!isLogin && (
               <>
+                <div className="space-y-2">
+                  <Label htmlFor="language">Язык *</Label>
+                  <Select value={formData.language} onValueChange={(val) => setFormData({ ...formData, language: val })}>
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="ru">🇷🇺 Русский</SelectItem>
+                      <SelectItem value="en">🇬🇧 English</SelectItem>
+                      <SelectItem value="es">🇪🇸 Español</SelectItem>
+                      <SelectItem value="de">🇩🇪 Deutsch</SelectItem>
+                      <SelectItem value="fr">🇫🇷 Français</SelectItem>
+                      <SelectItem value="zh">🇨🇳 中文</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="currency">Валюта *</Label>
+                  <Select value={formData.currency} onValueChange={(val) => setFormData({ ...formData, currency: val })}>
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="RUB">₽ Российский рубль (RUB)</SelectItem>
+                      <SelectItem value="USD">$ Доллар США (USD)</SelectItem>
+                      <SelectItem value="EUR">€ Евро (EUR)</SelectItem>
+                      <SelectItem value="GBP">£ Фунт стерлингов (GBP)</SelectItem>
+                      <SelectItem value="CNY">¥ Китайский юань (CNY)</SelectItem>
+                      <SelectItem value="KZT">₸ Казахстанский тенге (KZT)</SelectItem>
+                      <SelectItem value="BYN">Br Белорусский рубль (BYN)</SelectItem>
+                      <SelectItem value="UAH">₴ Украинская гривна (UAH)</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+
                 <div className="space-y-3 pb-4 border-b">
                   <Label className="text-sm font-semibold">Тип пользователя</Label>
                   <RadioGroup value={userType} onValueChange={(val: any) => setUserType(val)} className="grid grid-cols-3 gap-3">

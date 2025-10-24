@@ -192,6 +192,60 @@ export default function Profile() {
 
           <TabsContent value="settings" className="space-y-4">
             <NotificationSettings />
+
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Icon name="Globe" size={20} />
+                  Язык и валюта
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="grid md:grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium">Язык интерфейса</label>
+                    <Select defaultValue="ru" onValueChange={(val) => {
+                      localStorage.setItem('user_language', val);
+                      toast({ title: 'Язык изменён', description: 'Интерфейс обновится при следующей загрузке' });
+                    }}>
+                      <SelectTrigger>
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="ru">🇷🇺 Русский</SelectItem>
+                        <SelectItem value="en">🇬🇧 English</SelectItem>
+                        <SelectItem value="es">🇪🇸 Español</SelectItem>
+                        <SelectItem value="de">🇩🇪 Deutsch</SelectItem>
+                        <SelectItem value="fr">🇫🇷 Français</SelectItem>
+                        <SelectItem value="zh">🇨🇳 中文</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium">Валюта</label>
+                    <Select defaultValue="RUB" onValueChange={(val) => {
+                      localStorage.setItem('user_currency', val);
+                      toast({ title: 'Валюта изменена', description: `Цены будут показаны в ${val}` });
+                    }}>
+                      <SelectTrigger>
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="RUB">₽ Российский рубль (RUB)</SelectItem>
+                        <SelectItem value="USD">$ Доллар США (USD)</SelectItem>
+                        <SelectItem value="EUR">€ Евро (EUR)</SelectItem>
+                        <SelectItem value="GBP">£ Фунт стерлингов (GBP)</SelectItem>
+                        <SelectItem value="CNY">¥ Китайский юань (CNY)</SelectItem>
+                        <SelectItem value="KZT">₸ Казахстанский тенге (KZT)</SelectItem>
+                        <SelectItem value="BYN">Br Белорусский рубль (BYN)</SelectItem>
+                        <SelectItem value="UAH">₴ Украинская гривна (UAH)</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
             
             <Card>
               <CardHeader>
@@ -227,6 +281,34 @@ export default function Profile() {
                     Сохранить
                   </Button>
                 </div>
+              </CardContent>
+            </Card>
+
+            <Card className="border-red-200 dark:border-red-900">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2 text-red-600 dark:text-red-400">
+                  <Icon name="Trash2" size={20} />
+                  Опасная зона
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <p className="text-sm text-muted-foreground">
+                  Удаление аккаунта необратимо. Все ваши данные, история доставок и рейтинги будут безвозвратно удалены.
+                </p>
+                <Button 
+                  variant="destructive" 
+                  onClick={() => {
+                    if (window.confirm('Вы уверены? Это действие нельзя отменить. Все ваши данные будут удалены безвозвратно.')) {
+                      secureLocalStorage.clear();
+                      localStorage.clear();
+                      window.location.href = '/';
+                    }
+                  }}
+                  className="w-full md:w-auto"
+                >
+                  <Icon name="Trash2" size={18} className="mr-2" />
+                  Удалить аккаунт навсегда
+                </Button>
               </CardContent>
             </Card>
             
