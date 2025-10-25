@@ -24,17 +24,17 @@ const PublicMap = ({ onRegister }: PublicMapProps) => {
   return (
     <div className="min-h-screen bg-background animate-fade-in">
       <Dialog open={showDownload} onOpenChange={setShowDownload}>
-        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+        <DialogContent className="max-w-[95vw] sm:max-w-4xl max-h-[85vh] sm:max-h-[90vh] overflow-y-auto p-4 sm:p-6">
           <DialogHeader>
-            <DialogTitle>Скачать приложение ГрузКлик</DialogTitle>
+            <DialogTitle className="text-lg sm:text-xl">Скачать приложение ГрузКлик</DialogTitle>
           </DialogHeader>
           <AppDownload />
         </DialogContent>
       </Dialog>
 
       <header className="border-b border-gray-200/20 dark:border-gray-700/30 sticky top-0 bg-white/60 dark:bg-gray-900/60 backdrop-blur-2xl z-50 shadow-lg animate-slide-in-down">
-        <div className="container mx-auto px-3 md:px-6 py-2.5">
-          <div className="flex items-center justify-between gap-2">
+        <div className="container mx-auto px-2 sm:px-3 md:px-6 py-2">
+          <div className="flex items-center justify-between gap-1 sm:gap-2">
             <div className="flex items-center gap-2 md:gap-3 flex-1 min-w-0">
               <div className="w-8 h-8 md:w-9 md:h-9 bg-gray-900 dark:bg-gray-100 rounded-xl flex items-center justify-center shrink-0">
                 <Icon name="Truck" size={16} className="text-white dark:text-gray-900 md:w-[18px] md:h-[18px]" />

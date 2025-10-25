@@ -178,32 +178,32 @@ const Auth = ({ onSuccess }: AuthProps) => {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center p-4 bg-gradient-to-br from-blue-50 via-white to-purple-50 dark:from-gray-900 dark:via-gray-950 dark:to-blue-950">
-      <Card className="w-full max-w-md shadow-2xl rounded-3xl relative bg-white/80 dark:bg-gray-900/80 backdrop-blur-2xl border-white/30 dark:border-gray-700/30">
+    <div className="min-h-screen flex items-center justify-center p-3 sm:p-4 bg-gradient-to-br from-blue-50 via-white to-purple-50 dark:from-gray-900 dark:via-gray-950 dark:to-blue-950">
+      <Card className="w-full max-w-md shadow-2xl rounded-2xl sm:rounded-3xl relative bg-white/80 dark:bg-gray-900/80 backdrop-blur-2xl border-white/30 dark:border-gray-700/30">
         <button
           onClick={() => window.location.href = '/'}
-          className="absolute top-4 right-4 z-10 p-2 rounded-full hover:bg-muted/50 transition-colors"
+          className="absolute top-3 right-3 sm:top-4 sm:right-4 z-10 p-1.5 sm:p-2 rounded-full hover:bg-muted/50 transition-colors"
           title="Закрыть"
         >
-          <Icon name="X" size={24} className="text-muted-foreground hover:text-foreground" />
+          <Icon name="X" size={20} className="text-muted-foreground hover:text-foreground sm:w-6 sm:h-6" />
         </button>
-        <CardHeader className="space-y-2 pb-6">
-          <div className="w-16 h-16 bg-accent rounded-2xl flex items-center justify-center mx-auto mb-4">
-            <Icon name="Truck" size={32} className="text-accent-foreground" />
+        <CardHeader className="space-y-2 pb-4 sm:pb-6 px-4 sm:px-6">
+          <div className="w-12 h-12 sm:w-16 sm:h-16 bg-accent rounded-xl sm:rounded-2xl flex items-center justify-center mx-auto mb-2 sm:mb-4">
+            <Icon name="Truck" size={24} className="text-accent-foreground sm:w-8 sm:h-8" />
           </div>
-          <CardTitle className="text-3xl font-bold text-center">
+          <CardTitle className="text-2xl sm:text-3xl font-bold text-center">
             ГрузКлик
           </CardTitle>
-          <CardDescription className="text-center text-base">
+          <CardDescription className="text-center text-sm sm:text-base">
             Информационная панель
           </CardDescription>
-          <p className="text-center text-sm text-muted-foreground">
+          <p className="text-center text-xs sm:text-sm text-muted-foreground">
             {isLogin ? 'Войдите в свой аккаунт' : 'Создайте новый аккаунт'}
           </p>
         </CardHeader>
 
-        <CardContent>
-          <form onSubmit={handleSubmit} className="space-y-4">
+        <CardContent className="px-4 sm:px-6">
+          <form onSubmit={handleSubmit} className="space-y-3 sm:space-y-4">
             {!isLogin && (
               <>
                 <LanguageCurrencyFields
@@ -217,7 +217,7 @@ const Auth = ({ onSuccess }: AuthProps) => {
                   userType={userType}
                   onUserTypeChange={setUserType}
                 />
-                <p className="text-xs text-muted-foreground -mt-2 px-1">
+                <p className="text-[10px] sm:text-xs text-muted-foreground -mt-1 sm:-mt-2 px-1">
                   Можно изменить в настройках профиля
                 </p>
 
@@ -267,7 +267,7 @@ const Auth = ({ onSuccess }: AuthProps) => {
 
             <Button 
               type="submit" 
-              className="w-full h-12 text-base rounded-xl" 
+              className="w-full h-11 sm:h-12 text-sm sm:text-base rounded-xl" 
               disabled={loading || (!isLogin && !formData.agree_terms)}
             >
               {loading ? (
@@ -283,12 +283,12 @@ const Auth = ({ onSuccess }: AuthProps) => {
               )}
             </Button>
 
-            <div className="text-center space-y-1">
+            <div className="text-center space-y-0.5 sm:space-y-1">
               <Button
                 type="button"
                 variant="link"
                 onClick={() => setIsLogin(!isLogin)}
-                className="text-sm"
+                className="text-xs sm:text-sm"
               >
                 {isLogin ? 'Нет аккаунта? Зарегистрируйтесь' : 'Уже есть аккаунт? Войдите'}
               </Button>
@@ -298,7 +298,7 @@ const Auth = ({ onSuccess }: AuthProps) => {
                     type="button"
                     variant="link"
                     onClick={() => setShowForgotPassword(true)}
-                    className="text-sm text-muted-foreground hover:text-primary"
+                    className="text-[10px] sm:text-sm text-muted-foreground hover:text-primary"
                   >
                     Забыли пароль?
                   </Button>

@@ -22,20 +22,21 @@ const LoginFields = ({
 }: LoginFieldsProps) => {
   return (
     <>
-      <div className="space-y-2">
-        <Label htmlFor="email">Email или телефон</Label>
+      <div className="space-y-1.5 sm:space-y-2">
+        <Label htmlFor="email" className="text-xs sm:text-sm">Email или телефон</Label>
         <Input
           id="email"
           type="text"
-          placeholder="example@mail.ru или +7 (999) 123-45-67"
+          placeholder="example@mail.ru"
           value={email}
           onChange={(e) => onEmailChange(e.target.value)}
           required
+          className="h-10 sm:h-11 text-sm sm:text-base"
         />
       </div>
 
-      <div className="space-y-2">
-        <Label htmlFor="password">Пароль</Label>
+      <div className="space-y-1.5 sm:space-y-2">
+        <Label htmlFor="password" className="text-xs sm:text-sm">Пароль</Label>
         <div className="relative">
           <Input
             id="password"
@@ -44,15 +45,16 @@ const LoginFields = ({
             value={password}
             onChange={(e) => onPasswordChange(e.target.value)}
             required
+            className="h-10 sm:h-11 text-sm sm:text-base pr-10"
           />
           <Button
             type="button"
             variant="ghost"
             size="sm"
-            className="absolute right-0 top-0 h-full px-3 hover:bg-transparent"
+            className="absolute right-0 top-0 h-full px-2 sm:px-3 hover:bg-transparent"
             onClick={onTogglePassword}
           >
-            <Icon name={showPassword ? 'EyeOff' : 'Eye'} size={18} className="text-muted-foreground" />
+            <Icon name={showPassword ? 'EyeOff' : 'Eye'} size={16} className="text-muted-foreground sm:w-[18px] sm:h-[18px]" />
           </Button>
         </div>
       </div>
