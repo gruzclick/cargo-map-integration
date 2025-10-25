@@ -71,8 +71,12 @@ const LiveMap = ({ isPublic = false, onMarkerClick }: LiveMapProps = {}) => {
     if (!touchStart || !touchEnd) return;
     const distance = touchStart - touchEnd;
     const isLeftSwipe = distance > 50;
-    if (isLeftSwipe) {
+    const isRightSwipe = distance < -50;
+    
+    if (isLeftSwipe && showSidebar) {
       setShowSidebar(false);
+    } else if (isRightSwipe && !showSidebar) {
+      setShowSidebar(true);
     }
   };
 
@@ -178,13 +182,20 @@ const LiveMap = ({ isPublic = false, onMarkerClick }: LiveMapProps = {}) => {
 
       {/* Кнопка разворачивания боковой панели - в левой части карты */}
       {!showSidebar && (
-        <button
-          onClick={() => setShowSidebar(true)}
-          className="fixed top-4 left-4 z-20 w-12 h-12 bg-white/90 dark:bg-gray-800/90 backdrop-blur-3xl border border-gray-300 dark:border-gray-600 shadow-2xl rounded-full flex items-center justify-center hover:bg-white dark:hover:bg-gray-700 active:scale-95 transition-all"
-          title="Открыть панель"
+        <div
+          onTouchStart={handleTouchStart}
+          onTouchMove={handleTouchMove}
+          onTouchEnd={handleTouchEnd}
+          className="fixed top-0 left-0 w-12 h-full z-10"
         >
-          <Icon name="Menu" size={20} className="text-gray-900 dark:text-white" />
-        </button>
+          <button
+            onClick={() => setShowSidebar(true)}
+            className="fixed top-4 left-4 z-20 w-12 h-12 bg-white/90 dark:bg-gray-800/90 backdrop-blur-3xl border border-gray-300 dark:border-gray-600 shadow-2xl rounded-full flex items-center justify-center hover:bg-white dark:hover:bg-gray-700 active:scale-95 transition-all"
+            title="Открыть панель (свайп вправо)"
+          >
+            <Icon name="Menu" size={20} className="text-gray-900 dark:text-white" />
+          </button>
+        </div>
       )}
 
 

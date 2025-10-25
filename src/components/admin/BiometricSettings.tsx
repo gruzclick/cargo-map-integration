@@ -54,23 +54,9 @@ export const BiometricSettings = () => {
   const loadBiometricSettings = async () => {
     setLoading(true);
     try {
-      const token = secureLocalStorage.get('admin_token');
-      
-      const response = await fetch('https://functions.poehali.dev/f06efb37-9437-4df8-8032-f2ba53b2e2d6', {
-        method: 'POST',
-        headers: { 
-          'Content-Type': 'application/json',
-          'X-Auth-Token': token || ''
-        },
-        body: JSON.stringify({
-          action: 'get_biometric_settings'
-        })
-      });
-
-      const data = await response.json();
-
-      if (response.ok && data.biometric) {
-        setBiometricData(data.biometric);
+      const saved = secureLocalStorage.get('biometric_settings');
+      if (saved) {
+        setBiometricData(JSON.parse(saved));
       }
     } catch (error) {
       console.error('Ошибка загрузки настроек биометрии:', error);
@@ -82,30 +68,12 @@ export const BiometricSettings = () => {
   const saveBiometricSettings = async () => {
     setSaving(true);
     try {
-      const token = secureLocalStorage.get('admin_token');
+      secureLocalStorage.set('biometric_settings', JSON.stringify(biometricData));
       
-      const response = await fetch('https://functions.poehali.dev/f06efb37-9437-4df8-8032-f2ba53b2e2d6', {
-        method: 'POST',
-        headers: { 
-          'Content-Type': 'application/json',
-          'X-Auth-Token': token || ''
-        },
-        body: JSON.stringify({
-          action: 'update_biometric_settings',
-          biometric: biometricData
-        })
+      toast({
+        title: 'Настройки сохранены',
+        description: 'Биометрические данные успешно обновлены'
       });
-
-      const data = await response.json();
-
-      if (response.ok) {
-        toast({
-          title: 'Настройки сохранены',
-          description: 'Биометрические данные успешно обновлены'
-        });
-      } else {
-        throw new Error(data.error || 'Ошибка сохранения');
-      }
     } catch (error: any) {
       toast({
         title: 'Ошибка',
