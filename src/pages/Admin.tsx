@@ -14,6 +14,11 @@ const Admin = () => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [loginData, setLoginData] = useState({ username: '', password: '', twoFactorCode: '' });
   const [showTwoFactor, setShowTwoFactor] = useState(false);
+  const [showForgotPassword, setShowForgotPassword] = useState(false);
+  const [resetEmail, setResetEmail] = useState('');
+  const [resetCode, setResetCode] = useState('');
+  const [newPassword, setNewPassword] = useState('');
+  const [resetStep, setResetStep] = useState<'email' | 'code' | 'password'>('email');
   const [stats, setStats] = useState({
     totalUsers: 0,
     activeOrders: 0,
@@ -94,6 +99,59 @@ const Admin = () => {
     setShowTwoFactor(false);
   };
 
+  const handleForgotPassword = async () => {
+    if (resetStep === 'email') {
+      if (!resetEmail) {
+        toast({
+          title: 'Ошибка',
+          description: 'Введите email',
+          variant: 'destructive'
+        });
+        return;
+      }
+      
+      toast({
+        title: 'Код отправлен',
+        description: `Код восстановления отправлен на ${resetEmail}`
+      });
+      setResetStep('code');
+    } else if (resetStep === 'code') {
+      if (resetCode === '999999') {
+        setResetStep('password');
+        toast({
+          title: 'Код подтвержден',
+          description: 'Теперь введите новый пароль'
+        });
+      } else {
+        toast({
+          title: 'Неверный код',
+          description: 'Проверьте код из письма',
+          variant: 'destructive'
+        });
+      }
+    } else if (resetStep === 'password') {
+      if (!newPassword || newPassword.length < 6) {
+        toast({
+          title: 'Ошибка',
+          description: 'Пароль должен быть минимум 6 символов',
+          variant: 'destructive'
+        });
+        return;
+      }
+      
+      toast({
+        title: 'Пароль изменен',
+        description: 'Войдите с новым паролем'
+      });
+      
+      setShowForgotPassword(false);
+      setResetStep('email');
+      setResetEmail('');
+      setResetCode('');
+      setNewPassword('');
+    }
+  };
+
   if (!isAuthenticated) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 p-4">
@@ -101,14 +159,118 @@ const Admin = () => {
           <CardHeader>
             <CardTitle className="flex items-center gap-2 text-2xl">
               <Icon name="ShieldCheck" size={24} />
-              Админ-панель ГрузКлик
+              {showForgotPassword ? 'Восстановление пароля' : 'Админ-панель ГрузКлик'}
             </CardTitle>
             <CardDescription>
-              Защищенный вход для администраторов
+              {showForgotPassword ? 'Сброс пароля администратора' : 'Защищенный вход для администраторов'}
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
-            {!showTwoFactor ? (
+            {showForgotPassword ? (
+              <>
+                {resetStep === 'email' && (
+                  <>
+                    <div className="space-y-2">
+                      <Label htmlFor="resetEmail">Email администратора</Label>
+                      <Input
+                        id="resetEmail"
+                        type="email"
+                        placeholder="admin@example.com"
+                        value={resetEmail}
+                        onChange={(e) => setResetEmail(e.target.value)}
+                        onKeyPress={(e) => e.key === 'Enter' && handleForgotPassword()}
+                      />
+                    </div>
+                    <div className="p-3 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg">
+                      <p className="text-xs text-blue-700 dark:text-blue-300">
+                        Код восстановления будет отправлен на указанный email
+                      </p>
+                    </div>
+                  </>
+                )}
+
+                {resetStep === 'code' && (
+                  <>
+                    <div className="p-4 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg">
+                      <div className="flex items-start gap-3">
+                        <Icon name="Mail" size={20} className="text-green-600 dark:text-green-400 mt-0.5" />
+                        <div>
+                          <p className="text-sm font-medium text-green-900 dark:text-green-100">
+                            Код отправлен на {resetEmail}
+                          </p>
+                          <p className="text-xs text-green-700 dark:text-green-300 mt-1">
+                            Проверьте почту и введите код
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label htmlFor="resetCode">6-значный код</Label>
+                      <Input
+                        id="resetCode"
+                        type="text"
+                        placeholder="000000"
+                        maxLength={6}
+                        value={resetCode}
+                        onChange={(e) => setResetCode(e.target.value)}
+                        onKeyPress={(e) => e.key === 'Enter' && handleForgotPassword()}
+                        className="text-center text-2xl tracking-widest"
+                      />
+                    </div>
+                  </>
+                )}
+
+                {resetStep === 'password' && (
+                  <>
+                    <div className="p-4 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg">
+                      <div className="flex items-start gap-3">
+                        <Icon name="Key" size={20} className="text-blue-600 dark:text-blue-400 mt-0.5" />
+                        <div>
+                          <p className="text-sm font-medium text-blue-900 dark:text-blue-100">
+                            Создайте новый пароль
+                          </p>
+                          <p className="text-xs text-blue-700 dark:text-blue-300 mt-1">
+                            Минимум 6 символов
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label htmlFor="newPassword">Новый пароль</Label>
+                      <Input
+                        id="newPassword"
+                        type="password"
+                        placeholder="Введите новый пароль"
+                        value={newPassword}
+                        onChange={(e) => setNewPassword(e.target.value)}
+                        onKeyPress={(e) => e.key === 'Enter' && handleForgotPassword()}
+                      />
+                    </div>
+                  </>
+                )}
+
+                <div className="flex gap-2">
+                  <Button 
+                    variant="outline" 
+                    onClick={() => {
+                      setShowForgotPassword(false);
+                      setResetStep('email');
+                      setResetEmail('');
+                      setResetCode('');
+                      setNewPassword('');
+                    }} 
+                    className="flex-1"
+                  >
+                    Назад к входу
+                  </Button>
+                  <Button onClick={handleForgotPassword} className="flex-1">
+                    {resetStep === 'email' ? 'Отправить код' : resetStep === 'code' ? 'Проверить' : 'Сохранить'}
+                  </Button>
+                </div>
+              </>
+            ) : !showTwoFactor ? (
               <>
                 <div className="space-y-2">
                   <Label htmlFor="username">Логин</Label>
@@ -137,6 +299,14 @@ const Admin = () => {
                 <Button onClick={handleLogin} className="w-full">
                   <Icon name="LogIn" size={18} className="mr-2" />
                   Войти
+                </Button>
+
+                <Button 
+                  variant="link" 
+                  onClick={() => setShowForgotPassword(true)} 
+                  className="w-full text-sm"
+                >
+                  Забыли пароль?
                 </Button>
               </>
             ) : (
