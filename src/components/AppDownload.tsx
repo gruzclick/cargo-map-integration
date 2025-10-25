@@ -38,39 +38,30 @@ export default function AppDownload() {
   }, []);
 
   const handleInstallClick = async () => {
-    if (!deferredPrompt) {
-      toast({
-        title: 'Установка недоступна',
-        description: 'Используйте меню браузера (⋮) → "Установить приложение"',
-        variant: 'destructive'
-      });
-      return;
-    }
+    if (deferredPrompt) {
+      try {
+        await deferredPrompt.prompt();
+        const { outcome } = await deferredPrompt.userChoice;
 
-    try {
-      await deferredPrompt.prompt();
-      const { outcome } = await deferredPrompt.userChoice;
+        if (outcome === 'accepted') {
+          toast({
+            title: 'Установка начата',
+            description: 'Приложение будет установлено на ваше устройство',
+          });
+        }
 
-      if (outcome === 'accepted') {
+        setDeferredPrompt(null);
+        setIsInstallable(false);
+      } catch (error) {
+        console.error('Install error:', error);
+      }
+    } else {
+      if (isAndroid || (!isIOS && !isAndroid)) {
         toast({
-          title: 'Установка начата',
-          description: 'Приложение будет установлено на ваше устройство',
-        });
-      } else {
-        toast({
-          title: 'Установка отменена',
-          description: 'Вы можете установить приложение позже через меню браузера',
+          title: 'Установить через браузер',
+          description: 'Откройте меню браузера (⋮) и выберите "Установить приложение"',
         });
       }
-
-      setDeferredPrompt(null);
-      setIsInstallable(false);
-    } catch (error) {
-      toast({
-        title: 'Ошибка установки',
-        description: 'Попробуйте установить через меню браузера (⋮) → "Установить приложение"',
-        variant: 'destructive'
-      });
     }
   };
 
@@ -112,21 +103,19 @@ export default function AppDownload() {
 
   return (
     <div className="space-y-6">
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-3">
-            <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-purple-500 rounded-xl flex items-center justify-center">
-              <Icon name="Smartphone" size={24} className="text-white" />
-            </div>
-            <div>
-              <div className="text-xl">ГрузКлик</div>
-              <div className="text-sm font-normal text-muted-foreground mt-1">
-                Установите приложение для быстрого доступа
-              </div>
-            </div>
-          </CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-6">
+      <div className="flex items-center gap-3 mb-6">
+        <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-purple-500 rounded-xl flex items-center justify-center">
+          <Icon name="Smartphone" size={24} className="text-white" />
+        </div>
+        <div>
+          <div className="text-xl font-semibold">ГрузКлик</div>
+          <div className="text-sm text-muted-foreground mt-1">
+            Установите приложение для быстрого доступа
+          </div>
+        </div>
+      </div>
+
+      <div className="space-y-6">
           <div className="bg-gradient-to-r from-blue-500/10 to-purple-500/10 border border-blue-500/20 rounded-xl p-6">
             <h3 className="font-semibold text-lg mb-4">Преимущества приложения:</h3>
             <div className="grid md:grid-cols-2 gap-4">
@@ -209,22 +198,21 @@ export default function AppDownload() {
             )}
           </div>
 
-          <div className="grid md:grid-cols-3 gap-4 pt-4 border-t">
-            <div className="text-center">
-              <div className="text-2xl font-bold text-primary mb-1">iOS & Android</div>
-              <div className="text-sm text-muted-foreground">Все платформы</div>
-            </div>
-            <div className="text-center">
-              <div className="text-2xl font-bold text-primary mb-1">&lt; 5 МБ</div>
-              <div className="text-sm text-muted-foreground">Размер приложения</div>
-            </div>
-            <div className="text-center">
-              <div className="text-2xl font-bold text-primary mb-1">Бесплатно</div>
-              <div className="text-sm text-muted-foreground">Навсегда</div>
-            </div>
+        <div className="grid md:grid-cols-3 gap-4 pt-4 border-t">
+          <div className="text-center">
+            <div className="text-2xl font-bold text-primary mb-1">iOS & Android</div>
+            <div className="text-sm text-muted-foreground">Все платформы</div>
           </div>
-        </CardContent>
-      </Card>
+          <div className="text-center">
+            <div className="text-2xl font-bold text-primary mb-1">&lt; 5 МБ</div>
+            <div className="text-sm text-muted-foreground">Размер приложения</div>
+          </div>
+          <div className="text-center">
+            <div className="text-2xl font-bold text-primary mb-1">Бесплатно</div>
+            <div className="text-sm text-muted-foreground">Навсегда</div>
+          </div>
+        </div>
+      </div>
     </div>
   );
 }
