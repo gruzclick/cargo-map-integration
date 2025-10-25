@@ -24,6 +24,22 @@
         "action": "get_stats"
       },
       "expectedStatus": 200
+    },
+    {
+      "name": "Get users",
+      "method": "POST",
+      "body": {
+        "action": "get_users"
+      },
+      "expectedStatus": 200
+    },
+    {
+      "name": "Get deliveries",
+      "method": "POST",
+      "body": {
+        "action": "get_deliveries"
+      },
+      "expectedStatus": 200
     }
   ]
 }

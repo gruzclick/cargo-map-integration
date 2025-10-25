@@ -26,7 +26,8 @@ def hash_password(password: str) -> str:
 
 def get_db_connection():
     dsn = os.environ.get('DATABASE_URL')
-    return psycopg2.connect(dsn, cursor_factory=RealDictCursor)
+    conn = psycopg2.connect(dsn, cursor_factory=RealDictCursor)
+    return conn
 
 def send_email(to_email: str, code: str) -> bool:
     smtp_host = os.environ.get('SMTP_HOST')
@@ -317,7 +318,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             cur.execute("SELECT COALESCE(SUM(delivery_price), 0) as total FROM t_p93479485_cargo_map_integratio.deliveries WHERE status = 'completed'")
             total_revenue = cur.fetchone()['total']
             
-            cur.execute("SELECT COUNT(*) as total FROM t_p93479485_cargo_map_integratio.drivers")
+            cur.execute("SELECT COUNT(*) as total FROM t_p93479485_cargo_map_integratio.carriers")
             active_drivers = cur.fetchone()['total']
             
             return {
@@ -331,6 +332,98 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                         'activeDrivers': active_drivers
                     }
                 }),
+                'isBase64Encoded': False
+            }
+        
+        elif action == 'get_users':
+            cur.execute("SELECT user_id, phone, full_name, email, user_type, email_verified, created_at FROM t_p93479485_cargo_map_integratio.users ORDER BY created_at DESC")
+            users_data = cur.fetchall()
+            
+            users_list = []
+            for user in users_data:
+                users_list.append({
+                    'id': user['user_id'],
+                    'phone_number': user['phone'] or '-',
+                    'full_name': user['full_name'],
+                    'email': user['email'],
+                    'role': user['user_type'],
+                    'status': 'active' if user['email_verified'] else 'inactive',
+                    'created_at': user['created_at'].isoformat() if user['created_at'] else None
+                })
+            
+            return {
+                'statusCode': 200,
+                'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                'body': json.dumps({'users': users_list}),
+                'isBase64Encoded': False
+            }
+        
+        elif action == 'get_deliveries':
+            cur.execute("SELECT delivery_id, client_id, carrier_id, status, pickup_address, delivery_address, delivery_price, created_at FROM t_p93479485_cargo_map_integratio.deliveries ORDER BY created_at DESC")
+            deliveries_data = cur.fetchall()
+            
+            deliveries_list = []
+            for delivery in deliveries_data:
+                deliveries_list.append({
+                    'id': delivery['delivery_id'],
+                    'user_id': delivery['client_id'],
+                    'driver_id': delivery['carrier_id'],
+                    'status': delivery['status'],
+                    'pickup_address': delivery['pickup_address'],
+                    'delivery_address': delivery['delivery_address'],
+                    'delivery_price': float(delivery['delivery_price']) if delivery['delivery_price'] else 0,
+                    'created_at': delivery['created_at'].isoformat() if delivery['created_at'] else None
+                })
+            
+            return {
+                'statusCode': 200,
+                'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                'body': json.dumps({'deliveries': deliveries_list}),
+                'isBase64Encoded': False
+            }
+        
+        elif action == 'update_user_status':
+            user_id = body_data.get('user_id')
+            status = body_data.get('status')
+            
+            if not user_id or not status:
+                return {
+                    'statusCode': 400,
+                    'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                    'body': json.dumps({'error': 'User ID and status are required'}),
+                    'isBase64Encoded': False
+                }
+            
+            email_verified = True if status == 'active' else False
+            cur.execute("UPDATE t_p93479485_cargo_map_integratio.users SET email_verified = %s WHERE user_id = %s", (email_verified, user_id))
+            conn.commit()
+            
+            return {
+                'statusCode': 200,
+                'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                'body': json.dumps({'message': 'User status updated'}),
+                'isBase64Encoded': False
+            }
+        
+        elif action == 'update_delivery_status':
+            delivery_id = body_data.get('delivery_id')
+            status = body_data.get('status')
+            
+            if not delivery_id or not status:
+                return {
+                    'statusCode': 400,
+                    'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                    'body': json.dumps({'error': 'Delivery ID and status are required'}),
+                    'isBase64Encoded': False
+                }
+            
+            cur.execute("UPDATE t_p93479485_cargo_map_integratio.deliveries SET status = %s WHERE delivery_id = %s", (status, delivery_id))
+            conn.commit()
+            
+            return {
+                'statusCode': 200,
+                'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                'body': json.dumps({'message': 'Delivery status updated'}),
                 'isBase64Encoded': False
             }
         

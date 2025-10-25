@@ -10,6 +10,27 @@ interface AdminDashboardProps {
   onLogout: () => void;
 }
 
+interface User {
+  id: string;
+  phone_number: string;
+  full_name: string;
+  email: string;
+  role: string;
+  status: string;
+  created_at: string;
+}
+
+interface Delivery {
+  id: string;
+  user_id: string;
+  driver_id: string;
+  status: string;
+  pickup_address: string;
+  delivery_address: string;
+  delivery_price: number;
+  created_at: string;
+}
+
 export const AdminDashboard = ({ onLogout }: AdminDashboardProps) => {
   const [theme, setTheme] = useState<'light' | 'dark'>('dark');
   const [stats, setStats] = useState({
@@ -20,6 +41,10 @@ export const AdminDashboard = ({ onLogout }: AdminDashboardProps) => {
   });
   const [adminProfile, setAdminProfile] = useState<any>(null);
   const [loading, setLoading] = useState(true);
+  const [users, setUsers] = useState<User[]>([]);
+  const [deliveries, setDeliveries] = useState<Delivery[]>([]);
+  const [loadingUsers, setLoadingUsers] = useState(false);
+  const [loadingDeliveries, setLoadingDeliveries] = useState(false);
 
   useEffect(() => {
     const savedTheme = localStorage.getItem('admin_theme') as 'light' | 'dark' || 'dark';
@@ -32,6 +57,8 @@ export const AdminDashboard = ({ onLogout }: AdminDashboardProps) => {
     }
 
     loadStats();
+    loadUsers();
+    loadDeliveries();
   }, []);
 
   const toggleTheme = () => {
@@ -79,6 +106,113 @@ export const AdminDashboard = ({ onLogout }: AdminDashboardProps) => {
       });
     } finally {
       setLoading(false);
+    }
+  };
+
+  const loadUsers = async () => {
+    setLoadingUsers(true);
+    try {
+      const token = secureLocalStorage.get('admin_token');
+      
+      const response = await fetch('https://functions.poehali.dev/f06efb37-9437-4df8-8032-f2ba53b2e2d6', {
+        method: 'POST',
+        headers: { 
+          'Content-Type': 'application/json',
+          'X-Auth-Token': token || ''
+        },
+        body: JSON.stringify({
+          action: 'get_users'
+        })
+      });
+
+      const data = await response.json();
+
+      if (response.ok && data.users) {
+        setUsers(data.users);
+      }
+    } catch (error) {
+      console.error('Ошибка загрузки пользователей:', error);
+    } finally {
+      setLoadingUsers(false);
+    }
+  };
+
+  const loadDeliveries = async () => {
+    setLoadingDeliveries(true);
+    try {
+      const token = secureLocalStorage.get('admin_token');
+      
+      const response = await fetch('https://functions.poehali.dev/f06efb37-9437-4df8-8032-f2ba53b2e2d6', {
+        method: 'POST',
+        headers: { 
+          'Content-Type': 'application/json',
+          'X-Auth-Token': token || ''
+        },
+        body: JSON.stringify({
+          action: 'get_deliveries'
+        })
+      });
+
+      const data = await response.json();
+
+      if (response.ok && data.deliveries) {
+        setDeliveries(data.deliveries);
+      }
+    } catch (error) {
+      console.error('Ошибка загрузки заказов:', error);
+    } finally {
+      setLoadingDeliveries(false);
+    }
+  };
+
+  const updateUserStatus = async (userId: string, status: string) => {
+    try {
+      const token = secureLocalStorage.get('admin_token');
+      
+      const response = await fetch('https://functions.poehali.dev/f06efb37-9437-4df8-8032-f2ba53b2e2d6', {
+        method: 'POST',
+        headers: { 
+          'Content-Type': 'application/json',
+          'X-Auth-Token': token || ''
+        },
+        body: JSON.stringify({
+          action: 'update_user_status',
+          user_id: userId,
+          status
+        })
+      });
+
+      if (response.ok) {
+        loadUsers();
+      }
+    } catch (error) {
+      console.error('Ошибка обновления статуса:', error);
+    }
+  };
+
+  const updateDeliveryStatus = async (deliveryId: string, status: string) => {
+    try {
+      const token = secureLocalStorage.get('admin_token');
+      
+      const response = await fetch('https://functions.poehali.dev/f06efb37-9437-4df8-8032-f2ba53b2e2d6', {
+        method: 'POST',
+        headers: { 
+          'Content-Type': 'application/json',
+          'X-Auth-Token': token || ''
+        },
+        body: JSON.stringify({
+          action: 'update_delivery_status',
+          delivery_id: deliveryId,
+          status
+        })
+      });
+
+      if (response.ok) {
+        loadDeliveries();
+        loadStats();
+      }
+    } catch (error) {
+      console.error('Ошибка обновления заказа:', error);
     }
   };
 
@@ -205,10 +339,69 @@ export const AdminDashboard = ({ onLogout }: AdminDashboardProps) => {
                 <CardDescription className="text-gray-600 dark:text-gray-400">Просмотр и управление пользователями системы</CardDescription>
               </CardHeader>
               <CardContent>
-                <div className="text-center py-8 text-gray-500 dark:text-gray-400">
-                  <Icon name="Users" size={48} className="mx-auto mb-4 text-gray-300 dark:text-gray-600" />
-                  <p>Нет данных для отображения</p>
-                </div>
+                {loadingUsers ? (
+                  <div className="text-center py-8 text-gray-500 dark:text-gray-400">
+                    Загрузка...
+                  </div>
+                ) : users.length === 0 ? (
+                  <div className="text-center py-8 text-gray-500 dark:text-gray-400">
+                    <Icon name="Users" size={48} className="mx-auto mb-4 text-gray-300 dark:text-gray-600" />
+                    <p>Нет пользователей</p>
+                  </div>
+                ) : (
+                  <div className="overflow-x-auto">
+                    <table className="w-full">
+                      <thead>
+                        <tr className="border-b border-gray-200 dark:border-gray-800">
+                          <th className="text-left p-3 text-gray-600 dark:text-gray-400">ID</th>
+                          <th className="text-left p-3 text-gray-600 dark:text-gray-400">Телефон</th>
+                          <th className="text-left p-3 text-gray-600 dark:text-gray-400">ФИО</th>
+                          <th className="text-left p-3 text-gray-600 dark:text-gray-400">Email</th>
+                          <th className="text-left p-3 text-gray-600 dark:text-gray-400">Роль</th>
+                          <th className="text-left p-3 text-gray-600 dark:text-gray-400">Статус</th>
+                          <th className="text-left p-3 text-gray-600 dark:text-gray-400">Действия</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {users.map((user) => (
+                          <tr key={user.id} className="border-b border-gray-100 dark:border-gray-800">
+                            <td className="p-3 text-gray-900 dark:text-gray-100 font-mono text-xs">{user.id.slice(0, 8)}...</td>
+                            <td className="p-3 text-gray-900 dark:text-gray-100">{user.phone_number}</td>
+                            <td className="p-3 text-gray-900 dark:text-gray-100">{user.full_name || '-'}</td>
+                            <td className="p-3 text-gray-900 dark:text-gray-100">{user.email || '-'}</td>
+                            <td className="p-3">
+                              <span className={`px-2 py-1 rounded text-xs ${
+                                user.role === 'driver' ? 'bg-purple-100 dark:bg-purple-900 text-purple-800 dark:text-purple-200' :
+                                user.role === 'admin' ? 'bg-red-100 dark:bg-red-900 text-red-800 dark:text-red-200' :
+                                'bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200'
+                              }`}>
+                                {user.role}
+                              </span>
+                            </td>
+                            <td className="p-3">
+                              <span className={`px-2 py-1 rounded text-xs ${
+                                user.status === 'active' ? 'bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200' :
+                                'bg-gray-100 dark:bg-gray-800 text-gray-800 dark:text-gray-200'
+                              }`}>
+                                {user.status}
+                              </span>
+                            </td>
+                            <td className="p-3">
+                              <Button 
+                                size="sm" 
+                                variant="outline"
+                                onClick={() => updateUserStatus(user.id, user.status === 'active' ? 'blocked' : 'active')}
+                                className="text-xs"
+                              >
+                                {user.status === 'active' ? 'Заблокировать' : 'Разблокировать'}
+                              </Button>
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                )}
               </CardContent>
             </Card>
           </TabsContent>
@@ -220,10 +413,65 @@ export const AdminDashboard = ({ onLogout }: AdminDashboardProps) => {
                 <CardDescription className="text-gray-600 dark:text-gray-400">Просмотр и управление заказами</CardDescription>
               </CardHeader>
               <CardContent>
-                <div className="text-center py-8 text-gray-500 dark:text-gray-400">
-                  <Icon name="Package" size={48} className="mx-auto mb-4 text-gray-300 dark:text-gray-600" />
-                  <p>Нет данных для отображения</p>
-                </div>
+                {loadingDeliveries ? (
+                  <div className="text-center py-8 text-gray-500 dark:text-gray-400">
+                    Загрузка...
+                  </div>
+                ) : deliveries.length === 0 ? (
+                  <div className="text-center py-8 text-gray-500 dark:text-gray-400">
+                    <Icon name="Package" size={48} className="mx-auto mb-4 text-gray-300 dark:text-gray-600" />
+                    <p>Нет заказов</p>
+                  </div>
+                ) : (
+                  <div className="overflow-x-auto">
+                    <table className="w-full">
+                      <thead>
+                        <tr className="border-b border-gray-200 dark:border-gray-800">
+                          <th className="text-left p-3 text-gray-600 dark:text-gray-400">ID</th>
+                          <th className="text-left p-3 text-gray-600 dark:text-gray-400">Откуда</th>
+                          <th className="text-left p-3 text-gray-600 dark:text-gray-400">Куда</th>
+                          <th className="text-left p-3 text-gray-600 dark:text-gray-400">Цена</th>
+                          <th className="text-left p-3 text-gray-600 dark:text-gray-400">Статус</th>
+                          <th className="text-left p-3 text-gray-600 dark:text-gray-400">Дата</th>
+                          <th className="text-left p-3 text-gray-600 dark:text-gray-400">Действия</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {deliveries.map((delivery) => (
+                          <tr key={delivery.id} className="border-b border-gray-100 dark:border-gray-800">
+                            <td className="p-3 text-gray-900 dark:text-gray-100 font-mono text-xs">{delivery.id.slice(0, 8)}...</td>
+                            <td className="p-3 text-gray-900 dark:text-gray-100">{delivery.pickup_address}</td>
+                            <td className="p-3 text-gray-900 dark:text-gray-100">{delivery.delivery_address}</td>
+                            <td className="p-3 text-gray-900 dark:text-gray-100">{delivery.delivery_price} ₽</td>
+                            <td className="p-3">
+                              <span className={`px-2 py-1 rounded text-xs ${
+                                delivery.status === 'completed' ? 'bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200' :
+                                delivery.status === 'active' ? 'bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200' :
+                                delivery.status === 'pending' ? 'bg-yellow-100 dark:bg-yellow-900 text-yellow-800 dark:text-yellow-200' :
+                                'bg-gray-100 dark:bg-gray-800 text-gray-800 dark:text-gray-200'
+                              }`}>
+                                {delivery.status}
+                              </span>
+                            </td>
+                            <td className="p-3 text-gray-900 dark:text-gray-100">{new Date(delivery.created_at).toLocaleDateString('ru-RU')}</td>
+                            <td className="p-3">
+                              <select 
+                                value={delivery.status}
+                                onChange={(e) => updateDeliveryStatus(delivery.id, e.target.value)}
+                                className="text-xs border rounded px-2 py-1 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 border-gray-300 dark:border-gray-700"
+                              >
+                                <option value="pending">pending</option>
+                                <option value="active">active</option>
+                                <option value="completed">completed</option>
+                                <option value="cancelled">cancelled</option>
+                              </select>
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                )}
               </CardContent>
             </Card>
           </TabsContent>
