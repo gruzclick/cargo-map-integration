@@ -45,6 +45,7 @@ const Auth = ({ onSuccess }: AuthProps) => {
     agree_geolocation: false,
     agree_verification: false,
     use_gosuslugi: false,
+    agree_terms: false,
     language: 'ru',
     currency: 'RUB'
   });
@@ -100,10 +101,10 @@ const Auth = ({ onSuccess }: AuthProps) => {
           title: 'Вход выполнен успешно!'
         });
       } else {
-        if (!termsAccepted) {
+        if (!formData.agree_terms) {
           toast({
             title: 'Требуется согласие',
-            description: 'Пожалуйста, примите пользовательское соглашение',
+            description: 'Необходимо согласиться с Пользовательским соглашением и Политикой конфиденциальности',
             variant: 'destructive'
           });
           setLoading(false);
@@ -244,10 +245,11 @@ const Auth = ({ onSuccess }: AuthProps) => {
                   agreeGeolocation={formData.agree_geolocation}
                   agreeVerification={formData.agree_verification}
                   useGosuslugi={formData.use_gosuslugi}
+                  agreeTerms={formData.agree_terms}
                   onAgreeGeolocationChange={(val) => setFormData({ ...formData, agree_geolocation: val })}
                   onAgreeVerificationChange={(val) => setFormData({ ...formData, agree_verification: val })}
                   onUseGosuslugirChange={(val) => setFormData({ ...formData, use_gosuslugi: val })}
-                  onShowTerms={() => setShowTerms(true)}
+                  onAgreeTermsChange={(val) => setFormData({ ...formData, agree_terms: val })}
                 />
               </>
             )}
@@ -266,7 +268,7 @@ const Auth = ({ onSuccess }: AuthProps) => {
             <Button 
               type="submit" 
               className="w-full h-12 text-base rounded-xl" 
-              disabled={loading || (!isLogin && !termsAccepted)}
+              disabled={loading || (!isLogin && !formData.agree_terms)}
             >
               {loading ? (
                 <>

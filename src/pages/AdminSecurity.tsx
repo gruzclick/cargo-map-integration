@@ -343,36 +343,6 @@ export default function AdminSecurity() {
           </div>
         </CardContent>
       </Card>
-
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Icon name="Info" size={20} />
-            Рекомендации по безопасности
-          </CardTitle>
-          <CardDescription>
-            Советы для повышения безопасности админ-панели
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="p-4 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg">
-            <div className="flex items-start gap-3">
-              <Icon name="ShieldAlert" size={20} className="text-blue-600 dark:text-blue-400 mt-0.5" />
-              <div>
-                <p className="text-sm font-medium text-blue-900 dark:text-blue-100 mb-1">
-                  Рекомендации
-                </p>
-                <ul className="text-xs text-blue-700 dark:text-blue-300 space-y-1">
-                  <li>• Используйте биометрию для быстрого и безопасного входа</li>
-                  <li>• Регулярно обновляйте пароли (каждые 90 дней)</li>
-                  <li>• Не используйте один и тот же пароль для разных систем</li>
-                  <li>• Включайте двухфакторную аутентификацию где возможно</li>
-                </ul>
-              </div>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
     </div>
   );
 }

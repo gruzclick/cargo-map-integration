@@ -19,12 +19,14 @@ import TermsOfService from "./pages/TermsOfService";
 import TermsUpdateDialog from "./components/TermsUpdateDialog";
 import './i18n/config';
 import { secureLocalStorage } from './utils/security';
+import { useServiceWorker } from './hooks/useServiceWorker';
 
 const queryClient = new QueryClient();
 
 const App = () => {
   const [textSize, setTextSize] = useState<'small' | 'medium' | 'large' | 'xlarge'>('medium');
   const [showTermsUpdate, setShowTermsUpdate] = useState(false);
+  useServiceWorker();
 
 useEffect(() => {
     const savedSize = localStorage.getItem('textSize') as 'small' | 'medium' | 'large' | 'xlarge' | null;

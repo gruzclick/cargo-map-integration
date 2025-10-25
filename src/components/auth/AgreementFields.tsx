@@ -7,23 +7,54 @@ interface AgreementFieldsProps {
   agreeGeolocation: boolean;
   agreeVerification: boolean;
   useGosuslugi: boolean;
+  agreeTerms: boolean;
   onAgreeGeolocationChange: (value: boolean) => void;
   onAgreeVerificationChange: (value: boolean) => void;
   onUseGosuslugirChange: (value: boolean) => void;
-  onShowTerms: () => void;
+  onAgreeTermsChange: (value: boolean) => void;
 }
 
 const AgreementFields = ({
   agreeGeolocation,
   agreeVerification,
   useGosuslugi,
+  agreeTerms,
   onAgreeGeolocationChange,
   onAgreeVerificationChange,
   onUseGosuslugirChange,
-  onShowTerms
+  onAgreeTermsChange
 }: AgreementFieldsProps) => {
   return (
     <div className="space-y-3">
+      <div className="flex items-start space-x-2 p-4 border-2 border-red-200 dark:border-red-800 rounded-lg bg-red-50 dark:bg-red-900/10">
+        <Checkbox
+          id="agree_terms"
+          checked={agreeTerms}
+          onCheckedChange={(checked) => onAgreeTermsChange(checked as boolean)}
+          className="mt-0.5"
+        />
+        <Label htmlFor="agree_terms" className="text-sm cursor-pointer leading-relaxed">
+          Я согласен с{' '}
+          <a 
+            href="/terms" 
+            target="_blank" 
+            rel="noopener noreferrer"
+            className="text-blue-600 dark:text-blue-400 hover:underline font-medium"
+          >
+            Пользовательским соглашением
+          </a>
+          {' '}и{' '}
+          <a 
+            href="/privacy" 
+            target="_blank" 
+            rel="noopener noreferrer"
+            className="text-blue-600 dark:text-blue-400 hover:underline font-medium"
+          >
+            Политикой конфиденциальности
+          </a>
+        </Label>
+      </div>
+
       <div className="flex items-start space-x-2">
         <Checkbox
           id="agree_geolocation"
@@ -57,15 +88,6 @@ const AgreementFields = ({
           <Icon name="ShieldCheck" size={16} className="text-green-600" />
         </Label>
       </div>
-
-      <Button
-        type="button"
-        variant="link"
-        onClick={onShowTerms}
-        className="text-sm px-0 h-auto"
-      >
-        Прочитать пользовательское соглашение
-      </Button>
     </div>
   );
 };
