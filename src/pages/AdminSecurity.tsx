@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -6,6 +6,7 @@ import { Label } from '@/components/ui/label';
 import Icon from '@/components/ui/icon';
 import { useToast } from '@/hooks/use-toast';
 import { Badge } from '@/components/ui/badge';
+import { secureLocalStorage } from '@/utils/security';
 
 export default function AdminSecurity() {
   const { toast } = useToast();
@@ -18,8 +19,23 @@ export default function AdminSecurity() {
   const [showCurrentPassword, setShowCurrentPassword] = useState(false);
   const [showNewPassword, setShowNewPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-  const currentUser = JSON.parse(localStorage.getItem('user_data') || '{}');
-  const userEmail = currentUser.email || 'Не указан';
+  const [biometricAvailable, setBiometricAvailable] = useState(false);
+  const [biometricEnabled, setBiometricEnabled] = useState(false);
+  const adminProfile = JSON.parse(secureLocalStorage.get('admin_profile') || '{}');
+  const userEmail = adminProfile.email || 'Не указан';
+
+  useEffect(() => {
+    checkBiometricAvailability();
+    const enabled = localStorage.getItem('biometric_enabled') === 'true';
+    setBiometricEnabled(enabled);
+  }, []);
+
+  const checkBiometricAvailability = async () => {
+    if (window.PublicKeyCredential) {
+      const available = await PublicKeyCredential.isUserVerifyingPlatformAuthenticatorAvailable();
+      setBiometricAvailable(available);
+    }
+  };
 
   const handleChangePassword = () => {
     if (passwordData.currentPassword !== 'admin123') {
@@ -69,6 +85,67 @@ export default function AdminSecurity() {
     });
   };
 
+  const handleEnableBiometric = async () => {
+    try {
+      const challenge = new Uint8Array(32);
+      crypto.getRandomValues(challenge);
+
+      const credential = await navigator.credentials.create({
+        publicKey: {
+          challenge: challenge,
+          rp: {
+            name: "Admin Panel",
+            id: window.location.hostname
+          },
+          user: {
+            id: new Uint8Array(16),
+            name: userEmail,
+            displayName: adminProfile.full_name || userEmail
+          },
+          pubKeyCredParams: [
+            { alg: -7, type: "public-key" },
+            { alg: -257, type: "public-key" }
+          ],
+          authenticatorSelection: {
+            authenticatorAttachment: "platform",
+            userVerification: "required"
+          },
+          timeout: 60000,
+          attestation: "none"
+        }
+      });
+
+      if (credential) {
+        localStorage.setItem('biometric_enabled', 'true');
+        localStorage.setItem('biometric_credential', JSON.stringify({
+          id: credential.id,
+          rawId: Array.from(new Uint8Array(credential.rawId))
+        }));
+        setBiometricEnabled(true);
+        toast({
+          title: 'Биометрия настроена',
+          description: 'Теперь вы можете входить используя биометрию'
+        });
+      }
+    } catch (error) {
+      toast({
+        title: 'Ошибка',
+        description: 'Не удалось настроить биометрию. Попробуйте снова.',
+        variant: 'destructive'
+      });
+    }
+  };
+
+  const handleDisableBiometric = () => {
+    localStorage.removeItem('biometric_enabled');
+    localStorage.removeItem('biometric_credential');
+    setBiometricEnabled(false);
+    toast({
+      title: 'Биометрия отключена',
+      description: 'Биометрическая аутентификация деактивирована'
+    });
+  };
+
   return (
     <div className="space-y-6">
       <Card>
@@ -83,16 +160,36 @@ export default function AdminSecurity() {
         </CardHeader>
         <CardContent className="space-y-6">
           <div className="space-y-4">
-            <div className="flex items-center justify-between p-4 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg">
-              <div className="flex items-center gap-3">
-                <Icon name="ShieldCheck" size={24} className="text-green-600 dark:text-green-400" />
-                <div>
-                  <p className="font-medium">Двухфакторная аутентификация</p>
-                  <p className="text-sm text-gray-600 dark:text-gray-400">Google Authenticator</p>
+            {biometricAvailable && (
+              <div className={`flex items-center justify-between p-4 border rounded-lg ${
+                biometricEnabled 
+                  ? 'bg-green-50 dark:bg-green-900/20 border-green-200 dark:border-green-800' 
+                  : 'bg-gray-50 dark:bg-gray-800 border-gray-200 dark:border-gray-700'
+              }`}>
+                <div className="flex items-center gap-3">
+                  <Icon 
+                    name="Fingerprint" 
+                    size={24} 
+                    className={biometricEnabled ? 'text-green-600 dark:text-green-400' : 'text-gray-600 dark:text-gray-400'} 
+                  />
+                  <div>
+                    <p className="font-medium">Биометрическая аутентификация</p>
+                    <p className="text-sm text-gray-600 dark:text-gray-400">
+                      {biometricEnabled ? 'Вход по отпечатку пальца или Face ID' : 'Используйте биометрию для входа'}
+                    </p>
+                  </div>
                 </div>
+                {biometricEnabled ? (
+                  <Button variant="outline" onClick={handleDisableBiometric}>
+                    Отключить
+                  </Button>
+                ) : (
+                  <Button onClick={handleEnableBiometric}>
+                    Настроить
+                  </Button>
+                )}
               </div>
-              <Badge variant="default" className="bg-green-600">Включена</Badge>
-            </div>
+            )}
 
             <div className="flex items-center justify-between p-4 border rounded-lg">
               <div className="flex items-center gap-3">
@@ -203,123 +300,26 @@ export default function AdminSecurity() {
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Icon name="Info" size={20} />
-            Альтернативные способы входа в админ-панель
+            Рекомендации по безопасности
           </CardTitle>
           <CardDescription>
-            Дополнительные методы аутентификации для повышения безопасности
+            Советы для повышения безопасности админ-панели
           </CardDescription>
         </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="space-y-4">
-            <div className="p-4 border rounded-lg">
-              <div className="flex items-start gap-3 mb-3">
-                <Icon name="Key" size={24} className="text-blue-600 dark:text-blue-400 mt-1" />
-                <div className="flex-1">
-                  <h3 className="font-semibold mb-1">1. Аппаратный ключ (USB Security Key)</h3>
-                  <p className="text-sm text-gray-600 dark:text-gray-400 mb-2">
-                    YubiKey, Google Titan или другие FIDO2-совместимые устройства
-                  </p>
-                  <ul className="text-sm text-gray-600 dark:text-gray-400 space-y-1 ml-4">
-                    <li className="flex items-start gap-2">
-                      <Icon name="Check" size={14} className="text-green-600 mt-0.5" />
-                      <span>Физическая защита - ключ должен быть у вас</span>
-                    </li>
-                    <li className="flex items-start gap-2">
-                      <Icon name="Check" size={14} className="text-green-600 mt-0.5" />
-                      <span>Защита от фишинга и удаленных атак</span>
-                    </li>
-                    <li className="flex items-start gap-2">
-                      <Icon name="Check" size={14} className="text-green-600 mt-0.5" />
-                      <span>Поддержка WebAuthn стандарта</span>
-                    </li>
-                  </ul>
-                </div>
-              </div>
-              <Badge variant="secondary">Рекомендовано</Badge>
-            </div>
-
-            <div className="p-4 border rounded-lg">
-              <div className="flex items-start gap-3 mb-3">
-                <Icon name="Smartphone" size={24} className="text-green-600 dark:text-green-400 mt-1" />
-                <div className="flex-1">
-                  <h3 className="font-semibold mb-1">2. Биометрическая аутентификация</h3>
-                  <p className="text-sm text-gray-600 dark:text-gray-400 mb-2">
-                    Отпечаток пальца или Face ID на вашем устройстве
-                  </p>
-                  <ul className="text-sm text-gray-600 dark:text-gray-400 space-y-1 ml-4">
-                    <li className="flex items-start gap-2">
-                      <Icon name="Check" size={14} className="text-green-600 mt-0.5" />
-                      <span>Быстрый вход без ввода пароля</span>
-                    </li>
-                    <li className="flex items-start gap-2">
-                      <Icon name="Check" size={14} className="text-green-600 mt-0.5" />
-                      <span>Работает на смартфонах и ноутбуках</span>
-                    </li>
-                  </ul>
-                </div>
-              </div>
-              <Badge>Доступно</Badge>
-            </div>
-
-            <div className="p-4 border rounded-lg">
-              <div className="flex items-start gap-3 mb-3">
-                <Icon name="CreditCard" size={24} className="text-purple-600 dark:text-purple-400 mt-1" />
-                <div className="flex-1">
-                  <h3 className="font-semibold mb-1">3. Смарт-карта с сертификатом</h3>
-                  <p className="text-sm text-gray-600 dark:text-gray-400 mb-2">
-                    Корпоративная смарт-карта с цифровым сертификатом
-                  </p>
-                  <ul className="text-sm text-gray-600 dark:text-gray-400 space-y-1 ml-4">
-                    <li className="flex items-start gap-2">
-                      <Icon name="Check" size={14} className="text-green-600 mt-0.5" />
-                      <span>PKI-инфраструктура</span>
-                    </li>
-                    <li className="flex items-start gap-2">
-                      <Icon name="Check" size={14} className="text-green-600 mt-0.5" />
-                      <span>Двухфакторная аутентификация (что-то, что у вас есть + что-то, что вы знаете)</span>
-                    </li>
-                  </ul>
-                </div>
-              </div>
-              <Badge variant="outline">Enterprise</Badge>
-            </div>
-
-            <div className="p-4 border rounded-lg">
-              <div className="flex items-start gap-3 mb-3">
-                <Icon name="Network" size={24} className="text-orange-600 dark:text-orange-400 mt-1" />
-                <div className="flex-1">
-                  <h3 className="font-semibold mb-1">4. VPN + IP Whitelist</h3>
-                  <p className="text-sm text-gray-600 dark:text-gray-400 mb-2">
-                    Доступ только из корпоративной сети или через VPN
-                  </p>
-                  <ul className="text-sm text-gray-600 dark:text-gray-400 space-y-1 ml-4">
-                    <li className="flex items-start gap-2">
-                      <Icon name="Check" size={14} className="text-green-600 mt-0.5" />
-                      <span>Ограничение доступа по IP-адресам</span>
-                    </li>
-                    <li className="flex items-start gap-2">
-                      <Icon name="Check" size={14} className="text-green-600 mt-0.5" />
-                      <span>Дополнительный уровень защиты</span>
-                    </li>
-                  </ul>
-                </div>
-              </div>
-            </div>
-
-            <div className="p-4 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg">
-              <div className="flex items-start gap-3">
-                <Icon name="ShieldAlert" size={20} className="text-blue-600 dark:text-blue-400 mt-0.5" />
-                <div>
-                  <p className="text-sm font-medium text-blue-900 dark:text-blue-100 mb-1">
-                    Рекомендации по безопасности
-                  </p>
-                  <ul className="text-xs text-blue-700 dark:text-blue-300 space-y-1">
-                    <li>• Используйте минимум два метода аутентификации</li>
-                    <li>• Храните аппаратные ключи в безопасном месте</li>
-                    <li>• Регулярно обновляйте пароли (каждые 90 дней)</li>
-                    <li>• Не используйте один и тот же пароль для разных систем</li>
-                  </ul>
-                </div>
+        <CardContent>
+          <div className="p-4 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg">
+            <div className="flex items-start gap-3">
+              <Icon name="ShieldAlert" size={20} className="text-blue-600 dark:text-blue-400 mt-0.5" />
+              <div>
+                <p className="text-sm font-medium text-blue-900 dark:text-blue-100 mb-1">
+                  Рекомендации
+                </p>
+                <ul className="text-xs text-blue-700 dark:text-blue-300 space-y-1">
+                  <li>• Используйте биометрию для быстрого и безопасного входа</li>
+                  <li>• Регулярно обновляйте пароли (каждые 90 дней)</li>
+                  <li>• Не используйте один и тот же пароль для разных систем</li>
+                  <li>• Включайте двухфакторную аутентификацию где возможно</li>
+                </ul>
               </div>
             </div>
           </div>

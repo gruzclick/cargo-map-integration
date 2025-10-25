@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
 import Icon from '@/components/ui/icon';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { secureLocalStorage } from '@/utils/security';
@@ -45,6 +46,11 @@ export const AdminDashboard = ({ onLogout }: AdminDashboardProps) => {
   const [deliveries, setDeliveries] = useState<Delivery[]>([]);
   const [loadingUsers, setLoadingUsers] = useState(false);
   const [loadingDeliveries, setLoadingDeliveries] = useState(false);
+  const [userSearch, setUserSearch] = useState('');
+  const [userRoleFilter, setUserRoleFilter] = useState('all');
+  const [userStatusFilter, setUserStatusFilter] = useState('all');
+  const [deliverySearch, setDeliverySearch] = useState('');
+  const [deliveryStatusFilter, setDeliveryStatusFilter] = useState('all');
 
   useEffect(() => {
     const savedTheme = localStorage.getItem('admin_theme') as 'light' | 'dark' || 'dark';
@@ -216,6 +222,28 @@ export const AdminDashboard = ({ onLogout }: AdminDashboardProps) => {
     }
   };
 
+  const filteredUsers = users.filter(user => {
+    const matchesSearch = userSearch === '' || 
+      user.full_name.toLowerCase().includes(userSearch.toLowerCase()) ||
+      user.email.toLowerCase().includes(userSearch.toLowerCase()) ||
+      user.phone_number.toLowerCase().includes(userSearch.toLowerCase());
+    
+    const matchesRole = userRoleFilter === 'all' || user.role === userRoleFilter;
+    const matchesStatus = userStatusFilter === 'all' || user.status === userStatusFilter;
+    
+    return matchesSearch && matchesRole && matchesStatus;
+  });
+
+  const filteredDeliveries = deliveries.filter(delivery => {
+    const matchesSearch = deliverySearch === '' ||
+      delivery.pickup_address.toLowerCase().includes(deliverySearch.toLowerCase()) ||
+      delivery.delivery_address.toLowerCase().includes(deliverySearch.toLowerCase());
+    
+    const matchesStatus = deliveryStatusFilter === 'all' || delivery.status === deliveryStatusFilter;
+    
+    return matchesSearch && matchesStatus;
+  });
+
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-950 p-6 transition-colors">
       <div className="max-w-7xl mx-auto space-y-6">
@@ -339,11 +367,37 @@ export const AdminDashboard = ({ onLogout }: AdminDashboardProps) => {
                 <CardDescription className="text-gray-600 dark:text-gray-400">Просмотр и управление пользователями системы</CardDescription>
               </CardHeader>
               <CardContent>
+                <div className="flex gap-4 mb-4 flex-wrap">
+                  <Input
+                    placeholder="Поиск по имени, email, телефону..."
+                    value={userSearch}
+                    onChange={(e) => setUserSearch(e.target.value)}
+                    className="max-w-sm bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
+                  />
+                  <select
+                    value={userRoleFilter}
+                    onChange={(e) => setUserRoleFilter(e.target.value)}
+                    className="px-3 py-2 border rounded bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 border-gray-300 dark:border-gray-700"
+                  >
+                    <option value="all">Все роли</option>
+                    <option value="client">Клиент</option>
+                    <option value="carrier">Перевозчик</option>
+                  </select>
+                  <select
+                    value={userStatusFilter}
+                    onChange={(e) => setUserStatusFilter(e.target.value)}
+                    className="px-3 py-2 border rounded bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 border-gray-300 dark:border-gray-700"
+                  >
+                    <option value="all">Все статусы</option>
+                    <option value="active">Активные</option>
+                    <option value="inactive">Неактивные</option>
+                  </select>
+                </div>
                 {loadingUsers ? (
                   <div className="text-center py-8 text-gray-500 dark:text-gray-400">
                     Загрузка...
                   </div>
-                ) : users.length === 0 ? (
+                ) : filteredUsers.length === 0 ? (
                   <div className="text-center py-8 text-gray-500 dark:text-gray-400">
                     <Icon name="Users" size={48} className="mx-auto mb-4 text-gray-300 dark:text-gray-600" />
                     <p>Нет пользователей</p>
@@ -363,7 +417,7 @@ export const AdminDashboard = ({ onLogout }: AdminDashboardProps) => {
                         </tr>
                       </thead>
                       <tbody>
-                        {users.map((user) => (
+                        {filteredUsers.map((user) => (
                           <tr key={user.id} className="border-b border-gray-100 dark:border-gray-800">
                             <td className="p-3 text-gray-900 dark:text-gray-100 font-mono text-xs">{user.id.slice(0, 8)}...</td>
                             <td className="p-3 text-gray-900 dark:text-gray-100">{user.phone_number}</td>
@@ -413,11 +467,30 @@ export const AdminDashboard = ({ onLogout }: AdminDashboardProps) => {
                 <CardDescription className="text-gray-600 dark:text-gray-400">Просмотр и управление заказами</CardDescription>
               </CardHeader>
               <CardContent>
+                <div className="flex gap-4 mb-4 flex-wrap">
+                  <Input
+                    placeholder="Поиск по адресам..."
+                    value={deliverySearch}
+                    onChange={(e) => setDeliverySearch(e.target.value)}
+                    className="max-w-sm bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
+                  />
+                  <select
+                    value={deliveryStatusFilter}
+                    onChange={(e) => setDeliveryStatusFilter(e.target.value)}
+                    className="px-3 py-2 border rounded bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 border-gray-300 dark:border-gray-700"
+                  >
+                    <option value="all">Все статусы</option>
+                    <option value="pending">Ожидание</option>
+                    <option value="active">Активные</option>
+                    <option value="completed">Завершенные</option>
+                    <option value="cancelled">Отмененные</option>
+                  </select>
+                </div>
                 {loadingDeliveries ? (
                   <div className="text-center py-8 text-gray-500 dark:text-gray-400">
                     Загрузка...
                   </div>
-                ) : deliveries.length === 0 ? (
+                ) : filteredDeliveries.length === 0 ? (
                   <div className="text-center py-8 text-gray-500 dark:text-gray-400">
                     <Icon name="Package" size={48} className="mx-auto mb-4 text-gray-300 dark:text-gray-600" />
                     <p>Нет заказов</p>
@@ -437,7 +510,7 @@ export const AdminDashboard = ({ onLogout }: AdminDashboardProps) => {
                         </tr>
                       </thead>
                       <tbody>
-                        {deliveries.map((delivery) => (
+                        {filteredDeliveries.map((delivery) => (
                           <tr key={delivery.id} className="border-b border-gray-100 dark:border-gray-800">
                             <td className="p-3 text-gray-900 dark:text-gray-100 font-mono text-xs">{delivery.id.slice(0, 8)}...</td>
                             <td className="p-3 text-gray-900 dark:text-gray-100">{delivery.pickup_address}</td>
