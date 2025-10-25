@@ -27,19 +27,9 @@ const Admin = () => {
   });
 
   useEffect(() => {
-    const adminToken = secureLocalStorage.get('admin_token');
-    const tokenExpiry = secureLocalStorage.get('admin_token_expiry');
-    
-    if (adminToken && tokenExpiry) {
-      const expiryTime = parseInt(tokenExpiry);
-      if (Date.now() < expiryTime) {
-        setIsAuthenticated(true);
-        loadStats();
-      } else {
-        secureLocalStorage.remove('admin_token');
-        secureLocalStorage.remove('admin_token_expiry');
-      }
-    }
+    secureLocalStorage.remove('admin_token');
+    secureLocalStorage.remove('admin_token_expiry');
+    secureLocalStorage.remove('admin_profile');
   }, []);
 
   const loadStats = () => {
@@ -52,48 +42,25 @@ const Admin = () => {
   };
 
   const handleLogin = async () => {
-    if (loginData.username === 'admin' && loginData.password === 'admin123') {
-      setShowTwoFactor(true);
-      toast({
-        title: 'Код подтверждения отправлен',
-        description: 'Введите 6-значный код из Google Authenticator'
-      });
-    } else {
-      toast({
-        title: 'Ошибка входа',
-        description: 'Неверный логин или пароль',
-        variant: 'destructive'
-      });
-    }
+    toast({
+      title: 'Первый запуск',
+      description: 'Создайте учетную запись администратора',
+      variant: 'destructive'
+    });
   };
 
   const handleTwoFactorAuth = () => {
-    if (loginData.twoFactorCode === '123456') {
-      const token = 'admin_' + Date.now() + '_' + Math.random();
-      const expiry = Date.now() + (2 * 60 * 60 * 1000);
-      
-      secureLocalStorage.set('admin_token', token);
-      secureLocalStorage.set('admin_token_expiry', expiry.toString());
-      
-      setIsAuthenticated(true);
-      loadStats();
-      
-      toast({
-        title: 'Вход выполнен',
-        description: 'Добро пожаловать в админ-панель'
-      });
-    } else {
-      toast({
-        title: 'Неверный код',
-        description: 'Проверьте код из Google Authenticator',
-        variant: 'destructive'
-      });
-    }
+    toast({
+      title: 'Система сброшена',
+      description: 'Зарегистрируйтесь заново',
+      variant: 'destructive'
+    });
   };
 
   const handleLogout = () => {
     secureLocalStorage.remove('admin_token');
     secureLocalStorage.remove('admin_token_expiry');
+    secureLocalStorage.remove('admin_profile');
     setIsAuthenticated(false);
     setLoginData({ username: '', password: '', twoFactorCode: '' });
     setShowTwoFactor(false);
