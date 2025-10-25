@@ -12,13 +12,20 @@ import AdminSecurity from './AdminSecurity';
 const Admin = () => {
   const { toast } = useToast();
   const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [loginData, setLoginData] = useState({ username: '', password: '', twoFactorCode: '' });
-  const [showTwoFactor, setShowTwoFactor] = useState(false);
+  const [isRegisterMode, setIsRegisterMode] = useState(false);
+  const [loginData, setLoginData] = useState({ 
+    email: '', 
+    password: '', 
+    full_name: ''
+  });
   const [showForgotPassword, setShowForgotPassword] = useState(false);
   const [resetEmail, setResetEmail] = useState('');
   const [resetCode, setResetCode] = useState('');
   const [newPassword, setNewPassword] = useState('');
   const [resetStep, setResetStep] = useState<'email' | 'code' | 'password'>('email');
+  const [showLoginPassword, setShowLoginPassword] = useState(false);
+  const [showNewPassword, setShowNewPassword] = useState(false);
+  const [loading, setLoading] = useState(false);
   const [stats, setStats] = useState({
     totalUsers: 0,
     activeOrders: 0,
@@ -27,9 +34,19 @@ const Admin = () => {
   });
 
   useEffect(() => {
-    secureLocalStorage.remove('admin_token');
-    secureLocalStorage.remove('admin_token_expiry');
-    secureLocalStorage.remove('admin_profile');
+    const adminToken = secureLocalStorage.get('admin_token');
+    const tokenExpiry = secureLocalStorage.get('admin_token_expiry');
+    
+    if (adminToken && tokenExpiry) {
+      const expiryTime = parseInt(tokenExpiry);
+      if (Date.now() < expiryTime) {
+        setIsAuthenticated(true);
+        loadStats();
+      } else {
+        secureLocalStorage.remove('admin_token');
+        secureLocalStorage.remove('admin_token_expiry');
+      }
+    }
   }, []);
 
   const loadStats = () => {
@@ -41,29 +58,68 @@ const Admin = () => {
     });
   };
 
-  const handleLogin = async () => {
-    toast({
-      title: 'Первый запуск',
-      description: 'Создайте учетную запись администратора',
-      variant: 'destructive'
-    });
-  };
+  const handleAuth = async () => {
+    if (!loginData.email || !loginData.password) {
+      toast({
+        title: 'Ошибка',
+        description: 'Заполните все поля',
+        variant: 'destructive'
+      });
+      return;
+    }
 
-  const handleTwoFactorAuth = () => {
-    toast({
-      title: 'Система сброшена',
-      description: 'Зарегистрируйтесь заново',
-      variant: 'destructive'
-    });
-  };
+    if (isRegisterMode && !loginData.full_name) {
+      toast({
+        title: 'Ошибка',
+        description: 'Укажите ваше полное имя',
+        variant: 'destructive'
+      });
+      return;
+    }
 
-  const handleLogout = () => {
-    secureLocalStorage.remove('admin_token');
-    secureLocalStorage.remove('admin_token_expiry');
-    secureLocalStorage.remove('admin_profile');
-    setIsAuthenticated(false);
-    setLoginData({ username: '', password: '', twoFactorCode: '' });
-    setShowTwoFactor(false);
+    setLoading(true);
+
+    try {
+      const response = await fetch('https://functions.poehali.dev/f06efb37-9437-4df8-8032-f2ba53b2e2d6', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          action: isRegisterMode ? 'register' : 'login',
+          email: loginData.email,
+          password: loginData.password,
+          full_name: loginData.full_name
+        })
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || 'Ошибка запроса');
+      }
+
+      const token = data.token;
+      const expiry = Date.now() + (2 * 60 * 60 * 1000);
+
+      secureLocalStorage.set('admin_token', token);
+      secureLocalStorage.set('admin_token_expiry', expiry.toString());
+      secureLocalStorage.set('admin_profile', JSON.stringify(data.admin));
+
+      setIsAuthenticated(true);
+      loadStats();
+
+      toast({
+        title: isRegisterMode ? 'Регистрация успешна' : 'Вход выполнен',
+        description: `Добро пожаловать, ${data.admin.full_name}!`
+      });
+    } catch (error: any) {
+      toast({
+        title: 'Ошибка',
+        description: error.message,
+        variant: 'destructive'
+      });
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleForgotPassword = async () => {
@@ -76,26 +132,54 @@ const Admin = () => {
         });
         return;
       }
+
+      setLoading(true);
       
-      toast({
-        title: 'Код отправлен',
-        description: `Код восстановления отправлен на ${resetEmail}`
-      });
-      setResetStep('code');
-    } else if (resetStep === 'code') {
-      if (resetCode === '999999') {
-        setResetStep('password');
-        toast({
-          title: 'Код подтвержден',
-          description: 'Теперь введите новый пароль'
+      try {
+        const response = await fetch('https://functions.poehali.dev/f06efb37-9437-4df8-8032-f2ba53b2e2d6', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            action: 'send_reset_code',
+            email: resetEmail
+          })
         });
-      } else {
+
+        const data = await response.json();
+
+        if (!response.ok) {
+          throw new Error(data.error || 'Ошибка отправки кода');
+        }
+
         toast({
-          title: 'Неверный код',
-          description: 'Проверьте код из письма',
+          title: 'Код отправлен',
+          description: `Код восстановления отправлен на ${resetEmail}`
+        });
+        setResetStep('code');
+      } catch (error: any) {
+        toast({
+          title: 'Ошибка',
+          description: error.message,
           variant: 'destructive'
         });
+      } finally {
+        setLoading(false);
       }
+    } else if (resetStep === 'code') {
+      if (!resetCode) {
+        toast({
+          title: 'Ошибка',
+          description: 'Введите код',
+          variant: 'destructive'
+        });
+        return;
+      }
+      
+      setResetStep('password');
+      toast({
+        title: 'Код подтвержден',
+        description: 'Теперь введите новый пароль'
+      });
     } else if (resetStep === 'password') {
       if (!newPassword || newPassword.length < 6) {
         toast({
@@ -105,18 +189,55 @@ const Admin = () => {
         });
         return;
       }
+
+      setLoading(true);
       
-      toast({
-        title: 'Пароль изменен',
-        description: 'Войдите с новым паролем'
-      });
-      
-      setShowForgotPassword(false);
-      setResetStep('email');
-      setResetEmail('');
-      setResetCode('');
-      setNewPassword('');
+      try {
+        const response = await fetch('https://functions.poehali.dev/f06efb37-9437-4df8-8032-f2ba53b2e2d6', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            action: 'reset_password',
+            email: resetEmail,
+            code: resetCode,
+            new_password: newPassword
+          })
+        });
+
+        const data = await response.json();
+
+        if (!response.ok) {
+          throw new Error(data.error || 'Ошибка сброса пароля');
+        }
+
+        toast({
+          title: 'Пароль изменен',
+          description: 'Войдите с новым паролем'
+        });
+        
+        setShowForgotPassword(false);
+        setResetStep('email');
+        setResetEmail('');
+        setResetCode('');
+        setNewPassword('');
+      } catch (error: any) {
+        toast({
+          title: 'Ошибка',
+          description: error.message,
+          variant: 'destructive'
+        });
+      } finally {
+        setLoading(false);
+      }
     }
+  };
+
+  const handleLogout = () => {
+    secureLocalStorage.remove('admin_token');
+    secureLocalStorage.remove('admin_token_expiry');
+    secureLocalStorage.remove('admin_profile');
+    setIsAuthenticated(false);
+    setLoginData({ email: '', password: '', full_name: '' });
   };
 
   if (!isAuthenticated) {
@@ -129,7 +250,7 @@ const Admin = () => {
               {showForgotPassword ? 'Восстановление пароля' : 'Админ-панель ГрузКлик'}
             </CardTitle>
             <CardDescription>
-              {showForgotPassword ? 'Сброс пароля администратора' : 'Защищенный вход для администраторов'}
+              {showForgotPassword ? 'Сброс пароля администратора' : isRegisterMode ? 'Создайте учетную запись администратора' : 'Защищенный вход для администраторов'}
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
@@ -206,14 +327,25 @@ const Admin = () => {
 
                     <div className="space-y-2">
                       <Label htmlFor="newPassword">Новый пароль</Label>
-                      <Input
-                        id="newPassword"
-                        type="password"
-                        placeholder="Введите новый пароль"
-                        value={newPassword}
-                        onChange={(e) => setNewPassword(e.target.value)}
-                        onKeyPress={(e) => e.key === 'Enter' && handleForgotPassword()}
-                      />
+                      <div className="relative">
+                        <Input
+                          id="newPassword"
+                          type={showNewPassword ? 'text' : 'password'}
+                          placeholder="Введите новый пароль"
+                          value={newPassword}
+                          onChange={(e) => setNewPassword(e.target.value)}
+                          onKeyPress={(e) => e.key === 'Enter' && handleForgotPassword()}
+                        />
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="sm"
+                          className="absolute right-0 top-0 h-full px-3 hover:bg-transparent"
+                          onClick={() => setShowNewPassword(!showNewPassword)}
+                        >
+                          <Icon name={showNewPassword ? 'EyeOff' : 'Eye'} size={18} className="text-muted-foreground" />
+                        </Button>
+                      </div>
                     </div>
                   </>
                 )}
@@ -232,86 +364,98 @@ const Admin = () => {
                   >
                     Назад к входу
                   </Button>
-                  <Button onClick={handleForgotPassword} className="flex-1">
-                    {resetStep === 'email' ? 'Отправить код' : resetStep === 'code' ? 'Проверить' : 'Сохранить'}
+                  <Button onClick={handleForgotPassword} disabled={loading} className="flex-1">
+                    {loading ? (
+                      <>
+                        <Icon name="Loader2" size={18} className="mr-2 animate-spin" />
+                        Загрузка...
+                      </>
+                    ) : (
+                      resetStep === 'email' ? 'Отправить код' : resetStep === 'code' ? 'Проверить' : 'Сохранить'
+                    )}
                   </Button>
                 </div>
-              </>
-            ) : !showTwoFactor ? (
-              <>
-                <div className="space-y-2">
-                  <Label htmlFor="username">Логин</Label>
-                  <Input
-                    id="username"
-                    type="text"
-                    placeholder="Введите логин"
-                    value={loginData.username}
-                    onChange={(e) => setLoginData({ ...loginData, username: e.target.value })}
-                    onKeyPress={(e) => e.key === 'Enter' && handleLogin()}
-                  />
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="password">Пароль</Label>
-                  <Input
-                    id="password"
-                    type="password"
-                    placeholder="Введите пароль"
-                    value={loginData.password}
-                    onChange={(e) => setLoginData({ ...loginData, password: e.target.value })}
-                    onKeyPress={(e) => e.key === 'Enter' && handleLogin()}
-                  />
-                </div>
-
-                <Button onClick={handleLogin} className="w-full">
-                  <Icon name="LogIn" size={18} className="mr-2" />
-                  Войти
-                </Button>
-
-                <Button 
-                  variant="link" 
-                  onClick={() => setShowForgotPassword(true)} 
-                  className="w-full text-sm"
-                >
-                  Забыли пароль?
-                </Button>
               </>
             ) : (
               <>
-                <div className="p-4 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg">
-                  <div className="flex items-start gap-3">
-                    <Icon name="Smartphone" size={20} className="text-blue-600 dark:text-blue-400 mt-0.5" />
-                    <div>
-                      <p className="text-sm font-medium text-blue-900 dark:text-blue-100">
-                        Двухфакторная аутентификация
-                      </p>
-                      <p className="text-xs text-blue-700 dark:text-blue-300 mt-1">
-                        Откройте Google Authenticator и введите код
-                      </p>
-                    </div>
-                  </div>
-                </div>
-
                 <div className="space-y-2">
-                  <Label htmlFor="twoFactorCode">6-значный код</Label>
+                  <Label htmlFor="email">Email</Label>
                   <Input
-                    id="twoFactorCode"
-                    type="text"
-                    placeholder="000000"
-                    maxLength={6}
-                    value={loginData.twoFactorCode}
-                    onChange={(e) => setLoginData({ ...loginData, twoFactorCode: e.target.value })}
-                    onKeyPress={(e) => e.key === 'Enter' && handleTwoFactorAuth()}
-                    className="text-center text-2xl tracking-widest"
+                    id="email"
+                    type="email"
+                    placeholder="admin@example.com"
+                    value={loginData.email}
+                    onChange={(e) => setLoginData({ ...loginData, email: e.target.value })}
+                    onKeyPress={(e) => e.key === 'Enter' && handleAuth()}
                   />
                 </div>
 
-                <div className="flex gap-2">
-                  <Button variant="outline" onClick={() => setShowTwoFactor(false)} className="flex-1">
-                    Назад
+                {isRegisterMode && (
+                  <div className="space-y-2">
+                    <Label htmlFor="full_name">Полное имя</Label>
+                    <Input
+                      id="full_name"
+                      type="text"
+                      placeholder="Иван Иванов"
+                      value={loginData.full_name}
+                      onChange={(e) => setLoginData({ ...loginData, full_name: e.target.value })}
+                      onKeyPress={(e) => e.key === 'Enter' && handleAuth()}
+                    />
+                  </div>
+                )}
+
+                <div className="space-y-2">
+                  <Label htmlFor="password">Пароль</Label>
+                  <div className="relative">
+                    <Input
+                      id="password"
+                      type={showLoginPassword ? 'text' : 'password'}
+                      placeholder="Введите пароль"
+                      value={loginData.password}
+                      onChange={(e) => setLoginData({ ...loginData, password: e.target.value })}
+                      onKeyPress={(e) => e.key === 'Enter' && handleAuth()}
+                    />
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="sm"
+                      className="absolute right-0 top-0 h-full px-3 hover:bg-transparent"
+                      onClick={() => setShowLoginPassword(!showLoginPassword)}
+                    >
+                      <Icon name={showLoginPassword ? 'EyeOff' : 'Eye'} size={18} className="text-muted-foreground" />
+                    </Button>
+                  </div>
+                </div>
+
+                <Button onClick={handleAuth} disabled={loading} className="w-full">
+                  {loading ? (
+                    <>
+                      <Icon name="Loader2" size={18} className="mr-2 animate-spin" />
+                      Загрузка...
+                    </>
+                  ) : (
+                    <>
+                      <Icon name={isRegisterMode ? 'UserPlus' : 'LogIn'} size={18} className="mr-2" />
+                      {isRegisterMode ? 'Зарегистрироваться' : 'Войти'}
+                    </>
+                  )}
+                </Button>
+
+                <div className="flex flex-col gap-2">
+                  <Button 
+                    variant="link" 
+                    onClick={() => setShowForgotPassword(true)} 
+                    className="text-sm"
+                  >
+                    Забыли пароль?
                   </Button>
-                  <Button onClick={handleTwoFactorAuth} className="flex-1">
-                    Подтвердить
+
+                  <Button 
+                    variant="outline" 
+                    onClick={() => setIsRegisterMode(!isRegisterMode)} 
+                    className="w-full text-sm"
+                  >
+                    {isRegisterMode ? 'Уже есть аккаунт? Войти' : 'Нет аккаунта? Зарегистрироваться'}
                   </Button>
                 </div>
               </>
@@ -320,7 +464,7 @@ const Admin = () => {
             <div className="pt-4 border-t border-gray-200 dark:border-gray-700">
               <div className="flex items-center gap-2 text-xs text-gray-600 dark:text-gray-400">
                 <Icon name="Shield" size={14} />
-                <span>Защищено SSL + 2FA + IP-whitelist</span>
+                <span>Защищено SSL шифрованием</span>
               </div>
             </div>
           </CardContent>
@@ -357,155 +501,98 @@ const Admin = () => {
       </div>
 
       <div className="container mx-auto px-4 py-8">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
           <Card>
-            <CardContent className="pt-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm text-gray-600 dark:text-gray-400">Пользователей</p>
-                  <p className="text-3xl font-bold mt-1">{stats.totalUsers}</p>
-                </div>
-                <div className="w-12 h-12 bg-blue-100 dark:bg-blue-900/30 rounded-lg flex items-center justify-center">
-                  <Icon name="Users" size={24} className="text-blue-600 dark:text-blue-400" />
-                </div>
-              </div>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">Всего пользователей</CardTitle>
+              <Icon name="Users" size={16} className="text-muted-foreground" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">{stats.totalUsers}</div>
             </CardContent>
           </Card>
 
           <Card>
-            <CardContent className="pt-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm text-gray-600 dark:text-gray-400">Активных заказов</p>
-                  <p className="text-3xl font-bold mt-1">{stats.activeOrders}</p>
-                </div>
-                <div className="w-12 h-12 bg-green-100 dark:bg-green-900/30 rounded-lg flex items-center justify-center">
-                  <Icon name="Package" size={24} className="text-green-600 dark:text-green-400" />
-                </div>
-              </div>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">Активные заказы</CardTitle>
+              <Icon name="Package" size={16} className="text-muted-foreground" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">{stats.activeOrders}</div>
             </CardContent>
           </Card>
 
           <Card>
-            <CardContent className="pt-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm text-gray-600 dark:text-gray-400">Оборот</p>
-                  <p className="text-3xl font-bold mt-1">{(stats.totalRevenue / 1000000).toFixed(1)}М ₽</p>
-                </div>
-                <div className="w-12 h-12 bg-purple-100 dark:bg-purple-900/30 rounded-lg flex items-center justify-center">
-                  <Icon name="TrendingUp" size={24} className="text-purple-600 dark:text-purple-400" />
-                </div>
-              </div>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">Общий доход</CardTitle>
+              <Icon name="DollarSign" size={16} className="text-muted-foreground" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">{stats.totalRevenue.toLocaleString('ru-RU')} ₽</div>
             </CardContent>
           </Card>
 
           <Card>
-            <CardContent className="pt-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm text-gray-600 dark:text-gray-400">Водителей онлайн</p>
-                  <p className="text-3xl font-bold mt-1">{stats.activeDrivers}</p>
-                </div>
-                <div className="w-12 h-12 bg-orange-100 dark:bg-orange-900/30 rounded-lg flex items-center justify-center">
-                  <Icon name="Truck" size={24} className="text-orange-600 dark:text-orange-400" />
-                </div>
-              </div>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">Активные водители</CardTitle>
+              <Icon name="Truck" size={16} className="text-muted-foreground" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">{stats.activeDrivers}</div>
             </CardContent>
           </Card>
         </div>
 
-        <Tabs defaultValue="users" className="w-full">
-          <TabsList className="grid w-full grid-cols-2 md:grid-cols-6">
+        <Tabs defaultValue="overview" className="space-y-4">
+          <TabsList>
+            <TabsTrigger value="overview">Обзор</TabsTrigger>
             <TabsTrigger value="users">Пользователи</TabsTrigger>
             <TabsTrigger value="orders">Заказы</TabsTrigger>
             <TabsTrigger value="security">Безопасность</TabsTrigger>
-            <TabsTrigger value="ads">Реклама</TabsTrigger>
-            <TabsTrigger value="settings">Настройки</TabsTrigger>
-            <TabsTrigger value="logs">Логи</TabsTrigger>
           </TabsList>
 
-          <TabsContent value="users" className="mt-6">
+          <TabsContent value="overview" className="space-y-4">
+            <Card>
+              <CardHeader>
+                <CardTitle>Статистика платформы</CardTitle>
+                <CardDescription>Основные показатели работы системы</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <p className="text-sm text-muted-foreground">
+                  Добро пожаловать в административную панель ГрузКлик
+                </p>
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          <TabsContent value="users">
             <Card>
               <CardHeader>
                 <CardTitle>Управление пользователями</CardTitle>
-                <CardDescription>Просмотр и модерация пользователей платформы</CardDescription>
               </CardHeader>
               <CardContent>
-                <p className="text-sm text-gray-600 dark:text-gray-400">
-                  Здесь будет таблица пользователей с возможностью блокировки, редактирования и просмотра активности.
+                <p className="text-sm text-muted-foreground">
+                  Список пользователей будет здесь
                 </p>
               </CardContent>
             </Card>
           </TabsContent>
 
-          <TabsContent value="orders" className="mt-6">
+          <TabsContent value="orders">
             <Card>
               <CardHeader>
                 <CardTitle>Управление заказами</CardTitle>
-                <CardDescription>Мониторинг и модерация всех перевозок</CardDescription>
               </CardHeader>
               <CardContent>
-                <p className="text-sm text-gray-600 dark:text-gray-400">
-                  Здесь будет список всех заказов с возможностью просмотра деталей и разрешения споров.
+                <p className="text-sm text-muted-foreground">
+                  Список заказов будет здесь
                 </p>
               </CardContent>
             </Card>
           </TabsContent>
 
-          <TabsContent value="security" className="mt-6">
+          <TabsContent value="security">
             <AdminSecurity />
-          </TabsContent>
-
-          <TabsContent value="ads" className="mt-6">
-            <Card>
-              <CardHeader>
-                <CardTitle>Управление рекламой</CardTitle>
-                <CardDescription>Баннеры и рекламные кампании</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <p className="text-sm text-gray-600 dark:text-gray-400">
-                  Управление рекламными баннерами на главной странице и в приложении.
-                </p>
-              </CardContent>
-            </Card>
-          </TabsContent>
-
-          <TabsContent value="settings" className="mt-6">
-            <Card>
-              <CardHeader>
-                <CardTitle>Настройки платформы</CardTitle>
-                <CardDescription>Конфигурация системы</CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <Button variant="outline" className="w-full justify-start">
-                  <Icon name="Database" size={18} className="mr-2" />
-                  Резервное копирование БД
-                </Button>
-                <Button variant="outline" className="w-full justify-start">
-                  <Icon name="Mail" size={18} className="mr-2" />
-                  Настройки email-уведомлений
-                </Button>
-                <Button variant="outline" className="w-full justify-start">
-                  <Icon name="DollarSign" size={18} className="mr-2" />
-                  Настройки платежей и комиссий
-                </Button>
-              </CardContent>
-            </Card>
-          </TabsContent>
-
-          <TabsContent value="logs" className="mt-6">
-            <Card>
-              <CardHeader>
-                <CardTitle>Системные логи</CardTitle>
-                <CardDescription>История действий и ошибок</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <p className="text-sm text-gray-600 dark:text-gray-400">
-                  Логи входов, действий пользователей и системных событий.
-                </p>
-              </CardContent>
-            </Card>
           </TabsContent>
         </Tabs>
       </div>

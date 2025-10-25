@@ -16,6 +16,7 @@ const OneSIntegration = () => {
   const [apiUrl, setApiUrl] = useState('');
   const [autoSync, setAutoSync] = useState(true);
   const [syncInterval, setSyncInterval] = useState('5');
+  const [showApiKey, setShowApiKey] = useState(false);
 
   const handleConnect = async () => {
     if (!apiKey || !apiUrl) {
@@ -105,14 +106,24 @@ const OneSIntegration = () => {
 
               <div>
                 <Label htmlFor="api-key">API ключ</Label>
-                <Input
-                  id="api-key"
-                  type="password"
-                  placeholder="Введите ваш API ключ"
-                  value={apiKey}
-                  onChange={(e) => setApiKey(e.target.value)}
-                  className="mt-1.5"
-                />
+                <div className="relative mt-1.5">
+                  <Input
+                    id="api-key"
+                    type={showApiKey ? 'text' : 'password'}
+                    placeholder="Введите ваш API ключ"
+                    value={apiKey}
+                    onChange={(e) => setApiKey(e.target.value)}
+                  />
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="sm"
+                    className="absolute right-0 top-0 h-full px-3 hover:bg-transparent"
+                    onClick={() => setShowApiKey(!showApiKey)}
+                  >
+                    <Icon name={showApiKey ? 'EyeOff' : 'Eye'} size={18} className="text-muted-foreground" />
+                  </Button>
+                </div>
               </div>
 
               <Button 

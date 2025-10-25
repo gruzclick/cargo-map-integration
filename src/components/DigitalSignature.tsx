@@ -24,6 +24,7 @@ const DigitalSignature = ({ userType }: DigitalSignatureProps) => {
   const [selectedDocument, setSelectedDocument] = useState<DocumentItem | null>(null);
   const [certificateFile, setCertificateFile] = useState<File | null>(null);
   const [certificatePassword, setCertificatePassword] = useState('');
+  const [showCertificatePassword, setShowCertificatePassword] = useState(false);
   const [documents] = useState<DocumentItem[]>([
     { id: '1', name: 'Транспортная накладная №1234', type: 'ТН', date: '2024-10-21', signed: false },
     { id: '2', name: 'Договор на перевозку №5678', type: 'Договор', date: '2024-10-20', signed: true, signedBy: ['Клиент', 'Перевозчик'] },
@@ -195,14 +196,24 @@ const DigitalSignature = ({ userType }: DigitalSignatureProps) => {
 
             <div>
               <Label htmlFor="certificate-password">Пароль от сертификата</Label>
-              <Input
-                id="certificate-password"
-                type="password"
-                placeholder="Введите пароль"
-                value={certificatePassword}
-                onChange={(e) => setCertificatePassword(e.target.value)}
-                className="mt-1.5"
-              />
+              <div className="relative mt-1.5">
+                <Input
+                  id="certificate-password"
+                  type={showCertificatePassword ? 'text' : 'password'}
+                  placeholder="Введите пароль"
+                  value={certificatePassword}
+                  onChange={(e) => setCertificatePassword(e.target.value)}
+                />
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="sm"
+                  className="absolute right-0 top-0 h-full px-3 hover:bg-transparent"
+                  onClick={() => setShowCertificatePassword(!showCertificatePassword)}
+                >
+                  <Icon name={showCertificatePassword ? 'EyeOff' : 'Eye'} size={18} className="text-muted-foreground" />
+                </Button>
+              </div>
             </div>
 
             <Button onClick={handleSign} className="w-full">

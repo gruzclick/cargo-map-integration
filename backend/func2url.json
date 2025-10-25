@@ -1,4 +1,7 @@
 {
-  "auth-security": "https://functions.poehali.dev/c5f04656-8629-4f26-9367-3ff5c1799e22",
+  "admin-auth": "https://functions.poehali.dev/f06efb37-9437-4df8-8032-f2ba53b2e2d6",
+  "route-manager": "https://functions.poehali.dev/b388f085-faa7-4aab-88a5-b45708b116eb",
+  "deliveries": "https://functions.poehali.dev/408b238a-389b-4a3c-9dfd-2cbbb8b83330",
+  "auth": "https://functions.poehali.dev/9835e97e-8876-4256-90f3-4250d5dbdfc8",
   "map-data": "https://functions.poehali.dev/e0c57b5b-aa36-4b28-8b31-c70ece513cae"
 }

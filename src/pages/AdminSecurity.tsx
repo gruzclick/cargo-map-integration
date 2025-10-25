@@ -17,6 +17,7 @@ export default function AdminSecurity() {
   });
   const [showCurrentPassword, setShowCurrentPassword] = useState(false);
   const [showNewPassword, setShowNewPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const currentUser = JSON.parse(localStorage.getItem('user_data') || '{}');
   const userEmail = currentUser.email || 'Не указан';
 
@@ -153,13 +154,23 @@ export default function AdminSecurity() {
 
                   <div className="space-y-2">
                     <Label htmlFor="confirm-password">Подтвердите пароль</Label>
-                    <Input
-                      id="confirm-password"
-                      type="password"
-                      placeholder="Повторите новый пароль"
-                      value={passwordData.confirmPassword}
-                      onChange={(e) => setPasswordData({ ...passwordData, confirmPassword: e.target.value })}
-                    />
+                    <div className="relative">
+                      <Input
+                        id="confirm-password"
+                        type={showConfirmPassword ? "text" : "password"}
+                        placeholder="Повторите новый пароль"
+                        value={passwordData.confirmPassword}
+                        onChange={(e) => setPasswordData({ ...passwordData, confirmPassword: e.target.value })}
+                        className="pr-10"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                        className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
+                      >
+                        <Icon name={showConfirmPassword ? "EyeOff" : "Eye"} size={18} />
+                      </button>
+                    </div>
                   </div>
 
                   <Button onClick={handleChangePassword} className="w-full">
