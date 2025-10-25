@@ -39,21 +39,39 @@ export default function AppDownload() {
 
   const handleInstallClick = async () => {
     if (!deferredPrompt) {
+      toast({
+        title: 'Установка недоступна',
+        description: 'Используйте меню браузера (⋮) → "Установить приложение"',
+        variant: 'destructive'
+      });
       return;
     }
 
-    deferredPrompt.prompt();
-    const { outcome } = await deferredPrompt.userChoice;
+    try {
+      await deferredPrompt.prompt();
+      const { outcome } = await deferredPrompt.userChoice;
 
-    if (outcome === 'accepted') {
+      if (outcome === 'accepted') {
+        toast({
+          title: 'Установка начата',
+          description: 'Приложение будет установлено на ваше устройство',
+        });
+      } else {
+        toast({
+          title: 'Установка отменена',
+          description: 'Вы можете установить приложение позже через меню браузера',
+        });
+      }
+
+      setDeferredPrompt(null);
+      setIsInstallable(false);
+    } catch (error) {
       toast({
-        title: 'Установка начата',
-        description: 'Приложение будет установлено на ваше устройство',
+        title: 'Ошибка установки',
+        description: 'Попробуйте установить через меню браузера (⋮) → "Установить приложение"',
+        variant: 'destructive'
       });
     }
-
-    setDeferredPrompt(null);
-    setIsInstallable(false);
   };
 
   const getInstallInstructions = () => {
@@ -152,17 +170,15 @@ export default function AppDownload() {
           </div>
 
           <div className="space-y-4">
-            {isInstallable && !isIOS && (
-              <>
-                <Button 
-                  onClick={handleInstallClick}
-                  size="lg"
-                  className="w-full h-14 text-lg gap-3"
-                >
-                  <Icon name="Download" size={24} />
-                  Скачать приложение
-                </Button>
-              </>
+            {!isIOS && (
+              <Button 
+                onClick={handleInstallClick}
+                size="lg"
+                className="w-full h-14 text-lg gap-3"
+              >
+                <Icon name="Download" size={24} />
+                Скачать приложение
+              </Button>
             )}
               <div className="bg-blue-500/10 border border-blue-500/20 rounded-lg p-4">
                 <div className="flex items-start gap-3">
