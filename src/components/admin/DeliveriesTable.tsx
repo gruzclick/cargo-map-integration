@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
+import { Button } from '@/components/ui/button';
 import Icon from '@/components/ui/icon';
 
 interface Delivery {
@@ -34,11 +35,42 @@ export const DeliveriesTable = ({ deliveries, loading, onUpdateStatus }: Deliver
     return matchesSearch && matchesStatus;
   });
 
+  const exportToCSV = () => {
+    const headers = ['ID', 'Откуда', 'Куда', 'Цена', 'Статус', 'Дата создания'];
+    const rows = filteredDeliveries.map(delivery => [
+      delivery.id,
+      delivery.pickup_address,
+      delivery.delivery_address,
+      delivery.delivery_price,
+      delivery.status,
+      new Date(delivery.created_at).toLocaleString('ru-RU')
+    ]);
+
+    const csvContent = [
+      headers.join(','),
+      ...rows.map(row => row.map(cell => `"${cell}"`).join(','))
+    ].join('\n');
+
+    const blob = new Blob(['\uFEFF' + csvContent], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement('a');
+    link.href = URL.createObjectURL(blob);
+    link.download = `deliveries_${new Date().toISOString().split('T')[0]}.csv`;
+    link.click();
+  };
+
   return (
     <Card className="bg-white dark:bg-gray-900 border-gray-200 dark:border-gray-800">
       <CardHeader>
-        <CardTitle className="text-gray-900 dark:text-white">Управление заказами</CardTitle>
-        <CardDescription className="text-gray-600 dark:text-gray-400">Просмотр и управление заказами</CardDescription>
+        <div className="flex justify-between items-center">
+          <div>
+            <CardTitle className="text-gray-900 dark:text-white">Управление заказами</CardTitle>
+            <CardDescription className="text-gray-600 dark:text-gray-400">Просмотр и управление заказами</CardDescription>
+          </div>
+          <Button onClick={exportToCSV} variant="outline" disabled={filteredDeliveries.length === 0}>
+            <Icon name="Download" size={16} className="mr-2" />
+            Экспорт CSV
+          </Button>
+        </div>
       </CardHeader>
       <CardContent>
         <div className="flex gap-4 mb-4 flex-wrap">

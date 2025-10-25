@@ -22,12 +22,124 @@ export const AdminLoginForm = ({ onSuccess, onShowForgotPassword }: AdminLoginFo
   });
   const [showLoginPassword, setShowLoginPassword] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [biometricAvailable, setBiometricAvailable] = useState(false);
 
   useEffect(() => {
     const savedTheme = localStorage.getItem('admin_theme') as 'light' | 'dark' || 'dark';
     setTheme(savedTheme);
     document.documentElement.classList.toggle('dark', savedTheme === 'dark');
+    
+    checkBiometricAvailability();
+    tryBiometricLogin();
   }, []);
+
+  const checkBiometricAvailability = async () => {
+    if (window.PublicKeyCredential) {
+      const available = await PublicKeyCredential.isUserVerifyingPlatformAuthenticatorAvailable();
+      setBiometricAvailable(available);
+    }
+  };
+
+  const tryBiometricLogin = async () => {
+    const biometricEnabled = localStorage.getItem('biometric_enabled') === 'true';
+    const savedCredential = localStorage.getItem('biometric_credential');
+
+    if (!biometricEnabled || !savedCredential) return;
+
+    try {
+      const challenge = new Uint8Array(32);
+      crypto.getRandomValues(challenge);
+
+      const credential = await navigator.credentials.get({
+        publicKey: {
+          challenge: challenge,
+          rpId: window.location.hostname,
+          allowCredentials: [{
+            id: new Uint8Array(JSON.parse(savedCredential).rawId),
+            type: 'public-key',
+            transports: ['internal']
+          }],
+          userVerification: 'required',
+          timeout: 60000
+        }
+      });
+
+      if (credential) {
+        toast({
+          title: 'Биометрия подтверждена',
+          description: 'Выполняется вход...'
+        });
+      }
+    } catch (error) {
+      console.log('Биометрическая аутентификация не удалась');
+    }
+  };
+
+  const handleBiometricLogin = async () => {
+    try {
+      const challenge = new Uint8Array(32);
+      crypto.getRandomValues(challenge);
+
+      const savedCredential = localStorage.getItem('biometric_credential');
+      if (!savedCredential) {
+        toast({
+          title: 'Ошибка',
+          description: 'Биометрия не настроена',
+          variant: 'destructive'
+        });
+        return;
+      }
+
+      const credential = await navigator.credentials.get({
+        publicKey: {
+          challenge: challenge,
+          rpId: window.location.hostname,
+          allowCredentials: [{
+            id: new Uint8Array(JSON.parse(savedCredential).rawId),
+            type: 'public-key',
+            transports: ['internal']
+          }],
+          userVerification: 'required',
+          timeout: 60000
+        }
+      });
+
+      if (credential) {
+        setLoading(true);
+        
+        const response = await fetch('https://functions.poehali.dev/f06efb37-9437-4df8-8032-f2ba53b2e2d6', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            action: 'login',
+            email: localStorage.getItem('biometric_email') || '',
+            password: localStorage.getItem('biometric_password_hash') || ''
+          })
+        });
+
+        const data = await response.json();
+
+        if (!response.ok) {
+          throw new Error(data.error || 'Ошибка входа');
+        }
+
+        toast({
+          title: 'Вход выполнен',
+          description: `Добро пожаловать, ${data.admin.full_name}!`
+        });
+
+        onSuccess(data.token, data.admin);
+      }
+    } catch (error: any) {
+      toast({
+        title: 'Ошибка',
+        description: 'Биометрическая аутентификация не удалась',
+        variant: 'destructive'
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const toggleTheme = () => {
     const newTheme = theme === 'dark' ? 'light' : 'dark';
@@ -177,6 +289,18 @@ export const AdminLoginForm = ({ onSuccess, onShowForgotPassword }: AdminLoginFo
               isRegisterMode ? 'Зарегистрироваться' : 'Войти'
             )}
           </Button>
+
+          {!isRegisterMode && biometricAvailable && (
+            <Button
+              variant="outline"
+              className="w-full border-blue-500 dark:border-blue-600 text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/20"
+              onClick={handleBiometricLogin}
+              disabled={loading}
+            >
+              <Icon name="Fingerprint" size={18} className="mr-2" />
+              Войти по биометрии
+            </Button>
+          )}
 
           {!isRegisterMode && (
             <Button

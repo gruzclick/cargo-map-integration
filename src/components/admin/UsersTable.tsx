@@ -37,11 +37,43 @@ export const UsersTable = ({ users, loading, onUpdateStatus }: UsersTableProps) 
     return matchesSearch && matchesRole && matchesStatus;
   });
 
+  const exportToCSV = () => {
+    const headers = ['ID', 'Телефон', 'ФИО', 'Email', 'Роль', 'Статус', 'Дата создания'];
+    const rows = filteredUsers.map(user => [
+      user.id,
+      user.phone_number,
+      user.full_name || '-',
+      user.email || '-',
+      user.role,
+      user.status,
+      new Date(user.created_at).toLocaleString('ru-RU')
+    ]);
+
+    const csvContent = [
+      headers.join(','),
+      ...rows.map(row => row.map(cell => `"${cell}"`).join(','))
+    ].join('\n');
+
+    const blob = new Blob(['\uFEFF' + csvContent], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement('a');
+    link.href = URL.createObjectURL(blob);
+    link.download = `users_${new Date().toISOString().split('T')[0]}.csv`;
+    link.click();
+  };
+
   return (
     <Card className="bg-white dark:bg-gray-900 border-gray-200 dark:border-gray-800">
       <CardHeader>
-        <CardTitle className="text-gray-900 dark:text-white">Управление пользователями</CardTitle>
-        <CardDescription className="text-gray-600 dark:text-gray-400">Просмотр и управление пользователями системы</CardDescription>
+        <div className="flex justify-between items-center">
+          <div>
+            <CardTitle className="text-gray-900 dark:text-white">Управление пользователями</CardTitle>
+            <CardDescription className="text-gray-600 dark:text-gray-400">Просмотр и управление пользователями системы</CardDescription>
+          </div>
+          <Button onClick={exportToCSV} variant="outline" disabled={filteredUsers.length === 0}>
+            <Icon name="Download" size={16} className="mr-2" />
+            Экспорт CSV
+          </Button>
+        </div>
       </CardHeader>
       <CardContent>
         <div className="flex gap-4 mb-4 flex-wrap">

@@ -146,6 +146,41 @@ export default function AdminSecurity() {
     });
   };
 
+  const handleDeleteTestUsers = async () => {
+    try {
+      const token = secureLocalStorage.get('admin_token');
+      const response = await fetch('https://functions.poehali.dev/f06efb37-9437-4df8-8032-f2ba53b2e2d6', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-Auth-Token': token || ''
+        },
+        body: JSON.stringify({ action: 'delete_test_users' })
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        toast({
+          title: 'Успешно удалено',
+          description: data.message || 'Тестовые пользователи удалены'
+        });
+      } else {
+        toast({
+          title: 'Ошибка',
+          description: data.error || 'Не удалось удалить пользователей',
+          variant: 'destructive'
+        });
+      }
+    } catch (error) {
+      toast({
+        title: 'Ошибка',
+        description: 'Произошла ошибка при удалении',
+        variant: 'destructive'
+      });
+    }
+  };
+
   return (
     <div className="space-y-6">
       <Card>
@@ -290,6 +325,19 @@ export default function AdminSecurity() {
               </div>
               <Button variant="outline" onClick={handlePasswordRecovery}>
                 Отправить письмо
+              </Button>
+            </div>
+
+            <div className="flex items-center justify-between p-4 border rounded-lg border-red-200 dark:border-red-800 bg-red-50 dark:bg-red-900/20">
+              <div className="flex items-center gap-3">
+                <Icon name="Trash2" size={24} className="text-red-600 dark:text-red-400" />
+                <div>
+                  <p className="font-medium text-red-900 dark:text-red-100">Удалить тестовых пользователей</p>
+                  <p className="text-sm text-red-700 dark:text-red-300">Очистить БД от тестовых аккаунтов</p>
+                </div>
+              </div>
+              <Button variant="destructive" onClick={handleDeleteTestUsers}>
+                Удалить
               </Button>
             </div>
           </div>

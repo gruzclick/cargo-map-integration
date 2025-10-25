@@ -427,6 +427,46 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                 'isBase64Encoded': False
             }
         
+        elif action == 'delete_test_users':
+            admin_token = event.get('headers', {}).get('x-auth-token')
+            
+            if not admin_token:
+                return {
+                    'statusCode': 401,
+                    'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                    'body': json.dumps({'error': 'Admin token required'}),
+                    'isBase64Encoded': False
+                }
+            
+            test_emails = [
+                'test@example.com',
+                'newuser@example.com',
+                'client@test.ru',
+                'carrier@test.ru',
+                'company@test.ru'
+            ]
+            
+            cur.execute(
+                """
+                DELETE FROM t_p93479485_cargo_map_integratio.users 
+                WHERE email = ANY(%s)
+                RETURNING user_id, email
+                """,
+                (test_emails,)
+            )
+            deleted_users = cur.fetchall()
+            conn.commit()
+            
+            return {
+                'statusCode': 200,
+                'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                'body': json.dumps({
+                    'message': f'Deleted {len(deleted_users)} test users',
+                    'deleted': [{'id': str(u['user_id']), 'email': u['email']} for u in deleted_users]
+                }),
+                'isBase64Encoded': False
+            }
+        
         else:
             return {
                 'statusCode': 400,
