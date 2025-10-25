@@ -307,6 +307,33 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                 'isBase64Encoded': False
             }
         
+        elif action == 'get_stats':
+            cur.execute("SELECT COUNT(*) as total FROM t_p93479485_cargo_map_integratio.users")
+            users_count = cur.fetchone()['total']
+            
+            cur.execute("SELECT COUNT(*) as total FROM t_p93479485_cargo_map_integratio.deliveries WHERE status = 'active'")
+            active_orders = cur.fetchone()['total']
+            
+            cur.execute("SELECT COALESCE(SUM(delivery_price), 0) as total FROM t_p93479485_cargo_map_integratio.deliveries WHERE status = 'completed'")
+            total_revenue = cur.fetchone()['total']
+            
+            cur.execute("SELECT COUNT(*) as total FROM t_p93479485_cargo_map_integratio.drivers")
+            active_drivers = cur.fetchone()['total']
+            
+            return {
+                'statusCode': 200,
+                'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                'body': json.dumps({
+                    'stats': {
+                        'totalUsers': users_count,
+                        'activeOrders': active_orders,
+                        'totalRevenue': float(total_revenue),
+                        'activeDrivers': active_drivers
+                    }
+                }),
+                'isBase64Encoded': False
+            }
+        
         else:
             return {
                 'statusCode': 400,

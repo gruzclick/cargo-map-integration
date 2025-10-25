@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -12,12 +12,26 @@ interface AdminForgotPasswordProps {
 
 export const AdminForgotPassword = ({ onBack }: AdminForgotPasswordProps) => {
   const { toast } = useToast();
+  const [theme, setTheme] = useState<'light' | 'dark'>('dark');
   const [resetEmail, setResetEmail] = useState('');
   const [resetCode, setResetCode] = useState('');
   const [newPassword, setNewPassword] = useState('');
   const [resetStep, setResetStep] = useState<'email' | 'code' | 'password'>('email');
   const [showNewPassword, setShowNewPassword] = useState(false);
   const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    const savedTheme = localStorage.getItem('admin_theme') as 'light' | 'dark' || 'dark';
+    setTheme(savedTheme);
+    document.documentElement.classList.toggle('dark', savedTheme === 'dark');
+  }, []);
+
+  const toggleTheme = () => {
+    const newTheme = theme === 'dark' ? 'light' : 'dark';
+    setTheme(newTheme);
+    localStorage.setItem('admin_theme', newTheme);
+    document.documentElement.classList.toggle('dark', newTheme === 'dark');
+  };
 
   const handleForgotPassword = async () => {
     if (resetStep === 'email') {
@@ -130,28 +144,41 @@ export const AdminForgotPassword = ({ onBack }: AdminForgotPasswordProps) => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 p-4">
-      <Card className="w-full max-w-md">
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 dark:from-gray-950 dark:via-gray-900 dark:to-black p-4">
+      <Card className="w-full max-w-md bg-white dark:bg-gray-900 border-gray-200 dark:border-gray-800">
         <CardHeader>
-          <CardTitle className="flex items-center gap-2 text-2xl">
-            <Icon name="ShieldCheck" size={24} />
-            Восстановление пароля
-          </CardTitle>
-          <CardDescription>
-            Сброс пароля администратора
-          </CardDescription>
+          <div className="flex justify-between items-start">
+            <div>
+              <CardTitle className="flex items-center gap-2 text-2xl text-gray-900 dark:text-white">
+                <Icon name="ShieldCheck" size={24} />
+                Восстановление пароля
+              </CardTitle>
+              <CardDescription className="text-gray-600 dark:text-gray-400">
+                Сброс пароля администратора
+              </CardDescription>
+            </div>
+            <Button 
+              variant="ghost" 
+              size="icon"
+              onClick={toggleTheme}
+              className="text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white"
+            >
+              <Icon name={theme === 'dark' ? 'Sun' : 'Moon'} size={20} />
+            </Button>
+          </div>
         </CardHeader>
         <CardContent className="space-y-4">
           {resetStep === 'email' && (
             <>
               <div className="space-y-2">
-                <Label htmlFor="resetEmail">Email администратора</Label>
+                <Label htmlFor="resetEmail" className="text-gray-900 dark:text-gray-100">Email администратора</Label>
                 <Input
                   id="resetEmail"
                   type="email"
                   placeholder="admin@example.com"
                   value={resetEmail}
                   onChange={(e) => setResetEmail(e.target.value)}
+                  className="bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-700 text-gray-900 dark:text-gray-100"
                 />
               </div>
               <Button 
@@ -174,13 +201,14 @@ export const AdminForgotPassword = ({ onBack }: AdminForgotPasswordProps) => {
           {resetStep === 'code' && (
             <>
               <div className="space-y-2">
-                <Label htmlFor="resetCode">Код из письма</Label>
+                <Label htmlFor="resetCode" className="text-gray-900 dark:text-gray-100">Код из письма</Label>
                 <Input
                   id="resetCode"
                   placeholder="123456"
                   value={resetCode}
                   onChange={(e) => setResetCode(e.target.value)}
                   maxLength={6}
+                  className="bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-700 text-gray-900 dark:text-gray-100"
                 />
               </div>
               <Button 
@@ -195,7 +223,7 @@ export const AdminForgotPassword = ({ onBack }: AdminForgotPasswordProps) => {
           {resetStep === 'password' && (
             <>
               <div className="space-y-2">
-                <Label htmlFor="newPassword">Новый пароль</Label>
+                <Label htmlFor="newPassword" className="text-gray-900 dark:text-gray-100">Новый пароль</Label>
                 <div className="relative">
                   <Input
                     id="newPassword"
@@ -203,12 +231,12 @@ export const AdminForgotPassword = ({ onBack }: AdminForgotPasswordProps) => {
                     placeholder="••••••••"
                     value={newPassword}
                     onChange={(e) => setNewPassword(e.target.value)}
-                    className="pr-10"
+                    className="pr-10 bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-700 text-gray-900 dark:text-gray-100"
                   />
                   <button
                     type="button"
                     onClick={() => setShowNewPassword(!showNewPassword)}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300"
                   >
                     <Icon name={showNewPassword ? 'EyeOff' : 'Eye'} size={20} />
                   </button>
@@ -233,7 +261,7 @@ export const AdminForgotPassword = ({ onBack }: AdminForgotPasswordProps) => {
 
           <Button
             variant="outline"
-            className="w-full"
+            className="w-full border-gray-300 dark:border-gray-700 text-gray-900 dark:text-gray-100"
             onClick={onBack}
           >
             Назад к входу
