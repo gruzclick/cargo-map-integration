@@ -24,6 +24,8 @@ interface DeliveriesTableProps {
 export const DeliveriesTable = ({ deliveries, loading, onUpdateStatus }: DeliveriesTableProps) => {
   const [deliverySearch, setDeliverySearch] = useState('');
   const [deliveryStatusFilter, setDeliveryStatusFilter] = useState('all');
+  const [dateFrom, setDateFrom] = useState('');
+  const [dateTo, setDateTo] = useState('');
 
   const filteredDeliveries = deliveries.filter(delivery => {
     const matchesSearch = deliverySearch === '' ||
@@ -32,7 +34,11 @@ export const DeliveriesTable = ({ deliveries, loading, onUpdateStatus }: Deliver
     
     const matchesStatus = deliveryStatusFilter === 'all' || delivery.status === deliveryStatusFilter;
     
-    return matchesSearch && matchesStatus;
+    const deliveryDate = new Date(delivery.created_at);
+    const matchesDateFrom = !dateFrom || deliveryDate >= new Date(dateFrom);
+    const matchesDateTo = !dateTo || deliveryDate <= new Date(dateTo + 'T23:59:59');
+    
+    return matchesSearch && matchesStatus && matchesDateFrom && matchesDateTo;
   });
 
   const exportToCSV = () => {
@@ -91,6 +97,20 @@ export const DeliveriesTable = ({ deliveries, loading, onUpdateStatus }: Deliver
             <option value="completed">Завершенные</option>
             <option value="cancelled">Отмененные</option>
           </select>
+          <Input
+            type="date"
+            placeholder="Дата с..."
+            value={dateFrom}
+            onChange={(e) => setDateFrom(e.target.value)}
+            className="w-40 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
+          />
+          <Input
+            type="date"
+            placeholder="Дата по..."
+            value={dateTo}
+            onChange={(e) => setDateTo(e.target.value)}
+            className="w-40 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
+          />
         </div>
         {loading ? (
           <div className="text-center py-8 text-gray-500 dark:text-gray-400">

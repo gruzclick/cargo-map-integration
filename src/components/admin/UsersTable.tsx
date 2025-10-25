@@ -24,6 +24,8 @@ export const UsersTable = ({ users, loading, onUpdateStatus }: UsersTableProps) 
   const [userSearch, setUserSearch] = useState('');
   const [userRoleFilter, setUserRoleFilter] = useState('all');
   const [userStatusFilter, setUserStatusFilter] = useState('all');
+  const [dateFrom, setDateFrom] = useState('');
+  const [dateTo, setDateTo] = useState('');
 
   const filteredUsers = users.filter(user => {
     const matchesSearch = userSearch === '' || 
@@ -34,7 +36,11 @@ export const UsersTable = ({ users, loading, onUpdateStatus }: UsersTableProps) 
     const matchesRole = userRoleFilter === 'all' || user.role === userRoleFilter;
     const matchesStatus = userStatusFilter === 'all' || user.status === userStatusFilter;
     
-    return matchesSearch && matchesRole && matchesStatus;
+    const userDate = new Date(user.created_at);
+    const matchesDateFrom = !dateFrom || userDate >= new Date(dateFrom);
+    const matchesDateTo = !dateTo || userDate <= new Date(dateTo + 'T23:59:59');
+    
+    return matchesSearch && matchesRole && matchesStatus && matchesDateFrom && matchesDateTo;
   });
 
   const exportToCSV = () => {
@@ -101,6 +107,20 @@ export const UsersTable = ({ users, loading, onUpdateStatus }: UsersTableProps) 
             <option value="active">Активные</option>
             <option value="inactive">Неактивные</option>
           </select>
+          <Input
+            type="date"
+            placeholder="Дата с..."
+            value={dateFrom}
+            onChange={(e) => setDateFrom(e.target.value)}
+            className="w-40 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
+          />
+          <Input
+            type="date"
+            placeholder="Дата по..."
+            value={dateTo}
+            onChange={(e) => setDateTo(e.target.value)}
+            className="w-40 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
+          />
         </div>
         {loading ? (
           <div className="text-center py-8 text-gray-500 dark:text-gray-400">

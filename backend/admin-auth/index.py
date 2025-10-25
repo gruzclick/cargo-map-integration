@@ -434,7 +434,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                 return {
                     'statusCode': 401,
                     'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
-                    'body': json.dumps({'error': 'Admin token required'}),
+                    'body': json.dumps({'error': 'Требуется токен администратора'}),
                     'isBase64Encoded': False
                 }
             
@@ -446,23 +446,21 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                 'company@test.ru'
             ]
             
-            cur.execute(
-                """
-                DELETE FROM t_p93479485_cargo_map_integratio.users 
-                WHERE email = ANY(%s)
-                RETURNING user_id, email
-                """,
-                (test_emails,)
-            )
-            deleted_users = cur.fetchall()
+            deleted_count = 0
+            for email in test_emails:
+                cur.execute(
+                    "DELETE FROM t_p93479485_cargo_map_integratio.users WHERE email = %s",
+                    (email,)
+                )
+                deleted_count += cur.rowcount
+            
             conn.commit()
             
             return {
                 'statusCode': 200,
                 'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
                 'body': json.dumps({
-                    'message': f'Deleted {len(deleted_users)} test users',
-                    'deleted': [{'id': str(u['user_id']), 'email': u['email']} for u in deleted_users]
+                    'message': f'Удалено {deleted_count} тестовых пользователей'
                 }),
                 'isBase64Encoded': False
             }
