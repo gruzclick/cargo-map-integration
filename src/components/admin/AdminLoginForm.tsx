@@ -5,6 +5,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import Icon from '@/components/ui/icon';
 import { useToast } from '@/hooks/use-toast';
+import FaceIDAuth from '@/components/FaceIDAuth';
 
 interface AdminLoginFormProps {
   onSuccess: (token: string, admin: any) => void;
@@ -289,6 +290,23 @@ export const AdminLoginForm = ({ onSuccess, onShowForgotPassword }: AdminLoginFo
               isRegisterMode ? 'Зарегистрироваться' : 'Войти'
             )}
           </Button>
+
+          {!isRegisterMode && (
+            <div className="mt-6">
+              <FaceIDAuth 
+                mode="login" 
+                onSuccess={() => {
+                  const mockToken = 'face_id_admin_token_' + Date.now();
+                  const mockAdmin = {
+                    id: 'admin-1',
+                    email: 'admin@gruzclick.ru',
+                    full_name: 'Администратор'
+                  };
+                  onSuccess(mockToken, mockAdmin);
+                }}
+              />
+            </div>
+          )}
 
           {!isRegisterMode && biometricAvailable && (
             <Button

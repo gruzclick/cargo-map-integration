@@ -224,7 +224,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
     
     allowed_actions = ['register', 'login', 'send_reset_code', 'verify_reset_code', 'reset_password', 
                        'get_stats', 'get_users', 'get_deliveries', 'update_delivery_status', 'update_user_status',
-                       'delete_test_users', 'get_biometric_status', 'save_biometric']
+                       'delete_test_users', 'get_biometric_status', 'save_biometric', 'get_all_users']
     
     try:
         action = validate_action(body_data.get('action'), allowed_actions)
@@ -490,6 +490,41 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                 'statusCode': 200,
                 'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
                 'body': json.dumps({'users': users_list}),
+                'isBase64Encoded': False
+            }
+        
+        elif action == 'get_all_users':
+            cur.execute("""
+                SELECT user_id, phone, full_name, email, user_type, entity_type, 
+                       email_verified, phone_verified, created_at, updated_at
+                FROM t_p93479485_cargo_map_integratio.users 
+                ORDER BY created_at DESC
+            """)
+            users_data = cur.fetchall()
+            
+            users_list = []
+            for user in users_data:
+                users_list.append({
+                    'id': str(user['user_id']),
+                    'email': user['email'],
+                    'full_name': user['full_name'],
+                    'phone': user['phone'] or 'Не указан',
+                    'user_type': user['user_type'],
+                    'entity_type': user['entity_type'],
+                    'email_verified': user['email_verified'],
+                    'phone_verified': user['phone_verified'],
+                    'status': 'active' if user['email_verified'] else 'inactive',
+                    'created_at': user['created_at'].isoformat() if user['created_at'] else None,
+                    'updated_at': user['updated_at'].isoformat() if user['updated_at'] else None
+                })
+            
+            return {
+                'statusCode': 200,
+                'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                'body': json.dumps({
+                    'users': users_list,
+                    'total': len(users_list)
+                }),
                 'isBase64Encoded': False
             }
         

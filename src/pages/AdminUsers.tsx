@@ -18,10 +18,15 @@ import { Checkbox } from '@/components/ui/checkbox';
 interface User {
   id: string;
   phone: string;
-  user_type: 'client' | 'carrier';
-  company_name?: string;
-  blocked: boolean;
+  email: string;
+  full_name: string;
+  user_type: string;
+  entity_type: string;
+  email_verified: boolean;
+  phone_verified: boolean;
+  status: string;
   created_at: string;
+  updated_at: string;
 }
 
 export default function AdminUsers() {
@@ -29,28 +34,52 @@ export default function AdminUsers() {
   const [filteredUsers, setFilteredUsers] = useState<User[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedUsers, setSelectedUsers] = useState<Set<string>>(new Set());
+  const [loading, setLoading] = useState(true);
   const { toast } = useToast();
 
   useEffect(() => {
-    const currentUser = JSON.parse(localStorage.getItem('user_data') || '{}');
-    const realUsers: User[] = currentUser.id ? [
-      { 
-        id: currentUser.id, 
-        phone: currentUser.phone || 'Не указан', 
-        user_type: currentUser.user_type || 'client', 
-        company_name: currentUser.full_name || currentUser.organization_name || 'Текущий пользователь', 
-        blocked: false, 
-        created_at: new Date().toISOString().split('T')[0]
-      }
-    ] : [];
-    setUsers(realUsers);
-    setFilteredUsers(realUsers);
+    loadUsers();
   }, []);
+
+  const loadUsers = async () => {
+    setLoading(true);
+    try {
+      const response = await fetch('https://functions.poehali.dev/f06efb37-9437-4df8-8032-f2ba53b2e2d6', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          action: 'get_all_users'
+        })
+      });
+
+      const data = await response.json();
+      
+      if (data.users) {
+        setUsers(data.users);
+        setFilteredUsers(data.users);
+        toast({
+          title: 'Пользователи загружены',
+          description: `Всего пользователей: ${data.total}`
+        });
+      }
+    } catch (error) {
+      toast({
+        title: 'Ошибка загрузки',
+        description: 'Не удалось загрузить пользователей',
+        variant: 'destructive'
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
     const filtered = users.filter(user => 
-      user.phone.includes(searchQuery) || 
-      (user.company_name?.toLowerCase().includes(searchQuery.toLowerCase()))
+      user.phone.toLowerCase().includes(searchQuery.toLowerCase()) || 
+      user.email.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      user.full_name.toLowerCase().includes(searchQuery.toLowerCase())
     );
     setFilteredUsers(filtered);
   }, [searchQuery, users]);
@@ -173,12 +202,16 @@ export default function AdminUsers() {
             <div className="flex flex-col md:flex-row gap-2">
               <div className="flex-1">
                 <Input
-                  placeholder="Поиск по телефону или компании..."
+                  placeholder="Поиск по email, телефону или имени..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   className="w-full"
                 />
               </div>
+              <Button onClick={loadUsers} variant="outline">
+                <Icon name="RefreshCw" size={16} className="mr-2" />
+                Обновить
+              </Button>
               <div className="flex gap-2 flex-wrap">
                 <Button
                   variant="outline"
@@ -230,16 +263,31 @@ export default function AdminUsers() {
                         onCheckedChange={selectAll}
                       />
                     </TableHead>
-                    <TableHead>Телефон</TableHead>
+                    <TableHead>Email</TableHead>
+                    <TableHead>Имя</TableHead>
+                    <TableHead className="hidden sm:table-cell">Телефон</TableHead>
                     <TableHead className="hidden sm:table-cell">Тип</TableHead>
-                    <TableHead className="hidden md:table-cell">Компания</TableHead>
+                    <TableHead className="hidden md:table-cell">Юр. лицо</TableHead>
                     <TableHead>Статус</TableHead>
                     <TableHead className="hidden lg:table-cell">Дата регистрации</TableHead>
-                    <TableHead className="text-right">Действия</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {filteredUsers.map((user) => (
+                  {loading ? (
+                    <TableRow>
+                      <TableCell colSpan={8} className="text-center py-8">
+                        <Icon name="Loader2" size={24} className="animate-spin mx-auto mb-2" />
+                        <p className="text-muted-foreground">Загрузка пользователей...</p>
+                      </TableCell>
+                    </TableRow>
+                  ) : filteredUsers.length === 0 ? (
+                    <TableRow>
+                      <TableCell colSpan={8} className="text-center py-8 text-muted-foreground">
+                        Пользователи не найдены
+                      </TableCell>
+                    </TableRow>
+                  ) : (
+                    filteredUsers.map((user) => (
                     <TableRow key={user.id}>
                       <TableCell>
                         <Checkbox
@@ -247,64 +295,54 @@ export default function AdminUsers() {
                           onCheckedChange={() => toggleUserSelection(user.id)}
                         />
                       </TableCell>
-                      <TableCell className="font-medium">{user.phone}</TableCell>
+                      <TableCell className="font-medium">{user.email}</TableCell>
+                      <TableCell>{user.full_name}</TableCell>
+                      <TableCell className="hidden sm:table-cell">{user.phone}</TableCell>
                       <TableCell className="hidden sm:table-cell">
-                        <Badge variant={user.user_type === 'client' ? 'default' : 'secondary'}>
+                        <Badge variant={user.user_type === 'client' ? 'default' : user.user_type === 'carrier' ? 'secondary' : 'outline'}>
                           <Icon 
-                            name={user.user_type === 'client' ? 'Package' : 'Truck'} 
+                            name={user.user_type === 'client' ? 'Package' : user.user_type === 'carrier' ? 'Truck' : 'ClipboardList'} 
                             size={12} 
                             className="mr-1" 
                           />
-                          {user.user_type === 'client' ? 'Клиент' : 'Перевозчик'}
+                          {user.user_type === 'client' ? 'Клиент' : user.user_type === 'carrier' ? 'Водитель' : 'Логист'}
                         </Badge>
                       </TableCell>
-                      <TableCell className="hidden md:table-cell">{user.company_name || '—'}</TableCell>
-                      <TableCell>
-                        {user.blocked ? (
-                          <Badge variant="destructive">
-                            <Icon name="Ban" size={12} className="mr-1" />
-                            <span className="hidden sm:inline">Заблокирован</span>
-                          </Badge>
-                        ) : (
-                          <Badge variant="outline">
-                            <Icon name="CheckCircle" size={12} className="mr-1" />
-                            <span className="hidden sm:inline">Активен</span>
-                          </Badge>
-                        )}
+                      <TableCell className="hidden md:table-cell">
+                        <Badge variant="outline">
+                          {user.entity_type === 'individual' ? 'Физ. лицо' : user.entity_type === 'self_employed' ? 'Самозанятый' : 'Юр. лицо'}
+                        </Badge>
                       </TableCell>
-                      <TableCell className="hidden lg:table-cell">{new Date(user.created_at).toLocaleDateString('ru-RU')}</TableCell>
-                      <TableCell className="text-right">
-                        <div className="flex gap-2 justify-end">
-                          {user.blocked ? (
-                            <Button
-                              size="sm"
-                              variant="outline"
-                              onClick={() => unblockUsers([user.id])}
-                            >
-                              <Icon name="Unlock" size={14} className="mr-1" />
-                              Разблокировать
-                            </Button>
-                          ) : (
-                            <Button
-                              size="sm"
-                              variant="outline"
-                              onClick={() => blockUsers([user.id])}
-                            >
-                              <Icon name="Ban" size={14} className="mr-1" />
-                              Заблокировать
-                            </Button>
+                      <TableCell>
+                        <div className="flex flex-col gap-1">
+                          <Badge variant={user.status === 'active' ? 'default' : 'secondary'} className="w-fit">
+                            <Icon name={user.status === 'active' ? 'CheckCircle' : 'XCircle'} size={12} className="mr-1" />
+                            {user.status === 'active' ? 'Активен' : 'Неактивен'}
+                          </Badge>
+                          {user.email_verified && (
+                            <Badge variant="outline" className="w-fit text-xs">
+                              <Icon name="Mail" size={10} className="mr-1" />
+                              Email ✓
+                            </Badge>
                           )}
-                          <Button
-                            size="sm"
-                            variant="destructive"
-                            onClick={() => deleteUsers([user.id])}
-                          >
-                            <Icon name="Trash2" size={14} />
-                          </Button>
+                          {user.phone_verified && (
+                            <Badge variant="outline" className="w-fit text-xs">
+                              <Icon name="Phone" size={10} className="mr-1" />
+                              Телефон ✓
+                            </Badge>
+                          )}
                         </div>
                       </TableCell>
+                      <TableCell className="hidden lg:table-cell">
+                        {new Date(user.created_at).toLocaleDateString('ru-RU', { 
+                          day: '2-digit', 
+                          month: '2-digit', 
+                          year: 'numeric' 
+                        })}
+                      </TableCell>
                     </TableRow>
-                  ))}
+                  ))
+                  )}
                 </TableBody>
               </Table>
             </div>
