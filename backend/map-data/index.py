@@ -5,12 +5,13 @@ from typing import Dict, Any, List
 
 def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
     '''
-    Business: Get real-time map data with cargo and drivers positions
-    Args: event - dict with httpMethod (GET, POST, OPTIONS)
+    Business: Get real-time map data with cargo and drivers positions + user statistics
+    Args: event - dict with httpMethod (GET, POST, OPTIONS), path for /stats endpoint
           context - object with request_id attribute
-    Returns: HTTP response with markers data
+    Returns: HTTP response with markers data or user statistics
     '''
     method: str = event.get('httpMethod', 'GET')
+    path: str = event.get('path', '/')
     
     if method == 'OPTIONS':
         return {
@@ -24,6 +25,55 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             'body': '',
             'isBase64Encoded': False
         }
+    
+    database_url = os.environ.get('DATABASE_URL')
+    
+    if method == 'GET' and '/stats' in path:
+        try:
+            conn = psycopg2.connect(database_url)
+            cur = conn.cursor()
+            
+            cur.execute("""
+                SELECT 
+                    COUNT(*) as total_users,
+                    COUNT(CASE WHEN user_type = 'driver' THEN 1 END) as drivers,
+                    COUNT(CASE WHEN user_type = 'client' THEN 1 END) as clients,
+                    COUNT(CASE WHEN user_type = 'logist' THEN 1 END) as logists,
+                    COUNT(CASE WHEN email_verified = true THEN 1 END) as verified_users
+                FROM t_p93479485_cargo_map_integratio.users
+            """)
+            
+            row = cur.fetchone()
+            cur.close()
+            conn.close()
+            
+            result = {
+                'total': int(row[0]) if row[0] else 0,
+                'drivers': int(row[1]) if row[1] else 0,
+                'clients': int(row[2]) if row[2] else 0,
+                'logists': int(row[3]) if row[3] else 0,
+                'verified': int(row[4]) if row[4] else 0
+            }
+            
+            return {
+                'statusCode': 200,
+                'headers': {
+                    'Content-Type': 'application/json',
+                    'Access-Control-Allow-Origin': '*'
+                },
+                'body': json.dumps(result),
+                'isBase64Encoded': False
+            }
+        except Exception as e:
+            return {
+                'statusCode': 500,
+                'headers': {
+                    'Content-Type': 'application/json',
+                    'Access-Control-Allow-Origin': '*'
+                },
+                'body': json.dumps({'error': str(e)}),
+                'isBase64Encoded': False
+            }
     
     database_url = os.environ.get('DATABASE_URL')
     

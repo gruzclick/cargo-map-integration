@@ -11,6 +11,7 @@ import AIAssistant from '@/components/AIAssistant';
 import PriceCalculator from '@/components/PriceCalculator';
 import ChatNotifications from '@/components/ChatNotifications';
 import CookieBanner from '@/components/CookieBanner';
+import UserStats from '@/components/UserStats';
 import { useTranslation } from 'react-i18next';
 import DeliveryForm from '@/components/DeliveryForm';
 import CarrierStatus from '@/components/CarrierStatus';
@@ -109,6 +110,7 @@ const Index = () => {
     return (
       <>
         <PublicMap onRegister={() => setShowAuth(true)} />
+        <UserStats />
         <CookieBanner />
       </>
     );
