@@ -170,7 +170,7 @@ export default function AdminUsers() {
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
-            <div className="flex gap-2">
+            <div className="flex flex-col md:flex-row gap-2">
               <div className="flex-1">
                 <Input
                   placeholder="Поиск по телефону или компании..."
@@ -179,30 +179,37 @@ export default function AdminUsers() {
                   className="w-full"
                 />
               </div>
-              <Button
-                variant="outline"
-                onClick={() => handleBulkAction('block')}
-                disabled={selectedUsers.size === 0}
-              >
-                <Icon name="Ban" size={16} className="mr-2" />
-                Заблокировать
-              </Button>
-              <Button
-                variant="outline"
-                onClick={() => handleBulkAction('unblock')}
-                disabled={selectedUsers.size === 0}
-              >
-                <Icon name="Unlock" size={16} className="mr-2" />
-                Разблокировать
-              </Button>
-              <Button
-                variant="destructive"
-                onClick={() => handleBulkAction('delete')}
-                disabled={selectedUsers.size === 0}
-              >
-                <Icon name="Trash2" size={16} className="mr-2" />
-                Удалить
-              </Button>
+              <div className="flex gap-2 flex-wrap">
+                <Button
+                  variant="outline"
+                  onClick={() => handleBulkAction('block')}
+                  disabled={selectedUsers.size === 0}
+                  className="flex-1 md:flex-none"
+                >
+                  <Icon name="Ban" size={16} className="mr-2" />
+                  <span className="hidden sm:inline">Заблокировать</span>
+                  <span className="sm:hidden">Блок</span>
+                </Button>
+                <Button
+                  variant="outline"
+                  onClick={() => handleBulkAction('unblock')}
+                  disabled={selectedUsers.size === 0}
+                  className="flex-1 md:flex-none"
+                >
+                  <Icon name="Unlock" size={16} className="mr-2" />
+                  <span className="hidden sm:inline">Разблокировать</span>
+                  <span className="sm:hidden">Разблок</span>
+                </Button>
+                <Button
+                  variant="destructive"
+                  onClick={() => handleBulkAction('delete')}
+                  disabled={selectedUsers.size === 0}
+                  className="flex-1 md:flex-none"
+                >
+                  <Icon name="Trash2" size={16} className="mr-2" />
+                  Удалить
+                </Button>
+              </div>
             </div>
 
             {selectedUsers.size > 0 && (
@@ -213,7 +220,7 @@ export default function AdminUsers() {
               </div>
             )}
 
-            <div className="rounded-md border">
+            <div className="rounded-md border overflow-x-auto">
               <Table>
                 <TableHeader>
                   <TableRow>
@@ -224,10 +231,10 @@ export default function AdminUsers() {
                       />
                     </TableHead>
                     <TableHead>Телефон</TableHead>
-                    <TableHead>Тип</TableHead>
-                    <TableHead>Компания</TableHead>
+                    <TableHead className="hidden sm:table-cell">Тип</TableHead>
+                    <TableHead className="hidden md:table-cell">Компания</TableHead>
                     <TableHead>Статус</TableHead>
-                    <TableHead>Дата регистрации</TableHead>
+                    <TableHead className="hidden lg:table-cell">Дата регистрации</TableHead>
                     <TableHead className="text-right">Действия</TableHead>
                   </TableRow>
                 </TableHeader>
@@ -241,7 +248,7 @@ export default function AdminUsers() {
                         />
                       </TableCell>
                       <TableCell className="font-medium">{user.phone}</TableCell>
-                      <TableCell>
+                      <TableCell className="hidden sm:table-cell">
                         <Badge variant={user.user_type === 'client' ? 'default' : 'secondary'}>
                           <Icon 
                             name={user.user_type === 'client' ? 'Package' : 'Truck'} 
@@ -251,21 +258,21 @@ export default function AdminUsers() {
                           {user.user_type === 'client' ? 'Клиент' : 'Перевозчик'}
                         </Badge>
                       </TableCell>
-                      <TableCell>{user.company_name || '—'}</TableCell>
+                      <TableCell className="hidden md:table-cell">{user.company_name || '—'}</TableCell>
                       <TableCell>
                         {user.blocked ? (
                           <Badge variant="destructive">
                             <Icon name="Ban" size={12} className="mr-1" />
-                            Заблокирован
+                            <span className="hidden sm:inline">Заблокирован</span>
                           </Badge>
                         ) : (
                           <Badge variant="outline">
                             <Icon name="CheckCircle" size={12} className="mr-1" />
-                            Активен
+                            <span className="hidden sm:inline">Активен</span>
                           </Badge>
                         )}
                       </TableCell>
-                      <TableCell>{new Date(user.created_at).toLocaleDateString('ru-RU')}</TableCell>
+                      <TableCell className="hidden lg:table-cell">{new Date(user.created_at).toLocaleDateString('ru-RU')}</TableCell>
                       <TableCell className="text-right">
                         <div className="flex gap-2 justify-end">
                           {user.blocked ? (

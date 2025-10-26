@@ -172,16 +172,16 @@ export default function AdminTransport() {
                 <p className="text-sm">Нажмите "Добавить ТС" чтобы зарегистрировать автомобиль</p>
               </div>
             ) : (
-              <div className="rounded-md border">
+              <div className="rounded-md border overflow-x-auto">
                 <Table>
                   <TableHeader>
                     <TableRow>
                       <TableHead>Водитель</TableHead>
                       <TableHead>Автомобиль</TableHead>
-                      <TableHead>Гос. номер</TableHead>
-                      <TableHead>Тип</TableHead>
+                      <TableHead className="hidden md:table-cell">Гос. номер</TableHead>
+                      <TableHead className="hidden lg:table-cell">Тип</TableHead>
                       <TableHead>Статус</TableHead>
-                      <TableHead>Рейсы</TableHead>
+                      <TableHead className="hidden md:table-cell">Рейсы</TableHead>
                       <TableHead className="text-right">Действия</TableHead>
                     </TableRow>
                   </TableHeader>
@@ -190,17 +190,17 @@ export default function AdminTransport() {
                       <TableRow key={vehicle.id}>
                         <TableCell className="font-medium">{vehicle.driverName}</TableCell>
                         <TableCell>{vehicle.brand} {vehicle.model}</TableCell>
-                        <TableCell className="font-mono">{vehicle.plateNumber}</TableCell>
-                        <TableCell>{vehicle.type}</TableCell>
+                        <TableCell className="font-mono hidden md:table-cell">{vehicle.plateNumber}</TableCell>
+                        <TableCell className="hidden lg:table-cell">{vehicle.type}</TableCell>
                         <TableCell>{getStatusBadge(vehicle.status)}</TableCell>
-                        <TableCell>{vehicle.totalTrips}</TableCell>
+                        <TableCell className="hidden md:table-cell">{vehicle.totalTrips}</TableCell>
                         <TableCell className="text-right">
                           <div className="flex gap-1 justify-end">
                             <Select
                               value={vehicle.status}
                               onValueChange={(val) => handleChangeStatus(vehicle.id, val as any)}
                             >
-                              <SelectTrigger className="w-32 h-8">
+                              <SelectTrigger className="w-24 md:w-32 h-8 text-xs md:text-sm">
                                 <SelectValue />
                               </SelectTrigger>
                               <SelectContent>

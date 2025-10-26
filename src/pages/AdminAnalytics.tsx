@@ -43,58 +43,62 @@ export default function AdminAnalytics() {
   return (
     <div className="min-h-screen bg-background p-4">
       <div className="max-w-7xl mx-auto space-y-6">
-        <div className="flex items-center justify-between">
+        <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
           <div className="flex items-center gap-4">
             <Button variant="ghost" onClick={() => window.history.back()}>
               <Icon name="ArrowLeft" size={20} />
             </Button>
             <div>
-              <h1 className="text-3xl font-bold flex items-center gap-2">
+              <h1 className="text-2xl md:text-3xl font-bold flex items-center gap-2">
                 <Icon name="BarChart3" size={32} />
                 Аналитика и отчеты
               </h1>
-              <p className="text-muted-foreground">Подробная статистика по всем показателям</p>
+              <p className="text-muted-foreground text-sm">Подробная статистика по всем показателям</p>
             </div>
           </div>
           
-          <div className="flex gap-2">
-            <Button variant="outline" onClick={() => handleExport('excel')}>
+          <div className="flex gap-2 flex-wrap">
+            <Button variant="outline" onClick={() => handleExport('excel')} className="text-sm">
               <Icon name="FileSpreadsheet" size={16} className="mr-2" />
-              Excel
+              <span className="hidden sm:inline">Excel</span>
             </Button>
-            <Button variant="outline" onClick={() => handleExport('csv')}>
+            <Button variant="outline" onClick={() => handleExport('csv')} className="text-sm">
               <Icon name="FileText" size={16} className="mr-2" />
-              CSV
+              <span className="hidden sm:inline">CSV</span>
             </Button>
-            <Button variant="outline" onClick={() => handleExport('pdf')}>
+            <Button variant="outline" onClick={() => handleExport('pdf')} className="text-sm">
               <Icon name="FileDown" size={16} className="mr-2" />
-              PDF
+              <span className="hidden sm:inline">PDF</span>
             </Button>
           </div>
         </div>
 
-        <div className="flex gap-2">
+        <div className="flex gap-2 flex-wrap">
           <Button 
             variant={period === 'day' ? 'default' : 'outline'} 
             onClick={() => setPeriod('day')}
+            className="text-sm"
           >
             День
           </Button>
           <Button 
             variant={period === 'week' ? 'default' : 'outline'} 
             onClick={() => setPeriod('week')}
+            className="text-sm"
           >
             Неделя
           </Button>
           <Button 
             variant={period === 'month' ? 'default' : 'outline'} 
             onClick={() => setPeriod('month')}
+            className="text-sm"
           >
             Месяц
           </Button>
           <Button 
             variant={period === 'year' ? 'default' : 'outline'} 
             onClick={() => setPeriod('year')}
+            className="text-sm"
           >
             Год
           </Button>

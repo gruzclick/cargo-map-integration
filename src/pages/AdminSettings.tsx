@@ -78,7 +78,7 @@ export default function AdminSettings() {
         </div>
 
         <Tabs defaultValue="map" className="w-full">
-          <TabsList className="grid w-full grid-cols-5">
+          <TabsList className="grid w-full grid-cols-2 md:grid-cols-5">
             <TabsTrigger value="map">Карта</TabsTrigger>
             <TabsTrigger value="orders">Заказы</TabsTrigger>
             <TabsTrigger value="limits">Лимиты</TabsTrigger>
@@ -361,7 +361,7 @@ export default function AdminSettings() {
                     <Icon name="Database" size={16} className="mr-2" />
                     Создать резервную копию сейчас
                   </Button>
-                  <Button variant="outline">
+                  <Button variant="outline" onClick={() => toast({ title: 'Скачивание начато', description: 'Файл резервной копии загружается' })}>
                     <Icon name="Download" size={16} className="mr-2" />
                     Скачать последний backup
                   </Button>
@@ -385,10 +385,10 @@ export default function AdminSettings() {
                         </div>
                       </div>
                       <div className="flex gap-2">
-                        <Button variant="ghost" size="sm">
+                        <Button variant="ghost" size="sm" onClick={() => toast({ title: 'Скачивание...', description: `Загрузка backup от ${date}` })}>
                           <Icon name="Download" size={16} />
                         </Button>
-                        <Button variant="ghost" size="sm">
+                        <Button variant="ghost" size="sm" onClick={() => window.confirm('Восстановить данные из этой копии?') && toast({ title: 'Восстановление...', description: 'База данных восстанавливается' })}>
                           <Icon name="RotateCcw" size={16} />
                         </Button>
                       </div>

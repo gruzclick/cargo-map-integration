@@ -50,57 +50,9 @@ interface Campaign {
   endDate: string;
 }
 
-const promosData: Promo[] = [
-  {
-    id: '1',
-    code: 'WELCOME20',
-    discount: 20,
-    type: 'percent',
-    minAmount: 1000,
-    maxUses: 1000,
-    used: 347,
-    active: true,
-    expiryDate: '2025-02-28'
-  },
-  {
-    id: '2',
-    code: 'DELIVERY500',
-    discount: 500,
-    type: 'fixed',
-    minAmount: 2000,
-    maxUses: 500,
-    used: 89,
-    active: true,
-    expiryDate: '2025-03-15'
-  },
-];
+const promosData: Promo[] = [];
 
-const campaignsData: Campaign[] = [
-  {
-    id: '1',
-    name: 'Скидка новым клиентам',
-    type: 'discount',
-    status: 'active',
-    target: 'Новые пользователи из Москвы',
-    conversions: 234,
-    budget: 50000,
-    spent: 23400,
-    startDate: '2025-01-15',
-    endDate: '2025-02-15'
-  },
-  {
-    id: '2',
-    name: 'Реферальная программа',
-    type: 'referral',
-    status: 'active',
-    target: 'Все пользователи',
-    conversions: 156,
-    budget: 30000,
-    spent: 15600,
-    startDate: '2025-01-01',
-    endDate: '2025-12-31'
-  },
-];
+const campaignsData: Campaign[] = [];
 
 export default function AdminMarketing() {
   const { toast } = useToast();
@@ -177,7 +129,7 @@ export default function AdminMarketing() {
         </div>
 
         <Tabs defaultValue="promos" className="w-full">
-          <TabsList className="grid w-full grid-cols-3">
+          <TabsList className="grid w-full grid-cols-1 md:grid-cols-3">
             <TabsTrigger value="promos">Промокоды</TabsTrigger>
             <TabsTrigger value="campaigns">Кампании</TabsTrigger>
             <TabsTrigger value="referral">Реферальная программа</TabsTrigger>
@@ -259,57 +211,67 @@ export default function AdminMarketing() {
                 <CardTitle>Активные промокоды ({promos.length})</CardTitle>
               </CardHeader>
               <CardContent>
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead>Код</TableHead>
-                      <TableHead>Скидка</TableHead>
-                      <TableHead>Мин. сумма</TableHead>
-                      <TableHead>Использовано</TableHead>
-                      <TableHead>Лимит</TableHead>
-                      <TableHead>Срок до</TableHead>
-                      <TableHead>Статус</TableHead>
-                      <TableHead className="text-right">Действия</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {promos.map((promo) => (
-                      <TableRow key={promo.id}>
-                        <TableCell className="font-mono font-bold">{promo.code}</TableCell>
-                        <TableCell>
-                          {promo.discount}{promo.type === 'percent' ? '%' : '₽'}
-                        </TableCell>
-                        <TableCell>{promo.minAmount}₽</TableCell>
-                        <TableCell>{promo.used}</TableCell>
-                        <TableCell>{promo.maxUses}</TableCell>
-                        <TableCell>{promo.expiryDate}</TableCell>
-                        <TableCell>
-                          <Badge variant={promo.active ? 'default' : 'secondary'}>
-                            {promo.active ? 'Активен' : 'Отключен'}
-                          </Badge>
-                        </TableCell>
-                        <TableCell className="text-right">
-                          <div className="flex gap-2 justify-end">
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              onClick={() => handleTogglePromo(promo.id)}
-                            >
-                              <Icon name={promo.active ? "Pause" : "Play"} size={16} />
-                            </Button>
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              onClick={() => handleDeletePromo(promo.id)}
-                            >
-                              <Icon name="Trash2" size={16} />
-                            </Button>
-                          </div>
-                        </TableCell>
-                      </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
+                {promos.length === 0 ? (
+                  <div className="text-center py-12 text-muted-foreground">
+                    <Icon name="Ticket" size={64} className="mx-auto mb-4 opacity-20" />
+                    <p className="text-lg">Промокоды не созданы</p>
+                    <p className="text-sm">Создайте первый промокод для привлечения клиентов</p>
+                  </div>
+                ) : (
+                  <div className="overflow-x-auto">
+                    <Table>
+                      <TableHeader>
+                        <TableRow>
+                          <TableHead>Код</TableHead>
+                          <TableHead>Скидка</TableHead>
+                          <TableHead className="hidden md:table-cell">Мин. сумма</TableHead>
+                          <TableHead className="hidden md:table-cell">Использовано</TableHead>
+                          <TableHead className="hidden lg:table-cell">Лимит</TableHead>
+                          <TableHead className="hidden lg:table-cell">Срок до</TableHead>
+                          <TableHead>Статус</TableHead>
+                          <TableHead className="text-right">Действия</TableHead>
+                        </TableRow>
+                      </TableHeader>
+                      <TableBody>
+                        {promos.map((promo) => (
+                          <TableRow key={promo.id}>
+                            <TableCell className="font-mono font-bold">{promo.code}</TableCell>
+                            <TableCell>
+                              {promo.discount}{promo.type === 'percent' ? '%' : '₽'}
+                            </TableCell>
+                            <TableCell className="hidden md:table-cell">{promo.minAmount}₽</TableCell>
+                            <TableCell className="hidden md:table-cell">{promo.used}</TableCell>
+                            <TableCell className="hidden lg:table-cell">{promo.maxUses}</TableCell>
+                            <TableCell className="hidden lg:table-cell">{promo.expiryDate}</TableCell>
+                            <TableCell>
+                              <Badge variant={promo.active ? 'default' : 'secondary'}>
+                                {promo.active ? 'Активен' : 'Отключен'}
+                              </Badge>
+                            </TableCell>
+                            <TableCell className="text-right">
+                              <div className="flex gap-2 justify-end">
+                                <Button
+                                  variant="ghost"
+                                  size="sm"
+                                  onClick={() => handleTogglePromo(promo.id)}
+                                >
+                                  <Icon name={promo.active ? "Pause" : "Play"} size={16} />
+                                </Button>
+                                <Button
+                                  variant="ghost"
+                                  size="sm"
+                                  onClick={() => handleDeletePromo(promo.id)}
+                                >
+                                  <Icon name="Trash2" size={16} />
+                                </Button>
+                              </div>
+                            </TableCell>
+                          </TableRow>
+                        ))}
+                      </TableBody>
+                    </Table>
+                  </div>
+                )}
               </CardContent>
             </Card>
           </TabsContent>
@@ -329,76 +291,84 @@ export default function AdminMarketing() {
                 </div>
               </CardHeader>
               <CardContent>
-                <div className="space-y-4">
-                  {campaigns.map((campaign) => (
-                    <div key={campaign.id} className="p-4 border rounded-lg">
-                      <div className="flex items-start justify-between mb-3">
-                        <div>
-                          <h3 className="font-semibold text-lg flex items-center gap-2">
-                            {campaign.name}
-                            <Badge variant={campaign.status === 'active' ? 'default' : 'secondary'}>
-                              {campaign.status === 'active' ? 'Активна' : campaign.status}
-                            </Badge>
-                          </h3>
-                          <p className="text-sm text-muted-foreground mt-1">
-                            <Icon name="Target" size={14} className="inline mr-1" />
-                            {campaign.target}
-                          </p>
+                {campaigns.length === 0 ? (
+                  <div className="text-center py-12 text-muted-foreground">
+                    <Icon name="Target" size={64} className="mx-auto mb-4 opacity-20" />
+                    <p className="text-lg">Кампании не созданы</p>
+                    <p className="text-sm">Создайте первую кампанию для таргетированного маркетинга</p>
+                  </div>
+                ) : (
+                  <div className="space-y-4">
+                    {campaigns.map((campaign) => (
+                      <div key={campaign.id} className="p-4 border rounded-lg">
+                        <div className="flex items-start justify-between mb-3">
+                          <div>
+                            <h3 className="font-semibold text-lg flex items-center gap-2">
+                              {campaign.name}
+                              <Badge variant={campaign.status === 'active' ? 'default' : 'secondary'}>
+                                {campaign.status === 'active' ? 'Активна' : campaign.status}
+                              </Badge>
+                            </h3>
+                            <p className="text-sm text-muted-foreground mt-1">
+                              <Icon name="Target" size={14} className="inline mr-1" />
+                              {campaign.target}
+                            </p>
+                          </div>
+                          <div className="text-right">
+                            <p className="text-2xl font-bold text-green-600">{campaign.conversions}</p>
+                            <p className="text-xs text-muted-foreground">конверсий</p>
+                          </div>
                         </div>
-                        <div className="text-right">
-                          <p className="text-2xl font-bold text-green-600">{campaign.conversions}</p>
-                          <p className="text-xs text-muted-foreground">конверсий</p>
-                        </div>
-                      </div>
 
-                      <div className="grid grid-cols-4 gap-4 mb-3">
-                        <div>
-                          <p className="text-xs text-muted-foreground">Бюджет</p>
-                          <p className="font-semibold">{campaign.budget.toLocaleString('ru-RU')} ₽</p>
+                        <div className="grid grid-cols-4 gap-4 mb-3">
+                          <div>
+                            <p className="text-xs text-muted-foreground">Бюджет</p>
+                            <p className="font-semibold">{campaign.budget.toLocaleString('ru-RU')} ₽</p>
+                          </div>
+                          <div>
+                            <p className="text-xs text-muted-foreground">Потрачено</p>
+                            <p className="font-semibold">{campaign.spent.toLocaleString('ru-RU')} ₽</p>
+                          </div>
+                          <div>
+                            <p className="text-xs text-muted-foreground">Начало</p>
+                            <p className="font-semibold">{campaign.startDate}</p>
+                          </div>
+                          <div>
+                            <p className="text-xs text-muted-foreground">Конец</p>
+                            <p className="font-semibold">{campaign.endDate}</p>
+                          </div>
                         </div>
-                        <div>
-                          <p className="text-xs text-muted-foreground">Потрачено</p>
-                          <p className="font-semibold">{campaign.spent.toLocaleString('ru-RU')} ₽</p>
-                        </div>
-                        <div>
-                          <p className="text-xs text-muted-foreground">Начало</p>
-                          <p className="font-semibold">{campaign.startDate}</p>
-                        </div>
-                        <div>
-                          <p className="text-xs text-muted-foreground">Конец</p>
-                          <p className="font-semibold">{campaign.endDate}</p>
-                        </div>
-                      </div>
 
-                      <div className="flex items-center gap-2">
-                        <div className="flex-1 bg-muted rounded-full h-2">
-                          <div
-                            className="bg-green-500 h-2 rounded-full transition-all"
-                            style={{ width: `${(campaign.spent / campaign.budget) * 100}%` }}
-                          />
+                        <div className="flex items-center gap-2">
+                          <div className="flex-1 bg-muted rounded-full h-2">
+                            <div
+                              className="bg-green-500 h-2 rounded-full transition-all"
+                              style={{ width: `${(campaign.spent / campaign.budget) * 100}%` }}
+                            />
+                          </div>
+                          <span className="text-sm text-muted-foreground">
+                            {Math.round((campaign.spent / campaign.budget) * 100)}%
+                          </span>
                         </div>
-                        <span className="text-sm text-muted-foreground">
-                          {Math.round((campaign.spent / campaign.budget) * 100)}%
-                        </span>
-                      </div>
 
-                      <div className="flex gap-2 mt-3">
-                        <Button variant="outline" size="sm">
-                          <Icon name="BarChart3" size={14} className="mr-1" />
-                          Статистика
-                        </Button>
-                        <Button variant="outline" size="sm">
-                          <Icon name="Edit" size={14} className="mr-1" />
-                          Редактировать
-                        </Button>
-                        <Button variant="outline" size="sm">
-                          <Icon name="Pause" size={14} className="mr-1" />
-                          Приостановить
-                        </Button>
+                        <div className="flex gap-2 mt-3">
+                          <Button variant="outline" size="sm" onClick={() => toast({ title: 'Статистика', description: 'Данные по кампании загружаются...' })}>
+                            <Icon name="BarChart3" size={14} className="mr-1" />
+                            Статистика
+                          </Button>
+                          <Button variant="outline" size="sm" onClick={() => toast({ title: 'Редактирование', description: 'Откроется редактор кампании' })}>
+                            <Icon name="Edit" size={14} className="mr-1" />
+                            Редактировать
+                          </Button>
+                          <Button variant="outline" size="sm" onClick={() => toast({ title: 'Кампания приостановлена', description: 'Показы акции временно отключены' })}>
+                            <Icon name="Pause" size={14} className="mr-1" />
+                            Приостановить
+                          </Button>
+                        </div>
                       </div>
-                    </div>
-                  ))}
-                </div>
+                    ))}
+                  </div>
+                )}
               </CardContent>
             </Card>
 
@@ -462,20 +432,20 @@ export default function AdminMarketing() {
                 <CardTitle>Статистика реферальной программы</CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="grid grid-cols-3 gap-4">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                   <div className="p-4 border rounded-lg">
                     <p className="text-sm text-muted-foreground mb-1">Приглашено</p>
-                    <p className="text-3xl font-bold">156</p>
-                    <p className="text-xs text-green-600 mt-1">+23 за неделю</p>
+                    <p className="text-3xl font-bold">0</p>
+                    <p className="text-xs text-muted-foreground mt-1">пользователей</p>
                   </div>
                   <div className="p-4 border rounded-lg">
                     <p className="text-sm text-muted-foreground mb-1">Активировано</p>
-                    <p className="text-3xl font-bold">89</p>
-                    <p className="text-xs text-muted-foreground mt-1">57% конверсия</p>
+                    <p className="text-3xl font-bold">0</p>
+                    <p className="text-xs text-muted-foreground mt-1">0% конверсия</p>
                   </div>
                   <div className="p-4 border rounded-lg">
                     <p className="text-sm text-muted-foreground mb-1">Выплачено</p>
-                    <p className="text-3xl font-bold">44,500₽</p>
+                    <p className="text-3xl font-bold">0₽</p>
                     <p className="text-xs text-muted-foreground mt-1">в бонусах</p>
                   </div>
                 </div>

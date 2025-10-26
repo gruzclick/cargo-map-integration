@@ -258,7 +258,7 @@ export const AdminDashboard = ({ onLogout }: AdminDashboardProps) => {
         <DashboardStats stats={stats} loading={loading} />
 
         <Tabs defaultValue="overview" className="w-full">
-          <TabsList className="grid w-full grid-cols-5 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800">
+          <TabsList className="grid w-full grid-cols-2 md:grid-cols-5 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800">
             <TabsTrigger value="overview" className="data-[state=active]:bg-gray-100 dark:data-[state=active]:bg-gray-800 text-gray-900 dark:text-gray-100">Обзор</TabsTrigger>
             <TabsTrigger value="users" className="data-[state=active]:bg-gray-100 dark:data-[state=active]:bg-gray-800 text-gray-900 dark:text-gray-100">Пользователи</TabsTrigger>
             <TabsTrigger value="orders" className="data-[state=active]:bg-gray-100 dark:data-[state=active]:bg-gray-800 text-gray-900 dark:text-gray-100">Заказы</TabsTrigger>
