@@ -19,6 +19,7 @@ import AdminSettings from "./pages/AdminSettings";
 import AdminSupport from "./pages/AdminSupport";
 import AdminMarketing from "./pages/AdminMarketing";
 import AdminSecurityGuide from "./pages/AdminSecurityGuide";
+import AdminSecurity from "./pages/AdminSecurity";
 import AdPreviewPage from "./pages/AdPreviewPage";
 import QRPage from "./pages/QRPage";
 import NotFound from "./pages/NotFound";
@@ -93,6 +94,7 @@ useEffect(() => {
               <Route path="/admin/settings" element={<AdminSettings />} />
               <Route path="/admin/support" element={<AdminSupport />} />
               <Route path="/admin/marketing" element={<AdminMarketing />} />
+              <Route path="/admin/security" element={<AdminSecurity />} />
               <Route path="/admin/security-guide" element={<AdminSecurityGuide />} />
               <Route path="/ad-preview" element={<AdPreviewPage />} />
               <Route path="/qr" element={<QRPage />} />

@@ -17,6 +17,7 @@ export const BiometricCamera = ({ type, onCapture, onCancel }: BiometricCameraPr
   const [stream, setStream] = useState<MediaStream | null>(null);
   const [capturing, setCapturing] = useState(false);
   const [countdown, setCountdown] = useState<number | null>(null);
+  const [capturedImage, setCapturedImage] = useState<string | null>(null);
 
   useEffect(() => {
     startCamera();
@@ -143,19 +144,69 @@ export const BiometricCamera = ({ type, onCapture, onCancel }: BiometricCameraPr
 
     stopCamera();
     setCapturing(false);
+    setCapturedImage(imageData);
 
     toast({
       title: 'Снимок сделан',
-      description: `${type === 'face' ? 'Лицо' : 'Радужка глаза'} успешно отсканировано`,
+      description: 'Проверьте и подтвердите снимок',
     });
-
-    onCapture(imageData);
   };
 
   const handleCancel = () => {
     stopCamera();
+    setCapturedImage(null);
     onCancel();
   };
+
+  const handleConfirm = () => {
+    if (capturedImage) {
+      onCapture(capturedImage);
+    }
+  };
+
+  const handleRetake = () => {
+    setCapturedImage(null);
+    startCamera();
+  };
+
+  if (capturedImage) {
+    return (
+      <Card className="overflow-hidden">
+        <CardContent className="p-0">
+          <div className="relative bg-black">
+            <img 
+              src={capturedImage} 
+              alt="Captured biometric" 
+              className="w-full h-auto"
+            />
+            <div className="absolute top-4 left-4 right-4">
+              <div className="bg-green-500/90 text-white px-4 py-2 rounded-lg text-center font-medium">
+                <Icon name="CheckCircle" size={20} className="inline mr-2" />
+                Снимок готов
+              </div>
+            </div>
+          </div>
+
+          <div className="p-4 flex gap-2">
+            <Button
+              onClick={handleConfirm}
+              className="flex-1 bg-green-600 hover:bg-green-700"
+            >
+              <Icon name="Check" size={20} className="mr-2" />
+              Сохранить
+            </Button>
+            <Button onClick={handleRetake} variant="outline" className="flex-1">
+              <Icon name="RotateCcw" size={20} className="mr-2" />
+              Переснять
+            </Button>
+            <Button onClick={handleCancel} variant="outline">
+              <Icon name="X" size={20} />
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
+    );
+  }
 
   return (
     <Card className="overflow-hidden">
