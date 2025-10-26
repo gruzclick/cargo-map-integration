@@ -114,6 +114,28 @@ def generate_token(admin_id: int, email: str) -> str:
 def hash_password(password: str) -> str:
     return hashlib.sha256(password.encode()).hexdigest()
 
+def verify_admin_token(token: str, conn) -> Dict[str, Any]:
+    if not token:
+        return {'valid': False, 'error': 'Требуется токен администратора'}
+    
+    cur = conn.cursor()
+    cur.execute("SELECT id, email, full_name, is_active FROM admins WHERE is_active = true")
+    admins = cur.fetchall()
+    
+    for admin in admins:
+        expected_token_data = f"{admin['id']}:{admin['email']}"
+        secret = os.environ.get('JWT_SECRET', 'default-secret-key')
+        
+        if token[:32] == hashlib.sha256(f"{expected_token_data}".encode()).hexdigest()[:32]:
+            return {
+                'valid': True, 
+                'admin_id': admin['id'],
+                'email': admin['email'],
+                'full_name': admin['full_name']
+            }
+    
+    return {'valid': False, 'error': 'Недействительный токен администратора'}
+
 def get_db_connection():
     dsn = os.environ.get('DATABASE_URL')
     conn = psycopg2.connect(dsn, cursor_factory=RealDictCursor)
@@ -603,13 +625,14 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             }
         
         elif action == 'delete_test_users':
-            admin_token = event.get('headers', {}).get('x-auth-token')
+            admin_token = event.get('headers', {}).get('x-auth-token') or event.get('headers', {}).get('X-Auth-Token')
+            token_check = verify_admin_token(admin_token, conn)
             
-            if not admin_token:
+            if not token_check['valid']:
                 return {
                     'statusCode': 401,
                     'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
-                    'body': json.dumps({'error': 'Требуется токен администратора'}),
+                    'body': json.dumps({'error': token_check.get('error', 'Недействительный токен')}),
                     'isBase64Encoded': False
                 }
             
@@ -641,13 +664,14 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             }
         
         elif action == 'delete_table_data':
-            admin_token = event.get('headers', {}).get('x-auth-token')
+            admin_token = event.get('headers', {}).get('x-auth-token') or event.get('headers', {}).get('X-Auth-Token')
+            token_check = verify_admin_token(admin_token, conn)
             
-            if not admin_token:
+            if not token_check['valid']:
                 return {
                     'statusCode': 401,
                     'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
-                    'body': json.dumps({'error': 'Требуется токен администратора'}),
+                    'body': json.dumps({'error': token_check.get('error', 'Недействительный токен')}),
                     'isBase64Encoded': False
                 }
             
@@ -678,13 +702,14 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             }
         
         elif action == 'clear_all_test_data':
-            admin_token = event.get('headers', {}).get('x-auth-token')
+            admin_token = event.get('headers', {}).get('x-auth-token') or event.get('headers', {}).get('X-Auth-Token')
+            token_check = verify_admin_token(admin_token, conn)
             
-            if not admin_token:
+            if not token_check['valid']:
                 return {
                     'statusCode': 401,
                     'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
-                    'body': json.dumps({'error': 'Требуется токен администратора'}),
+                    'body': json.dumps({'error': token_check.get('error', 'Недействительный токен')}),
                     'isBase64Encoded': False
                 }
             
