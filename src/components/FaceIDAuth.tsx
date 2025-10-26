@@ -14,13 +14,19 @@ export default function FaceIDAuth({ onSuccess, mode }: FaceIDAuthProps) {
   const [loading, setLoading] = useState(false);
   const [cameraActive, setCameraActive] = useState(false);
   const [faceDetected, setFaceDetected] = useState(false);
+  const [scanning, setScanning] = useState(false);
   const videoRef = useRef<HTMLVideoElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const streamRef = useRef<MediaStream | null>(null);
+  const scanLineRef = useRef<number>(0);
+  const animationRef = useRef<number>();
 
   useEffect(() => {
     return () => {
       stopCamera();
+      if (animationRef.current) {
+        cancelAnimationFrame(animationRef.current);
+      }
     };
   }, []);
 
@@ -62,10 +68,24 @@ export default function FaceIDAuth({ onSuccess, mode }: FaceIDAuthProps) {
     setFaceDetected(false);
   };
 
+  const animateScanLine = () => {
+    const animate = () => {
+      scanLineRef.current += 3;
+      if (scanLineRef.current > 100) {
+        scanLineRef.current = 0;
+      }
+      animationRef.current = requestAnimationFrame(animate);
+    };
+    animate();
+  };
+
   const captureFace = async () => {
     if (!videoRef.current || !canvasRef.current) return;
     
     setLoading(true);
+    setScanning(true);
+    animateScanLine();
+    
     const canvas = canvasRef.current;
     const video = videoRef.current;
     
@@ -80,12 +100,16 @@ export default function FaceIDAuth({ onSuccess, mode }: FaceIDAuthProps) {
     const imageData = canvas.toDataURL('image/jpeg', 0.8);
     
     setTimeout(() => {
+      setScanning(false);
       setFaceDetected(true);
+      if (animationRef.current) {
+        cancelAnimationFrame(animationRef.current);
+      }
       
       setTimeout(() => {
         if (mode === 'register') {
           localStorage.setItem('face_id_registered', 'true');
-          localStorage.setItem('face_id_data', imageData.substring(0, 100));
+          localStorage.setItem('face_id_data', imageData);
           
           toast({
             title: '✅ Face ID зарегистрирован',
@@ -111,7 +135,7 @@ export default function FaceIDAuth({ onSuccess, mode }: FaceIDAuthProps) {
         setLoading(false);
         stopCamera();
       }, 1000);
-    }, 1500);
+    }, 2500);
   };
 
   return (
@@ -158,23 +182,51 @@ export default function FaceIDAuth({ onSuccess, mode }: FaceIDAuthProps) {
                 }}
               />
               
+              {/* Рамка распознавания лица (как в iPhone) */}
+              <div className="absolute inset-0 pointer-events-none">
+                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-64 h-80">
+                  {/* Углы рамки */}
+                  <div className="absolute top-0 left-0 w-8 h-8 border-t-4 border-l-4 border-white rounded-tl-lg"></div>
+                  <div className="absolute top-0 right-0 w-8 h-8 border-t-4 border-r-4 border-white rounded-tr-lg"></div>
+                  <div className="absolute bottom-0 left-0 w-8 h-8 border-b-4 border-l-4 border-white rounded-bl-lg"></div>
+                  <div className="absolute bottom-0 right-0 w-8 h-8 border-b-4 border-r-4 border-white rounded-br-lg"></div>
+                  
+                  {/* Анимированная линия сканирования */}
+                  {scanning && (
+                    <div 
+                      className="absolute left-0 right-0 h-1 bg-gradient-to-r from-transparent via-blue-400 to-transparent animate-pulse"
+                      style={{ 
+                        top: `${scanLineRef.current}%`,
+                        transition: 'top 0.1s linear'
+                      }}
+                    >
+                      <div className="absolute inset-0 bg-blue-400 blur-sm"></div>
+                    </div>
+                  )}
+                </div>
+              </div>
+
               {faceDetected && (
-                <div className="absolute inset-0 flex items-center justify-center bg-green-500/20">
-                  <div className="text-center">
-                    <Icon name="CheckCircle2" size={64} className="text-green-500 mx-auto mb-2" />
-                    <p className="text-white font-semibold text-lg">Лицо обнаружено!</p>
+                <div className="absolute inset-0 flex items-center justify-center bg-green-500/30 backdrop-blur-sm">
+                  <div className="text-center animate-scale-in">
+                    <div className="relative">
+                      <Icon name="CheckCircle2" size={80} className="text-green-500 mx-auto mb-3 drop-shadow-lg" />
+                      <div className="absolute inset-0 bg-green-500/30 rounded-full blur-2xl"></div>
+                    </div>
+                    <p className="text-white font-bold text-xl drop-shadow-lg">Лицо распознано!</p>
+                    <p className="text-white/80 text-sm mt-1">Face ID активирован</p>
                   </div>
                 </div>
               )}
               
               <div className="absolute top-4 left-4 right-4">
-                <div className="bg-black/50 backdrop-blur-sm rounded-lg p-3 text-white text-sm">
+                <div className="bg-black/60 backdrop-blur-md rounded-xl p-4 text-white border border-white/10">
                   <div className="flex items-center gap-2 mb-2">
-                    <div className="w-2 h-2 bg-red-500 rounded-full animate-pulse"></div>
-                    <span>Камера активна</span>
+                    <div className="w-2.5 h-2.5 bg-red-500 rounded-full animate-pulse shadow-lg shadow-red-500/50"></div>
+                    <span className="font-medium">Камера активна</span>
                   </div>
-                  <p className="text-xs opacity-80">
-                    {loading ? 'Обработка изображения...' : 'Расположите лицо в центре кадра'}
+                  <p className="text-xs opacity-90">
+                    {loading ? '🔄 Анализ биометрии...' : scanning ? '📸 Сканирование лица...' : '👤 Расположите лицо в центре рамки'}
                   </p>
                 </div>
               </div>
