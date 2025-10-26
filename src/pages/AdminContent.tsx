@@ -341,36 +341,28 @@ export default function AdminContent() {
             <Card>
               <CardHeader>
                 <CardTitle>Юридические документы</CardTitle>
-                <CardDescription>Редактор политики конфиденциальности и пользовательского соглашения</CardDescription>
+                <CardDescription>Редактирование отображается на сайте в разделах /privacy и /terms</CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
-                <div className="space-y-2">
-                  <Label htmlFor="privacy">Политика конфиденциальности</Label>
-                  <Textarea
-                    id="privacy"
-                    rows={8}
-                    defaultValue="1. Общие положения&#10;Настоящая Политика конфиденциальности описывает порядок обработки и защиты персональных данных пользователей платформы.&#10;&#10;2. Сбор данных&#10;Мы собираем только необходимую информацию для предоставления услуг доставки.&#10;&#10;3. Использование данных&#10;Данные используются исключительно для обработки заказов и улучшения качества сервиса."
-                  />
+                <div className="flex gap-2 mb-4">
+                  <Button variant="outline" onClick={() => window.open('/privacy', '_blank')}>
+                    <Icon name="ExternalLink" size={16} className="mr-2" />
+                    Открыть политику на сайте
+                  </Button>
+                  <Button variant="outline" onClick={() => window.open('/terms', '_blank')}>
+                    <Icon name="ExternalLink" size={16} className="mr-2" />
+                    Открыть соглашение на сайте
+                  </Button>
                 </div>
 
-                <Button>
-                  <Icon name="Save" size={20} className="mr-2" />
-                  Сохранить политику
-                </Button>
-
-                <div className="space-y-2 pt-4">
-                  <Label htmlFor="terms">Пользовательское соглашение</Label>
-                  <Textarea
-                    id="terms"
-                    rows={8}
-                    defaultValue="1. Общие условия&#10;Используя платформу, вы соглашаетесь с условиями данного соглашения.&#10;&#10;2. Правила использования&#10;Запрещается использование платформы в мошеннических целях.&#10;&#10;3. Ответственность сторон&#10;Платформа не несет ответственности за действия третьих лиц."
-                  />
+                <div className="p-4 bg-blue-500/10 border border-blue-500/30 rounded-lg">
+                  <p className="text-sm">
+                    <Icon name="Info" size={16} className="inline mr-2 text-blue-500" />
+                    Для редактирования юридических документов измените файлы:
+                    <code className="block mt-2 p-2 bg-muted rounded">src/pages/PrivacyPolicy.tsx</code>
+                    <code className="block mt-1 p-2 bg-muted rounded">src/pages/TermsOfService.tsx</code>
+                  </p>
                 </div>
-
-                <Button>
-                  <Icon name="Save" size={20} className="mr-2" />
-                  Сохранить соглашение
-                </Button>
               </CardContent>
             </Card>
           </TabsContent>

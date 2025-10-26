@@ -22,44 +22,11 @@ import {
   Area
 } from 'recharts';
 
-const revenueData = [
-  { date: '1 янв', revenue: 45000, orders: 120 },
-  { date: '8 янв', revenue: 52000, orders: 145 },
-  { date: '15 янв', revenue: 48000, orders: 132 },
-  { date: '22 янв', revenue: 61000, orders: 168 },
-  { date: '29 янв', revenue: 58000, orders: 155 },
-  { date: '5 фев', revenue: 67000, orders: 182 },
-  { date: '12 фев', revenue: 72000, orders: 195 },
-];
-
-const regionData = [
-  { region: 'Москва', orders: 450, revenue: 180000 },
-  { region: 'Санкт-Петербург', orders: 320, revenue: 128000 },
-  { region: 'Казань', orders: 210, revenue: 84000 },
-  { region: 'Екатеринбург', orders: 185, revenue: 74000 },
-  { region: 'Новосибирск', orders: 165, revenue: 66000 },
-];
-
-const userTypeData = [
-  { name: 'Клиенты', value: 68, color: '#3b82f6' },
-  { name: 'Перевозчики', value: 32, color: '#10b981' },
-];
-
-const popularRoutesData = [
-  { route: 'Москва → СПб', count: 234, revenue: 93600 },
-  { route: 'Казань → Москва', count: 156, revenue: 62400 },
-  { route: 'СПб → Москва', count: 198, revenue: 79200 },
-  { route: 'Москва → Казань', count: 142, revenue: 56800 },
-  { route: 'Екб → Челябинск', count: 89, revenue: 35600 },
-];
-
-const conversionData = [
-  { stage: 'Посетители', count: 10000, percent: 100 },
-  { stage: 'Регистрация', count: 3500, percent: 35 },
-  { stage: 'Первый заказ', count: 1200, percent: 12 },
-  { stage: 'Повторный заказ', count: 680, percent: 6.8 },
-  { stage: 'Постоянные', count: 420, percent: 4.2 },
-];
+const revenueData: Array<{ date: string; revenue: number; orders: number }> = [];
+const regionData: Array<{ region: string; orders: number; revenue: number }> = [];
+const userTypeData: Array<{ name: string; value: number; color: string }> = [];
+const popularRoutesData: Array<{ route: string; count: number; revenue: number }> = [];
+const conversionData: Array<{ stage: string; count: number; percent: number }> = [];
 
 export default function AdminAnalytics() {
   const [period, setPeriod] = useState<'day' | 'week' | 'month' | 'year'>('week');
@@ -71,7 +38,7 @@ export default function AdminAnalytics() {
 
   const totalRevenue = revenueData.reduce((sum, item) => sum + item.revenue, 0);
   const totalOrders = revenueData.reduce((sum, item) => sum + item.orders, 0);
-  const avgOrderValue = Math.round(totalRevenue / totalOrders);
+  const avgOrderValue = totalOrders > 0 ? Math.round(totalRevenue / totalOrders) : 0;
 
   return (
     <div className="min-h-screen bg-background p-4">
