@@ -6,6 +6,7 @@ import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { exportAnalyticsToPDF } from '@/utils/pdfExport';
 import { useToast } from '@/hooks/use-toast';
+import * as XLSX from 'xlsx';
 import {
   LineChart,
   Line,
@@ -38,97 +39,131 @@ export default function AdminAnalytics() {
 
   const handleExport = async (format: 'excel' | 'csv' | 'pdf') => {
     const timestamp = new Date().toISOString().split('T')[0];
+    setExporting(true);
     
-    if (format === 'pdf') {
-      setExporting(true);
-      try {
+    try {
+      if (format === 'pdf') {
         await exportAnalyticsToPDF({
-          title: 'Отчёт по аналитике',
-          subtitle: `Период: ${period === 'day' ? 'День' : period === 'week' ? 'Неделя' : period === 'month' ? 'Месяц' : 'Год'}`,
+          title: 'Отчёт по аналитике ГрузКлик',
+          subtitle: `Период: ${period === 'day' ? 'День' : period === 'week' ? 'Неделя' : period === 'month' ? 'Месяц' : 'Год'} | ${new Date().toLocaleDateString('ru-RU')}`,
           stats: [
             { label: 'Общая выручка', value: `${totalRevenue.toLocaleString()} ₽` },
             { label: 'Всего заказов', value: totalOrders },
-            { label: 'Средний чек', value: `${avgOrderValue.toLocaleString()} ₽` }
+            { label: 'Средний чек', value: `${avgOrderValue.toLocaleString()} ₽` },
+            { label: 'Период', value: period === 'day' ? 'День' : period === 'week' ? 'Неделя' : period === 'month' ? 'Месяц' : 'Год' }
           ],
           chartIds: ['revenue-chart', 'region-chart', 'user-type-chart'],
-          filename: `analytics-report-${timestamp}.pdf`
+          filename: `gruzclick-analytics-${timestamp}.pdf`
         });
         
         toast({
-          title: 'PDF экспортирован',
+          title: '✅ PDF экспортирован',
           description: 'Отчёт с графиками успешно сохранён'
         });
-      } catch (error) {
+      } else if (format === 'excel') {
+        const wb = XLSX.utils.book_new();
+        
+        const summaryData = [
+          ['ОТЧЁТ ПО АНАЛИТИКЕ ГРУЗКЛИК'],
+          ['Дата формирования', new Date().toLocaleDateString('ru-RU')],
+          ['Период', period === 'day' ? 'День' : period === 'week' ? 'Неделя' : period === 'month' ? 'Месяц' : 'Год'],
+          [],
+          ['ОСНОВНЫЕ ПОКАЗАТЕЛИ'],
+          ['Общая выручка', `${totalRevenue.toLocaleString()} ₽`],
+          ['Всего заказов', totalOrders],
+          ['Средний чек', `${avgOrderValue.toLocaleString()} ₽`],
+          [],
+        ];
+        
+        const revenueTableData = [
+          ['ДИНАМИКА ВЫРУЧКИ'],
+          ['Дата', 'Выручка (₽)', 'Заказы'],
+          ...revenueData.map(item => [item.date, item.revenue, item.orders])
+        ];
+        
+        const regionTableData = [
+          [],
+          ['ДАННЫЕ ПО РЕГИОНАМ'],
+          ['Регион', 'Заказы', 'Выручка (₽)'],
+          ...regionData.map(item => [item.region, item.orders, item.revenue])
+        ];
+        
+        const wsData = [...summaryData, ...revenueTableData, ...regionTableData];
+        const ws = XLSX.utils.aoa_to_sheet(wsData);
+        
+        ws['!cols'] = [
+          { wch: 25 },
+          { wch: 15 },
+          { wch: 15 }
+        ];
+        
+        const range = XLSX.utils.decode_range(ws['!ref'] || 'A1');
+        for (let R = range.s.r; R <= range.e.r; ++R) {
+          for (let C = range.s.c; C <= range.e.c; ++C) {
+            const cellAddress = XLSX.utils.encode_cell({ r: R, c: C });
+            if (!ws[cellAddress]) continue;
+            
+            if (R === 0 || wsData[R]?.[0]?.includes('ПОКАЗАТЕЛИ') || wsData[R]?.[0]?.includes('ДИНАМИКА') || wsData[R]?.[0]?.includes('РЕГИОНАМ')) {
+              ws[cellAddress].s = {
+                font: { bold: true, sz: 14 },
+                fill: { fgColor: { rgb: 'E8F4F8' } },
+                alignment: { horizontal: 'left', vertical: 'center' }
+              };
+            }
+          }
+        }
+        
+        XLSX.utils.book_append_sheet(wb, ws, 'Аналитика');
+        XLSX.writeFile(wb, `gruzclick-analytics-${timestamp}.xlsx`);
+        
         toast({
-          title: 'Ошибка экспорта',
-          description: 'Не удалось создать PDF',
-          variant: 'destructive'
+          title: '✅ Excel экспортирован',
+          description: 'Отчёт успешно сохранён в формате XLSX'
         });
-      } finally {
-        setExporting(false);
+      } else if (format === 'csv') {
+        let csvContent = '"ОТЧЁТ ПО АНАЛИТИКЕ ГРУЗКЛИК"\n';
+        csvContent += `"Дата формирования","${new Date().toLocaleDateString('ru-RU')}"\n`;
+        csvContent += `"Период","${period === 'day' ? 'День' : period === 'week' ? 'Неделя' : period === 'month' ? 'Месяц' : 'Год'}"\n\n`;
+        
+        csvContent += '"ОСНОВНЫЕ ПОКАЗАТЕЛИ"\n';
+        csvContent += `"Общая выручка","${totalRevenue.toLocaleString()} ₽"\n`;
+        csvContent += `"Всего заказов","${totalOrders}"\n`;
+        csvContent += `"Средний чек","${avgOrderValue.toLocaleString()} ₽"\n\n`;
+        
+        csvContent += '"ДИНАМИКА ВЫРУЧКИ"\n';
+        csvContent += '"Дата","Выручка (₽)","Заказы"\n';
+        revenueData.forEach(item => {
+          csvContent += `"${item.date}","${item.revenue}","${item.orders}"\n`;
+        });
+        
+        csvContent += '\n"ДАННЫЕ ПО РЕГИОНАМ"\n';
+        csvContent += '"Регион","Заказы","Выручка (₽)"\n';
+        regionData.forEach(item => {
+          csvContent += `"${item.region}","${item.orders}","${item.revenue}"\n`;
+        });
+        
+        const blob = new Blob(['\uFEFF' + csvContent], { type: 'text/csv;charset=utf-8;' });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = `gruzclick-analytics-${timestamp}.csv`;
+        link.click();
+        URL.revokeObjectURL(url);
+        
+        toast({
+          title: '✅ CSV экспортирован',
+          description: 'Отчёт успешно сохранён в формате CSV'
+        });
       }
-      return;
-    }
-    
-    if (format === 'csv') {
-      let csvContent = 'Дата,Выручка,Заказы\n';
-      revenueData.forEach(item => {
-        csvContent += `${item.date},${item.revenue},${item.orders}\n`;
+    } catch (error) {
+      console.error('Export error:', error);
+      toast({
+        title: '❌ Ошибка экспорта',
+        description: `Не удалось создать ${format.toUpperCase()}`,
+        variant: 'destructive'
       });
-      
-      csvContent += '\n\nРегион,Заказы,Выручка\n';
-      regionData.forEach(item => {
-        csvContent += `${item.region},${item.orders},${item.revenue}\n`;
-      });
-      
-      const blob = new Blob(['\uFEFF' + csvContent], { type: 'text/csv;charset=utf-8;' });
-      const url = URL.createObjectURL(blob);
-      const link = document.createElement('a');
-      link.href = url;
-      link.download = `analytics-report-${timestamp}.csv`;
-      link.click();
-      URL.revokeObjectURL(url);
-    } else if (format === 'excel') {
-      let content = 'Дата\tВыручка\tЗаказы\n';
-      revenueData.forEach(item => {
-        content += `${item.date}\t${item.revenue}\t${item.orders}\n`;
-      });
-      
-      content += '\n\nРегион\tЗаказы\tВыручка\n';
-      regionData.forEach(item => {
-        content += `${item.region}\t${item.orders}\t${item.revenue}\n`;
-      });
-      
-      const blob = new Blob(['\uFEFF' + content], { type: 'application/vnd.ms-excel;charset=utf-8;' });
-      const url = URL.createObjectURL(blob);
-      const link = document.createElement('a');
-      link.href = url;
-      link.download = `analytics-report-${timestamp}.xls`;
-      link.click();
-      URL.revokeObjectURL(url);
-    } else if (format === 'pdf') {
-      let textContent = `ОТЧЁТ ПО АНАЛИТИКЕ\nДата: ${new Date().toLocaleDateString('ru-RU')}\n\n`;
-      textContent += `Общая выручка: ${totalRevenue.toLocaleString()} ₽\n`;
-      textContent += `Всего заказов: ${totalOrders}\n`;
-      textContent += `Средний чек: ${avgOrderValue.toLocaleString()} ₽\n\n`;
-      
-      textContent += `ДАННЫЕ ПО ДАТАМ:\n`;
-      revenueData.forEach(item => {
-        textContent += `${item.date}: ${item.revenue.toLocaleString()} ₽, ${item.orders} заказов\n`;
-      });
-      
-      textContent += `\n\nДАННЫЕ ПО РЕГИОНАМ:\n`;
-      regionData.forEach(item => {
-        textContent += `${item.region}: ${item.orders} заказов, ${item.revenue.toLocaleString()} ₽\n`;
-      });
-      
-      const blob = new Blob([textContent], { type: 'text/plain;charset=utf-8;' });
-      const url = URL.createObjectURL(blob);
-      const link = document.createElement('a');
-      link.href = url;
-      link.download = `analytics-report-${timestamp}.txt`;
-      link.click();
-      URL.revokeObjectURL(url);
+    } finally {
+      setExporting(false);
     }
   };
 

@@ -126,6 +126,7 @@ def send_email(to_email: str, code: str) -> bool:
     smtp_password = os.environ.get('SMTP_PASSWORD')
     
     if not all([smtp_host, smtp_user, smtp_password]):
+        print(f"SMTP not configured: host={smtp_host}, user={smtp_user}, password={'set' if smtp_password else 'not set'}")
         return False
     
     msg = MIMEMultipart('alternative')
@@ -158,13 +159,15 @@ def send_email(to_email: str, code: str) -> bool:
     msg.attach(MIMEText(html, 'html', 'utf-8'))
     
     try:
-        server = smtplib.SMTP(smtp_host, smtp_port)
+        server = smtplib.SMTP(smtp_host, smtp_port, timeout=10)
         server.starttls()
         server.login(smtp_user, smtp_password)
         server.send_message(msg)
         server.quit()
+        print(f"Email sent successfully to {to_email}")
         return True
-    except:
+    except Exception as e:
+        print(f"Failed to send email: {str(e)}")
         return False
 
 def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
