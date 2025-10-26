@@ -211,6 +211,23 @@
     -moz-user-select: text;
     -ms-user-select: text;
     font-size: 17px;
+    overflow-x: hidden;
+  }
+
+  @media (max-width: 768px) {
+    body {
+      max-width: 100vw;
+      overflow-x: hidden;
+    }
+
+    * {
+      max-width: 100%;
+    }
+
+    .leaflet-container {
+      width: 100vw !important;
+      height: 100vh !important;
+    }
   }
 
   h1,

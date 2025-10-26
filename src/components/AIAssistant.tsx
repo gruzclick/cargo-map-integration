@@ -100,12 +100,27 @@ const AIAssistant = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
 
-  const quickQuestions = [
-    'Как найти груз?',
-    'Как пользоваться картой?',
-    'Что означают цвета?',
-    'Как искать маршруты?'
-  ];
+  const getQuickQuestions = () => {
+    const lastMessage = messages[messages.length - 1];
+    
+    if (lastMessage?.role === 'assistant' && messages.length > 1) {
+      return [
+        'Как найти водителя?',
+        'Как сохранить маршрут?',
+        'Как работает геолокация?',
+        'Что означают статусы?'
+      ];
+    }
+    
+    return [
+      'Как найти груз?',
+      'Как пользоваться картой?',
+      'Что означают цвета?',
+      'Как искать маршруты?'
+    ];
+  };
+
+  const quickQuestions = getQuickQuestions();
 
   const handleVoiceInput = () => {
     if (!recognitionRef.current) {
@@ -173,7 +188,7 @@ const AIAssistant = () => {
   }
 
   return (
-    <Card className="fixed bottom-4 right-4 z-50 w-96 max-w-[calc(100vw-2rem)] shadow-2xl animate-scale-in">
+    <Card className="fixed bottom-4 right-4 z-50 w-[22rem] max-w-[calc(100vw-2rem)] shadow-2xl animate-scale-in">
       <CardContent className="p-0">
         <div className="bg-primary text-primary-foreground p-4 rounded-t-xl flex items-center justify-between">
           <div className="flex items-center gap-2">
@@ -194,14 +209,14 @@ const AIAssistant = () => {
           </Button>
         </div>
 
-        <div className="h-96 overflow-y-auto p-4 space-y-3 bg-white/5 dark:bg-gray-900/5">
+        <div className="h-80 sm:h-96 overflow-y-auto p-3 sm:p-4 space-y-3 bg-white/5 dark:bg-gray-900/5">
           {messages.map((msg, idx) => (
             <div
               key={idx}
               className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}
             >
               <div
-                className={`max-w-[80%] rounded-xl p-3 text-sm ${
+                className={`max-w-[85%] sm:max-w-[80%] rounded-xl p-2.5 sm:p-3 text-xs sm:text-sm break-words ${
                   msg.role === 'user'
                     ? 'bg-gradient-to-br from-blue-500 to-purple-600 text-white'
                     : 'bg-white/40 dark:bg-gray-800/40 backdrop-blur-sm border border-white/30 dark:border-gray-700/30 text-gray-900 dark:text-white'
@@ -212,48 +227,44 @@ const AIAssistant = () => {
             </div>
           ))}
           <div ref={messagesEndRef} />
-
-          {messages.length === 1 && (
-            <div className="space-y-2">
-              <p className="text-xs text-center text-muted-foreground mb-2">Быстрые вопросы:</p>
-              {quickQuestions.map((q, idx) => (
-                <Button
-                  key={idx}
-                  variant="outline"
-                  size="sm"
-                  onClick={() => handleSend(q)}
-                  className="w-full justify-start text-xs h-auto py-2"
-                >
-                  {q}
-                </Button>
-              ))}
-            </div>
-          )}
         </div>
 
-        <div className="p-3 border-t border-white/20 dark:border-gray-700/20 bg-white/10 dark:bg-gray-900/10">
-          <div className="flex gap-2">
+        <div className="p-3 sm:p-4 bg-white/10 dark:bg-gray-900/10 space-y-2 sm:space-y-3 border-t border-white/20 dark:border-gray-700/20">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-1.5 sm:gap-2">
+            {quickQuestions.map((q, idx) => (
+              <Button
+                key={idx}
+                variant="outline"
+                size="sm"
+                onClick={() => handleSend(q)}
+                className="text-[10px] sm:text-xs h-auto py-1.5 sm:py-2 px-2 bg-white/40 dark:bg-gray-800/40 backdrop-blur-sm border-white/30 dark:border-gray-700/30 hover:bg-white/60 dark:hover:bg-gray-800/60 whitespace-normal text-left justify-start"
+              >
+                {q}
+              </Button>
+            ))}
+          </div>
+
+          <div className="flex gap-1.5 sm:gap-2">
             <Input
               value={input}
               onChange={(e) => setInput(e.target.value)}
               onKeyPress={(e) => e.key === 'Enter' && handleSend()}
               placeholder="Задайте вопрос..."
-              className="text-sm bg-white/60 dark:bg-gray-800/60 backdrop-blur-sm border-white/40 dark:border-gray-700/40"
+              className="text-xs sm:text-sm bg-white/60 dark:bg-gray-800/60 backdrop-blur-sm border-white/40 dark:border-gray-700/40 h-9 sm:h-10"
               maxLength={200}
             />
             <Button 
               onClick={handleVoiceInput} 
               size="sm" 
               variant={isListening ? "destructive" : "outline"}
-              className="shrink-0"
+              className="shrink-0 h-9 sm:h-10 w-9 sm:w-10 p-0"
             >
-              <Icon name={isListening ? "MicOff" : "Mic"} size={16} />
+              <Icon name={isListening ? "MicOff" : "Mic"} size={14} className="sm:w-4 sm:h-4" />
             </Button>
-            <Button onClick={() => handleSend()} size="sm" className="shrink-0">
-              <Icon name="Send" size={16} />
+            <Button onClick={() => handleSend()} size="sm" className="shrink-0 h-9 sm:h-10 w-9 sm:w-10 p-0">
+              <Icon name="Send" size={14} className="sm:w-4 sm:h-4" />
             </Button>
           </div>
-
         </div>
       </CardContent>
     </Card>
