@@ -4,6 +4,8 @@ import { Button } from '@/components/ui/button';
 import Icon from '@/components/ui/icon';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { exportAnalyticsToPDF } from '@/utils/pdfExport';
+import { useToast } from '@/hooks/use-toast';
 import {
   LineChart,
   Line,
@@ -29,11 +31,44 @@ const popularRoutesData: Array<{ route: string; count: number; revenue: number }
 const conversionData: Array<{ stage: string; count: number; percent: number }> = [];
 
 export default function AdminAnalytics() {
+  const { toast } = useToast();
   const [period, setPeriod] = useState<'day' | 'week' | 'month' | 'year'>('week');
   const [exportFormat, setExportFormat] = useState<'excel' | 'csv' | 'pdf'>('excel');
+  const [exporting, setExporting] = useState(false);
 
-  const handleExport = (format: 'excel' | 'csv' | 'pdf') => {
+  const handleExport = async (format: 'excel' | 'csv' | 'pdf') => {
     const timestamp = new Date().toISOString().split('T')[0];
+    
+    if (format === 'pdf') {
+      setExporting(true);
+      try {
+        await exportAnalyticsToPDF({
+          title: 'Отчёт по аналитике',
+          subtitle: `Период: ${period === 'day' ? 'День' : period === 'week' ? 'Неделя' : period === 'month' ? 'Месяц' : 'Год'}`,
+          stats: [
+            { label: 'Общая выручка', value: `${totalRevenue.toLocaleString()} ₽` },
+            { label: 'Всего заказов', value: totalOrders },
+            { label: 'Средний чек', value: `${avgOrderValue.toLocaleString()} ₽` }
+          ],
+          chartIds: ['revenue-chart', 'region-chart', 'user-type-chart'],
+          filename: `analytics-report-${timestamp}.pdf`
+        });
+        
+        toast({
+          title: 'PDF экспортирован',
+          description: 'Отчёт с графиками успешно сохранён'
+        });
+      } catch (error) {
+        toast({
+          title: 'Ошибка экспорта',
+          description: 'Не удалось создать PDF',
+          variant: 'destructive'
+        });
+      } finally {
+        setExporting(false);
+      }
+      return;
+    }
     
     if (format === 'csv') {
       let csvContent = 'Дата,Выручка,Заказы\n';
@@ -119,17 +154,36 @@ export default function AdminAnalytics() {
           </div>
           
           <div className="flex gap-2 flex-wrap">
-            <Button variant="outline" onClick={() => handleExport('excel')} className="text-sm">
+            <Button 
+              variant="outline" 
+              onClick={() => handleExport('excel')} 
+              disabled={exporting}
+              className="text-sm"
+            >
               <Icon name="FileSpreadsheet" size={16} className="mr-2" />
               <span className="hidden sm:inline">Excel</span>
             </Button>
-            <Button variant="outline" onClick={() => handleExport('csv')} className="text-sm">
+            <Button 
+              variant="outline" 
+              onClick={() => handleExport('csv')} 
+              disabled={exporting}
+              className="text-sm"
+            >
               <Icon name="FileText" size={16} className="mr-2" />
               <span className="hidden sm:inline">CSV</span>
             </Button>
-            <Button variant="outline" onClick={() => handleExport('pdf')} className="text-sm">
-              <Icon name="FileDown" size={16} className="mr-2" />
-              <span className="hidden sm:inline">PDF</span>
+            <Button 
+              variant="outline" 
+              onClick={() => handleExport('pdf')} 
+              disabled={exporting}
+              className="text-sm"
+            >
+              {exporting ? (
+                <Icon name="Loader2" size={16} className="mr-2 animate-spin" />
+              ) : (
+                <Icon name="FileDown" size={16} className="mr-2" />
+              )}
+              <span className="hidden sm:inline">{exporting ? 'Экспорт...' : 'PDF'}</span>
             </Button>
           </div>
         </div>
@@ -221,7 +275,7 @@ export default function AdminAnalytics() {
                 <CardTitle>График доходов и заказов</CardTitle>
                 <CardDescription>Динамика по дням</CardDescription>
               </CardHeader>
-              <CardContent>
+              <CardContent id="revenue-chart">
                 <ResponsiveContainer width="100%" height={400}>
                   <AreaChart data={revenueData}>
                     <CartesianGrid strokeDasharray="3 3" />
@@ -259,7 +313,7 @@ export default function AdminAnalytics() {
                 <CardTitle>Статистика по регионам</CardTitle>
                 <CardDescription>Заказы и доход по городам</CardDescription>
               </CardHeader>
-              <CardContent>
+              <CardContent id="region-chart">
                 <ResponsiveContainer width="100%" height={400}>
                   <BarChart data={regionData}>
                     <CartesianGrid strokeDasharray="3 3" />
@@ -310,7 +364,7 @@ export default function AdminAnalytics() {
                 <CardTitle>Распределение пользователей</CardTitle>
                 <CardDescription>Соотношение клиентов и перевозчиков</CardDescription>
               </CardHeader>
-              <CardContent>
+              <CardContent id="user-type-chart">
                 <ResponsiveContainer width="100%" height={400}>
                   <PieChart>
                     <Pie
