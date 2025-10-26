@@ -8,6 +8,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import Icon from '@/components/ui/icon';
 import { useToast } from '@/hooks/use-toast';
 import { secureLocalStorage } from '@/utils/security';
+import { BiometricCamera } from '@/components/BiometricCamera';
 
 interface BiometricData {
   enabled: boolean;
@@ -31,6 +32,8 @@ export const BiometricSettings = () => {
   const [saving, setSaving] = useState(false);
   const [enrolling, setEnrolling] = useState(false);
   const [isBiometricAvailable, setIsBiometricAvailable] = useState(false);
+  const [showCamera, setShowCamera] = useState(false);
+  const [cameraType, setCameraType] = useState<'face' | 'iris'>('face');
   
   const [biometricData, setBiometricData] = useState<BiometricData>({
     enabled: false,
@@ -86,6 +89,12 @@ export const BiometricSettings = () => {
   };
 
   const enrollBiometric = async () => {
+    if (biometricData.method === 'face' || biometricData.method === 'iris') {
+      setCameraType(biometricData.method);
+      setShowCamera(true);
+      return;
+    }
+
     if (!isBiometricAvailable) {
       toast({
         title: 'Биометрия недоступна',
@@ -148,6 +157,25 @@ export const BiometricSettings = () => {
     }
   };
 
+  const handleCameraCapture = (imageData: string) => {
+    const now = new Date().toISOString();
+    setBiometricData({
+      ...biometricData,
+      enabled: true,
+      device_id: `${cameraType}_${Date.now()}`,
+      registered_date: now,
+      last_used: now,
+      [`${cameraType}_template`]: imageData
+    });
+
+    setShowCamera(false);
+    saveBiometricSettings();
+  };
+
+  const handleCameraCancel = () => {
+    setShowCamera(false);
+  };
+
   const removeBiometric = () => {
     setBiometricData({
       ...biometricData,
@@ -176,6 +204,16 @@ export const BiometricSettings = () => {
           </div>
         </CardContent>
       </Card>
+    );
+  }
+
+  if (showCamera) {
+    return (
+      <BiometricCamera
+        type={cameraType}
+        onCapture={handleCameraCapture}
+        onCancel={handleCameraCancel}
+      />
     );
   }
 
