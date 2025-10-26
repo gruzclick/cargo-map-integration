@@ -194,24 +194,6 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             'isBase64Encoded': False
         }
     
-    ip = event.get('requestContext', {}).get('identity', {}).get('sourceIp', 'unknown')
-    
-    rate_check = rate_limiter.check_rate_limit(ip, max_attempts=5, window_seconds=300)
-    if not rate_check['allowed']:
-        return {
-            'statusCode': 429,
-            'headers': {
-                'Content-Type': 'application/json',
-                'Access-Control-Allow-Origin': '*',
-                'Retry-After': str(rate_check.get('retry_after', 900))
-            },
-            'body': json.dumps({
-                'error': 'Too many login attempts. Please try again later.',
-                'retry_after': rate_check.get('retry_after', 900)
-            }),
-            'isBase64Encoded': False
-        }
-    
     try:
         body_data = json.loads(event.get('body', '{}'))
     except json.JSONDecodeError:
@@ -226,6 +208,28 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                        'get_stats', 'get_users', 'get_deliveries', 'update_delivery_status', 'update_user_status',
                        'delete_test_users', 'get_biometric_status', 'save_biometric', 'get_all_users',
                        'delete_table_data', 'clear_all_test_data']
+    
+    action = body_data.get('action')
+    
+    auth_actions = ['register', 'login', 'send_reset_code', 'verify_reset_code', 'reset_password']
+    if action in auth_actions:
+        ip = event.get('requestContext', {}).get('identity', {}).get('sourceIp', 'unknown')
+        
+        rate_check = rate_limiter.check_rate_limit(ip, max_attempts=5, window_seconds=300)
+        if not rate_check['allowed']:
+            return {
+                'statusCode': 429,
+                'headers': {
+                    'Content-Type': 'application/json',
+                    'Access-Control-Allow-Origin': '*',
+                    'Retry-After': str(rate_check.get('retry_after', 900))
+                },
+                'body': json.dumps({
+                    'error': 'Too many login attempts. Please try again later.',
+                    'retry_after': rate_check.get('retry_after', 900)
+                }),
+                'isBase64Encoded': False
+            }
     
     try:
         action = validate_action(body_data.get('action'), allowed_actions)
