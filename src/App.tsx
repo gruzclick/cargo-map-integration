@@ -11,6 +11,13 @@ import RoutesPage from "./pages/Routes";
 import Admin from "./pages/Admin";
 import AdminAds from "./pages/AdminAds";
 import AdminUsers from "./pages/AdminUsers";
+import AdminAnalytics from "./pages/AdminAnalytics";
+import AdminNotifications from "./pages/AdminNotifications";
+import AdminContent from "./pages/AdminContent";
+import AdminTransport from "./pages/AdminTransport";
+import AdminSettings from "./pages/AdminSettings";
+import AdminSupport from "./pages/AdminSupport";
+import AdminMarketing from "./pages/AdminMarketing";
 import AdPreviewPage from "./pages/AdPreviewPage";
 import QRPage from "./pages/QRPage";
 import NotFound from "./pages/NotFound";
@@ -78,6 +85,13 @@ useEffect(() => {
               <Route path="/admin" element={<Admin />} />
               <Route path="/admin/ads" element={<AdminAds />} />
               <Route path="/admin/users" element={<AdminUsers />} />
+              <Route path="/admin/analytics" element={<AdminAnalytics />} />
+              <Route path="/admin/notifications" element={<AdminNotifications />} />
+              <Route path="/admin/content" element={<AdminContent />} />
+              <Route path="/admin/transport" element={<AdminTransport />} />
+              <Route path="/admin/settings" element={<AdminSettings />} />
+              <Route path="/admin/support" element={<AdminSupport />} />
+              <Route path="/admin/marketing" element={<AdminMarketing />} />
               <Route path="/ad-preview" element={<AdPreviewPage />} />
               <Route path="/qr" element={<QRPage />} />
               <Route path="/privacy" element={<PrivacyPolicy />} />

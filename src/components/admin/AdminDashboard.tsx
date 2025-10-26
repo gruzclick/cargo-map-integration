@@ -267,18 +267,77 @@ export const AdminDashboard = ({ onLogout }: AdminDashboardProps) => {
           </TabsList>
 
           <TabsContent value="overview" className="space-y-4">
-            <Card className="bg-white dark:bg-gray-900 border-gray-200 dark:border-gray-800">
-              <CardHeader>
-                <CardTitle className="text-gray-900 dark:text-white">Последние активности</CardTitle>
-                <CardDescription className="text-gray-600 dark:text-gray-400">Недавние действия в системе</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="text-center py-8 text-gray-500 dark:text-gray-400">
-                  <Icon name="Activity" size={48} className="mx-auto mb-4 text-gray-300 dark:text-gray-600" />
-                  <p>Нет данных для отображения</p>
-                </div>
-              </CardContent>
-            </Card>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              <Card className="bg-white dark:bg-gray-900 border-gray-200 dark:border-gray-800 hover:shadow-lg transition-shadow cursor-pointer" onClick={() => window.location.href = '/admin/analytics'}>
+                <CardHeader>
+                  <CardTitle className="text-gray-900 dark:text-white flex items-center gap-2">
+                    <Icon name="BarChart3" size={24} />
+                    Аналитика
+                  </CardTitle>
+                  <CardDescription className="text-gray-600 dark:text-gray-400">Графики, отчеты, воронка</CardDescription>
+                </CardHeader>
+              </Card>
+
+              <Card className="bg-white dark:bg-gray-900 border-gray-200 dark:border-gray-800 hover:shadow-lg transition-shadow cursor-pointer" onClick={() => window.location.href = '/admin/notifications'}>
+                <CardHeader>
+                  <CardTitle className="text-gray-900 dark:text-white flex items-center gap-2">
+                    <Icon name="Bell" size={24} />
+                    Уведомления
+                  </CardTitle>
+                  <CardDescription className="text-gray-600 dark:text-gray-400">Push, email рассылки</CardDescription>
+                </CardHeader>
+              </Card>
+
+              <Card className="bg-white dark:bg-gray-900 border-gray-200 dark:border-gray-800 hover:shadow-lg transition-shadow cursor-pointer" onClick={() => window.location.href = '/admin/content'}>
+                <CardHeader>
+                  <CardTitle className="text-gray-900 dark:text-white flex items-center gap-2">
+                    <Icon name="FileText" size={24} />
+                    Контент
+                  </CardTitle>
+                  <CardDescription className="text-gray-600 dark:text-gray-400">Новости, FAQ, документы</CardDescription>
+                </CardHeader>
+              </Card>
+
+              <Card className="bg-white dark:bg-gray-900 border-gray-200 dark:border-gray-800 hover:shadow-lg transition-shadow cursor-pointer" onClick={() => window.location.href = '/admin/transport'}>
+                <CardHeader>
+                  <CardTitle className="text-gray-900 dark:text-white flex items-center gap-2">
+                    <Icon name="Truck" size={24} />
+                    Транспорт
+                  </CardTitle>
+                  <CardDescription className="text-gray-600 dark:text-gray-400">База авто, документы</CardDescription>
+                </CardHeader>
+              </Card>
+
+              <Card className="bg-white dark:bg-gray-900 border-gray-200 dark:border-gray-800 hover:shadow-lg transition-shadow cursor-pointer" onClick={() => window.location.href = '/admin/settings'}>
+                <CardHeader>
+                  <CardTitle className="text-gray-900 dark:text-white flex items-center gap-2">
+                    <Icon name="Settings" size={24} />
+                    Настройки
+                  </CardTitle>
+                  <CardDescription className="text-gray-600 dark:text-gray-400">Параметры системы, API</CardDescription>
+                </CardHeader>
+              </Card>
+
+              <Card className="bg-white dark:bg-gray-900 border-gray-200 dark:border-gray-800 hover:shadow-lg transition-shadow cursor-pointer" onClick={() => window.location.href = '/admin/support'}>
+                <CardHeader>
+                  <CardTitle className="text-gray-900 dark:text-white flex items-center gap-2">
+                    <Icon name="Headphones" size={24} />
+                    Поддержка
+                  </CardTitle>
+                  <CardDescription className="text-gray-600 dark:text-gray-400">Тикеты, чат с клиентами</CardDescription>
+                </CardHeader>
+              </Card>
+
+              <Card className="bg-white dark:bg-gray-900 border-gray-200 dark:border-gray-800 hover:shadow-lg transition-shadow cursor-pointer" onClick={() => window.location.href = '/admin/marketing'}>
+                <CardHeader>
+                  <CardTitle className="text-gray-900 dark:text-white flex items-center gap-2">
+                    <Icon name="Target" size={24} />
+                    Маркетинг
+                  </CardTitle>
+                  <CardDescription className="text-gray-600 dark:text-gray-400">Промокоды, акции, A/B</CardDescription>
+                </CardHeader>
+              </Card>
+            </div>
           </TabsContent>
 
           <TabsContent value="users" className="space-y-4">
