@@ -28,7 +28,7 @@ export default function DataExport({ userId, userName }: DataExportProps) {
     
     const headerData = [
       [title],
-      [`Дата формирования: ${new Date().toLocaleDateString('ru-RU', { day: '2-digit', month: '2-digit', year: 'numeric' })}`],
+      [`Дата формирования: ${new Date().toLocaleDateString('ru-RU', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' })}`],
       [`Пользователь: ${userName}`],
       [],
       Object.keys(data[0])
@@ -44,9 +44,16 @@ export default function DataExport({ userId, userName }: DataExportProps) {
         key.length,
         ...data.map(row => String(row[key] || '').length)
       );
-      return { wch: Math.min(maxLength + 2, 50) };
+      return { wch: Math.max(Math.min(maxLength + 4, 60), 12) };
     });
     ws['!cols'] = colWidths;
+    
+    if (!ws['!rows']) ws['!rows'] = [];
+    ws['!rows'][0] = { hpt: 30 };
+    ws['!rows'][4] = { hpt: 25 };
+    for (let i = 5; i < wsData.length; i++) {
+      ws['!rows'][i] = { hpt: 20 };
+    }
     
     const range = XLSX.utils.decode_range(ws['!ref'] || 'A1');
     for (let R = range.s.r; R <= range.e.r; ++R) {
@@ -56,29 +63,47 @@ export default function DataExport({ userId, userName }: DataExportProps) {
         
         if (R === 0) {
           ws[cellAddress].s = {
-            font: { bold: true, sz: 16, color: { rgb: '2563EB' } },
+            font: { bold: true, sz: 18, color: { rgb: '1E40AF' } },
+            alignment: { horizontal: 'left', vertical: 'center' }
+          };
+        } else if (R === 1 || R === 2) {
+          ws[cellAddress].s = {
+            font: { sz: 10, color: { rgb: '6B7280' }, italic: true },
             alignment: { horizontal: 'left', vertical: 'center' }
           };
         } else if (R === 4) {
           ws[cellAddress].s = {
-            font: { bold: true, sz: 12 },
+            font: { bold: true, sz: 11, color: { rgb: '1F2937' } },
             fill: { fgColor: { rgb: 'DBEAFE' } },
             alignment: { horizontal: 'center', vertical: 'center' },
             border: {
-              top: { style: 'thin', color: { rgb: '2563EB' } },
-              bottom: { style: 'thin', color: { rgb: '2563EB' } }
+              top: { style: 'medium', color: { rgb: '2563EB' } },
+              bottom: { style: 'medium', color: { rgb: '2563EB' } },
+              left: { style: 'thin', color: { rgb: '93C5FD' } },
+              right: { style: 'thin', color: { rgb: '93C5FD' } }
             }
           };
         } else if (R > 4) {
+          const isEvenRow = (R - 5) % 2 === 0;
           ws[cellAddress].s = {
+            font: { sz: 10, color: { rgb: '1F2937' } },
+            fill: { fgColor: { rgb: isEvenRow ? 'FFFFFF' : 'F9FAFB' } },
             alignment: { horizontal: 'left', vertical: 'center', wrapText: true },
             border: {
-              bottom: { style: 'thin', color: { rgb: 'E5E7EB' } }
+              bottom: { style: 'thin', color: { rgb: 'E5E7EB' } },
+              left: { style: 'thin', color: { rgb: 'F3F4F6' } },
+              right: { style: 'thin', color: { rgb: 'F3F4F6' } }
             }
           };
         }
       }
     }
+    
+    ws['!margins'] = { left: 0.7, right: 0.7, top: 0.75, bottom: 0.75, header: 0.3, footer: 0.3 };
+    ws['!printOptions'] = {
+      gridLines: false,
+      horizontalCentered: true
+    };
     
     XLSX.utils.book_append_sheet(wb, ws, sheetName);
     XLSX.writeFile(wb, filename);
@@ -90,158 +115,35 @@ export default function DataExport({ userId, userName }: DataExportProps) {
   };
 
   const handleExportDeliveries = () => {
-    setIsExporting(true);
-    
-    const mockDeliveries = [
-      {
-        'ID': '12345',
-        'Груз': 'Коробки с товаром',
-        'Маршрут': 'Москва → Санкт-Петербург',
-        'Статус': 'Доставлено',
-        'Дата': '2025-10-15',
-        'Цена': '15000 ₽'
-      },
-      {
-        'ID': '12346',
-        'Груз': 'Паллеты',
-        'Маршрут': 'Казань → Нижний Новгород',
-        'Статус': 'В пути',
-        'Дата': '2025-10-18',
-        'Цена': '8500 ₽'
-      },
-      {
-        'ID': '12347',
-        'Груз': 'Оборудование',
-        'Маршрут': 'Москва → Екатеринбург',
-        'Статус': 'Ожидает отправки',
-        'Дата': '2025-10-19',
-        'Цена': '25000 ₽'
-      }
-    ];
-
-    setTimeout(() => {
-      exportToExcel(
-        mockDeliveries, 
-        `ГрузКлик_Доставки_${new Date().toISOString().split('T')[0]}.xlsx`,
-        'Доставки',
-        'ОТЧЁТ ПО ДОСТАВКАМ - ГРУЗКЛИК'
-      );
-      setIsExporting(false);
-    }, 500);
+    toast({
+      title: 'Нет данных',
+      description: 'У вас пока нет доставок для экспорта',
+      variant: 'destructive'
+    });
   };
 
   const handleExportRatings = () => {
-    setIsExporting(true);
-    
-    const mockRatings = [
-      {
-        'ID': '1',
-        'Клиент': 'Иван Петров',
-        'Оценка': '5',
-        'Комментарий': 'Отличный водитель!',
-        'Дата': '2025-10-15'
-      },
-      {
-        'ID': '2',
-        'Клиент': 'Мария Сидорова',
-        'Оценка': '5',
-        'Комментарий': 'Всё вовремя, рекомендую',
-        'Дата': '2025-10-12'
-      },
-      {
-        'ID': '3',
-        'Клиент': 'Алексей Кузнецов',
-        'Оценка': '4',
-        'Комментарий': 'Хорошо',
-        'Дата': '2025-10-10'
-      }
-    ];
-
-    setTimeout(() => {
-      exportToExcel(
-        mockRatings, 
-        `ГрузКлик_Отзывы_${new Date().toISOString().split('T')[0]}.xlsx`,
-        'Отзывы',
-        'ОТЧЁТ ПО ОТЗЫВАМ И РЕЙТИНГАМ - ГРУЗКЛИК'
-      );
-      setIsExporting(false);
-    }, 500);
+    toast({
+      title: 'Нет данных',
+      description: 'У вас пока нет отзывов для экспорта',
+      variant: 'destructive'
+    });
   };
 
   const handleExportCargo = () => {
-    setIsExporting(true);
-    
-    const mockCargo = [
-      {
-        'ID': 'CRG-001',
-        'Название': 'Коробки с товаром',
-        'Вес (кг)': '500',
-        'Статус': 'Доставлено',
-        'Дата создания': '2025-10-01'
-      },
-      {
-        'ID': 'CRG-002',
-        'Название': 'Паллеты с оборудованием',
-        'Вес (кг)': '1200',
-        'Статус': 'В пути',
-        'Дата создания': '2025-10-10'
-      },
-      {
-        'ID': 'CRG-003',
-        'Название': 'Мебель',
-        'Вес (кг)': '300',
-        'Статус': 'Ожидает',
-        'Дата создания': '2025-10-18'
-      }
-    ];
-
-    setTimeout(() => {
-      exportToExcel(
-        mockCargo, 
-        `ГрузКлик_Грузы_${new Date().toISOString().split('T')[0]}.xlsx`,
-        'Грузы',
-        'ОТЧЁТ ПО ГРУЗАМ - ГРУЗКЛИК'
-      );
-      setIsExporting(false);
-    }, 500);
+    toast({
+      title: 'Нет данных',
+      description: 'У вас пока нет грузов для экспорта',
+      variant: 'destructive'
+    });
   };
 
   const handleExportFinancial = () => {
-    setIsExporting(true);
-    
-    const mockFinancial = [
-      {
-        'Дата': '2025-10-15',
-        'Тип': 'Доход',
-        'Описание': 'Доставка Москва-СПб',
-        'Сумма': '15000',
-        'Статус': 'Получено'
-      },
-      {
-        'Дата': '2025-10-18',
-        'Тип': 'Доход',
-        'Описание': 'Доставка Казань-Нижний Новгород',
-        'Сумма': '8500',
-        'Статус': 'Ожидает'
-      },
-      {
-        'Дата': '2025-10-19',
-        'Тип': 'Доход',
-        'Описание': 'Доставка Москва-Екатеринбург',
-        'Сумма': '25000',
-        'Статус': 'Ожидает'
-      }
-    ];
-
-    setTimeout(() => {
-      exportToExcel(
-        mockFinancial, 
-        `ГрузКлик_Финансы_${new Date().toISOString().split('T')[0]}.xlsx`,
-        'Финансы',
-        'ФИНАНСОВЫЙ ОТЧЁТ - ГРУЗКЛИК'
-      );
-      setIsExporting(false);
-    }, 500);
+    toast({
+      title: 'Нет данных',
+      description: 'У вас пока нет финансовых операций для экспорта',
+      variant: 'destructive'
+    });
   };
 
   return (

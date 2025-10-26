@@ -18,56 +18,7 @@ interface Deal {
 
 const DealsHistory = () => {
   const [searchQuery, setSearchQuery] = useState('');
-  const [deals] = useState<Deal[]>([
-    {
-      id: '1',
-      date: '2025-10-20',
-      cargo: 'Мебель 5 тонн',
-      route: 'Москва → Санкт-Петербург',
-      price: 42000,
-      status: 'completed',
-      partner: 'ООО "Транспорт+"',
-      rating: 5
-    },
-    {
-      id: '2',
-      date: '2025-10-18',
-      cargo: 'Стройматериалы 10 тонн',
-      route: 'Казань → Нижний Новгород',
-      price: 65000,
-      status: 'completed',
-      partner: 'ИП Иванов',
-      rating: 4
-    },
-    {
-      id: '3',
-      date: '2025-10-15',
-      cargo: 'Продукты питания 3 тонны',
-      route: 'Москва → Тверь',
-      price: 22000,
-      status: 'in_progress',
-      partner: 'ЗАО "Логистика"'
-    },
-    {
-      id: '4',
-      date: '2025-10-10',
-      cargo: 'Электроника 2 тонны',
-      route: 'Санкт-Петербург → Москва',
-      price: 35000,
-      status: 'cancelled',
-      partner: 'ООО "Быстрая доставка"'
-    },
-    {
-      id: '5',
-      date: '2025-10-05',
-      cargo: 'Одежда 4 тонны',
-      route: 'Москва → Екатеринбург',
-      price: 78000,
-      status: 'completed',
-      partner: 'ИП Петров',
-      rating: 5
-    }
-  ]);
+  const [deals] = useState<Deal[]>([]);
 
   const filteredDeals = deals.filter(deal => 
     deal.cargo.toLowerCase().includes(searchQuery.toLowerCase()) ||

@@ -29,24 +29,7 @@ export default function RatingSystem({ carrierId, carrierName, canReview = false
   const [comment, setComment] = useState('');
   const [showReviewForm, setShowReviewForm] = useState(false);
   
-  const [reviews, setReviews] = useState<Review[]>([
-    {
-      id: '1',
-      user_name: 'Иван Петров',
-      rating: 5,
-      comment: 'Отличный перевозчик! Груз доставлен вовремя, всё в целости. Рекомендую!',
-      date: '2025-10-15',
-      verified: true
-    },
-    {
-      id: '2',
-      user_name: 'Мария Сидорова',
-      rating: 4,
-      comment: 'Хорошая работа, но немного опоздали с доставкой. В целом доволен.',
-      date: '2025-10-10',
-      verified: true
-    }
-  ]);
+  const [reviews, setReviews] = useState<Review[]>([]);
 
   const averageRating = reviews.reduce((acc, rev) => acc + rev.rating, 0) / reviews.length;
 

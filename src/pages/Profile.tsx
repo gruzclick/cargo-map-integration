@@ -4,7 +4,6 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
 import DataExport from '@/components/DataExport';
 import RatingSystem from '@/components/RatingSystem';
-import AuctionBids from '@/components/AuctionBids';
 import DealsHistory from '@/components/DealsHistory';
 import Icon from '@/components/ui/icon';
 import { detectUserCountry, type CountryInfo } from '@/utils/countryDetection';
@@ -17,8 +16,8 @@ import EmailTab from '@/components/profile/EmailTab';
 export default function Profile() {
   const navigate = useNavigate();
   const [userType] = useState<'client' | 'driver'>('driver');
-  const mockUserId = 'user-123';
-  const mockUserName = 'Сергей Иванов';
+  const userId = '';
+  const userName = '';
   const [countryInfo, setCountryInfo] = useState<CountryInfo | null>(null);
   const [entityType, setEntityType] = useState('individual');
   const [showEmailVerification, setShowEmailVerification] = useState(false);
@@ -55,14 +54,10 @@ export default function Profile() {
         </div>
 
         <Tabs defaultValue="overview" className="w-full">
-          <TabsList className="grid w-full grid-cols-2 md:grid-cols-6 gap-2 mb-8">
+          <TabsList className="grid w-full grid-cols-2 md:grid-cols-5 gap-2 mb-8">
             <TabsTrigger value="overview" className="w-full justify-start md:justify-center">
               <Icon name="User" size={16} className="mr-2" />
               Обзор
-            </TabsTrigger>
-            <TabsTrigger value="auction" className="w-full justify-start md:justify-center">
-              <Icon name="Gavel" size={16} className="mr-2" />
-              Аукцион
             </TabsTrigger>
             <TabsTrigger value="deals" className="w-full justify-start md:justify-center">
               <Icon name="History" size={16} className="mr-2" />
@@ -83,11 +78,7 @@ export default function Profile() {
           </TabsList>
 
           <TabsContent value="overview" className="space-y-4">
-            <OverviewTab mockUserName={mockUserName} userType={userType} />
-          </TabsContent>
-
-          <TabsContent value="auction" className="space-y-4">
-            <AuctionBids />
+            <OverviewTab mockUserName={userName} userType={userType} />
           </TabsContent>
 
           <TabsContent value="deals" className="space-y-4">
@@ -99,11 +90,11 @@ export default function Profile() {
           </TabsContent>
 
           <TabsContent value="ratings" className="space-y-4">
-            <RatingSystem userId={mockUserId} userType={userType} />
+            <RatingSystem userId={userId} userType={userType} />
           </TabsContent>
 
           <TabsContent value="export" className="space-y-4">
-            <DataExport />
+            <DataExport userId={userId} userName={userName} />
           </TabsContent>
         </Tabs>
       </div>
