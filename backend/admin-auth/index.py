@@ -8,13 +8,103 @@ import json
 import os
 import hashlib
 import secrets
-from typing import Dict, Any
+import re
+from typing import Dict, Any, List
 from datetime import datetime, timedelta
 import smtplib
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 import psycopg2
 from psycopg2.extras import RealDictCursor
+
+class ValidationError(Exception):
+    pass
+
+class RateLimiter:
+    def __init__(self):
+        self.attempts: Dict[str, List[datetime]] = {}
+        self.lockouts: Dict[str, datetime] = {}
+    
+    def is_locked_out(self, ip: str) -> bool:
+        if ip in self.lockouts:
+            lockout_time = self.lockouts[ip]
+            if datetime.now() < lockout_time:
+                return True
+            else:
+                del self.lockouts[ip]
+        return False
+    
+    def check_rate_limit(self, ip: str, max_attempts: int = 5, window_seconds: int = 300) -> Dict:
+        if self.is_locked_out(ip):
+            remaining_time = (self.lockouts[ip] - datetime.now()).seconds
+            return {'allowed': False, 'reason': 'locked_out', 'retry_after': remaining_time}
+        
+        now = datetime.now()
+        window_start = now - timedelta(seconds=window_seconds)
+        
+        if ip not in self.attempts:
+            self.attempts[ip] = []
+        
+        self.attempts[ip] = [t for t in self.attempts[ip] if t > window_start]
+        
+        if len(self.attempts[ip]) >= max_attempts:
+            self.lockouts[ip] = now + timedelta(minutes=15)
+            return {'allowed': False, 'reason': 'rate_limited', 'retry_after': 900}
+        
+        self.attempts[ip].append(now)
+        return {'allowed': True, 'attempts_remaining': max_attempts - len(self.attempts[ip])}
+    
+    def clear_attempts(self, ip: str):
+        if ip in self.attempts:
+            del self.attempts[ip]
+        if ip in self.lockouts:
+            del self.lockouts[ip]
+
+rate_limiter = RateLimiter()
+
+def validate_email(email: str) -> str:
+    if not email or not isinstance(email, str):
+        raise ValidationError('Email is required')
+    email = email.strip().lower()
+    if len(email) > 254:
+        raise ValidationError('Email is too long')
+    email_pattern = r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
+    if not re.match(email_pattern, email):
+        raise ValidationError('Invalid email format')
+    return email
+
+def validate_password(password: str, min_length: int = 8) -> str:
+    if not password or not isinstance(password, str):
+        raise ValidationError('Password is required')
+    if len(password) < min_length:
+        raise ValidationError(f'Password must be at least {min_length} characters')
+    if len(password) > 128:
+        raise ValidationError('Password is too long')
+    if min_length > 1:
+        has_letter = re.search(r'[a-zA-Z]', password)
+        has_digit = re.search(r'\d', password)
+        if not has_letter or not has_digit:
+            raise ValidationError('Password must contain both letters and numbers')
+    return password
+
+def validate_full_name(name: str) -> str:
+    if not name or not isinstance(name, str):
+        raise ValidationError('Full name is required')
+    name = name.strip()
+    if len(name) < 2:
+        raise ValidationError('Full name is too short')
+    if len(name) > 100:
+        raise ValidationError('Full name is too long')
+    if not re.match(r'^[a-zA-Zа-яА-ЯёЁ\s\-]+$', name):
+        raise ValidationError('Full name contains invalid characters')
+    return name
+
+def validate_action(action: str, allowed_actions: list) -> str:
+    if not action or not isinstance(action, str):
+        raise ValidationError('Action is required')
+    if action not in allowed_actions:
+        raise ValidationError(f'Invalid action')
+    return action
 
 def generate_token(admin_id: int, email: str) -> str:
     secret = os.environ.get('JWT_SECRET', 'default-secret-key')
@@ -101,23 +191,62 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             'isBase64Encoded': False
         }
     
-    body_data = json.loads(event.get('body', '{}'))
-    action = body_data.get('action')
+    ip = event.get('requestContext', {}).get('identity', {}).get('sourceIp', 'unknown')
+    
+    rate_check = rate_limiter.check_rate_limit(ip, max_attempts=5, window_seconds=300)
+    if not rate_check['allowed']:
+        return {
+            'statusCode': 429,
+            'headers': {
+                'Content-Type': 'application/json',
+                'Access-Control-Allow-Origin': '*',
+                'Retry-After': str(rate_check.get('retry_after', 900))
+            },
+            'body': json.dumps({
+                'error': 'Too many login attempts. Please try again later.',
+                'retry_after': rate_check.get('retry_after', 900)
+            }),
+            'isBase64Encoded': False
+        }
+    
+    try:
+        body_data = json.loads(event.get('body', '{}'))
+    except json.JSONDecodeError:
+        return {
+            'statusCode': 400,
+            'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+            'body': json.dumps({'error': 'Invalid JSON'}),
+            'isBase64Encoded': False
+        }
+    
+    allowed_actions = ['register', 'login', 'send_reset_code', 'verify_reset_code', 'reset_password', 
+                       'get_stats', 'get_users', 'get_deliveries', 'update_delivery_status', 'update_user_status',
+                       'delete_test_users', 'get_biometric_status', 'save_biometric']
+    
+    try:
+        action = validate_action(body_data.get('action'), allowed_actions)
+    except ValidationError as e:
+        return {
+            'statusCode': 400,
+            'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+            'body': json.dumps({'error': str(e)}),
+            'isBase64Encoded': False
+        }
     
     conn = get_db_connection()
     cur = conn.cursor()
     
     try:
         if action == 'register':
-            email = body_data.get('email')
-            password = body_data.get('password')
-            full_name = body_data.get('full_name')
-            
-            if not email or not password or not full_name:
+            try:
+                email = validate_email(body_data.get('email'))
+                password = validate_password(body_data.get('password'))
+                full_name = validate_full_name(body_data.get('full_name'))
+            except ValidationError as e:
                 return {
                     'statusCode': 400,
                     'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
-                    'body': json.dumps({'error': 'Email, password, and full name are required'}),
+                    'body': json.dumps({'error': str(e)}),
                     'isBase64Encoded': False
                 }
             
@@ -162,14 +291,14 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             }
         
         elif action == 'login':
-            email = body_data.get('email')
-            password = body_data.get('password')
-            
-            if not email or not password:
+            try:
+                email = validate_email(body_data.get('email'))
+                password = validate_password(body_data.get('password'), min_length=1)
+            except ValidationError as e:
                 return {
                     'statusCode': 400,
                     'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
-                    'body': json.dumps({'error': 'Email and password are required'}),
+                    'body': json.dumps({'error': str(e)}),
                     'isBase64Encoded': False
                 }
             
@@ -182,6 +311,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             admin = cur.fetchone()
             
             if not admin:
+                rate_limiter.check_rate_limit(ip, max_attempts=5, window_seconds=300)
                 return {
                     'statusCode': 401,
                     'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
@@ -199,6 +329,8 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             
             token = generate_token(admin['id'], admin['email'])
             
+            rate_limiter.clear_attempts(ip)
+            
             return {
                 'statusCode': 200,
                 'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
@@ -214,13 +346,13 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             }
         
         elif action == 'send_reset_code':
-            email = body_data.get('email')
-            
-            if not email:
+            try:
+                email = validate_email(body_data.get('email'))
+            except ValidationError as e:
                 return {
                     'statusCode': 400,
                     'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
-                    'body': json.dumps({'error': 'Email is required'}),
+                    'body': json.dumps({'error': str(e)}),
                     'isBase64Encoded': False
                 }
             

@@ -9,6 +9,7 @@ import { DashboardStats } from './DashboardStats';
 import { UsersTable } from './UsersTable';
 import { DeliveriesTable } from './DeliveriesTable';
 import { BiometricSettings } from './BiometricSettings';
+import { useAutoLogout } from '@/hooks/useAutoLogout';
 
 interface AdminDashboardProps {
   onLogout: () => void;
@@ -49,6 +50,12 @@ export const AdminDashboard = ({ onLogout }: AdminDashboardProps) => {
   const [deliveries, setDeliveries] = useState<Delivery[]>([]);
   const [loadingUsers, setLoadingUsers] = useState(false);
   const [loadingDeliveries, setLoadingDeliveries] = useState(false);
+
+  useAutoLogout({
+    timeout: 30 * 60 * 1000,
+    onLogout,
+    enabled: true
+  });
 
   useEffect(() => {
     const savedTheme = localStorage.getItem('admin_theme') as 'light' | 'dark' || 'dark';
