@@ -4,8 +4,6 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
 import DataExport from '@/components/DataExport';
 import RatingSystem from '@/components/RatingSystem';
-
-import ProfileVerification from '@/components/ProfileVerification';
 import AuctionBids from '@/components/AuctionBids';
 import DealsHistory from '@/components/DealsHistory';
 import Icon from '@/components/ui/icon';
@@ -57,7 +55,7 @@ export default function Profile() {
         </div>
 
         <Tabs defaultValue="overview" className="w-full">
-          <TabsList className="grid w-full grid-cols-2 md:grid-cols-7 gap-2 mb-8">
+          <TabsList className="grid w-full grid-cols-2 md:grid-cols-6 gap-2 mb-8">
             <TabsTrigger value="overview" className="w-full justify-start md:justify-center">
               <Icon name="User" size={16} className="mr-2" />
               Обзор
@@ -78,11 +76,6 @@ export default function Profile() {
               <Icon name="Star" size={16} className="mr-2" />
               Рейтинг
             </TabsTrigger>
-            <TabsTrigger value="verification" className="w-full justify-start md:justify-center">
-              <Icon name="ShieldCheck" size={16} className="mr-2" />
-              Верификация
-            </TabsTrigger>
-
             <TabsTrigger value="export" className="w-full justify-start md:justify-center">
               <Icon name="Download" size={16} className="mr-2" />
               Экспорт
@@ -108,12 +101,6 @@ export default function Profile() {
           <TabsContent value="ratings" className="space-y-4">
             <RatingSystem userId={mockUserId} userType={userType} />
           </TabsContent>
-
-          <TabsContent value="verification" className="space-y-4">
-            <ProfileVerification />
-          </TabsContent>
-
-
 
           <TabsContent value="export" className="space-y-4">
             <DataExport />
