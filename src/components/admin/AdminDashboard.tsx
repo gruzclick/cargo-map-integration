@@ -4,7 +4,6 @@ import { Button } from '@/components/ui/button';
 import Icon from '@/components/ui/icon';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { secureLocalStorage } from '@/utils/security';
-import AdminSecurity from '@/pages/AdminSecurity';
 import { DashboardStats } from './DashboardStats';
 import { UsersTable } from './UsersTable';
 import { DeliveriesTable } from './DeliveriesTable';
@@ -265,12 +264,11 @@ export const AdminDashboard = ({ onLogout }: AdminDashboardProps) => {
         <DashboardStats stats={stats} loading={loading} />
 
         <Tabs defaultValue="overview" className="w-full">
-          <TabsList className="grid w-full grid-cols-2 md:grid-cols-5 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800">
+          <TabsList className="grid w-full grid-cols-2 md:grid-cols-4 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800">
             <TabsTrigger value="overview" className="data-[state=active]:bg-gray-100 dark:data-[state=active]:bg-gray-800 text-gray-900 dark:text-gray-100">Обзор</TabsTrigger>
             <TabsTrigger value="users" className="data-[state=active]:bg-gray-100 dark:data-[state=active]:bg-gray-800 text-gray-900 dark:text-gray-100">Пользователи</TabsTrigger>
             <TabsTrigger value="orders" className="data-[state=active]:bg-gray-100 dark:data-[state=active]:bg-gray-800 text-gray-900 dark:text-gray-100">Заказы</TabsTrigger>
             <TabsTrigger value="biometric" className="data-[state=active]:bg-gray-100 dark:data-[state=active]:bg-gray-800 text-gray-900 dark:text-gray-100">Биометрия</TabsTrigger>
-            <TabsTrigger value="security" className="data-[state=active]:bg-gray-100 dark:data-[state=active]:bg-gray-800 text-gray-900 dark:text-gray-100">Безопасность</TabsTrigger>
           </TabsList>
 
           <TabsContent value="overview" className="space-y-4">
@@ -375,10 +373,6 @@ export const AdminDashboard = ({ onLogout }: AdminDashboardProps) => {
 
           <TabsContent value="biometric" className="space-y-4">
             <BiometricSettings />
-          </TabsContent>
-
-          <TabsContent value="security" className="space-y-4">
-            <AdminSecurity />
           </TabsContent>
         </Tabs>
       </div>

@@ -186,6 +186,19 @@ export default function AdminSupport() {
     });
   };
 
+  const handleDeleteTicket = (ticketId: string) => {
+    if (!confirm('Вы уверены что хотите удалить этот тикет?')) return;
+    
+    setTickets(tickets.filter(t => t.id !== ticketId));
+    if (selectedTicket?.id === ticketId) {
+      setSelectedTicket(null);
+    }
+    toast({
+      title: 'Тикет удален',
+      description: 'Запрос пользователя удален из системы'
+    });
+  };
+
   const filteredTickets = tickets.filter(t => {
     const matchesStatus = filter === 'all' || t.status === filter;
     const matchesSearch = t.subject.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -315,6 +328,14 @@ export default function AdminSupport() {
                     <div className="flex gap-2">
                       {getStatusBadge(selectedTicket.status)}
                       {getPriorityBadge(selectedTicket.priority)}
+                      <Button 
+                        variant="destructive" 
+                        size="sm"
+                        onClick={() => handleDeleteTicket(selectedTicket.id)}
+                      >
+                        <Icon name="Trash2" size={16} className="mr-1" />
+                        Удалить
+                      </Button>
                     </div>
                   </div>
                 </CardHeader>

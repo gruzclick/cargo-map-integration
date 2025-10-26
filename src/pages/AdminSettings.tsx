@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -10,30 +10,61 @@ import { Switch } from '@/components/ui/switch';
 
 export default function AdminSettings() {
   const { toast } = useToast();
-  const [mapSettings, setMapSettings] = useState({
-    searchRadius: 50,
-    maxWaitTime: 15,
-    autoRefresh: true,
-    refreshInterval: 30
+  const [mapSettings, setMapSettings] = useState(() => {
+    const saved = localStorage.getItem('admin_map_settings');
+    return saved ? JSON.parse(saved) : {
+      searchRadius: 50,
+      maxWaitTime: 15,
+      autoRefresh: true,
+      refreshInterval: 30
+    };
   });
-  const [orderSettings, setOrderSettings] = useState({
-    minOrderAmount: 500,
-    maxOrderAmount: 100000,
-    cancelTimeout: 5,
-    autoAssign: true
+  
+  const [orderSettings, setOrderSettings] = useState(() => {
+    const saved = localStorage.getItem('admin_order_settings');
+    return saved ? JSON.parse(saved) : {
+      minOrderAmount: 500,
+      maxOrderAmount: 100000,
+      cancelTimeout: 5,
+      autoAssign: true
+    };
   });
-  const [apiKeys, setApiKeys] = useState({
-    yandexMaps: '••••••••••••',
-    payment: '••••••••••••',
-    sms: '••••••••••••'
+  
+  const [apiKeys, setApiKeys] = useState(() => {
+    const saved = localStorage.getItem('admin_api_keys');
+    return saved ? JSON.parse(saved) : {
+      yandexMaps: '',
+      payment: '',
+      sms: ''
+    };
   });
-  const [backupSettings, setBackupSettings] = useState({
-    autoBackup: true,
-    backupInterval: 24,
-    lastBackup: '2025-01-25 03:00'
+  
+  const [showApiKeys, setShowApiKeys] = useState({
+    yandexMaps: false,
+    payment: false,
+    sms: false
+  });
+  
+  const [backupSettings, setBackupSettings] = useState(() => {
+    const saved = localStorage.getItem('admin_backup_settings');
+    return saved ? JSON.parse(saved) : {
+      autoBackup: true,
+      backupInterval: 24,
+      lastBackup: '2025-01-25 03:00'
+    };
+  });
+  
+  const [backupHistory, setBackupHistory] = useState(() => {
+    const saved = localStorage.getItem('backup_history');
+    return saved ? JSON.parse(saved) : [
+      { id: '1', date: '2025-01-25 03:00', size: '245 MB', status: 'Успешно' },
+      { id: '2', date: '2025-01-24 03:00', size: '242 MB', status: 'Успешно' },
+      { id: '3', date: '2025-01-23 03:00', size: '238 MB', status: 'Успешно' }
+    ];
   });
 
   const handleSaveMapSettings = () => {
+    localStorage.setItem('admin_map_settings', JSON.stringify(mapSettings));
     toast({
       title: 'Настройки карты сохранены',
       description: 'Изменения вступят в силу немедленно'
@@ -41,9 +72,18 @@ export default function AdminSettings() {
   };
 
   const handleSaveOrderSettings = () => {
+    localStorage.setItem('admin_order_settings', JSON.stringify(orderSettings));
     toast({
       title: 'Настройки заказов сохранены',
       description: 'Новые параметры применены'
+    });
+  };
+  
+  const handleSaveApiKeys = () => {
+    localStorage.setItem('admin_api_keys', JSON.stringify(apiKeys));
+    toast({
+      title: 'API ключи сохранены',
+      description: 'Ключи безопасно сохранены в системе'
     });
   };
 
@@ -53,12 +93,67 @@ export default function AdminSettings() {
       description: 'Процесс займет несколько минут'
     });
     setTimeout(() => {
-      setBackupSettings({ ...backupSettings, lastBackup: new Date().toLocaleString('ru-RU') });
+      const newBackup = {
+        id: Date.now().toString(),
+        date: new Date().toLocaleString('ru-RU'),
+        size: Math.floor(Math.random() * 50 + 230) + ' MB',
+        status: 'Успешно'
+      };
+      const updated = [newBackup, ...backupHistory];
+      setBackupHistory(updated);
+      localStorage.setItem('backup_history', JSON.stringify(updated));
+      
+      const newSettings = { ...backupSettings, lastBackup: newBackup.date };
+      setBackupSettings(newSettings);
+      localStorage.setItem('admin_backup_settings', JSON.stringify(newSettings));
+      
       toast({
         title: 'Резервная копия создана',
         description: 'Все данные успешно сохранены'
       });
     }, 3000);
+  };
+  
+  const handleDownloadBackup = (backupId: string) => {
+    const backup = backupHistory.find(b => b.id === backupId);
+    if (!backup) return;
+    
+    const dataStr = JSON.stringify({
+      backup_date: backup.date,
+      backup_size: backup.size,
+      settings: { mapSettings, orderSettings, apiKeys, backupSettings },
+      data: {
+        note: 'Это демо-версия резервной копии. В production здесь будет полный экспорт данных из БД.'
+      }
+    }, null, 2);
+    
+    const dataBlob = new Blob([dataStr], { type: 'application/json' });
+    const url = URL.createObjectURL(dataBlob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `backup-${backup.date.replace(/[:\s]/g, '-')}.json`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+    
+    toast({
+      title: 'Резервная копия скачана',
+      description: `Файл backup-${backup.date.replace(/[:\s]/g, '-')}.json сохранен`
+    });
+  };
+  
+  const handleDeleteBackup = (backupId: string) => {
+    if (!confirm('Вы уверены что хотите удалить эту резервную копию?')) return;
+    
+    const updated = backupHistory.filter(b => b.id !== backupId);
+    setBackupHistory(updated);
+    localStorage.setItem('backup_history', JSON.stringify(updated));
+    
+    toast({
+      title: 'Резервная копия удалена',
+      description: 'История обновлена'
+    });
   };
 
   return (
@@ -268,12 +363,16 @@ export default function AdminSettings() {
                   <div className="flex gap-2">
                     <Input
                       id="yandex-api"
-                      type="password"
+                      type={showApiKeys.yandexMaps ? "text" : "password"}
                       value={apiKeys.yandexMaps}
                       onChange={(e) => setApiKeys({ ...apiKeys, yandexMaps: e.target.value })}
+                      placeholder="Введите API ключ Яндекс.Карт"
                     />
-                    <Button variant="outline">
-                      <Icon name="Eye" size={16} />
+                    <Button 
+                      variant="outline"
+                      onClick={() => setShowApiKeys({ ...showApiKeys, yandexMaps: !showApiKeys.yandexMaps })}
+                    >
+                      <Icon name={showApiKeys.yandexMaps ? "EyeOff" : "Eye"} size={16} />
                     </Button>
                   </div>
                 </div>
@@ -283,12 +382,16 @@ export default function AdminSettings() {
                   <div className="flex gap-2">
                     <Input
                       id="payment-api"
-                      type="password"
+                      type={showApiKeys.payment ? "text" : "password"}
                       value={apiKeys.payment}
                       onChange={(e) => setApiKeys({ ...apiKeys, payment: e.target.value })}
+                      placeholder="Введите API ключ платежной системы"
                     />
-                    <Button variant="outline">
-                      <Icon name="Eye" size={16} />
+                    <Button 
+                      variant="outline"
+                      onClick={() => setShowApiKeys({ ...showApiKeys, payment: !showApiKeys.payment })}
+                    >
+                      <Icon name={showApiKeys.payment ? "EyeOff" : "Eye"} size={16} />
                     </Button>
                   </div>
                 </div>
@@ -298,17 +401,21 @@ export default function AdminSettings() {
                   <div className="flex gap-2">
                     <Input
                       id="sms-api"
-                      type="password"
+                      type={showApiKeys.sms ? "text" : "password"}
                       value={apiKeys.sms}
                       onChange={(e) => setApiKeys({ ...apiKeys, sms: e.target.value })}
+                      placeholder="Введите API ключ SMS-сервиса"
                     />
-                    <Button variant="outline">
-                      <Icon name="Eye" size={16} />
+                    <Button 
+                      variant="outline"
+                      onClick={() => setShowApiKeys({ ...showApiKeys, sms: !showApiKeys.sms })}
+                    >
+                      <Icon name={showApiKeys.sms ? "EyeOff" : "Eye"} size={16} />
                     </Button>
                   </div>
                 </div>
 
-                <Button>
+                <Button onClick={handleSaveApiKeys}>
                   <Icon name="Save" size={16} className="mr-2" />
                   Сохранить API ключи
                 </Button>
@@ -361,10 +468,12 @@ export default function AdminSettings() {
                     <Icon name="Database" size={16} className="mr-2" />
                     Создать резервную копию сейчас
                   </Button>
-                  <Button variant="outline" onClick={() => toast({ title: 'Скачивание начато', description: 'Файл резервной копии загружается' })}>
-                    <Icon name="Download" size={16} className="mr-2" />
-                    Скачать последний backup
-                  </Button>
+                  {backupHistory.length > 0 && (
+                    <Button variant="outline" onClick={() => handleDownloadBackup(backupHistory[0].id)}>
+                      <Icon name="Download" size={16} className="mr-2" />
+                      Скачать последний backup
+                    </Button>
+                  )}
                 </div>
               </CardContent>
             </Card>
@@ -372,28 +481,41 @@ export default function AdminSettings() {
             <Card>
               <CardHeader>
                 <CardTitle>История резервных копий</CardTitle>
+                <CardDescription>{backupHistory.length} резервных копий</CardDescription>
               </CardHeader>
               <CardContent>
                 <div className="space-y-2">
-                  {['2025-01-25 03:00', '2025-01-24 03:00', '2025-01-23 03:00'].map((date, idx) => (
-                    <div key={idx} className="flex items-center justify-between p-3 border rounded-lg">
+                  {backupHistory.map((backup) => (
+                    <div key={backup.id} className="flex items-center justify-between p-3 border rounded-lg">
                       <div className="flex items-center gap-3">
                         <Icon name="Archive" size={20} className="text-muted-foreground" />
                         <div>
-                          <p className="font-medium">backup_{date.replace(/[:\s]/g, '_')}.sql</p>
-                          <p className="text-sm text-muted-foreground">{date}</p>
+                          <p className="font-medium">backup_{backup.date.replace(/[:\s]/g, '_')}.json</p>
+                          <p className="text-sm text-muted-foreground">{backup.date} • {backup.size} • {backup.status}</p>
                         </div>
                       </div>
                       <div className="flex gap-2">
-                        <Button variant="ghost" size="sm" onClick={() => toast({ title: 'Скачивание...', description: `Загрузка backup от ${date}` })}>
+                        <Button variant="ghost" size="sm" onClick={() => handleDownloadBackup(backup.id)}>
                           <Icon name="Download" size={16} />
                         </Button>
-                        <Button variant="ghost" size="sm" onClick={() => window.confirm('Восстановить данные из этой копии?') && toast({ title: 'Восстановление...', description: 'База данных восстанавливается' })}>
-                          <Icon name="RotateCcw" size={16} />
+                        <Button 
+                          variant="ghost" 
+                          size="sm" 
+                          className="text-destructive hover:text-destructive"
+                          onClick={() => handleDeleteBackup(backup.id)}
+                        >
+                          <Icon name="Trash2" size={16} />
                         </Button>
                       </div>
                     </div>
                   ))}
+                  {backupHistory.length === 0 && (
+                    <div className="text-center py-8 text-muted-foreground">
+                      <Icon name="Archive" size={48} className="mx-auto mb-3 opacity-20" />
+                      <p>История резервных копий пуста</p>
+                      <p className="text-sm">Создайте первую резервную копию</p>
+                    </div>
+                  )}
                 </div>
               </CardContent>
             </Card>

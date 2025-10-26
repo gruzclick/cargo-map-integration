@@ -1,4 +1,6 @@
 import { useState } from 'react';
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -38,6 +40,15 @@ export default function AdminTransport() {
   const [vehicles, setVehicles] = useState<Vehicle[]>([]);
   const [filter, setFilter] = useState<string>('all');
   const [searchQuery, setSearchQuery] = useState('');
+  const [showAddDialog, setShowAddDialog] = useState(false);
+  const [newVehicle, setNewVehicle] = useState({
+    driverId: '',
+    driverName: '',
+    brand: '',
+    model: '',
+    plateNumber: '',
+    type: 'sedan'
+  });
 
   const getStatusBadge = (status: string) => {
     const variants: Record<string, { variant: 'default' | 'secondary' | 'destructive', icon: string, text: string }> = {
@@ -69,6 +80,45 @@ export default function AdminTransport() {
       title: 'ТС удалено',
       description: 'Транспортное средство удалено из базы',
       variant: 'destructive'
+    });
+  };
+  
+  const handleAddVehicle = () => {
+    if (!newVehicle.driverName || !newVehicle.brand || !newVehicle.model || !newVehicle.plateNumber) {
+      toast({
+        title: 'Ошибка',
+        description: 'Заполните все обязательные поля',
+        variant: 'destructive'
+      });
+      return;
+    }
+    
+    const vehicle: Vehicle = {
+      id: Date.now().toString(),
+      driverId: newVehicle.driverId || Date.now().toString(),
+      driverName: newVehicle.driverName,
+      brand: newVehicle.brand,
+      model: newVehicle.model,
+      plateNumber: newVehicle.plateNumber.toUpperCase(),
+      type: newVehicle.type,
+      status: 'active',
+      totalTrips: 0
+    };
+    
+    setVehicles([...vehicles, vehicle]);
+    setShowAddDialog(false);
+    setNewVehicle({
+      driverId: '',
+      driverName: '',
+      brand: '',
+      model: '',
+      plateNumber: '',
+      type: 'sedan'
+    });
+    
+    toast({
+      title: 'ТС добавлено',
+      description: `${vehicle.brand} ${vehicle.model} (${vehicle.plateNumber}) добавлено в базу`
     });
   };
 
@@ -137,7 +187,7 @@ export default function AdminTransport() {
           <CardHeader>
             <div className="flex items-center justify-between">
               <CardTitle>База транспортных средств</CardTitle>
-              <Button>
+              <Button onClick={() => setShowAddDialog(true)}>
                 <Icon name="Plus" size={16} className="mr-2" />
                 Добавить ТС
               </Button>
@@ -227,6 +277,84 @@ export default function AdminTransport() {
           </CardContent>
         </Card>
       </div>
+      
+      <Dialog open={showAddDialog} onOpenChange={setShowAddDialog}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Добавить транспортное средство</DialogTitle>
+            <DialogDescription>Зарегистрируйте новый автомобиль в системе</DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="driver-name">Имя водителя *</Label>
+              <Input
+                id="driver-name"
+                placeholder="Иванов Иван Иванович"
+                value={newVehicle.driverName}
+                onChange={(e) => setNewVehicle({ ...newVehicle, driverName: e.target.value })}
+              />
+            </div>
+            
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="brand">Марка *</Label>
+                <Input
+                  id="brand"
+                  placeholder="Toyota"
+                  value={newVehicle.brand}
+                  onChange={(e) => setNewVehicle({ ...newVehicle, brand: e.target.value })}
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="model">Модель *</Label>
+                <Input
+                  id="model"
+                  placeholder="Camry"
+                  value={newVehicle.model}
+                  onChange={(e) => setNewVehicle({ ...newVehicle, model: e.target.value })}
+                />
+              </div>
+            </div>
+            
+            <div className="space-y-2">
+              <Label htmlFor="plate">Гос. номер *</Label>
+              <Input
+                id="plate"
+                placeholder="А123БВ777"
+                value={newVehicle.plateNumber}
+                onChange={(e) => setNewVehicle({ ...newVehicle, plateNumber: e.target.value.toUpperCase() })}
+                className="font-mono"
+              />
+            </div>
+            
+            <div className="space-y-2">
+              <Label htmlFor="type">Тип транспорта</Label>
+              <Select value={newVehicle.type} onValueChange={(val) => setNewVehicle({ ...newVehicle, type: val })}>
+                <SelectTrigger id="type">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="sedan">Седан</SelectItem>
+                  <SelectItem value="suv">Внедорожник</SelectItem>
+                  <SelectItem value="van">Минивэн</SelectItem>
+                  <SelectItem value="truck">Грузовик</SelectItem>
+                  <SelectItem value="motorcycle">Мотоцикл</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            
+            <div className="flex gap-2 pt-4">
+              <Button onClick={handleAddVehicle} className="flex-1">
+                <Icon name="Plus" size={16} className="mr-2" />
+                Добавить ТС
+              </Button>
+              <Button variant="outline" onClick={() => setShowAddDialog(false)} className="flex-1">
+                Отмена
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

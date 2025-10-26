@@ -66,6 +66,16 @@ export default function AdminMarketing() {
     maxUses: 100
   });
 
+  const [referralSettings, setReferralSettings] = useState(() => {
+    const saved = localStorage.getItem('referral_settings');
+    return saved ? JSON.parse(saved) : {
+      enabled: true,
+      referrerBonus: 500,
+      refereeBonus: 300,
+      activationCondition: 'После первого заказа'
+    };
+  });
+
   const handleCreatePromo = () => {
     if (!newPromo.code) {
       toast({
@@ -109,6 +119,14 @@ export default function AdminMarketing() {
     toast({
       title: 'Промокод удален',
       description: 'Промокод удален из системы'
+    });
+  };
+
+  const handleSaveReferralSettings = () => {
+    localStorage.setItem('referral_settings', JSON.stringify(referralSettings));
+    toast({
+      title: 'Настройки сохранены',
+      description: 'Реферальная программа обновлена'
     });
   };
 
@@ -398,29 +416,46 @@ export default function AdminMarketing() {
                     <Label>Программа активна</Label>
                     <p className="text-sm text-muted-foreground">Пользователи могут приглашать друзей</p>
                   </div>
-                  <Switch defaultChecked />
+                  <Switch 
+                    checked={referralSettings.enabled}
+                    onCheckedChange={(checked) => setReferralSettings({...referralSettings, enabled: checked})}
+                  />
                 </div>
 
                 <div className="space-y-2">
                   <Label>Бонус приглашающему (₽)</Label>
-                  <Input type="number" defaultValue="500" className="w-48" />
+                  <Input 
+                    type="number" 
+                    value={referralSettings.referrerBonus} 
+                    onChange={(e) => setReferralSettings({...referralSettings, referrerBonus: parseInt(e.target.value)})}
+                    className="w-48" 
+                  />
                 </div>
 
                 <div className="space-y-2">
                   <Label>Бонус приглашенному (₽)</Label>
-                  <Input type="number" defaultValue="300" className="w-48" />
+                  <Input 
+                    type="number" 
+                    value={referralSettings.refereeBonus}
+                    onChange={(e) => setReferralSettings({...referralSettings, refereeBonus: parseInt(e.target.value)})}
+                    className="w-48" 
+                  />
                 </div>
 
                 <div className="space-y-2">
                   <Label>Условие активации</Label>
-                  <select className="w-full p-2 border rounded-md bg-background">
+                  <select 
+                    className="w-full p-2 border rounded-md bg-background"
+                    value={referralSettings.activationCondition}
+                    onChange={(e) => setReferralSettings({...referralSettings, activationCondition: e.target.value})}
+                  >
                     <option>После первого заказа</option>
                     <option>После регистрации</option>
                     <option>После заказа на сумму от 1000₽</option>
                   </select>
                 </div>
 
-                <Button>
+                <Button onClick={handleSaveReferralSettings}>
                   <Icon name="Save" size={16} className="mr-2" />
                   Сохранить настройки
                 </Button>
