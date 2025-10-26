@@ -190,7 +190,7 @@ const LiveMap = ({ isPublic = false, onMarkerClick }: LiveMapProps = {}) => {
         >
           <button
             onClick={() => setShowSidebar(true)}
-            className="fixed top-4 left-4 z-20 w-12 h-12 bg-white/90 dark:bg-gray-800/90 backdrop-blur-3xl border border-gray-300 dark:border-gray-600 shadow-2xl rounded-full flex items-center justify-center hover:bg-white dark:hover:bg-gray-700 active:scale-95 transition-all"
+            className="fixed top-20 left-4 z-20 w-12 h-12 bg-white/90 dark:bg-gray-800/90 backdrop-blur-3xl border border-gray-300 dark:border-gray-600 shadow-2xl rounded-full flex items-center justify-center hover:bg-white dark:hover:bg-gray-700 active:scale-95 transition-all"
             title="Открыть панель (свайп вправо)"
           >
             <Icon name="Menu" size={20} className="text-gray-900 dark:text-white" />
@@ -206,7 +206,7 @@ const LiveMap = ({ isPublic = false, onMarkerClick }: LiveMapProps = {}) => {
           onTouchStart={handleTouchStart}
           onTouchMove={handleTouchMove}
           onTouchEnd={handleTouchEnd}
-          className="absolute top-3 left-1/2 md:left-3 -translate-x-1/2 md:translate-x-0 max-h-[calc(100vh-1.5rem)] w-[calc(100%-1.5rem)] md:w-72 bg-white/15 dark:bg-gray-900/15 backdrop-blur-3xl border border-white/40 dark:border-gray-700/40 shadow-2xl rounded-2xl z-10 overflow-hidden animate-slide-in-left flex flex-col touch-pan-y overscroll-contain">
+          className="absolute top-20 left-1/2 md:left-3 md:top-20 -translate-x-1/2 md:translate-x-0 max-h-[calc(100vh-5.5rem)] w-[calc(100%-1.5rem)] md:w-72 bg-white/15 dark:bg-gray-900/15 backdrop-blur-3xl border border-white/40 dark:border-gray-700/40 shadow-2xl rounded-2xl z-10 overflow-hidden animate-slide-in-left flex flex-col touch-pan-y overscroll-contain">
           {/* Табы и Поиск/Статистика */}
           <div className="flex items-center justify-between p-2 gap-2">
             <div className="flex items-center gap-2 flex-1">
