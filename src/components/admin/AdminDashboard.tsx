@@ -337,6 +337,16 @@ export const AdminDashboard = ({ onLogout }: AdminDashboardProps) => {
                   <CardDescription className="text-gray-600 dark:text-gray-400">Промокоды, акции, A/B</CardDescription>
                 </CardHeader>
               </Card>
+
+              <Card className="bg-gradient-to-br from-red-50 to-orange-50 dark:from-red-900/20 dark:to-orange-900/20 border-red-300 dark:border-red-800 hover:shadow-lg transition-shadow cursor-pointer" onClick={() => window.location.href = '/admin/security-guide'}>
+                <CardHeader>
+                  <CardTitle className="text-red-900 dark:text-red-100 flex items-center gap-2">
+                    <Icon name="ShieldAlert" size={24} />
+                    Безопасность
+                  </CardTitle>
+                  <CardDescription className="text-red-700 dark:text-red-300">Руководство по защите</CardDescription>
+                </CardHeader>
+              </Card>
             </div>
           </TabsContent>
 

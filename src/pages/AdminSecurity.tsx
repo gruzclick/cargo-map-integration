@@ -26,9 +26,38 @@ export default function AdminSecurity() {
 
   useEffect(() => {
     checkBiometricAvailability();
-    const enabled = localStorage.getItem('biometric_enabled') === 'true';
-    setBiometricEnabled(enabled);
+    loadBiometricSettings();
   }, []);
+
+  const loadBiometricSettings = async () => {
+    try {
+      const token = secureLocalStorage.get('admin_token');
+      const response = await fetch('https://functions.poehali.dev/f06efb37-9437-4df8-8032-f2ba53b2e2d6', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-Auth-Token': token || ''
+        },
+        body: JSON.stringify({
+          action: 'get_biometric_status'
+        })
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        setBiometricEnabled(data.biometric_enabled || false);
+        if (data.biometric_enabled) {
+          localStorage.setItem('biometric_enabled', 'true');
+        }
+      } else {
+        const localEnabled = localStorage.getItem('biometric_enabled') === 'true';
+        setBiometricEnabled(localEnabled);
+      }
+    } catch (error) {
+      const localEnabled = localStorage.getItem('biometric_enabled') === 'true';
+      setBiometricEnabled(localEnabled);
+    }
+  };
 
   const checkBiometricAvailability = async () => {
     if (window.PublicKeyCredential) {
@@ -116,11 +145,32 @@ export default function AdminSecurity() {
       });
 
       if (credential) {
-        localStorage.setItem('biometric_enabled', 'true');
-        localStorage.setItem('biometric_credential', JSON.stringify({
+        const credentialData = {
           id: credential.id,
           rawId: Array.from(new Uint8Array(credential.rawId))
-        }));
+        };
+        
+        localStorage.setItem('biometric_enabled', 'true');
+        localStorage.setItem('biometric_credential', JSON.stringify(credentialData));
+
+        try {
+          const token = secureLocalStorage.get('admin_token');
+          await fetch('https://functions.poehali.dev/f06efb37-9437-4df8-8032-f2ba53b2e2d6', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'X-Auth-Token': token || ''
+            },
+            body: JSON.stringify({
+              action: 'save_biometric',
+              biometric_enabled: true,
+              credential_id: credential.id
+            })
+          });
+        } catch (error) {
+          console.error('Failed to save biometric to server:', error);
+        }
+
         setBiometricEnabled(true);
         toast({
           title: 'Биометрия настроена',
@@ -136,14 +186,60 @@ export default function AdminSecurity() {
     }
   };
 
-  const handleDisableBiometric = () => {
-    localStorage.removeItem('biometric_enabled');
-    localStorage.removeItem('biometric_credential');
-    setBiometricEnabled(false);
-    toast({
-      title: 'Биометрия отключена',
-      description: 'Биометрическая аутентификация деактивирована'
-    });
+  const handleDisableBiometric = async () => {
+    try {
+      const challenge = new Uint8Array(32);
+      crypto.getRandomValues(challenge);
+      const credentialData = JSON.parse(localStorage.getItem('biometric_credential') || '{}');
+      
+      if (!credentialData.rawId) {
+        throw new Error('Credential not found');
+      }
+
+      await navigator.credentials.get({
+        publicKey: {
+          challenge: challenge,
+          allowCredentials: [{
+            id: new Uint8Array(credentialData.rawId),
+            type: 'public-key'
+          }],
+          timeout: 60000,
+          userVerification: 'required'
+        }
+      });
+
+      localStorage.removeItem('biometric_enabled');
+      localStorage.removeItem('biometric_credential');
+
+      try {
+        const token = secureLocalStorage.get('admin_token');
+        await fetch('https://functions.poehali.dev/f06efb37-9437-4df8-8032-f2ba53b2e2d6', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'X-Auth-Token': token || ''
+          },
+          body: JSON.stringify({
+            action: 'save_biometric',
+            biometric_enabled: false
+          })
+        });
+      } catch (error) {
+        console.error('Failed to update biometric on server:', error);
+      }
+
+      setBiometricEnabled(false);
+      toast({
+        title: 'Биометрия отключена',
+        description: 'Биометрическая аутентификация деактивирована'
+      });
+    } catch (error) {
+      toast({
+        title: 'Ошибка',
+        description: 'Требуется подтверждение биометрии для отключения',
+        variant: 'destructive'
+      });
+    }
   };
 
   const handleDeleteTestUsers = async () => {
@@ -313,20 +409,30 @@ export default function AdminSecurity() {
               </Card>
             )}
 
-            <div className="flex items-center justify-between p-4 border rounded-lg">
-              <div className="flex items-center gap-3">
-                <Icon name="Mail" size={24} />
-                <div>
-                  <p className="font-medium">Восстановление пароля</p>
-                  <p className="text-sm text-gray-600 dark:text-gray-400">
-                    Проверочный код будет отправлен на: <span className="font-semibold text-gray-900 dark:text-white">{userEmail}</span>
-                  </p>
+            <Card>
+              <CardHeader>
+                <CardTitle className="text-lg flex items-center gap-2">
+                  <Icon name="Mail" size={20} />
+                  Восстановление пароля
+                </CardTitle>
+                <CardDescription>Получите ссылку для сброса пароля на email</CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="space-y-2">
+                  <Label htmlFor="recovery-email">Email для восстановления</Label>
+                  <Input
+                    id="recovery-email"
+                    type="email"
+                    placeholder="admin@example.com"
+                    defaultValue={userEmail !== 'Не указан' ? userEmail : ''}
+                  />
                 </div>
-              </div>
-              <Button variant="outline" onClick={handlePasswordRecovery}>
-                Отправить письмо
-              </Button>
-            </div>
+                <Button variant="outline" onClick={handlePasswordRecovery} className="w-full">
+                  <Icon name="Mail" size={16} className="mr-2" />
+                  Отправить письмо для восстановления
+                </Button>
+              </CardContent>
+            </Card>
 
             <div className="flex items-center justify-between p-4 border rounded-lg border-red-200 dark:border-red-800 bg-red-50 dark:bg-red-900/20">
               <div className="flex items-center gap-3">
