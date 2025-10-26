@@ -32,17 +32,39 @@ export default function FaceIDAuth({ onSuccess, mode }: FaceIDAuthProps) {
 
   const startCamera = async () => {
     try {
+      // Сбрасываем все состояния перед запуском
+      setFaceDetected(false);
+      setScanning(false);
+      setLoading(false);
+      scanLineRef.current = 0;
+      
+      if (animationRef.current) {
+        cancelAnimationFrame(animationRef.current);
+      }
+
       const stream = await navigator.mediaDevices.getUserMedia({
         video: { 
           facingMode: 'user',
-          width: { ideal: 640 },
-          height: { ideal: 480 }
-        }
+          width: { ideal: 1280 },
+          height: { ideal: 720 }
+        },
+        audio: false
       });
       
       if (videoRef.current) {
         videoRef.current.srcObject = stream;
         streamRef.current = stream;
+        
+        // Ждём загрузки видео потока
+        await new Promise<void>((resolve) => {
+          if (videoRef.current) {
+            videoRef.current.onloadedmetadata = () => {
+              videoRef.current?.play();
+              resolve();
+            };
+          }
+        });
+        
         setCameraActive(true);
         
         toast({
@@ -51,9 +73,13 @@ export default function FaceIDAuth({ onSuccess, mode }: FaceIDAuthProps) {
         });
       }
     } catch (error) {
+      console.error('Camera error:', error);
+      const err = error as Error;
       toast({
         title: 'Ошибка доступа к камере',
-        description: 'Разрешите доступ к камере в настройках браузера',
+        description: err.name === 'NotAllowedError' 
+          ? 'Разрешите доступ к камере в настройках браузера'
+          : 'Проверьте подключение камеры и перезагрузите страницу',
         variant: 'destructive'
       });
     }
@@ -64,8 +90,17 @@ export default function FaceIDAuth({ onSuccess, mode }: FaceIDAuthProps) {
       streamRef.current.getTracks().forEach(track => track.stop());
       streamRef.current = null;
     }
+    if (videoRef.current) {
+      videoRef.current.srcObject = null;
+    }
+    if (animationRef.current) {
+      cancelAnimationFrame(animationRef.current);
+    }
     setCameraActive(false);
     setFaceDetected(false);
+    setScanning(false);
+    setLoading(false);
+    scanLineRef.current = 0;
   };
 
   const animateScanLine = () => {
