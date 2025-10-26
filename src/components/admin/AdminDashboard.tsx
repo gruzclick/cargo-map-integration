@@ -8,6 +8,7 @@ import { DashboardStats } from './DashboardStats';
 import { UsersTable } from './UsersTable';
 import { DeliveriesTable } from './DeliveriesTable';
 import { BiometricSettings } from './BiometricSettings';
+import { DataManagement } from './DataManagement';
 import { useAutoLogout } from '@/hooks/useAutoLogout';
 
 interface AdminDashboardProps {
@@ -264,11 +265,12 @@ export const AdminDashboard = ({ onLogout }: AdminDashboardProps) => {
         <DashboardStats stats={stats} loading={loading} />
 
         <Tabs defaultValue="overview" className="w-full">
-          <TabsList className="grid w-full grid-cols-2 md:grid-cols-4 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800">
+          <TabsList className="grid w-full grid-cols-2 md:grid-cols-5 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800">
             <TabsTrigger value="overview" className="data-[state=active]:bg-gray-100 dark:data-[state=active]:bg-gray-800 text-gray-900 dark:text-gray-100">Обзор</TabsTrigger>
             <TabsTrigger value="users" className="data-[state=active]:bg-gray-100 dark:data-[state=active]:bg-gray-800 text-gray-900 dark:text-gray-100">Пользователи</TabsTrigger>
             <TabsTrigger value="orders" className="data-[state=active]:bg-gray-100 dark:data-[state=active]:bg-gray-800 text-gray-900 dark:text-gray-100">Заказы</TabsTrigger>
             <TabsTrigger value="biometric" className="data-[state=active]:bg-gray-100 dark:data-[state=active]:bg-gray-800 text-gray-900 dark:text-gray-100">Биометрия</TabsTrigger>
+            <TabsTrigger value="data" className="data-[state=active]:bg-gray-100 dark:data-[state=active]:bg-gray-800 text-gray-900 dark:text-gray-100">База данных</TabsTrigger>
           </TabsList>
 
           <TabsContent value="overview" className="space-y-4">
@@ -393,6 +395,10 @@ export const AdminDashboard = ({ onLogout }: AdminDashboardProps) => {
 
           <TabsContent value="biometric" className="space-y-4">
             <BiometricSettings />
+          </TabsContent>
+
+          <TabsContent value="data" className="space-y-4">
+            <DataManagement />
           </TabsContent>
         </Tabs>
       </div>

@@ -224,7 +224,8 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
     
     allowed_actions = ['register', 'login', 'send_reset_code', 'verify_reset_code', 'reset_password', 
                        'get_stats', 'get_users', 'get_deliveries', 'update_delivery_status', 'update_user_status',
-                       'delete_test_users', 'get_biometric_status', 'save_biometric', 'get_all_users']
+                       'delete_test_users', 'get_biometric_status', 'save_biometric', 'get_all_users',
+                       'delete_table_data', 'clear_all_test_data']
     
     try:
         action = validate_action(body_data.get('action'), allowed_actions)
@@ -631,6 +632,76 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                 'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
                 'body': json.dumps({
                     'message': f'Удалено {deleted_count} тестовых пользователей'
+                }),
+                'isBase64Encoded': False
+            }
+        
+        elif action == 'delete_table_data':
+            admin_token = event.get('headers', {}).get('x-auth-token')
+            
+            if not admin_token:
+                return {
+                    'statusCode': 401,
+                    'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                    'body': json.dumps({'error': 'Требуется токен администратора'}),
+                    'isBase64Encoded': False
+                }
+            
+            table = body_data.get('table')
+            allowed_tables = ['users', 'drivers', 'cargo', 'deliveries', 'login_logs']
+            
+            if table not in allowed_tables:
+                return {
+                    'statusCode': 400,
+                    'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                    'body': json.dumps({'error': f'Invalid table. Allowed: {", ".join(allowed_tables)}'}),
+                    'isBase64Encoded': False
+                }
+            
+            cur.execute(f"DELETE FROM t_p93479485_cargo_map_integratio.{table}")
+            deleted_count = cur.rowcount
+            conn.commit()
+            
+            return {
+                'statusCode': 200,
+                'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                'body': json.dumps({
+                    'success': True,
+                    'deleted_count': deleted_count,
+                    'table': table
+                }),
+                'isBase64Encoded': False
+            }
+        
+        elif action == 'clear_all_test_data':
+            admin_token = event.get('headers', {}).get('x-auth-token')
+            
+            if not admin_token:
+                return {
+                    'statusCode': 401,
+                    'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                    'body': json.dumps({'error': 'Требуется токен администратора'}),
+                    'isBase64Encoded': False
+                }
+            
+            deleted_counts = {}
+            tables = ['users', 'drivers', 'cargo', 'deliveries', 'login_logs']
+            
+            for table in tables:
+                cur.execute(f"DELETE FROM t_p93479485_cargo_map_integratio.{table}")
+                deleted_counts[table] = cur.rowcount
+            
+            cur.execute("DELETE FROM t_p93479485_cargo_map_integratio.admins WHERE email = 'admin@test.com'")
+            deleted_counts['admins'] = cur.rowcount
+            
+            conn.commit()
+            
+            return {
+                'statusCode': 200,
+                'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                'body': json.dumps({
+                    'success': True,
+                    'deleted': deleted_counts
                 }),
                 'isBase64Encoded': False
             }
