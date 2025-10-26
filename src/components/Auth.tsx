@@ -101,6 +101,36 @@ const Auth = ({ onSuccess }: AuthProps) => {
           title: 'Вход выполнен успешно!'
         });
       } else {
+        if (!formData.email || !formData.password) {
+          toast({
+            title: 'Заполните обязательные поля',
+            description: 'Email и пароль обязательны для регистрации',
+            variant: 'destructive'
+          });
+          setLoading(false);
+          return;
+        }
+
+        if (!formData.full_name) {
+          toast({
+            title: 'Заполните ФИО',
+            description: 'Укажите ваше полное имя',
+            variant: 'destructive'
+          });
+          setLoading(false);
+          return;
+        }
+
+        if (!formData.phone) {
+          toast({
+            title: 'Укажите телефон',
+            description: 'Номер телефона обязателен для связи',
+            variant: 'destructive'
+          });
+          setLoading(false);
+          return;
+        }
+
         if (!formData.agree_terms) {
           toast({
             title: 'Требуется согласие',
@@ -111,11 +141,11 @@ const Auth = ({ onSuccess }: AuthProps) => {
           return;
         }
 
-        if (formData.email && !validateEmail(formData.email)) {
+        if (!validateEmail(formData.email)) {
           throw new Error('Некорректный email');
         }
-        if (formData.phone && !validatePhone(formData.phone)) {
-          throw new Error('Некорректный номер телефона');
+        if (!validatePhone(formData.phone)) {
+          throw new Error('Некорректный номер телефона. Используйте формат: +7XXXXXXXXXX');
         }
         if (formData.inn && !validateINN(formData.inn)) {
           throw new Error('Некорректный ИНН');

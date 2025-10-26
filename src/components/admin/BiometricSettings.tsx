@@ -219,6 +219,78 @@ export const BiometricSettings = () => {
 
   return (
     <div className="space-y-6">
+      {(biometricData.face_template || biometricData.iris_template) && (
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Icon name="Image" size={24} className="text-purple-600" />
+              Сохранённые биометрические снимки
+            </CardTitle>
+            <CardDescription>
+              Просмотр зарегистрированных биометрических данных
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {biometricData.face_template && (
+                <div className="space-y-2">
+                  <Label>Снимок лица</Label>
+                  <div className="relative rounded-lg overflow-hidden border">
+                    <img 
+                      src={biometricData.face_template} 
+                      alt="Face scan" 
+                      className="w-full h-auto"
+                    />
+                    <div className="absolute top-2 right-2 bg-green-600 text-white px-2 py-1 rounded text-xs font-medium">
+                      Активен
+                    </div>
+                  </div>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => {
+                      setCameraType('face');
+                      setShowCamera(true);
+                    }}
+                    className="w-full"
+                  >
+                    <Icon name="RefreshCw" size={16} className="mr-2" />
+                    Пересканировать лицо
+                  </Button>
+                </div>
+              )}
+              {biometricData.iris_template && (
+                <div className="space-y-2">
+                  <Label>Снимок радужки</Label>
+                  <div className="relative rounded-lg overflow-hidden border">
+                    <img 
+                      src={biometricData.iris_template} 
+                      alt="Iris scan" 
+                      className="w-full h-auto"
+                    />
+                    <div className="absolute top-2 right-2 bg-green-600 text-white px-2 py-1 rounded text-xs font-medium">
+                      Активен
+                    </div>
+                  </div>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => {
+                      setCameraType('iris');
+                      setShowCamera(true);
+                    }}
+                    className="w-full"
+                  >
+                    <Icon name="RefreshCw" size={16} className="mr-2" />
+                    Пересканировать радужку
+                  </Button>
+                </div>
+              )}
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">

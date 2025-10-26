@@ -40,12 +40,27 @@ export const BiometricCamera = ({ type, onCapture, onCancel }: BiometricCameraPr
       }
       setStream(mediaStream);
     } catch (error: any) {
+      let errorMessage = 'Не удалось получить доступ к камере.';
+      
+      if (error.name === 'NotAllowedError') {
+        errorMessage = 'Доступ к камере запрещён. Разрешите доступ в настройках браузера (значок 🔒 в адресной строке).';
+      } else if (error.name === 'NotFoundError') {
+        errorMessage = 'Камера не найдена. Проверьте подключение устройства.';
+      } else if (error.name === 'NotReadableError') {
+        errorMessage = 'Камера используется другим приложением. Закройте другие программы с камерой.';
+      }
+      
       toast({
         title: 'Ошибка доступа к камере',
-        description: 'Не удалось получить доступ к камере. Проверьте разрешения.',
-        variant: 'destructive'
+        description: errorMessage,
+        variant: 'destructive',
+        duration: 10000
       });
       console.error('Ошибка камеры:', error);
+      
+      setTimeout(() => {
+        onCancel();
+      }, 3000);
     }
   };
 
