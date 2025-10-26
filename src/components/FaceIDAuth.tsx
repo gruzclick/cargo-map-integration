@@ -139,12 +139,23 @@ export default function FaceIDAuth({ onSuccess, mode }: FaceIDAuthProps) {
           </Button>
         ) : (
           <>
-            <div className="relative rounded-lg overflow-hidden bg-gray-900">
+            <div className="relative rounded-lg overflow-hidden bg-gray-900 shadow-2xl">
               <video
                 ref={videoRef}
                 autoPlay
                 playsInline
-                className="w-full h-auto"
+                muted
+                className="w-full h-auto min-h-[320px] object-cover"
+                onLoadedMetadata={(e) => {
+                  const video = e.currentTarget;
+                  if (video.videoWidth === 0) {
+                    toast({
+                      title: 'Ошибка камеры',
+                      description: 'Камера не отвечает. Попробуйте перезагрузить страницу.',
+                      variant: 'destructive'
+                    });
+                  }
+                }}
               />
               
               {faceDetected && (
