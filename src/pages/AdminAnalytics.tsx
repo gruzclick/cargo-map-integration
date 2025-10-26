@@ -33,7 +33,68 @@ export default function AdminAnalytics() {
   const [exportFormat, setExportFormat] = useState<'excel' | 'csv' | 'pdf'>('excel');
 
   const handleExport = (format: 'excel' | 'csv' | 'pdf') => {
-    alert(`Экспорт отчета в формате ${format.toUpperCase()} начат. Файл будет готов через несколько секунд.`);
+    const timestamp = new Date().toISOString().split('T')[0];
+    
+    if (format === 'csv') {
+      let csvContent = 'Дата,Выручка,Заказы\n';
+      revenueData.forEach(item => {
+        csvContent += `${item.date},${item.revenue},${item.orders}\n`;
+      });
+      
+      csvContent += '\n\nРегион,Заказы,Выручка\n';
+      regionData.forEach(item => {
+        csvContent += `${item.region},${item.orders},${item.revenue}\n`;
+      });
+      
+      const blob = new Blob(['\uFEFF' + csvContent], { type: 'text/csv;charset=utf-8;' });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `analytics-report-${timestamp}.csv`;
+      link.click();
+      URL.revokeObjectURL(url);
+    } else if (format === 'excel') {
+      let content = 'Дата\tВыручка\tЗаказы\n';
+      revenueData.forEach(item => {
+        content += `${item.date}\t${item.revenue}\t${item.orders}\n`;
+      });
+      
+      content += '\n\nРегион\tЗаказы\tВыручка\n';
+      regionData.forEach(item => {
+        content += `${item.region}\t${item.orders}\t${item.revenue}\n`;
+      });
+      
+      const blob = new Blob(['\uFEFF' + content], { type: 'application/vnd.ms-excel;charset=utf-8;' });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `analytics-report-${timestamp}.xls`;
+      link.click();
+      URL.revokeObjectURL(url);
+    } else if (format === 'pdf') {
+      let textContent = `ОТЧЁТ ПО АНАЛИТИКЕ\nДата: ${new Date().toLocaleDateString('ru-RU')}\n\n`;
+      textContent += `Общая выручка: ${totalRevenue.toLocaleString()} ₽\n`;
+      textContent += `Всего заказов: ${totalOrders}\n`;
+      textContent += `Средний чек: ${avgOrderValue.toLocaleString()} ₽\n\n`;
+      
+      textContent += `ДАННЫЕ ПО ДАТАМ:\n`;
+      revenueData.forEach(item => {
+        textContent += `${item.date}: ${item.revenue.toLocaleString()} ₽, ${item.orders} заказов\n`;
+      });
+      
+      textContent += `\n\nДАННЫЕ ПО РЕГИОНАМ:\n`;
+      regionData.forEach(item => {
+        textContent += `${item.region}: ${item.orders} заказов, ${item.revenue.toLocaleString()} ₽\n`;
+      });
+      
+      const blob = new Blob([textContent], { type: 'text/plain;charset=utf-8;' });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `analytics-report-${timestamp}.txt`;
+      link.click();
+      URL.revokeObjectURL(url);
+    }
   };
 
   const totalRevenue = revenueData.reduce((sum, item) => sum + item.revenue, 0);

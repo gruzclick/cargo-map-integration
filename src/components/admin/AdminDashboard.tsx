@@ -323,6 +323,16 @@ export const AdminDashboard = ({ onLogout }: AdminDashboardProps) => {
                 </CardHeader>
               </Card>
 
+              <Card className="bg-gradient-to-br from-purple-50 to-pink-50 dark:from-purple-900/20 dark:to-pink-900/20 border-purple-300 dark:border-purple-800 hover:shadow-lg transition-shadow cursor-pointer" onClick={() => window.location.href = '/admin/legal-docs'}>
+                <CardHeader>
+                  <CardTitle className="text-purple-900 dark:text-purple-100 flex items-center gap-2">
+                    <Icon name="Scale" size={24} />
+                    Юр. документы
+                  </CardTitle>
+                  <CardDescription className="text-purple-700 dark:text-purple-300">Политика, соглашение</CardDescription>
+                </CardHeader>
+              </Card>
+
               <Card className="bg-white dark:bg-gray-900 border-gray-200 dark:border-gray-800 hover:shadow-lg transition-shadow cursor-pointer" onClick={() => window.location.href = '/admin/support'}>
                 <CardHeader>
                   <CardTitle className="text-gray-900 dark:text-white flex items-center gap-2">
