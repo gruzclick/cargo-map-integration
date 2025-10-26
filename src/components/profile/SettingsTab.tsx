@@ -15,7 +15,7 @@ interface SettingsTabProps {
 
 const SettingsTab = ({ entityType, onEntityTypeChange }: SettingsTabProps) => {
   const { toast } = useToast();
-  const [userType, setUserType] = useState<'client' | 'carrier'>(
+  const [userType, setUserType] = useState<'client' | 'carrier' | 'logist'>(
     secureLocalStorage.getItem('user_type') || 'client'
   );
   const [passportData, setPassportData] = useState({
@@ -27,9 +27,10 @@ const SettingsTab = ({ entityType, onEntityTypeChange }: SettingsTabProps) => {
 
   const saveUserType = () => {
     secureLocalStorage.setItem('user_type', userType);
+    const typeLabel = userType === 'client' ? 'заказчик' : userType === 'carrier' ? 'перевозчик' : 'логист';
     toast({
       title: 'Тип пользователя изменён',
-      description: `Вы теперь ${userType === 'client' ? 'заказчик' : 'перевозчик'}`
+      description: `Вы теперь ${typeLabel}`
     });
   };
 
@@ -110,17 +111,18 @@ const SettingsTab = ({ entityType, onEntityTypeChange }: SettingsTabProps) => {
         </CardHeader>
         <CardContent className="space-y-4">
           <p className="text-sm text-muted-foreground">
-            Измените роль в системе: заказчик или перевозчик
+            Измените роль в системе: заказчик, перевозчик или логист
           </p>
           <div className="flex gap-4 items-end">
             <div className="flex-1">
-              <Select value={userType} onValueChange={(val: 'client' | 'carrier') => setUserType(val)}>
+              <Select value={userType} onValueChange={(val: 'client' | 'carrier' | 'logist') => setUserType(val)}>
                 <SelectTrigger>
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="client">Заказчик</SelectItem>
                   <SelectItem value="carrier">Перевозчик</SelectItem>
+                  <SelectItem value="logist">Логист</SelectItem>
                 </SelectContent>
               </Select>
             </div>

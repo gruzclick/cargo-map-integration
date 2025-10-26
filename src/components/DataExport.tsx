@@ -2,6 +2,8 @@ import { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import Icon from '@/components/ui/icon';
+import * as XLSX from 'xlsx';
+import { useToast } from '@/hooks/use-toast';
 
 interface DataExportProps {
   userId: string;
@@ -10,38 +12,81 @@ interface DataExportProps {
 
 export default function DataExport({ userId, userName }: DataExportProps) {
   const [isExporting, setIsExporting] = useState(false);
+  const { toast } = useToast();
 
-  const exportToCSV = (data: any[], filename: string) => {
+  const exportToExcel = (data: any[], filename: string, sheetName: string, title: string) => {
     if (data.length === 0) {
-      alert('Нет данных для экспорта');
+      toast({
+        title: 'Ошибка',
+        description: 'Нет данных для экспорта',
+        variant: 'destructive'
+      });
       return;
     }
 
-    const headers = Object.keys(data[0]);
-    const csvContent = [
-      headers.join(','),
-      ...data.map(row => 
-        headers.map(header => {
-          const value = row[header];
-          if (typeof value === 'string' && (value.includes(',') || value.includes('"'))) {
-            return `"${value.replace(/"/g, '""')}"`;
-          }
-          return value;
-        }).join(',')
-      )
-    ].join('\n');
-
-    const BOM = '\uFEFF';
-    const blob = new Blob([BOM + csvContent], { type: 'text/csv;charset=utf-8;' });
-    const link = document.createElement('a');
-    const url = URL.createObjectURL(blob);
+    const wb = XLSX.utils.book_new();
     
-    link.setAttribute('href', url);
-    link.setAttribute('download', filename);
-    link.style.visibility = 'hidden';
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
+    const headerData = [
+      [title],
+      [`Дата формирования: ${new Date().toLocaleDateString('ru-RU', { day: '2-digit', month: '2-digit', year: 'numeric' })}`],
+      [`Пользователь: ${userName}`],
+      [],
+      Object.keys(data[0])
+    ];
+    
+    const dataRows = data.map(row => Object.values(row));
+    
+    const wsData = [...headerData, ...dataRows];
+    const ws = XLSX.utils.aoa_to_sheet(wsData);
+    
+    const colWidths = Object.keys(data[0]).map((key) => {
+      const maxLength = Math.max(
+        key.length,
+        ...data.map(row => String(row[key] || '').length)
+      );
+      return { wch: Math.min(maxLength + 2, 50) };
+    });
+    ws['!cols'] = colWidths;
+    
+    const range = XLSX.utils.decode_range(ws['!ref'] || 'A1');
+    for (let R = range.s.r; R <= range.e.r; ++R) {
+      for (let C = range.s.c; C <= range.e.c; ++C) {
+        const cellAddress = XLSX.utils.encode_cell({ r: R, c: C });
+        if (!ws[cellAddress]) continue;
+        
+        if (R === 0) {
+          ws[cellAddress].s = {
+            font: { bold: true, sz: 16, color: { rgb: '2563EB' } },
+            alignment: { horizontal: 'left', vertical: 'center' }
+          };
+        } else if (R === 4) {
+          ws[cellAddress].s = {
+            font: { bold: true, sz: 12 },
+            fill: { fgColor: { rgb: 'DBEAFE' } },
+            alignment: { horizontal: 'center', vertical: 'center' },
+            border: {
+              top: { style: 'thin', color: { rgb: '2563EB' } },
+              bottom: { style: 'thin', color: { rgb: '2563EB' } }
+            }
+          };
+        } else if (R > 4) {
+          ws[cellAddress].s = {
+            alignment: { horizontal: 'left', vertical: 'center', wrapText: true },
+            border: {
+              bottom: { style: 'thin', color: { rgb: 'E5E7EB' } }
+            }
+          };
+        }
+      }
+    }
+    
+    XLSX.utils.book_append_sheet(wb, ws, sheetName);
+    XLSX.writeFile(wb, filename);
+    
+    toast({
+      title: '✅ Экспорт завершён',
+      description: `Файл ${filename} успешно создан`
+    });
   };
 
   const handleExportDeliveries = () => {
@@ -75,7 +120,12 @@ export default function DataExport({ userId, userName }: DataExportProps) {
     ];
 
     setTimeout(() => {
-      exportToCSV(mockDeliveries, `deliveries_${new Date().toISOString().split('T')[0]}.csv`);
+      exportToExcel(
+        mockDeliveries, 
+        `ГрузКлик_Доставки_${new Date().toISOString().split('T')[0]}.xlsx`,
+        'Доставки',
+        'ОТЧЁТ ПО ДОСТАВКАМ - ГРУЗКЛИК'
+      );
       setIsExporting(false);
     }, 500);
   };
@@ -108,7 +158,12 @@ export default function DataExport({ userId, userName }: DataExportProps) {
     ];
 
     setTimeout(() => {
-      exportToCSV(mockRatings, `ratings_${new Date().toISOString().split('T')[0]}.csv`);
+      exportToExcel(
+        mockRatings, 
+        `ГрузКлик_Отзывы_${new Date().toISOString().split('T')[0]}.xlsx`,
+        'Отзывы',
+        'ОТЧЁТ ПО ОТЗЫВАМ И РЕЙТИНГАМ - ГРУЗКЛИК'
+      );
       setIsExporting(false);
     }, 500);
   };
@@ -141,7 +196,12 @@ export default function DataExport({ userId, userName }: DataExportProps) {
     ];
 
     setTimeout(() => {
-      exportToCSV(mockCargo, `cargo_${new Date().toISOString().split('T')[0]}.csv`);
+      exportToExcel(
+        mockCargo, 
+        `ГрузКлик_Грузы_${new Date().toISOString().split('T')[0]}.xlsx`,
+        'Грузы',
+        'ОТЧЁТ ПО ГРУЗАМ - ГРУЗКЛИК'
+      );
       setIsExporting(false);
     }, 500);
   };
@@ -174,7 +234,12 @@ export default function DataExport({ userId, userName }: DataExportProps) {
     ];
 
     setTimeout(() => {
-      exportToCSV(mockFinancial, `financial_${new Date().toISOString().split('T')[0]}.csv`);
+      exportToExcel(
+        mockFinancial, 
+        `ГрузКлик_Финансы_${new Date().toISOString().split('T')[0]}.xlsx`,
+        'Финансы',
+        'ФИНАНСОВЫЙ ОТЧЁТ - ГРУЗКЛИК'
+      );
       setIsExporting(false);
     }, 500);
   };
@@ -189,7 +254,7 @@ export default function DataExport({ userId, userName }: DataExportProps) {
       </CardHeader>
       <CardContent className="space-y-3">
         <p className="text-sm text-gray-600 mb-4">
-          Скачайте свои данные в формате CSV (Excel). Файл можно открыть в Microsoft Excel, Google Sheets или LibreOffice.
+          Скачайте свои данные в формате Excel (XLSX). Профессионально оформленные отчёты с заголовками и стилями.
         </p>
         
         <Button
@@ -241,7 +306,7 @@ export default function DataExport({ userId, userName }: DataExportProps) {
 
         <div className="mt-4 p-3 bg-blue-50 rounded-lg text-xs text-gray-700">
           <Icon name="Info" size={14} className="inline mr-1" />
-          <strong>Совет:</strong> CSV файлы можно открыть в Excel. При открытии выберите кодировку UTF-8 для корректного отображения русских символов.
+          <strong>Инфо:</strong> Файлы экспортируются в формате XLSX с профессиональным оформлением: заголовки, цвета, ширина колонок. Открывается в Excel, LibreOffice, Google Sheets.
         </div>
       </CardContent>
     </Card>
