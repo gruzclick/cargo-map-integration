@@ -27,36 +27,62 @@ export const BiometricCamera = ({ type, onCapture, onCancel }: BiometricCameraPr
 
   const startCamera = async () => {
     try {
-      const mediaStream = await navigator.mediaDevices.getUserMedia({
-        video: {
-          facingMode: 'user',
-          width: { ideal: 1280 },
-          height: { ideal: 720 }
-        }
-      });
-
-      if (videoRef.current) {
-        videoRef.current.srcObject = mediaStream;
+      if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+        throw new Error('Ваш браузер не поддерживает доступ к камере');
       }
-      setStream(mediaStream);
+
+      const constraints: MediaStreamConstraints = {
+        video: true,
+        audio: false
+      };
+
+      try {
+        const mediaStream = await navigator.mediaDevices.getUserMedia({
+          video: {
+            facingMode: 'user',
+            width: { ideal: 1280 },
+            height: { ideal: 720 }
+          }
+        });
+        if (videoRef.current) {
+          videoRef.current.srcObject = mediaStream;
+        }
+        setStream(mediaStream);
+      } catch (detailedError) {
+        console.warn('Детальные настройки камеры не поддерживаются, пробую базовые...');
+        const basicStream = await navigator.mediaDevices.getUserMedia(constraints);
+        if (videoRef.current) {
+          videoRef.current.srcObject = basicStream;
+        }
+        setStream(basicStream);
+      }
     } catch (error: any) {
       let errorMessage = 'Не удалось получить доступ к камере.';
+      const errorDetails = error.message || '';
       
-      if (error.name === 'NotAllowedError') {
+      if (error.name === 'NotAllowedError' || error.name === 'PermissionDeniedError') {
         errorMessage = 'Доступ к камере запрещён. Разрешите доступ в настройках браузера (значок 🔒 в адресной строке).';
-      } else if (error.name === 'NotFoundError') {
+      } else if (error.name === 'NotFoundError' || error.name === 'DevicesNotFoundError') {
         errorMessage = 'Камера не найдена. Проверьте подключение устройства.';
-      } else if (error.name === 'NotReadableError') {
+      } else if (error.name === 'NotReadableError' || error.name === 'TrackStartError') {
         errorMessage = 'Камера используется другим приложением. Закройте другие программы с камерой.';
+      } else if (error.name === 'OverconstrainedError') {
+        errorMessage = 'Камера не поддерживает запрошенные параметры.';
+      } else if (error.name === 'SecurityError') {
+        errorMessage = 'Камера заблокирована по соображениям безопасности. Используйте HTTPS.';
       }
       
       toast({
         title: 'Ошибка доступа к камере',
-        description: errorMessage,
+        description: `${errorMessage} ${errorDetails ? `(${errorDetails})` : ''}`,
         variant: 'destructive',
         duration: 10000
       });
-      console.error('Ошибка камеры:', error);
+      console.error('Ошибка камеры:', {
+        name: error.name,
+        message: error.message,
+        error
+      });
       
       setTimeout(() => {
         onCancel();

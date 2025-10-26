@@ -179,7 +179,7 @@ const AIAssistant = () => {
     return (
       <button
         onClick={() => setIsOpen(true)}
-        className="fixed bottom-4 right-4 z-50 px-4 py-3 bg-white/15 dark:bg-gray-900/15 backdrop-blur-3xl border border-white/40 dark:border-gray-700/40 shadow-2xl rounded-full hover:bg-white/25 dark:hover:bg-gray-900/25 active:scale-95 transition-all flex items-center gap-2"
+        className="fixed bottom-4 right-4 z-50 px-4 py-3 bg-white/15 dark:bg-gray-900/15 backdrop-blur-3xl border border-white/40 dark:border-gray-700/40 shadow-2xl rounded-full hover:bg-white/25 dark:hover:bg-gray-900/25 hover:scale-105 active:scale-95 transition-all flex items-center gap-2 animate-fade-in"
       >
         <Icon name="HelpCircle" size={18} className="text-gray-900 dark:text-white" />
         <span className="text-sm font-medium text-gray-900 dark:text-white">Спроси</span>
@@ -188,8 +188,8 @@ const AIAssistant = () => {
   }
 
   return (
-    <Card className="fixed bottom-4 right-4 z-50 w-[22rem] max-w-[calc(100vw-2rem)] shadow-2xl animate-scale-in">
-      <CardContent className="p-0">
+    <Card className="fixed bottom-4 right-4 z-50 w-[22rem] max-w-[calc(100vw-2rem)] shadow-2xl animate-slide-in-up">
+      <CardContent className="p-0 animate-scale-in">
         <div className="bg-primary text-primary-foreground p-4 rounded-t-xl flex items-center justify-between">
           <div className="flex items-center gap-2">
             <div className="w-8 h-8 bg-white/20 rounded-full flex items-center justify-center">
