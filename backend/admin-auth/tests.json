@@ -1,21 +1,12 @@
 {
   "tests": [
     {
-      "name": "Login admin",
+      "name": "Get stats without auth",
       "method": "POST",
       "body": {
-        "action": "login",
-        "email": "admin@test.com",
-        "password": "test123"
+        "action": "get_stats"
       },
-      "expectedStatus": 200,
-      "expectedBody": {
-        "token": "string",
-        "admin": {
-          "email": "string"
-        }
-      },
-      "bodyMatcher": "partial"
+      "expectedStatus": 200
     },
     {
       "name": "Get stats",

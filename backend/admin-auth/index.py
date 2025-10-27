@@ -230,7 +230,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
     allowed_actions = ['register', 'login', 'send_reset_code', 'verify_reset_code', 'reset_password', 
                        'get_stats', 'get_users', 'get_deliveries', 'update_delivery_status', 'update_user_status',
                        'delete_test_users', 'get_biometric_status', 'save_biometric', 'get_all_users',
-                       'delete_table_data', 'clear_all_test_data', 'delete_admin']
+                       'delete_table_data', 'clear_all_test_data', 'delete_admin', 'change_password']
     
     action = body_data.get('action')
     
@@ -777,6 +777,66 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                     'success': True,
                     'deleted_count': deleted_count,
                     'message': f'Администратор {admin_email} удалён'
+                }),
+                'isBase64Encoded': False
+            }
+        
+        elif action == 'change_password':
+            admin_token = event.get('headers', {}).get('x-auth-token') or event.get('headers', {}).get('X-Auth-Token')
+            token_check = verify_admin_token(admin_token, conn)
+            
+            if not token_check['valid']:
+                return {
+                    'statusCode': 401,
+                    'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                    'body': json.dumps({'error': token_check.get('error', 'Недействительный токен')}),
+                    'isBase64Encoded': False
+                }
+            
+            try:
+                current_password = validate_password(body_data.get('current_password'), min_length=1)
+                new_password = validate_password(body_data.get('new_password'))
+            except ValidationError as e:
+                return {
+                    'statusCode': 400,
+                    'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                    'body': json.dumps({'error': str(e)}),
+                    'isBase64Encoded': False
+                }
+            
+            current_password_hash = hash_password(current_password)
+            
+            cur.execute(
+                "SELECT id, email FROM admins WHERE id = %s AND password_hash = %s AND is_active = true",
+                (token_check['admin_id'], current_password_hash)
+            )
+            admin = cur.fetchone()
+            
+            if not admin:
+                return {
+                    'statusCode': 401,
+                    'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                    'body': json.dumps({'error': 'Неверный текущий пароль'}),
+                    'isBase64Encoded': False
+                }
+            
+            new_password_hash = hash_password(new_password)
+            
+            cur.execute(
+                "UPDATE admins SET password_hash = %s WHERE id = %s",
+                (new_password_hash, token_check['admin_id'])
+            )
+            conn.commit()
+            
+            new_token = generate_token(token_check['admin_id'], token_check['email'])
+            
+            return {
+                'statusCode': 200,
+                'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                'body': json.dumps({
+                    'success': True,
+                    'message': 'Пароль успешно изменён',
+                    'token': new_token
                 }),
                 'isBase64Encoded': False
             }
