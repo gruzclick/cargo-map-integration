@@ -230,7 +230,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
     allowed_actions = ['register', 'login', 'send_reset_code', 'verify_reset_code', 'reset_password', 
                        'get_stats', 'get_users', 'get_deliveries', 'update_delivery_status', 'update_user_status',
                        'delete_test_users', 'get_biometric_status', 'save_biometric', 'get_all_users',
-                       'delete_table_data', 'clear_all_test_data']
+                       'delete_table_data', 'clear_all_test_data', 'delete_admin']
     
     action = body_data.get('action')
     
@@ -732,6 +732,51 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                 'body': json.dumps({
                     'success': True,
                     'deleted': deleted_counts
+                }),
+                'isBase64Encoded': False
+            }
+        
+        elif action == 'delete_admin':
+            admin_token = event.get('headers', {}).get('x-auth-token') or event.get('headers', {}).get('X-Auth-Token')
+            token_check = verify_admin_token(admin_token, conn)
+            
+            if not token_check['valid']:
+                return {
+                    'statusCode': 401,
+                    'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                    'body': json.dumps({'error': token_check.get('error', 'Недействительный токен')}),
+                    'isBase64Encoded': False
+                }
+            
+            admin_email = body_data.get('email')
+            
+            if not admin_email:
+                return {
+                    'statusCode': 400,
+                    'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                    'body': json.dumps({'error': 'Email is required'}),
+                    'isBase64Encoded': False
+                }
+            
+            if admin_email == token_check['email']:
+                return {
+                    'statusCode': 400,
+                    'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                    'body': json.dumps({'error': 'Нельзя удалить свою учётную запись'}),
+                    'isBase64Encoded': False
+                }
+            
+            cur.execute("DELETE FROM t_p93479485_cargo_map_integratio.admins WHERE email = %s", (admin_email,))
+            deleted_count = cur.rowcount
+            conn.commit()
+            
+            return {
+                'statusCode': 200,
+                'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                'body': json.dumps({
+                    'success': True,
+                    'deleted_count': deleted_count,
+                    'message': f'Администратор {admin_email} удалён'
                 }),
                 'isBase64Encoded': False
             }
