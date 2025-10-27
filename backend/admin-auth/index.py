@@ -108,7 +108,7 @@ def validate_action(action: str, allowed_actions: list) -> str:
 
 def generate_token(admin_id: int, email: str) -> str:
     secret = os.environ.get('JWT_SECRET', 'default-secret-key')
-    data = f"{admin_id}:{email}:{datetime.now().isoformat()}"
+    data = f"{admin_id}:{email}"
     return hashlib.sha256(f"{data}:{secret}".encode()).hexdigest()
 
 def hash_password(password: str) -> str:
@@ -125,8 +125,9 @@ def verify_admin_token(token: str, conn) -> Dict[str, Any]:
     for admin in admins:
         expected_token_data = f"{admin['id']}:{admin['email']}"
         secret = os.environ.get('JWT_SECRET', 'default-secret-key')
+        expected_token = hashlib.sha256(f"{expected_token_data}:{secret}".encode()).hexdigest()
         
-        if token[:32] == hashlib.sha256(f"{expected_token_data}".encode()).hexdigest()[:32]:
+        if token == expected_token:
             return {
                 'valid': True, 
                 'admin_id': admin['id'],
