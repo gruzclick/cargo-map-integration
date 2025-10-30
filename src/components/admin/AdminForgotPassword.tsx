@@ -19,6 +19,7 @@ export const AdminForgotPassword = ({ onBack }: AdminForgotPasswordProps) => {
   const [resetStep, setResetStep] = useState<'email' | 'code' | 'password'>('email');
   const [showNewPassword, setShowNewPassword] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [sendMethod, setSendMethod] = useState<'email' | 'telegram' | 'both'>('email');
 
   useEffect(() => {
     const savedTheme = localStorage.getItem('admin_theme') as 'light' | 'dark' || 'dark';
@@ -52,7 +53,8 @@ export const AdminForgotPassword = ({ onBack }: AdminForgotPasswordProps) => {
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             action: 'send_reset_code',
-            email: resetEmail
+            email: resetEmail,
+            method: sendMethod
           })
         });
 
@@ -62,9 +64,10 @@ export const AdminForgotPassword = ({ onBack }: AdminForgotPasswordProps) => {
           throw new Error(data.error || 'Ошибка отправки кода');
         }
 
+        const methodText = sendMethod === 'email' ? 'email' : sendMethod === 'telegram' ? 'Telegram' : 'email и Telegram';
         toast({
           title: 'Код отправлен',
-          description: `Код восстановления отправлен на ${resetEmail}`
+          description: `Код восстановления отправлен через ${methodText}`
         });
         setResetStep('code');
       } catch (error: any) {
@@ -181,6 +184,40 @@ export const AdminForgotPassword = ({ onBack }: AdminForgotPasswordProps) => {
                   className="bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-700 text-gray-900 dark:text-gray-100"
                 />
               </div>
+              
+              <div className="space-y-2">
+                <Label className="text-gray-900 dark:text-gray-100">Способ отправки кода</Label>
+                <div className="grid grid-cols-3 gap-2">
+                  <Button
+                    type="button"
+                    variant={sendMethod === 'email' ? 'default' : 'outline'}
+                    onClick={() => setSendMethod('email')}
+                    className="flex items-center gap-2"
+                  >
+                    <Icon name="Mail" size={16} />
+                    Email
+                  </Button>
+                  <Button
+                    type="button"
+                    variant={sendMethod === 'telegram' ? 'default' : 'outline'}
+                    onClick={() => setSendMethod('telegram')}
+                    className="flex items-center gap-2"
+                  >
+                    <Icon name="Send" size={16} />
+                    Telegram
+                  </Button>
+                  <Button
+                    type="button"
+                    variant={sendMethod === 'both' ? 'default' : 'outline'}
+                    onClick={() => setSendMethod('both')}
+                    className="flex items-center gap-2"
+                  >
+                    <Icon name="Zap" size={16} />
+                    Оба
+                  </Button>
+                </div>
+              </div>
+
               <Button 
                 className="w-full" 
                 onClick={handleForgotPassword}
@@ -201,7 +238,9 @@ export const AdminForgotPassword = ({ onBack }: AdminForgotPasswordProps) => {
           {resetStep === 'code' && (
             <>
               <div className="space-y-2">
-                <Label htmlFor="resetCode" className="text-gray-900 dark:text-gray-100">Код из письма</Label>
+                <Label htmlFor="resetCode" className="text-gray-900 dark:text-gray-100">
+                  Код подтверждения
+                </Label>
                 <Input
                   id="resetCode"
                   placeholder="123456"
@@ -210,6 +249,11 @@ export const AdminForgotPassword = ({ onBack }: AdminForgotPasswordProps) => {
                   maxLength={6}
                   className="bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-700 text-gray-900 dark:text-gray-100"
                 />
+                <p className="text-xs text-gray-500 dark:text-gray-400">
+                  {sendMethod === 'email' && 'Проверьте email'}
+                  {sendMethod === 'telegram' && 'Проверьте Telegram'}
+                  {sendMethod === 'both' && 'Проверьте email или Telegram'}
+                </p>
               </div>
               <Button 
                 className="w-full" 

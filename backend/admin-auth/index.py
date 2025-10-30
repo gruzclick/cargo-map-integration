@@ -142,6 +142,47 @@ def get_db_connection():
     conn = psycopg2.connect(dsn, cursor_factory=RealDictCursor)
     return conn
 
+def send_telegram(chat_id: str, code: str) -> bool:
+    bot_token = os.environ.get('TELEGRAM_BOT_TOKEN')
+    
+    if not bot_token:
+        print("Telegram bot token not configured")
+        return False
+    
+    message = f"""
+🔐 *Код восстановления пароля администратора*
+
+Ваш код: `{code}`
+
+⏱ Код действителен 15 минут.
+
+🚛 ГрузКлик
+    """
+    
+    try:
+        import urllib.request
+        import urllib.parse
+        
+        url = f"https://api.telegram.org/bot{bot_token}/sendMessage"
+        data = urllib.parse.urlencode({
+            'chat_id': chat_id,
+            'text': message,
+            'parse_mode': 'Markdown'
+        }).encode()
+        
+        req = urllib.request.Request(url, data=data)
+        with urllib.request.urlopen(req, timeout=10) as response:
+            result = json.loads(response.read().decode())
+            if result.get('ok'):
+                print(f"Telegram message sent successfully to chat_id {chat_id}")
+                return True
+            else:
+                print(f"Telegram API error: {result}")
+                return False
+    except Exception as e:
+        print(f"Failed to send Telegram message: {str(e)}")
+        return False
+
 def send_email(to_email: str, code: str) -> bool:
     smtp_host = os.environ.get('SMTP_HOST')
     smtp_port = int(os.environ.get('SMTP_PORT', '587'))
@@ -387,7 +428,9 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                     'isBase64Encoded': False
                 }
             
-            cur.execute("SELECT id FROM admins WHERE email = %s", (email,))
+            method = body_data.get('method', 'email')
+            
+            cur.execute("SELECT id, telegram_chat_id FROM admins WHERE email = %s", (email,))
             admin = cur.fetchone()
             
             if not admin:
@@ -407,14 +450,46 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             )
             conn.commit()
             
-            email_sent = send_email(email, code)
+            sent = False
+            sent_via = []
+            
+            if method == 'telegram':
+                if admin.get('telegram_chat_id'):
+                    telegram_sent = send_telegram(str(admin['telegram_chat_id']), code)
+                    if telegram_sent:
+                        sent = True
+                        sent_via.append('telegram')
+                else:
+                    return {
+                        'statusCode': 400,
+                        'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                        'body': json.dumps({'error': 'Telegram не подключен к аккаунту администратора'}),
+                        'isBase64Encoded': False
+                    }
+            elif method == 'email':
+                email_sent = send_email(email, code)
+                if email_sent:
+                    sent = True
+                    sent_via.append('email')
+            elif method == 'both':
+                email_sent = send_email(email, code)
+                if email_sent:
+                    sent = True
+                    sent_via.append('email')
+                
+                if admin.get('telegram_chat_id'):
+                    telegram_sent = send_telegram(str(admin['telegram_chat_id']), code)
+                    if telegram_sent:
+                        sent = True
+                        sent_via.append('telegram')
             
             return {
                 'statusCode': 200,
                 'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
                 'body': json.dumps({
-                    'message': 'Reset code sent' if email_sent else 'Reset code created (email not configured)',
-                    'email_sent': email_sent
+                    'message': f'Код отправлен через {", ".join(sent_via)}' if sent else 'Код создан (методы отправки не настроены)',
+                    'sent': sent,
+                    'sent_via': sent_via
                 }),
                 'isBase64Encoded': False
             }
@@ -702,6 +777,43 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                     'userGrowth': growth_data,
                     'userTypes': type_data
                 }),
+                'isBase64Encoded': False
+            }
+        
+        elif action == 'update_telegram_chat_id':
+            admin_token = event.get('headers', {}).get('x-auth-token') or event.get('headers', {}).get('X-Auth-Token')
+            token_check = verify_admin_token(admin_token, conn)
+            
+            if not token_check['valid']:
+                return {
+                    'statusCode': 401,
+                    'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                    'body': json.dumps({'error': token_check.get('error', 'Недействительный токен')}),
+                    'isBase64Encoded': False
+                }
+            
+            telegram_chat_id = body_data.get('telegram_chat_id')
+            
+            if not telegram_chat_id:
+                return {
+                    'statusCode': 400,
+                    'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                    'body': json.dumps({'error': 'Telegram Chat ID обязателен'}),
+                    'isBase64Encoded': False
+                }
+            
+            admin_id = token_check['admin']['id']
+            
+            cur.execute(
+                "UPDATE admins SET telegram_chat_id = %s WHERE id = %s",
+                (int(telegram_chat_id), admin_id)
+            )
+            conn.commit()
+            
+            return {
+                'statusCode': 200,
+                'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                'body': json.dumps({'message': 'Telegram Chat ID обновлен'}),
                 'isBase64Encoded': False
             }
         
