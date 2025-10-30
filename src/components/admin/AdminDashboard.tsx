@@ -43,7 +43,9 @@ export const AdminDashboard = ({ onLogout }: AdminDashboardProps) => {
     totalUsers: 0,
     activeOrders: 0,
     totalRevenue: 0,
-    activeDrivers: 0
+    activeDrivers: 0,
+    newUsersThisWeek: 0,
+    averageSessionTime: 0
   });
   const [adminProfile, setAdminProfile] = useState<any>(null);
   const [loading, setLoading] = useState(true);
@@ -105,7 +107,9 @@ export const AdminDashboard = ({ onLogout }: AdminDashboardProps) => {
           totalUsers: 0,
           activeOrders: 0,
           totalRevenue: 0,
-          activeDrivers: 0
+          activeDrivers: 0,
+          newUsersThisWeek: 0,
+          averageSessionTime: 0
         });
       }
     } catch (error) {
@@ -324,16 +328,6 @@ export const AdminDashboard = ({ onLogout }: AdminDashboardProps) => {
                     Настройки
                   </CardTitle>
                   <CardDescription className="text-gray-600 dark:text-gray-400">Параметры системы, API</CardDescription>
-                </CardHeader>
-              </Card>
-
-              <Card className="bg-gradient-to-br from-purple-50 to-pink-50 dark:from-purple-900/20 dark:to-pink-900/20 border-purple-300 dark:border-purple-800 hover:shadow-lg transition-shadow cursor-pointer" onClick={() => window.location.href = '/admin/legal-docs'}>
-                <CardHeader>
-                  <CardTitle className="text-purple-900 dark:text-purple-100 flex items-center gap-2">
-                    <Icon name="Scale" size={24} />
-                    Юр. документы
-                  </CardTitle>
-                  <CardDescription className="text-purple-700 dark:text-purple-300">Политика, соглашение</CardDescription>
                 </CardHeader>
               </Card>
 

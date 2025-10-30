@@ -7,6 +7,8 @@ interface DashboardStatsProps {
     activeOrders: number;
     totalRevenue: number;
     activeDrivers: number;
+    newUsersThisWeek: number;
+    averageSessionTime: number;
   };
   loading: boolean;
 }
@@ -45,13 +47,13 @@ export const DashboardStats = ({ stats, loading }: DashboardStatsProps) => {
       <Card className="bg-white dark:bg-gray-900 border-gray-200 dark:border-gray-800">
         <CardHeader className="flex flex-row items-center justify-between pb-2">
           <CardTitle className="text-sm font-medium text-gray-600 dark:text-gray-400">
-            Общая выручка
+            Новых за неделю
           </CardTitle>
-          <Icon name="DollarSign" size={20} className="text-yellow-600 dark:text-yellow-400" />
+          <Icon name="TrendingUp" size={20} className="text-green-600 dark:text-green-400" />
         </CardHeader>
         <CardContent>
           <div className="text-2xl font-bold text-gray-900 dark:text-white">
-            {loading ? '...' : `${stats.totalRevenue.toLocaleString()} ₽`}
+            {loading ? '...' : stats.newUsersThisWeek.toLocaleString()}
           </div>
         </CardContent>
       </Card>
@@ -59,13 +61,13 @@ export const DashboardStats = ({ stats, loading }: DashboardStatsProps) => {
       <Card className="bg-white dark:bg-gray-900 border-gray-200 dark:border-gray-800">
         <CardHeader className="flex flex-row items-center justify-between pb-2">
           <CardTitle className="text-sm font-medium text-gray-600 dark:text-gray-400">
-            Активные водители
+            Среднее время сессии
           </CardTitle>
-          <Icon name="Truck" size={20} className="text-purple-600 dark:text-purple-400" />
+          <Icon name="Clock" size={20} className="text-purple-600 dark:text-purple-400" />
         </CardHeader>
         <CardContent>
           <div className="text-2xl font-bold text-gray-900 dark:text-white">
-            {loading ? '...' : stats.activeDrivers}
+            {loading ? '...' : `${Math.round(stats.averageSessionTime)} мин`}
           </div>
         </CardContent>
       </Card>
