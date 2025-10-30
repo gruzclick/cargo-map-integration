@@ -632,6 +632,79 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                 'isBase64Encoded': False
             }
         
+        elif action == 'get_user_analytics':
+            from datetime import datetime, timedelta
+            
+            cur.execute("""
+                SELECT 
+                    EXTRACT(DOW FROM created_at) as day_of_week,
+                    COUNT(*) as user_count
+                FROM t_p93479485_cargo_map_integratio.users
+                WHERE created_at >= NOW() - INTERVAL '30 days'
+                GROUP BY EXTRACT(DOW FROM created_at)
+                ORDER BY day_of_week
+            """)
+            activity_by_day = cur.fetchall()
+            
+            cur.execute("""
+                SELECT 
+                    DATE_TRUNC('month', created_at) as month,
+                    COUNT(*) as user_count
+                FROM t_p93479485_cargo_map_integratio.users
+                WHERE created_at >= NOW() - INTERVAL '6 months'
+                GROUP BY DATE_TRUNC('month', created_at)
+                ORDER BY month
+            """)
+            growth_by_month = cur.fetchall()
+            
+            cur.execute("""
+                SELECT 
+                    user_type,
+                    COUNT(*) as count
+                FROM t_p93479485_cargo_map_integratio.users
+                GROUP BY user_type
+            """)
+            user_types = cur.fetchall()
+            
+            day_names = ['ВС', 'ПН', 'ВТ', 'СР', 'ЧТ', 'ПТ', 'СБ']
+            activity_data = []
+            for day in activity_by_day:
+                day_index = int(day['day_of_week'])
+                activity_data.append({
+                    'day': day_names[day_index],
+                    'users': day['user_count']
+                })
+            
+            month_names = ['Янв', 'Фев', 'Мар', 'Апр', 'Май', 'Июн', 'Июл', 'Авг', 'Сен', 'Окт', 'Ноя', 'Дек']
+            growth_data = []
+            for month in growth_by_month:
+                month_date = month['month']
+                if month_date:
+                    month_index = month_date.month - 1
+                    growth_data.append({
+                        'month': month_names[month_index],
+                        'users': month['user_count']
+                    })
+            
+            type_data = []
+            for user_type in user_types:
+                type_name = 'Заказчики' if user_type['user_type'] == 'client' else 'Водители'
+                type_data.append({
+                    'name': type_name,
+                    'value': user_type['count']
+                })
+            
+            return {
+                'statusCode': 200,
+                'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                'body': json.dumps({
+                    'userActivity': activity_data,
+                    'userGrowth': growth_data,
+                    'userTypes': type_data
+                }),
+                'isBase64Encoded': False
+            }
+        
         elif action == 'delete_test_users':
             admin_token = event.get('headers', {}).get('x-auth-token') or event.get('headers', {}).get('X-Auth-Token')
             token_check = verify_admin_token(admin_token, conn)

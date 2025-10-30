@@ -1,6 +1,8 @@
+import { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { AreaChart, Area, BarChart, Bar, PieChart, Pie, Cell, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
+import { AreaChart, Area, BarChart, Bar, PieChart, Pie, Cell, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import Icon from '@/components/ui/icon';
+import { secureLocalStorage } from '@/utils/security';
 
 interface UserAnalyticsProps {
   stats: {
@@ -10,30 +12,72 @@ interface UserAnalyticsProps {
   };
 }
 
+interface AnalyticsData {
+  userActivity: Array<{ day: string; users: number }>;
+  userGrowth: Array<{ month: string; users: number }>;
+  userTypes: Array<{ name: string; value: number }>;
+}
+
 export const UserAnalytics = ({ stats }: UserAnalyticsProps) => {
-  const userActivityData = [
-    { day: 'ПН', users: 45 },
-    { day: 'ВТ', users: 52 },
-    { day: 'СР', users: 38 },
-    { day: 'ЧТ', users: 61 },
-    { day: 'ПТ', users: 48 },
-    { day: 'СБ', users: 33 },
-    { day: 'ВС', users: 29 }
-  ];
+  const [analyticsData, setAnalyticsData] = useState<AnalyticsData>({
+    userActivity: [],
+    userGrowth: [],
+    userTypes: []
+  });
+  const [loading, setLoading] = useState(true);
 
-  const userGrowthData = [
-    { month: 'Янв', users: 120 },
-    { month: 'Фев', users: 145 },
-    { month: 'Мар', users: 178 },
-    { month: 'Апр', users: 210 },
-    { month: 'Май', users: 245 },
-    { month: 'Июн', users: stats.totalUsers }
-  ];
+  useEffect(() => {
+    loadAnalytics();
+  }, []);
 
-  const userTypeData = [
-    { name: 'Заказчики', value: Math.floor(stats.totalUsers * 0.65), color: '#3b82f6' },
-    { name: 'Водители', value: Math.floor(stats.totalUsers * 0.35), color: '#10b981' }
-  ];
+  const loadAnalytics = async () => {
+    try {
+      const token = secureLocalStorage.get('admin_token');
+      const response = await fetch('https://functions.poehali.dev/f06efb37-9437-4df8-8032-f2ba53b2e2d6', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-Auth-Token': token || ''
+        },
+        body: JSON.stringify({ action: 'get_user_analytics' })
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        setAnalyticsData(data);
+      }
+    } catch (error) {
+      console.error('Ошибка загрузки аналитики:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const userActivityData = analyticsData.userActivity.length > 0 
+    ? analyticsData.userActivity 
+    : [
+        { day: 'ПН', users: 0 },
+        { day: 'ВТ', users: 0 },
+        { day: 'СР', users: 0 },
+        { day: 'ЧТ', users: 0 },
+        { day: 'ПТ', users: 0 },
+        { day: 'СБ', users: 0 },
+        { day: 'ВС', users: 0 }
+      ];
+
+  const userGrowthData = analyticsData.userGrowth.length > 0 
+    ? analyticsData.userGrowth 
+    : [{ month: 'Текущий', users: stats.totalUsers }];
+
+  const userTypeData = analyticsData.userTypes.length > 0
+    ? analyticsData.userTypes.map((type, index) => ({
+        ...type,
+        color: index === 0 ? '#3b82f6' : '#10b981'
+      }))
+    : [
+        { name: 'Заказчики', value: Math.floor(stats.totalUsers * 0.65), color: '#3b82f6' },
+        { name: 'Водители', value: Math.floor(stats.totalUsers * 0.35), color: '#10b981' }
+      ];
 
   return (
     <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
