@@ -10,6 +10,7 @@ import { DeliveriesTable } from './DeliveriesTable';
 import { BiometricSettings } from './BiometricSettings';
 import { DataManagement } from './DataManagement';
 import { ChangePassword } from './ChangePassword';
+import { UserAnalytics } from './UserAnalytics';
 import { useAutoLogout } from '@/hooks/useAutoLogout';
 
 interface AdminDashboardProps {
@@ -374,6 +375,7 @@ export const AdminDashboard = ({ onLogout }: AdminDashboardProps) => {
           </TabsContent>
 
           <TabsContent value="users" className="space-y-4">
+            <UserAnalytics stats={stats} />
             <UsersTable 
               users={users} 
               loading={loadingUsers} 
