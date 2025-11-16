@@ -109,7 +109,7 @@ export const AdminLoginForm = ({ onSuccess, onShowForgotPassword }: AdminLoginFo
         
         const response = await fetch('https://functions.poehali.dev/f06efb37-9437-4df8-8032-f2ba53b2e2d6', {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
+          headers: { 'Content-Type': 'text/plain' },
           body: JSON.stringify({
             action: 'login',
             email: localStorage.getItem('biometric_email') || '',
@@ -173,10 +173,8 @@ export const AdminLoginForm = ({ onSuccess, onShowForgotPassword }: AdminLoginFo
       const response = await fetch('https://functions.poehali.dev/f06efb37-9437-4df8-8032-f2ba53b2e2d6', {
         method: 'POST',
         headers: { 
-          'Content-Type': 'application/json'
+          'Content-Type': 'text/plain'
         },
-        mode: 'cors',
-        credentials: 'omit',
         body: JSON.stringify({
           action: isRegisterMode ? 'register' : 'login',
           email: loginData.email,
