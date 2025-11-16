@@ -11,7 +11,6 @@ const QuickActions = ({ userRole, onAction }: QuickActionsProps) => {
   const clientActions = [
     { icon: 'Plus', label: 'Новый заказ', action: 'new-order', color: 'bg-blue-500 hover:bg-blue-600' },
     { icon: 'Search', label: 'Найти водителя', action: 'find-driver', color: 'bg-green-500 hover:bg-green-600' },
-    { icon: 'Calculator', label: 'Калькулятор', action: 'calculator', color: 'bg-purple-500 hover:bg-purple-600' },
     { icon: 'FileText', label: 'Документы', action: 'documents', color: 'bg-orange-500 hover:bg-orange-600' },
   ];
 

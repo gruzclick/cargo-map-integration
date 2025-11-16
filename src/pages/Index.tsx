@@ -176,16 +176,6 @@ const Index = () => {
               <ThemeToggle />
             </div>
 
-            <Button 
-              variant="ghost" 
-              size="sm" 
-              onClick={() => window.location.href = '/profile'}
-              className="h-9 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800"
-            >
-              <Icon name="UserCircle" size={14} className="mr-1.5" />
-              <span className="text-xs hidden md:inline">Профиль</span>
-            </Button>
-
             <Button variant="ghost" size="sm" onClick={handleLogout} className="h-9 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800">
               <Icon name="LogOut" size={14} className="mr-1.5" />
               <span className="text-xs hidden md:inline">Выйти</span>

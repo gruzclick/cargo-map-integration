@@ -5,7 +5,6 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import Icon from '@/components/ui/icon';
 import { useToast } from '@/hooks/use-toast';
-import FaceIDAuth from '@/components/FaceIDAuth';
 
 interface AdminLoginFormProps {
   onSuccess: (token: string, admin: any) => void;
@@ -17,129 +16,18 @@ export const AdminLoginForm = ({ onSuccess, onShowForgotPassword }: AdminLoginFo
   const [theme, setTheme] = useState<'light' | 'dark'>('dark');
   const [isRegisterMode, setIsRegisterMode] = useState(false);
   const [loginData, setLoginData] = useState({ 
-    email: '', 
+    telegram: '', 
     password: '', 
     full_name: ''
   });
   const [showLoginPassword, setShowLoginPassword] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [biometricAvailable, setBiometricAvailable] = useState(false);
 
   useEffect(() => {
     const savedTheme = localStorage.getItem('admin_theme') as 'light' | 'dark' || 'dark';
     setTheme(savedTheme);
     document.documentElement.classList.toggle('dark', savedTheme === 'dark');
-    
-    checkBiometricAvailability();
   }, []);
-
-  const checkBiometricAvailability = async () => {
-    if (window.PublicKeyCredential) {
-      const available = await PublicKeyCredential.isUserVerifyingPlatformAuthenticatorAvailable();
-      setBiometricAvailable(available);
-    }
-  };
-
-  const tryBiometricLogin = async () => {
-    const biometricEnabled = localStorage.getItem('biometric_enabled') === 'true';
-    const savedCredential = localStorage.getItem('biometric_credential');
-
-    if (!biometricEnabled || !savedCredential) return;
-
-    try {
-      const challenge = new Uint8Array(32);
-      crypto.getRandomValues(challenge);
-
-      const credential = await navigator.credentials.get({
-        publicKey: {
-          challenge: challenge,
-          rpId: window.location.hostname,
-          allowCredentials: [{
-            id: new Uint8Array(JSON.parse(savedCredential).rawId),
-            type: 'public-key',
-            transports: ['internal']
-          }],
-          userVerification: 'required',
-          timeout: 60000
-        }
-      });
-
-      if (credential) {
-        toast({
-          title: 'Биометрия подтверждена',
-          description: 'Выполняется вход...'
-        });
-      }
-    } catch (error) {
-      console.log('Биометрическая аутентификация не удалась');
-    }
-  };
-
-  const handleBiometricLogin = async () => {
-    try {
-      const challenge = new Uint8Array(32);
-      crypto.getRandomValues(challenge);
-
-      const savedCredential = localStorage.getItem('biometric_credential');
-      if (!savedCredential) {
-        toast({
-          title: 'Ошибка',
-          description: 'Биометрия не настроена',
-          variant: 'destructive'
-        });
-        return;
-      }
-
-      const credential = await navigator.credentials.get({
-        publicKey: {
-          challenge: challenge,
-          rpId: window.location.hostname,
-          allowCredentials: [{
-            id: new Uint8Array(JSON.parse(savedCredential).rawId),
-            type: 'public-key',
-            transports: ['internal']
-          }],
-          userVerification: 'required',
-          timeout: 60000
-        }
-      });
-
-      if (credential) {
-        setLoading(true);
-        
-        const response = await fetch('https://functions.poehali.dev/f06efb37-9437-4df8-8032-f2ba53b2e2d6', {
-          method: 'POST',
-          headers: { 'Content-Type': 'text/plain' },
-          body: JSON.stringify({
-            action: 'login',
-            email: localStorage.getItem('biometric_email') || '',
-            password: localStorage.getItem('biometric_password_hash') || ''
-          })
-        });
-
-        const data = await response.json();
-
-        if (!response.ok) {
-          throw new Error(data.error || 'Ошибка входа');
-        }
-
-        toast({
-          title: 'Вход выполнен',
-          description: `Добро пожаловать, ${data.admin.full_name}!`
-        });
-
-        onSuccess(data.token, data.admin);
-      }
-    } catch (error: any) {
-      toast({
-        title: 'Ошибка',
-        description: 'Биометрическая аутентификация не удалась',
-        variant: 'destructive'
-      });
-    } finally {
-      setLoading(false);
-    }
-  };
 
   const toggleTheme = () => {
     const newTheme = theme === 'dark' ? 'light' : 'dark';
@@ -149,7 +37,7 @@ export const AdminLoginForm = ({ onSuccess, onShowForgotPassword }: AdminLoginFo
   };
 
   const handleAuth = async () => {
-    if (!loginData.email || !loginData.password) {
+    if (!loginData.telegram || !loginData.password) {
       toast({
         title: 'Ошибка',
         description: 'Заполните все поля',
@@ -177,7 +65,7 @@ export const AdminLoginForm = ({ onSuccess, onShowForgotPassword }: AdminLoginFo
       const mockToken = 'admin_token_' + Date.now();
       const mockAdmin = {
         id: 'admin-1',
-        email: loginData.email,
+        telegram: loginData.telegram,
         full_name: loginData.full_name || 'Администратор'
       };
 
@@ -237,13 +125,13 @@ export const AdminLoginForm = ({ onSuccess, onShowForgotPassword }: AdminLoginFo
           )}
           
           <div className="space-y-2">
-            <Label htmlFor="email" className="text-gray-900 dark:text-gray-100">Email</Label>
+            <Label htmlFor="telegram" className="text-gray-900 dark:text-gray-100">Telegram</Label>
             <Input
-              id="email"
-              type="email"
-              placeholder="admin@example.com"
-              value={loginData.email}
-              onChange={(e) => setLoginData({...loginData, email: e.target.value})}
+              id="telegram"
+              type="text"
+              placeholder="@username"
+              value={loginData.telegram}
+              onChange={(e) => setLoginData({...loginData, telegram: e.target.value})}
               className="bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-700 text-gray-900 dark:text-gray-100"
             />
           </div>
@@ -285,35 +173,6 @@ export const AdminLoginForm = ({ onSuccess, onShowForgotPassword }: AdminLoginFo
           </Button>
 
           {!isRegisterMode && (
-            <div className="mt-6">
-              <FaceIDAuth 
-                mode="login" 
-                onSuccess={() => {
-                  const mockToken = 'face_id_admin_token_' + Date.now();
-                  const mockAdmin = {
-                    id: 'admin-1',
-                    email: 'admin@gruzclick.ru',
-                    full_name: 'Администратор'
-                  };
-                  onSuccess(mockToken, mockAdmin);
-                }}
-              />
-            </div>
-          )}
-
-          {!isRegisterMode && biometricAvailable && (
-            <Button
-              variant="outline"
-              className="w-full border-blue-500 dark:border-blue-600 text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/20"
-              onClick={handleBiometricLogin}
-              disabled={loading}
-            >
-              <Icon name="Fingerprint" size={18} className="mr-2" />
-              Войти по биометрии
-            </Button>
-          )}
-
-          {!isRegisterMode && (
             <Button
               variant="link"
               className="w-full text-blue-500 dark:text-blue-400 hover:text-blue-600 dark:hover:text-blue-300"
@@ -327,7 +186,7 @@ export const AdminLoginForm = ({ onSuccess, onShowForgotPassword }: AdminLoginFo
             <button
               onClick={() => {
                 setIsRegisterMode(!isRegisterMode);
-                setLoginData({ email: '', password: '', full_name: '' });
+                setLoginData({ telegram: '', password: '', full_name: '' });
               }}
               className="text-blue-500 dark:text-blue-400 hover:underline"
             >
