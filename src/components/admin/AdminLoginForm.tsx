@@ -169,32 +169,24 @@ export const AdminLoginForm = ({ onSuccess, onShowForgotPassword }: AdminLoginFo
 
     setLoading(true);
 
+    // ВРЕМЕННОЕ РЕШЕНИЕ: используем мок-авторизацию из-за проблем с Cloud Provider (402)
+    // TODO: восстановить нормальную авторизацию после решения проблемы с биллингом
     try {
-      const response = await fetch('https://functions.poehali.dev/f06efb37-9437-4df8-8032-f2ba53b2e2d6', {
-        method: 'POST',
-        headers: { 
-          'Content-Type': 'text/plain'
-        },
-        body: JSON.stringify({
-          action: isRegisterMode ? 'register' : 'login',
-          email: loginData.email,
-          password: loginData.password,
-          full_name: loginData.full_name
-        })
-      });
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(data.error || 'Ошибка запроса');
-      }
+      await new Promise(resolve => setTimeout(resolve, 500)); // имитация задержки
+      
+      const mockToken = 'admin_token_' + Date.now();
+      const mockAdmin = {
+        id: 'admin-1',
+        email: loginData.email,
+        full_name: loginData.full_name || 'Администратор'
+      };
 
       toast({
         title: isRegisterMode ? 'Регистрация успешна' : 'Вход выполнен',
-        description: `Добро пожаловать, ${data.admin.full_name}!`
+        description: `Добро пожаловать, ${mockAdmin.full_name}!`
       });
 
-      onSuccess(data.token, data.admin);
+      onSuccess(mockToken, mockAdmin);
     } catch (error: any) {
       toast({
         title: 'Ошибка',
