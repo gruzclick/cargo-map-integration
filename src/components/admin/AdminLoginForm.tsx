@@ -172,7 +172,11 @@ export const AdminLoginForm = ({ onSuccess, onShowForgotPassword }: AdminLoginFo
     try {
       const response = await fetch('https://functions.poehali.dev/f06efb37-9437-4df8-8032-f2ba53b2e2d6', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 
+          'Content-Type': 'application/json'
+        },
+        mode: 'cors',
+        credentials: 'omit',
         body: JSON.stringify({
           action: isRegisterMode ? 'register' : 'login',
           email: loginData.email,

@@ -186,6 +186,7 @@ def send_telegram(chat_id: str, code: str) -> bool:
 
 def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
     method: str = event.get('httpMethod', 'GET')
+    print(f"Received request: method={method}, path={event.get('path', 'N/A')}")
     
     if method == 'OPTIONS':
         return {
