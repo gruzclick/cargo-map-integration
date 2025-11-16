@@ -735,7 +735,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                     'isBase64Encoded': False
                 }
             
-            admin_id = token_check['admin']['id']
+            admin_id = token_check['admin_id']
             
             cur.execute(
                 "UPDATE admins SET telegram_chat_id = %s WHERE id = %s",
