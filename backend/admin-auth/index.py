@@ -11,11 +11,10 @@ import secrets
 import re
 from typing import Dict, Any, List
 from datetime import datetime, timedelta
-import smtplib
-from email.mime.text import MIMEText
-from email.mime.multipart import MIMEMultipart
 import psycopg2
 from psycopg2.extras import RealDictCursor
+import urllib.request
+import urllib.parse
 
 class ValidationError(Exception):
     pass
@@ -183,56 +182,7 @@ def send_telegram(chat_id: str, code: str) -> bool:
         print(f"Failed to send Telegram message: {str(e)}")
         return False
 
-def send_email(to_email: str, code: str) -> bool:
-    smtp_host = os.environ.get('SMTP_HOST')
-    smtp_port = int(os.environ.get('SMTP_PORT', '587'))
-    smtp_user = os.environ.get('SMTP_USER')
-    smtp_password = os.environ.get('SMTP_PASSWORD')
-    
-    if not all([smtp_host, smtp_user, smtp_password]):
-        print(f"SMTP not configured: host={smtp_host}, user={smtp_user}, password={'set' if smtp_password else 'not set'}")
-        return False
-    
-    msg = MIMEMultipart('alternative')
-    msg['Subject'] = 'Код восстановления пароля - ГрузКлик Админ'
-    msg['From'] = smtp_user
-    msg['To'] = to_email
-    
-    text = f"""
-Здравствуйте!
 
-Ваш код для восстановления пароля администратора: {code}
-
-Код действителен 15 минут.
-
-ГрузКлик
-    """
-    
-    html = f"""
-    <html>
-      <body style="font-family: Arial, sans-serif;">
-        <h2>Восстановление пароля</h2>
-        <p>Ваш код:</p>
-        <div style="background: #f0f0f0; padding: 20px; font-size: 24px; font-weight: bold; text-align: center;">{code}</div>
-        <p style="color: #666; font-size: 12px;">Код действителен 15 минут.</p>
-      </body>
-    </html>
-    """
-    
-    msg.attach(MIMEText(text, 'plain', 'utf-8'))
-    msg.attach(MIMEText(html, 'html', 'utf-8'))
-    
-    try:
-        server = smtplib.SMTP(smtp_host, smtp_port, timeout=10)
-        server.starttls()
-        server.login(smtp_user, smtp_password)
-        server.send_message(msg)
-        server.quit()
-        print(f"Email sent successfully to {to_email}")
-        return True
-    except Exception as e:
-        print(f"Failed to send email: {str(e)}")
-        return False
 
 def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
     method: str = event.get('httpMethod', 'GET')
@@ -428,8 +378,6 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                     'isBase64Encoded': False
                 }
             
-            method = body_data.get('method', 'email')
-            
             cur.execute("SELECT id, telegram_chat_id FROM admins WHERE email = %s", (email,))
             admin = cur.fetchone()
             
@@ -437,7 +385,15 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                 return {
                     'statusCode': 404,
                     'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
-                    'body': json.dumps({'error': 'Admin not found'}),
+                    'body': json.dumps({'error': 'Администратор не найден'}),
+                    'isBase64Encoded': False
+                }
+            
+            if not admin.get('telegram_chat_id'):
+                return {
+                    'statusCode': 400,
+                    'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                    'body': json.dumps({'error': 'Telegram не подключен. Привяжите Chat ID в настройках.'}),
                     'isBase64Encoded': False
                 }
             
@@ -450,46 +406,22 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             )
             conn.commit()
             
-            sent = False
-            sent_via = []
+            telegram_sent = send_telegram(str(admin['telegram_chat_id']), code)
             
-            if method == 'telegram':
-                if admin.get('telegram_chat_id'):
-                    telegram_sent = send_telegram(str(admin['telegram_chat_id']), code)
-                    if telegram_sent:
-                        sent = True
-                        sent_via.append('telegram')
-                else:
-                    return {
-                        'statusCode': 400,
-                        'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
-                        'body': json.dumps({'error': 'Telegram не подключен к аккаунту администратора'}),
-                        'isBase64Encoded': False
-                    }
-            elif method == 'email':
-                email_sent = send_email(email, code)
-                if email_sent:
-                    sent = True
-                    sent_via.append('email')
-            elif method == 'both':
-                email_sent = send_email(email, code)
-                if email_sent:
-                    sent = True
-                    sent_via.append('email')
-                
-                if admin.get('telegram_chat_id'):
-                    telegram_sent = send_telegram(str(admin['telegram_chat_id']), code)
-                    if telegram_sent:
-                        sent = True
-                        sent_via.append('telegram')
+            if not telegram_sent:
+                return {
+                    'statusCode': 500,
+                    'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                    'body': json.dumps({'error': 'Не удалось отправить код в Telegram. Проверьте настройки бота.'}),
+                    'isBase64Encoded': False
+                }
             
             return {
                 'statusCode': 200,
                 'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
                 'body': json.dumps({
-                    'message': f'Код отправлен через {", ".join(sent_via)}' if sent else 'Код создан (методы отправки не настроены)',
-                    'sent': sent,
-                    'sent_via': sent_via
+                    'message': 'Код отправлен в Telegram',
+                    'sent': True
                 }),
                 'isBase64Encoded': False
             }

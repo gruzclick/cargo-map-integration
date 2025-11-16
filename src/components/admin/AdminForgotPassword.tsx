@@ -19,7 +19,6 @@ export const AdminForgotPassword = ({ onBack }: AdminForgotPasswordProps) => {
   const [resetStep, setResetStep] = useState<'email' | 'code' | 'password'>('email');
   const [showNewPassword, setShowNewPassword] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [sendMethod, setSendMethod] = useState<'email' | 'telegram' | 'both'>('email');
 
   useEffect(() => {
     const savedTheme = localStorage.getItem('admin_theme') as 'light' | 'dark' || 'dark';
@@ -53,8 +52,7 @@ export const AdminForgotPassword = ({ onBack }: AdminForgotPasswordProps) => {
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             action: 'send_reset_code',
-            email: resetEmail,
-            method: sendMethod
+            email: resetEmail
           })
         });
 
@@ -64,10 +62,9 @@ export const AdminForgotPassword = ({ onBack }: AdminForgotPasswordProps) => {
           throw new Error(data.error || 'Ошибка отправки кода');
         }
 
-        const methodText = sendMethod === 'email' ? 'email' : sendMethod === 'telegram' ? 'Telegram' : 'email и Telegram';
         toast({
           title: 'Код отправлен',
-          description: `Код восстановления отправлен через ${methodText}`
+          description: 'Код восстановления отправлен в Telegram'
         });
         setResetStep('code');
       } catch (error: any) {
@@ -185,36 +182,13 @@ export const AdminForgotPassword = ({ onBack }: AdminForgotPasswordProps) => {
                 />
               </div>
               
-              <div className="space-y-2">
-                <Label className="text-gray-900 dark:text-gray-100">Способ отправки кода</Label>
-                <div className="grid grid-cols-3 gap-2">
-                  <Button
-                    type="button"
-                    variant={sendMethod === 'email' ? 'default' : 'outline'}
-                    onClick={() => setSendMethod('email')}
-                    className="flex items-center gap-2"
-                  >
-                    <Icon name="Mail" size={16} />
-                    Email
-                  </Button>
-                  <Button
-                    type="button"
-                    variant={sendMethod === 'telegram' ? 'default' : 'outline'}
-                    onClick={() => setSendMethod('telegram')}
-                    className="flex items-center gap-2"
-                  >
-                    <Icon name="Send" size={16} />
-                    Telegram
-                  </Button>
-                  <Button
-                    type="button"
-                    variant={sendMethod === 'both' ? 'default' : 'outline'}
-                    onClick={() => setSendMethod('both')}
-                    className="flex items-center gap-2"
-                  >
-                    <Icon name="Zap" size={16} />
-                    Оба
-                  </Button>
+              <div className="bg-blue-50 dark:bg-blue-950 border border-blue-200 dark:border-blue-800 rounded-lg p-4">
+                <div className="flex items-start gap-3">
+                  <Icon name="Send" size={20} className="text-blue-600 dark:text-blue-400 mt-0.5" />
+                  <div>
+                    <p className="text-sm font-medium text-blue-900 dark:text-blue-100">Код придёт в Telegram</p>
+                    <p className="text-xs text-blue-700 dark:text-blue-300 mt-1">Убедитесь, что Chat ID привязан в настройках админ-панели</p>
+                  </div>
                 </div>
               </div>
 
