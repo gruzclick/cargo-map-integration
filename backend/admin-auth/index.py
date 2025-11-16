@@ -118,7 +118,7 @@ def verify_admin_token(token: str, conn) -> Dict[str, Any]:
         return {'valid': False, 'error': 'Требуется токен администратора'}
     
     cur = conn.cursor()
-    cur.execute("SELECT id, email, full_name, is_active FROM admins WHERE is_active = true")
+    cur.execute("SELECT id, email, full_name, is_active FROM t_p93479485_cargo_map_integratio.admins WHERE is_active = true")
     admins = cur.fetchall()
     
     for admin in admins:
@@ -273,7 +273,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                     'isBase64Encoded': False
                 }
             
-            cur.execute("SELECT id FROM admins WHERE email = %s", (email,))
+            cur.execute("SELECT id FROM t_p93479485_cargo_map_integratio.admins WHERE email = %s", (email,))
             if cur.fetchone():
                 return {
                     'statusCode': 400,
@@ -287,7 +287,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             
             cur.execute(
                 """
-                INSERT INTO admins (email, password_hash, full_name, two_factor_secret)
+                INSERT INTO t_p93479485_cargo_map_integratio.admins (email, password_hash, full_name, two_factor_secret)
                 VALUES (%s, %s, %s, %s)
                 RETURNING id, email, full_name, created_at
                 """,
@@ -328,7 +328,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             password_hash = hash_password(password)
             
             cur.execute(
-                "SELECT id, email, full_name, is_active FROM admins WHERE email = %s AND password_hash = %s",
+                "SELECT id, email, full_name, is_active FROM t_p93479485_cargo_map_integratio.admins WHERE email = %s AND password_hash = %s",
                 (email, password_hash)
             )
             admin = cur.fetchone()
@@ -379,7 +379,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                     'isBase64Encoded': False
                 }
             
-            cur.execute("SELECT id, telegram_chat_id FROM admins WHERE email = %s", (email,))
+            cur.execute("SELECT id, telegram_chat_id FROM t_p93479485_cargo_map_integratio.admins WHERE email = %s", (email,))
             admin = cur.fetchone()
             
             if not admin:
@@ -402,7 +402,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             expires_at = datetime.now() + timedelta(minutes=15)
             
             cur.execute(
-                "INSERT INTO password_reset_codes (email, code, expires_at) VALUES (%s, %s, %s)",
+                "INSERT INTO t_p93479485_cargo_map_integratio.password_reset_codes (email, code, expires_at) VALUES (%s, %s, %s)",
                 (email, code, expires_at)
             )
             conn.commit()
@@ -442,7 +442,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             
             cur.execute(
                 """
-                SELECT id FROM password_reset_codes 
+                SELECT id FROM t_p93479485_cargo_map_integratio.password_reset_codes 
                 WHERE email = %s AND code = %s AND used = false AND expires_at > NOW()
                 ORDER BY created_at DESC LIMIT 1
                 """,
@@ -461,12 +461,12 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             password_hash = hash_password(new_password)
             
             cur.execute(
-                "UPDATE admins SET password_hash = %s, updated_at = NOW() WHERE email = %s",
+                "UPDATE t_p93479485_cargo_map_integratio.admins SET password_hash = %s, updated_at = NOW() WHERE email = %s",
                 (password_hash, email)
             )
             
             cur.execute(
-                "UPDATE password_reset_codes SET used = true WHERE id = %s",
+                "UPDATE t_p93479485_cargo_map_integratio.password_reset_codes SET used = true WHERE id = %s",
                 (reset_code['id'],)
             )
             
@@ -738,7 +738,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             admin_id = token_check['admin_id']
             
             cur.execute(
-                "UPDATE admins SET telegram_chat_id = %s WHERE id = %s",
+                "UPDATE t_p93479485_cargo_map_integratio.admins SET telegram_chat_id = %s WHERE id = %s",
                 (int(telegram_chat_id), admin_id)
             )
             conn.commit()
@@ -932,7 +932,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             current_password_hash = hash_password(current_password)
             
             cur.execute(
-                "SELECT id, email FROM admins WHERE id = %s AND password_hash = %s AND is_active = true",
+                "SELECT id, email FROM t_p93479485_cargo_map_integratio.admins WHERE id = %s AND password_hash = %s AND is_active = true",
                 (token_check['admin_id'], current_password_hash)
             )
             admin = cur.fetchone()
@@ -948,7 +948,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             new_password_hash = hash_password(new_password)
             
             cur.execute(
-                "UPDATE admins SET password_hash = %s WHERE id = %s",
+                "UPDATE t_p93479485_cargo_map_integratio.admins SET password_hash = %s WHERE id = %s",
                 (new_password_hash, token_check['admin_id'])
             )
             conn.commit()
