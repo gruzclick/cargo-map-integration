@@ -1,6 +1,6 @@
 import funcUrls from '../../backend/func2url.json';
 
-const API_BASE_URL = funcUrls['map-data'];
+const ADMIN_API_URL = funcUrls['admin-auth'];
 
 export interface UserStats {
   total: number;
@@ -11,7 +11,7 @@ export interface UserStats {
 }
 
 export const getUserStats = async (): Promise<UserStats> => {
-  const response = await fetch(`${API_BASE_URL}?path=/stats`, {
+  const response = await fetch(`${ADMIN_API_URL}?path=/api/stats/public`, {
     method: 'GET',
     headers: {
       'Content-Type': 'application/json'
