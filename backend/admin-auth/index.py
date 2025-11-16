@@ -273,7 +273,8 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                     'isBase64Encoded': False
                 }
             
-            cur.execute("SELECT id FROM t_p93479485_cargo_map_integratio.admins WHERE email = %s", (email,))
+            email_escaped = email.replace("'", "''")
+            cur.execute(f"SELECT id FROM t_p93479485_cargo_map_integratio.admins WHERE email = '{email_escaped}'")
             if cur.fetchone():
                 return {
                     'statusCode': 400,
@@ -285,14 +286,13 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             password_hash = hash_password(password)
             two_factor_secret = secrets.token_hex(16)
             
-            cur.execute(
-                """
+            email_escaped = email.replace("'", "''")
+            full_name_escaped = full_name.replace("'", "''")
+            cur.execute(f"""
                 INSERT INTO t_p93479485_cargo_map_integratio.admins (email, password_hash, full_name, two_factor_secret)
-                VALUES (%s, %s, %s, %s)
+                VALUES ('{email_escaped}', '{password_hash}', '{full_name_escaped}', '{two_factor_secret}')
                 RETURNING id, email, full_name, created_at
-                """,
-                (email, password_hash, full_name, two_factor_secret)
-            )
+            """)
             admin = cur.fetchone()
             conn.commit()
             
@@ -327,10 +327,13 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             
             password_hash = hash_password(password)
             
-            cur.execute(
-                "SELECT id, email, full_name, is_active FROM t_p93479485_cargo_map_integratio.admins WHERE email = %s AND password_hash = %s",
-                (email, password_hash)
-            )
+            # Simple Query Protocol - embed values directly with proper escaping
+            email_escaped = email.replace("'", "''")
+            cur.execute(f"""
+                SELECT id, email, full_name, is_active 
+                FROM t_p93479485_cargo_map_integratio.admins 
+                WHERE email = '{email_escaped}' AND password_hash = '{password_hash}'
+            """)
             admin = cur.fetchone()
             
             if not admin:
@@ -379,7 +382,8 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                     'isBase64Encoded': False
                 }
             
-            cur.execute("SELECT id, telegram_chat_id FROM t_p93479485_cargo_map_integratio.admins WHERE email = %s", (email,))
+            email_escaped = email.replace("'", "''")
+            cur.execute(f"SELECT id, telegram_chat_id FROM t_p93479485_cargo_map_integratio.admins WHERE email = '{email_escaped}'")
             admin = cur.fetchone()
             
             if not admin:
@@ -401,10 +405,8 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             code = ''.join([str(secrets.randbelow(10)) for _ in range(6)])
             expires_at = datetime.now() + timedelta(minutes=15)
             
-            cur.execute(
-                "INSERT INTO t_p93479485_cargo_map_integratio.password_reset_codes (email, code, expires_at) VALUES (%s, %s, %s)",
-                (email, code, expires_at)
-            )
+            email_escaped = email.replace("'", "''")
+            cur.execute(f"INSERT INTO t_p93479485_cargo_map_integratio.password_reset_codes (email, code, expires_at) VALUES ('{email_escaped}', '{code}', '{expires_at}')")
             conn.commit()
             
             telegram_sent = send_telegram(str(admin['telegram_chat_id']), code)
@@ -440,14 +442,13 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                     'isBase64Encoded': False
                 }
             
-            cur.execute(
-                """
+            email_escaped = email.replace("'", "''")
+            code_escaped = code.replace("'", "''")
+            cur.execute(f"""
                 SELECT id FROM t_p93479485_cargo_map_integratio.password_reset_codes 
-                WHERE email = %s AND code = %s AND used = false AND expires_at > NOW()
+                WHERE email = '{email_escaped}' AND code = '{code_escaped}' AND used = false AND expires_at > NOW()
                 ORDER BY created_at DESC LIMIT 1
-                """,
-                (email, code)
-            )
+            """)
             reset_code = cur.fetchone()
             
             if not reset_code:
@@ -460,15 +461,10 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             
             password_hash = hash_password(new_password)
             
-            cur.execute(
-                "UPDATE t_p93479485_cargo_map_integratio.admins SET password_hash = %s, updated_at = NOW() WHERE email = %s",
-                (password_hash, email)
-            )
+            email_escaped = email.replace("'", "''")
+            cur.execute(f"UPDATE t_p93479485_cargo_map_integratio.admins SET password_hash = '{password_hash}', updated_at = NOW() WHERE email = '{email_escaped}'")
             
-            cur.execute(
-                "UPDATE t_p93479485_cargo_map_integratio.password_reset_codes SET used = true WHERE id = %s",
-                (reset_code['id'],)
-            )
+            cur.execute(f"UPDATE t_p93479485_cargo_map_integratio.password_reset_codes SET used = true WHERE id = {reset_code['id']}")
             
             conn.commit()
             
@@ -608,7 +604,8 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                 }
             
             email_verified = True if status == 'active' else False
-            cur.execute("UPDATE t_p93479485_cargo_map_integratio.users SET email_verified = %s WHERE user_id = %s", (email_verified, user_id))
+            user_id_escaped = str(user_id).replace("'", "''")
+            cur.execute(f"UPDATE t_p93479485_cargo_map_integratio.users SET email_verified = {email_verified} WHERE user_id = '{user_id_escaped}'")
             conn.commit()
             
             return {
@@ -630,7 +627,9 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                     'isBase64Encoded': False
                 }
             
-            cur.execute("UPDATE t_p93479485_cargo_map_integratio.deliveries SET status = %s WHERE delivery_id = %s", (status, delivery_id))
+            status_escaped = status.replace("'", "''")
+            delivery_id_escaped = str(delivery_id).replace("'", "''")
+            cur.execute(f"UPDATE t_p93479485_cargo_map_integratio.deliveries SET status = '{status_escaped}' WHERE delivery_id = '{delivery_id_escaped}'")
             conn.commit()
             
             return {
@@ -737,10 +736,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             
             admin_id = token_check['admin_id']
             
-            cur.execute(
-                "UPDATE t_p93479485_cargo_map_integratio.admins SET telegram_chat_id = %s WHERE id = %s",
-                (int(telegram_chat_id), admin_id)
-            )
+            cur.execute(f"UPDATE t_p93479485_cargo_map_integratio.admins SET telegram_chat_id = {int(telegram_chat_id)} WHERE id = {admin_id}")
             conn.commit()
             
             return {
@@ -772,10 +768,8 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             
             deleted_count = 0
             for email in test_emails:
-                cur.execute(
-                    "DELETE FROM t_p93479485_cargo_map_integratio.users WHERE email = %s",
-                    (email,)
-                )
+                email_escaped = email.replace("'", "''")
+                cur.execute(f"DELETE FROM t_p93479485_cargo_map_integratio.users WHERE email = '{email_escaped}'")
                 deleted_count += cur.rowcount
             
             conn.commit()
@@ -891,7 +885,8 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                     'isBase64Encoded': False
                 }
             
-            cur.execute("DELETE FROM t_p93479485_cargo_map_integratio.admins WHERE email = %s", (admin_email,))
+            admin_email_escaped = admin_email.replace("'", "''")
+            cur.execute(f"DELETE FROM t_p93479485_cargo_map_integratio.admins WHERE email = '{admin_email_escaped}'")
             deleted_count = cur.rowcount
             conn.commit()
             
@@ -931,10 +926,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             
             current_password_hash = hash_password(current_password)
             
-            cur.execute(
-                "SELECT id, email FROM t_p93479485_cargo_map_integratio.admins WHERE id = %s AND password_hash = %s AND is_active = true",
-                (token_check['admin_id'], current_password_hash)
-            )
+            cur.execute(f"SELECT id, email FROM t_p93479485_cargo_map_integratio.admins WHERE id = {token_check['admin_id']} AND password_hash = '{current_password_hash}' AND is_active = true")
             admin = cur.fetchone()
             
             if not admin:
@@ -947,10 +939,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             
             new_password_hash = hash_password(new_password)
             
-            cur.execute(
-                "UPDATE t_p93479485_cargo_map_integratio.admins SET password_hash = %s WHERE id = %s",
-                (new_password_hash, token_check['admin_id'])
-            )
+            cur.execute(f"UPDATE t_p93479485_cargo_map_integratio.admins SET password_hash = '{new_password_hash}' WHERE id = {token_check['admin_id']}")
             conn.commit()
             
             new_token = generate_token(token_check['admin_id'], token_check['email'])
