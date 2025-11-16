@@ -87,7 +87,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                 SELECT cargo_id, name, details, weight, lat, lng, status, cargo_type,
                        ready_status, ready_time, quantity, destination_warehouse, 
                        client_address, client_rating
-                FROM cargo 
+                FROM t_p93479485_cargo_map_integratio.cargo 
                 WHERE status = 'waiting'
                 LIMIT 100
             """)
@@ -97,7 +97,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             cur.execute("""
                 SELECT driver_id, name, vehicle_type, capacity, lat, lng, status, vehicle_category,
                        rating, free_space, destination_warehouse, phone
-                FROM drivers
+                FROM t_p93479485_cargo_map_integratio.drivers
                 LIMIT 100
             """)
             driver_rows = cur.fetchall()
@@ -180,7 +180,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                 
                 # Simple Query - embed values directly
                 cur.execute(f"""
-                    UPDATE drivers 
+                    UPDATE t_p93479485_cargo_map_integratio.drivers 
                     SET lat = {lat}, lng = {lng}, updated_at = CURRENT_TIMESTAMP 
                     WHERE driver_id = '{user_id}'
                 """)
@@ -191,7 +191,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                 
                 # Simple Query - embed values directly
                 cur.execute(f"""
-                    UPDATE drivers 
+                    UPDATE t_p93479485_cargo_map_integratio.drivers 
                     SET status = '{status}', updated_at = CURRENT_TIMESTAMP 
                     WHERE driver_id = '{user_id}'
                 """)
@@ -202,7 +202,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                 
                 # Simple Query - embed values directly
                 cur.execute(f"""
-                    UPDATE cargo 
+                    UPDATE t_p93479485_cargo_map_integratio.cargo 
                     SET status = 'accepted', driver_id = '{driver_id}', updated_at = CURRENT_TIMESTAMP 
                     WHERE cargo_id = '{cargo_id}'
                 """)
