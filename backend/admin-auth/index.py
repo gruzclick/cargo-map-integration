@@ -320,6 +320,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                 email = validate_email(body_data.get('email'))
                 password = validate_password(body_data.get('password'), min_length=1)
             except ValidationError as e:
+                print(f"Validation error: {e}")
                 return {
                     'statusCode': 400,
                     'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
@@ -328,6 +329,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                 }
             
             password_hash = hash_password(password)
+            print(f"Login attempt: email={email}, password_hash={password_hash}")
             
             # Simple Query Protocol - embed values directly with proper escaping
             email_escaped = email.replace("'", "''")
@@ -337,6 +339,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                 WHERE email = '{email_escaped}' AND password_hash = '{password_hash}'
             """)
             admin = cur.fetchone()
+            print(f"Found admin: {admin is not None}")
             
             if not admin:
                 rate_limiter.check_rate_limit(ip, max_attempts=5, window_seconds=300)
