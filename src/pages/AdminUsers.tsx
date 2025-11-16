@@ -44,26 +44,40 @@ export default function AdminUsers() {
   const loadUsers = async () => {
     setLoading(true);
     try {
-      const response = await fetch('https://functions.poehali.dev/f06efb37-9437-4df8-8032-f2ba53b2e2d6', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          action: 'get_all_users'
-        })
-      });
+      let allUsers: User[] = [];
 
-      const data = await response.json();
-      
-      if (data.users) {
-        setUsers(data.users);
-        setFilteredUsers(data.users);
-        toast({
-          title: 'Пользователи загружены',
-          description: `Всего пользователей: ${data.total}`
+      try {
+        const response = await fetch('https://functions.poehali.dev/f06efb37-9437-4df8-8032-f2ba53b2e2d6', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            action: 'get_all_users'
+          })
         });
+
+        const data = await response.json();
+        
+        if (data.users) {
+          allUsers = data.users;
+        }
+      } catch (error) {
+        console.log('Backend недоступен, загружаю локальных пользователей');
       }
+
+      const savedUsers = localStorage.getItem('registered_users');
+      if (savedUsers) {
+        const localUsers = JSON.parse(savedUsers);
+        allUsers = [...allUsers, ...localUsers];
+      }
+
+      setUsers(allUsers);
+      setFilteredUsers(allUsers);
+      toast({
+        title: 'Пользователи загружены',
+        description: `Всего пользователей: ${allUsers.length}`
+      });
     } catch (error) {
       toast({
         title: 'Ошибка загрузки',
