@@ -31,7 +31,6 @@ export const AdminLoginForm = ({ onSuccess, onShowForgotPassword }: AdminLoginFo
     document.documentElement.classList.toggle('dark', savedTheme === 'dark');
     
     checkBiometricAvailability();
-    tryBiometricLogin();
   }, []);
 
   const checkBiometricAvailability = async () => {
