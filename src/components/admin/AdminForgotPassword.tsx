@@ -224,9 +224,7 @@ export const AdminForgotPassword = ({ onBack }: AdminForgotPasswordProps) => {
                   className="bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-700 text-gray-900 dark:text-gray-100"
                 />
                 <p className="text-xs text-gray-500 dark:text-gray-400">
-                  {sendMethod === 'email' && 'Проверьте email'}
-                  {sendMethod === 'telegram' && 'Проверьте Telegram'}
-                  {sendMethod === 'both' && 'Проверьте email или Telegram'}
+                  Проверьте Telegram
                 </p>
               </div>
               <Button 
