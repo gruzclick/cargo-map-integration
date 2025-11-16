@@ -211,7 +211,9 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
     
     try:
         body_data = json.loads(event.get('body', '{}'))
-    except json.JSONDecodeError:
+        print(f"Parsed body_data: {body_data}")
+    except json.JSONDecodeError as e:
+        print(f"JSON decode error: {e}")
         return {
             'statusCode': 400,
             'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
@@ -226,6 +228,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                        'get_user_analytics', 'update_telegram_chat_id']
     
     action = body_data.get('action')
+    print(f"Action: {action}")
     
     ip = event.get('requestContext', {}).get('identity', {}).get('sourceIp', 'unknown')
     
