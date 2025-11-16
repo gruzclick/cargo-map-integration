@@ -8,7 +8,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
     Business: Get real-time map data with cargo and drivers positions + user statistics
     Args: event - dict with httpMethod (GET, POST, OPTIONS), path for /stats endpoint
           context - object with request_id attribute
-    Returns: HTTP response with markers data or user statistics
+    Returns: HTTP response with markers data or user statistics (updated)
     '''
     method: str = event.get('httpMethod', 'GET')
     path: str = event.get('path', '/')
