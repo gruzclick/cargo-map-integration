@@ -221,7 +221,8 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
     allowed_actions = ['register', 'login', 'send_reset_code', 'verify_reset_code', 'reset_password', 
                        'get_stats', 'get_users', 'get_deliveries', 'update_delivery_status', 'update_user_status',
                        'delete_test_users', 'get_biometric_status', 'save_biometric', 'get_all_users',
-                       'delete_table_data', 'clear_all_test_data', 'delete_admin', 'change_password']
+                       'delete_table_data', 'clear_all_test_data', 'delete_admin', 'change_password', 
+                       'get_user_analytics', 'update_telegram_chat_id']
     
     action = body_data.get('action')
     
