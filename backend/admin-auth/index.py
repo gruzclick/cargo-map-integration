@@ -226,9 +226,10 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
     
     action = body_data.get('action')
     
+    ip = event.get('requestContext', {}).get('identity', {}).get('sourceIp', 'unknown')
+    
     auth_actions = ['register', 'login', 'send_reset_code', 'verify_reset_code', 'reset_password']
     if action in auth_actions:
-        ip = event.get('requestContext', {}).get('identity', {}).get('sourceIp', 'unknown')
         
         rate_check = rate_limiter.check_rate_limit(ip, max_attempts=5, window_seconds=300)
         if not rate_check['allowed']:
