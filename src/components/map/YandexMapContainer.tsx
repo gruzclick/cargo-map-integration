@@ -60,7 +60,7 @@ const YandexMapContainer = ({ filteredMarkers, isPublic, onMarkerClick, onMapLoa
         const map = new (window as any).ymaps.Map(mapRef.current, {
           center: [55.7558, 37.6173],
           zoom: 13,
-          controls: [],
+          controls: ['zoomControl'],
           options: {
             copyrightLogoVisible: false,
             copyrightProvidersVisible: false,
