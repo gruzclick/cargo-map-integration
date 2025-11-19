@@ -89,21 +89,6 @@ const Index = () => {
   const handleAuthSuccess = (userData: any) => {
     setUser(userData);
     setShowAuth(false);
-    
-    // Показываем подсказку про быстрый вход после первой регистрации
-    const hasSeenBiometricHint = localStorage.getItem('biometric_hint_shown');
-    if (!hasSeenBiometricHint) {
-      setTimeout(() => {
-        const userConfirm = window.confirm(
-          'Хотите настроить быстрый вход по биометрии (отпечаток пальца / Face ID)? Это сделает вход в приложение мгновенным и безопасным.'
-        );
-        if (userConfirm) {
-          // Здесь можно открыть модальное окно настройки биометрии
-          localStorage.setItem('biometric_enabled', 'true');
-        }
-        localStorage.setItem('biometric_hint_shown', 'true');
-      }, 2000);
-    }
   };
 
   if (!user && !showAuth) {

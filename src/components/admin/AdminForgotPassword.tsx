@@ -13,10 +13,10 @@ interface AdminForgotPasswordProps {
 export const AdminForgotPassword = ({ onBack }: AdminForgotPasswordProps) => {
   const { toast } = useToast();
   const [theme, setTheme] = useState<'light' | 'dark'>('dark');
-  const [resetEmail, setResetEmail] = useState('');
+  const [resetTelegram, setResetTelegram] = useState('');
   const [resetCode, setResetCode] = useState('');
   const [newPassword, setNewPassword] = useState('');
-  const [resetStep, setResetStep] = useState<'email' | 'code' | 'password'>('email');
+  const [resetStep, setResetStep] = useState<'telegram' | 'code' | 'password'>('telegram');
   const [showNewPassword, setShowNewPassword] = useState(false);
   const [loading, setLoading] = useState(false);
 
@@ -34,11 +34,11 @@ export const AdminForgotPassword = ({ onBack }: AdminForgotPasswordProps) => {
   };
 
   const handleForgotPassword = async () => {
-    if (resetStep === 'email') {
-      if (!resetEmail) {
+    if (resetStep === 'telegram') {
+      if (!resetTelegram) {
         toast({
           title: 'Ошибка',
-          description: 'Введите email',
+          description: 'Введите Telegram',
           variant: 'destructive'
         });
         return;
@@ -52,7 +52,7 @@ export const AdminForgotPassword = ({ onBack }: AdminForgotPasswordProps) => {
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             action: 'send_reset_code',
-            email: resetEmail
+            telegram: resetTelegram
           })
         });
 
@@ -109,7 +109,7 @@ export const AdminForgotPassword = ({ onBack }: AdminForgotPasswordProps) => {
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             action: 'reset_password',
-            email: resetEmail,
+            telegram: resetTelegram,
             code: resetCode,
             new_password: newPassword
           })
@@ -126,8 +126,8 @@ export const AdminForgotPassword = ({ onBack }: AdminForgotPasswordProps) => {
           description: 'Войдите с новым паролем'
         });
         
-        setResetStep('email');
-        setResetEmail('');
+        setResetStep('telegram');
+        setResetTelegram('');
         setResetCode('');
         setNewPassword('');
         onBack();
@@ -154,7 +154,7 @@ export const AdminForgotPassword = ({ onBack }: AdminForgotPasswordProps) => {
                 Восстановление пароля
               </CardTitle>
               <CardDescription className="text-gray-600 dark:text-gray-400">
-                Сброс пароля администратора
+                Сброс пароля администратора через Telegram
               </CardDescription>
             </div>
             <Button 
@@ -168,16 +168,16 @@ export const AdminForgotPassword = ({ onBack }: AdminForgotPasswordProps) => {
           </div>
         </CardHeader>
         <CardContent className="space-y-4">
-          {resetStep === 'email' && (
+          {resetStep === 'telegram' && (
             <>
               <div className="space-y-2">
-                <Label htmlFor="resetEmail" className="text-gray-900 dark:text-gray-100">Email администратора</Label>
+                <Label htmlFor="resetTelegram" className="text-gray-900 dark:text-gray-100">Telegram администратора</Label>
                 <Input
-                  id="resetEmail"
-                  type="email"
-                  placeholder="admin@example.com"
-                  value={resetEmail}
-                  onChange={(e) => setResetEmail(e.target.value)}
+                  id="resetTelegram"
+                  type="text"
+                  placeholder="@username"
+                  value={resetTelegram}
+                  onChange={(e) => setResetTelegram(e.target.value)}
                   className="bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-700 text-gray-900 dark:text-gray-100"
                 />
               </div>
@@ -187,7 +187,7 @@ export const AdminForgotPassword = ({ onBack }: AdminForgotPasswordProps) => {
                   <Icon name="Send" size={20} className="text-blue-600 dark:text-blue-400 mt-0.5" />
                   <div>
                     <p className="text-sm font-medium text-blue-900 dark:text-blue-100">Код придёт в Telegram</p>
-                    <p className="text-xs text-blue-700 dark:text-blue-300 mt-1">Убедитесь, что Chat ID привязан в настройках админ-панели</p>
+                    <p className="text-xs text-blue-700 dark:text-blue-300 mt-1">Убедитесь, что ваш Telegram привязан к админ-панели</p>
                   </div>
                 </div>
               </div>
@@ -244,7 +244,7 @@ export const AdminForgotPassword = ({ onBack }: AdminForgotPasswordProps) => {
                   <Input
                     id="newPassword"
                     type={showNewPassword ? 'text' : 'password'}
-                    placeholder="••••••••"
+                    placeholder="Минимум 6 символов"
                     value={newPassword}
                     onChange={(e) => setNewPassword(e.target.value)}
                     className="pr-10 bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-700 text-gray-900 dark:text-gray-100"
@@ -258,6 +258,7 @@ export const AdminForgotPassword = ({ onBack }: AdminForgotPasswordProps) => {
                   </button>
                 </div>
               </div>
+
               <Button 
                 className="w-full" 
                 onClick={handleForgotPassword}
@@ -269,17 +270,18 @@ export const AdminForgotPassword = ({ onBack }: AdminForgotPasswordProps) => {
                     Сохранение...
                   </>
                 ) : (
-                  'Изменить пароль'
+                  'Сохранить новый пароль'
                 )}
               </Button>
             </>
           )}
 
           <Button
-            variant="outline"
-            className="w-full border-gray-300 dark:border-gray-700 text-gray-900 dark:text-gray-100"
+            variant="ghost"
+            className="w-full text-gray-600 dark:text-gray-400"
             onClick={onBack}
           >
+            <Icon name="ArrowLeft" size={16} className="mr-2" />
             Назад к входу
           </Button>
         </CardContent>
