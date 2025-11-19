@@ -80,7 +80,7 @@ export const DataManagement = () => {
 
       if (response.ok && data.success) {
         toast({
-          title: '✅ Все тестовые данные удалены',
+          title: '✅ Все данные удалены',
           description: `Удалено записей: ${JSON.stringify(data.deleted)}`,
         });
       } else {
@@ -151,7 +151,7 @@ export const DataManagement = () => {
             Управление данными
           </CardTitle>
           <CardDescription className="text-gray-600 dark:text-gray-400">
-            Удаление тестовых данных из базы данных
+            Удаление данных из базы данных
           </CardDescription>
         </CardHeader>
       </Card>
@@ -190,7 +190,7 @@ export const DataManagement = () => {
             Опасная зона
           </CardTitle>
           <CardDescription className="text-red-700 dark:text-red-300">
-            Удалить ВСЕ тестовые данные из всех таблиц (необратимо!)
+            Удалить ВСЕ данные из всех таблиц (необратимо!)
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -215,7 +215,7 @@ export const DataManagement = () => {
             </AlertDialogTitle>
             <AlertDialogDescription className="text-gray-600 dark:text-gray-400">
               {deleteTarget === 'all' 
-                ? 'Вы уверены, что хотите удалить ВСЕ тестовые данные? Это действие необратимо и удалит все записи из всех таблиц.'
+                ? 'Вы уверены, что хотите удалить ВСЕ данные? Это действие необратимо и удалит все записи из всех таблиц.'
                 : `Вы уверены, что хотите удалить все данные из категории "${dataCategories.find(c => c.id === deleteTarget)?.title}"? Это действие необратимо.`
               }
             </AlertDialogDescription>

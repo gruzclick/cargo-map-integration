@@ -7,7 +7,7 @@ import { secureLocalStorage } from '@/utils/security';
 import { DashboardStats } from './DashboardStats';
 import { UsersTable } from './UsersTable';
 import { DeliveriesTable } from './DeliveriesTable';
-import { BiometricSettings } from './BiometricSettings';
+
 import { DataManagement } from './DataManagement';
 import { ChangePassword } from './ChangePassword';
 import { UserAnalytics } from './UserAnalytics';
@@ -241,12 +241,11 @@ export const AdminDashboard = ({ onLogout }: AdminDashboardProps) => {
         <DashboardStats stats={stats} loading={loading} />
 
         <Tabs defaultValue="overview" className="w-full">
-          <TabsList className="grid w-full grid-cols-2 md:grid-cols-7 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800">
+          <TabsList className="grid w-full grid-cols-2 md:grid-cols-6 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800">
             <TabsTrigger value="overview" className="data-[state=active]:bg-gray-100 dark:data-[state=active]:bg-gray-800 text-gray-900 dark:text-gray-100">Обзор</TabsTrigger>
             <TabsTrigger value="users" className="data-[state=active]:bg-gray-100 dark:data-[state=active]:bg-gray-800 text-gray-900 dark:text-gray-100">Пользователи</TabsTrigger>
             <TabsTrigger value="orders" className="data-[state=active]:bg-gray-100 dark:data-[state=active]:bg-gray-800 text-gray-900 dark:text-gray-100">Заказы</TabsTrigger>
             <TabsTrigger value="telegram" className="data-[state=active]:bg-gray-100 dark:data-[state=active]:bg-gray-800 text-gray-900 dark:text-gray-100">Telegram</TabsTrigger>
-            <TabsTrigger value="biometric" className="data-[state=active]:bg-gray-100 dark:data-[state=active]:bg-gray-800 text-gray-900 dark:text-gray-100">Биометрия</TabsTrigger>
             <TabsTrigger value="data" className="data-[state=active]:bg-gray-100 dark:data-[state=active]:bg-gray-800 text-gray-900 dark:text-gray-100">База данных</TabsTrigger>
             <TabsTrigger value="password" className="data-[state=active]:bg-gray-100 dark:data-[state=active]:bg-gray-800 text-gray-900 dark:text-gray-100">Пароль</TabsTrigger>
           </TabsList>
@@ -319,7 +318,7 @@ export const AdminDashboard = ({ onLogout }: AdminDashboardProps) => {
                     <Icon name="Target" size={24} />
                     Маркетинг
                   </CardTitle>
-                  <CardDescription className="text-gray-600 dark:text-gray-400">Промокоды, акции, A/B</CardDescription>
+                  <CardDescription className="text-gray-600 dark:text-gray-400">Промокоды и специальные предложения</CardDescription>
                 </CardHeader>
               </Card>
 
@@ -329,17 +328,7 @@ export const AdminDashboard = ({ onLogout }: AdminDashboardProps) => {
                     <Icon name="Shield" size={24} />
                     Безопасность
                   </CardTitle>
-                  <CardDescription className="text-blue-700 dark:text-blue-300">Аудит, логи доступа, 2FA</CardDescription>
-                </CardHeader>
-              </Card>
-
-              <Card className="bg-gradient-to-br from-red-50 to-orange-50 dark:from-red-900/20 dark:to-orange-900/20 border-red-300 dark:border-red-800 hover:shadow-lg transition-shadow cursor-pointer" onClick={() => window.location.href = '/admin/security-guide'}>
-                <CardHeader>
-                  <CardTitle className="text-red-900 dark:text-red-100 flex items-center gap-2">
-                    <Icon name="ShieldAlert" size={24} />
-                    Руководство
-                  </CardTitle>
-                  <CardDescription className="text-red-700 dark:text-red-300">Инструкции по защите</CardDescription>
+                  <CardDescription className="text-blue-700 dark:text-blue-300">Пароль, логи доступа, восстановление</CardDescription>
                 </CardHeader>
               </Card>
             </div>
@@ -364,10 +353,6 @@ export const AdminDashboard = ({ onLogout }: AdminDashboardProps) => {
 
           <TabsContent value="telegram" className="space-y-4">
             <TelegramSettings />
-          </TabsContent>
-
-          <TabsContent value="biometric" className="space-y-4">
-            <BiometricSettings />
           </TabsContent>
 
           <TabsContent value="data" className="space-y-4">

@@ -190,14 +190,23 @@ export default function AdminUsers() {
   return (
     <div className="min-h-screen bg-background p-4">
       <div className="max-w-7xl mx-auto">
-        <div className="flex items-center gap-4 mb-6">
+        <div className="flex items-center justify-between mb-6">
+          <div className="flex items-center gap-4">
+            <Button
+              variant="ghost"
+              onClick={() => window.history.back()}
+            >
+              <Icon name="ArrowLeft" size={20} />
+            </Button>
+            <h1 className="text-3xl font-bold">Управление пользователями</h1>
+          </div>
           <Button
             variant="ghost"
-            onClick={() => window.history.back()}
+            onClick={() => window.location.href = '/profile'}
           >
-            <Icon name="ArrowLeft" size={20} />
+            <Icon name="User" size={20} className="mr-2" />
+            Профиль
           </Button>
-          <h1 className="text-3xl font-bold">Управление пользователями</h1>
         </div>
 
         <Card>

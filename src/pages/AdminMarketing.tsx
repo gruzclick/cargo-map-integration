@@ -3,12 +3,10 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Textarea } from '@/components/ui/textarea';
 import Icon from '@/components/ui/icon';
 import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Switch } from '@/components/ui/switch';
 import {
   Select,
   SelectContent,
@@ -37,43 +35,17 @@ interface Promo {
   expiryDate: string;
 }
 
-interface Campaign {
-  id: string;
-  name: string;
-  type: 'discount' | 'referral' | 'ab_test';
-  status: 'active' | 'paused' | 'completed';
-  target: string;
-  conversions: number;
-  budget: number;
-  spent: number;
-  startDate: string;
-  endDate: string;
-}
-
 const promosData: Promo[] = [];
-
-const campaignsData: Campaign[] = [];
 
 export default function AdminMarketing() {
   const { toast } = useToast();
   const [promos, setPromos] = useState<Promo[]>(promosData);
-  const [campaigns, setCampaigns] = useState<Campaign[]>(campaignsData);
   const [newPromo, setNewPromo] = useState({
     code: '',
     discount: 10,
     type: 'percent' as 'percent' | 'fixed',
     minAmount: 0,
     maxUses: 100
-  });
-
-  const [referralSettings, setReferralSettings] = useState(() => {
-    const saved = localStorage.getItem('referral_settings');
-    return saved ? JSON.parse(saved) : {
-      enabled: true,
-      referrerBonus: 500,
-      refereeBonus: 300,
-      activationCondition: 'После первого заказа'
-    };
   });
 
   const handleCreatePromo = () => {
@@ -122,14 +94,6 @@ export default function AdminMarketing() {
     });
   };
 
-  const handleSaveReferralSettings = () => {
-    localStorage.setItem('referral_settings', JSON.stringify(referralSettings));
-    toast({
-      title: 'Настройки сохранены',
-      description: 'Реферальная программа обновлена'
-    });
-  };
-
   return (
     <div className="min-h-screen bg-background p-4">
       <div className="max-w-7xl mx-auto space-y-6">
@@ -142,15 +106,13 @@ export default function AdminMarketing() {
               <Icon name="Target" size={32} />
               Маркетинг
             </h1>
-            <p className="text-muted-foreground">Промокоды, акции и целевые кампании</p>
+            <p className="text-muted-foreground">Промокоды и специальные предложения</p>
           </div>
         </div>
 
         <Tabs defaultValue="promos" className="w-full">
-          <TabsList className="grid w-full grid-cols-1 md:grid-cols-3">
+          <TabsList className="grid w-full grid-cols-1">
             <TabsTrigger value="promos">Промокоды</TabsTrigger>
-            <TabsTrigger value="campaigns">Кампании</TabsTrigger>
-            <TabsTrigger value="referral">Реферальная программа</TabsTrigger>
           </TabsList>
 
           <TabsContent value="promos" className="space-y-4">
@@ -242,12 +204,10 @@ export default function AdminMarketing() {
                         <TableRow>
                           <TableHead>Код</TableHead>
                           <TableHead>Скидка</TableHead>
-                          <TableHead className="hidden md:table-cell">Мин. сумма</TableHead>
-                          <TableHead className="hidden md:table-cell">Использовано</TableHead>
-                          <TableHead className="hidden lg:table-cell">Лимит</TableHead>
-                          <TableHead className="hidden lg:table-cell">Срок до</TableHead>
+                          <TableHead>Мин. сумма</TableHead>
+                          <TableHead>Использований</TableHead>
                           <TableHead>Статус</TableHead>
-                          <TableHead className="text-right">Действия</TableHead>
+                          <TableHead>Действия</TableHead>
                         </TableRow>
                       </TableHeader>
                       <TableBody>
@@ -255,28 +215,30 @@ export default function AdminMarketing() {
                           <TableRow key={promo.id}>
                             <TableCell className="font-mono font-bold">{promo.code}</TableCell>
                             <TableCell>
-                              {promo.discount}{promo.type === 'percent' ? '%' : '₽'}
+                              {promo.type === 'percent' 
+                                ? `${promo.discount}%` 
+                                : `${promo.discount} ₽`}
                             </TableCell>
-                            <TableCell className="hidden md:table-cell">{promo.minAmount}₽</TableCell>
-                            <TableCell className="hidden md:table-cell">{promo.used}</TableCell>
-                            <TableCell className="hidden lg:table-cell">{promo.maxUses}</TableCell>
-                            <TableCell className="hidden lg:table-cell">{promo.expiryDate}</TableCell>
+                            <TableCell>{promo.minAmount} ₽</TableCell>
+                            <TableCell>
+                              {promo.used} / {promo.maxUses}
+                            </TableCell>
                             <TableCell>
                               <Badge variant={promo.active ? 'default' : 'secondary'}>
-                                {promo.active ? 'Активен' : 'Отключен'}
+                                {promo.active ? 'Активен' : 'Неактивен'}
                               </Badge>
                             </TableCell>
-                            <TableCell className="text-right">
-                              <div className="flex gap-2 justify-end">
+                            <TableCell>
+                              <div className="flex items-center gap-2">
                                 <Button
-                                  variant="ghost"
+                                  variant="outline"
                                   size="sm"
                                   onClick={() => handleTogglePromo(promo.id)}
                                 >
-                                  <Icon name={promo.active ? "Pause" : "Play"} size={16} />
+                                  <Icon name={promo.active ? 'Pause' : 'Play'} size={16} />
                                 </Button>
                                 <Button
-                                  variant="ghost"
+                                  variant="outline"
                                   size="sm"
                                   onClick={() => handleDeletePromo(promo.id)}
                                 >
@@ -290,200 +252,6 @@ export default function AdminMarketing() {
                     </Table>
                   </div>
                 )}
-              </CardContent>
-            </Card>
-          </TabsContent>
-
-          <TabsContent value="campaigns" className="space-y-4">
-            <Card>
-              <CardHeader>
-                <div className="flex items-center justify-between">
-                  <div>
-                    <CardTitle>Целевые кампании</CardTitle>
-                    <CardDescription>A/B тестирование и таргетированные акции</CardDescription>
-                  </div>
-                  <Button>
-                    <Icon name="Plus" size={16} className="mr-2" />
-                    Создать кампанию
-                  </Button>
-                </div>
-              </CardHeader>
-              <CardContent>
-                {campaigns.length === 0 ? (
-                  <div className="text-center py-12 text-muted-foreground">
-                    <Icon name="Target" size={64} className="mx-auto mb-4 opacity-20" />
-                    <p className="text-lg">Кампании не созданы</p>
-                    <p className="text-sm">Создайте первую кампанию для таргетированного маркетинга</p>
-                  </div>
-                ) : (
-                  <div className="space-y-4">
-                    {campaigns.map((campaign) => (
-                      <div key={campaign.id} className="p-4 border rounded-lg">
-                        <div className="flex items-start justify-between mb-3">
-                          <div>
-                            <h3 className="font-semibold text-lg flex items-center gap-2">
-                              {campaign.name}
-                              <Badge variant={campaign.status === 'active' ? 'default' : 'secondary'}>
-                                {campaign.status === 'active' ? 'Активна' : campaign.status}
-                              </Badge>
-                            </h3>
-                            <p className="text-sm text-muted-foreground mt-1">
-                              <Icon name="Target" size={14} className="inline mr-1" />
-                              {campaign.target}
-                            </p>
-                          </div>
-                          <div className="text-right">
-                            <p className="text-2xl font-bold text-green-600">{campaign.conversions}</p>
-                            <p className="text-xs text-muted-foreground">конверсий</p>
-                          </div>
-                        </div>
-
-                        <div className="grid grid-cols-4 gap-4 mb-3">
-                          <div>
-                            <p className="text-xs text-muted-foreground">Бюджет</p>
-                            <p className="font-semibold">{campaign.budget.toLocaleString('ru-RU')} ₽</p>
-                          </div>
-                          <div>
-                            <p className="text-xs text-muted-foreground">Потрачено</p>
-                            <p className="font-semibold">{campaign.spent.toLocaleString('ru-RU')} ₽</p>
-                          </div>
-                          <div>
-                            <p className="text-xs text-muted-foreground">Начало</p>
-                            <p className="font-semibold">{campaign.startDate}</p>
-                          </div>
-                          <div>
-                            <p className="text-xs text-muted-foreground">Конец</p>
-                            <p className="font-semibold">{campaign.endDate}</p>
-                          </div>
-                        </div>
-
-                        <div className="flex items-center gap-2">
-                          <div className="flex-1 bg-muted rounded-full h-2">
-                            <div
-                              className="bg-green-500 h-2 rounded-full transition-all"
-                              style={{ width: `${(campaign.spent / campaign.budget) * 100}%` }}
-                            />
-                          </div>
-                          <span className="text-sm text-muted-foreground">
-                            {Math.round((campaign.spent / campaign.budget) * 100)}%
-                          </span>
-                        </div>
-
-                        <div className="flex gap-2 mt-3">
-                          <Button variant="outline" size="sm" onClick={() => toast({ title: 'Статистика', description: 'Данные по кампании загружаются...' })}>
-                            <Icon name="BarChart3" size={14} className="mr-1" />
-                            Статистика
-                          </Button>
-                          <Button variant="outline" size="sm" onClick={() => toast({ title: 'Редактирование', description: 'Откроется редактор кампании' })}>
-                            <Icon name="Edit" size={14} className="mr-1" />
-                            Редактировать
-                          </Button>
-                          <Button variant="outline" size="sm" onClick={() => toast({ title: 'Кампания приостановлена', description: 'Показы акции временно отключены' })}>
-                            <Icon name="Pause" size={14} className="mr-1" />
-                            Приостановить
-                          </Button>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                )}
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardHeader>
-                <CardTitle>Что такое A/B тестирование?</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <p className="text-sm text-muted-foreground">
-                  A/B тестирование — это метод сравнения двух версий страницы или функции, чтобы определить какая работает лучше.
-                  Например, можно показать половине пользователей красную кнопку "Заказать", а второй половине — синюю,
-                  и посмотреть где будет больше кликов. Так вы узнаете что лучше привлекает клиентов.
-                </p>
-              </CardContent>
-            </Card>
-          </TabsContent>
-
-          <TabsContent value="referral" className="space-y-4">
-            <Card>
-              <CardHeader>
-                <CardTitle>Реферальная программа</CardTitle>
-                <CardDescription>Приводи друга — получи бонус</CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-6">
-                <div className="flex items-center justify-between p-4 bg-muted rounded-lg">
-                  <div className="space-y-1">
-                    <Label>Программа активна</Label>
-                    <p className="text-sm text-muted-foreground">Пользователи могут приглашать друзей</p>
-                  </div>
-                  <Switch 
-                    checked={referralSettings.enabled}
-                    onCheckedChange={(checked) => setReferralSettings({...referralSettings, enabled: checked})}
-                  />
-                </div>
-
-                <div className="space-y-2">
-                  <Label>Бонус приглашающему (₽)</Label>
-                  <Input 
-                    type="number" 
-                    value={referralSettings.referrerBonus} 
-                    onChange={(e) => setReferralSettings({...referralSettings, referrerBonus: parseInt(e.target.value)})}
-                    className="w-48" 
-                  />
-                </div>
-
-                <div className="space-y-2">
-                  <Label>Бонус приглашенному (₽)</Label>
-                  <Input 
-                    type="number" 
-                    value={referralSettings.refereeBonus}
-                    onChange={(e) => setReferralSettings({...referralSettings, refereeBonus: parseInt(e.target.value)})}
-                    className="w-48" 
-                  />
-                </div>
-
-                <div className="space-y-2">
-                  <Label>Условие активации</Label>
-                  <select 
-                    className="w-full p-2 border rounded-md bg-background"
-                    value={referralSettings.activationCondition}
-                    onChange={(e) => setReferralSettings({...referralSettings, activationCondition: e.target.value})}
-                  >
-                    <option>После первого заказа</option>
-                    <option>После регистрации</option>
-                    <option>После заказа на сумму от 1000₽</option>
-                  </select>
-                </div>
-
-                <Button onClick={handleSaveReferralSettings}>
-                  <Icon name="Save" size={16} className="mr-2" />
-                  Сохранить настройки
-                </Button>
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardHeader>
-                <CardTitle>Статистика реферальной программы</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                  <div className="p-4 border rounded-lg">
-                    <p className="text-sm text-muted-foreground mb-1">Приглашено</p>
-                    <p className="text-3xl font-bold">0</p>
-                    <p className="text-xs text-muted-foreground mt-1">пользователей</p>
-                  </div>
-                  <div className="p-4 border rounded-lg">
-                    <p className="text-sm text-muted-foreground mb-1">Активировано</p>
-                    <p className="text-3xl font-bold">0</p>
-                    <p className="text-xs text-muted-foreground mt-1">0% конверсия</p>
-                  </div>
-                  <div className="p-4 border rounded-lg">
-                    <p className="text-sm text-muted-foreground mb-1">Выплачено</p>
-                    <p className="text-3xl font-bold">0₽</p>
-                    <p className="text-xs text-muted-foreground mt-1">в бонусах</p>
-                  </div>
-                </div>
               </CardContent>
             </Card>
           </TabsContent>

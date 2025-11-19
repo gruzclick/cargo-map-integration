@@ -1,11 +1,10 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import Icon from '@/components/ui/icon';
 import { useToast } from '@/hooks/use-toast';
-import { Badge } from '@/components/ui/badge';
 import { secureLocalStorage } from '@/utils/security';
 
 export default function AdminSecurity() {
@@ -19,52 +18,8 @@ export default function AdminSecurity() {
   const [showCurrentPassword, setShowCurrentPassword] = useState(false);
   const [showNewPassword, setShowNewPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-  const [biometricAvailable, setBiometricAvailable] = useState(false);
-  const [biometricEnabled, setBiometricEnabled] = useState(false);
   const adminProfile = JSON.parse(secureLocalStorage.get('admin_profile') || '{}');
   const userEmail = adminProfile.email || 'Не указан';
-
-  useEffect(() => {
-    checkBiometricAvailability();
-    loadBiometricSettings();
-  }, []);
-
-  const loadBiometricSettings = async () => {
-    try {
-      const token = secureLocalStorage.get('admin_token');
-      const response = await fetch('https://functions.poehali.dev/f06efb37-9437-4df8-8032-f2ba53b2e2d6', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'X-Auth-Token': token || ''
-        },
-        body: JSON.stringify({
-          action: 'get_biometric_status'
-        })
-      });
-
-      if (response.ok) {
-        const data = await response.json();
-        setBiometricEnabled(data.biometric_enabled || false);
-        if (data.biometric_enabled) {
-          localStorage.setItem('biometric_enabled', 'true');
-        }
-      } else {
-        const localEnabled = localStorage.getItem('biometric_enabled') === 'true';
-        setBiometricEnabled(localEnabled);
-      }
-    } catch (error) {
-      const localEnabled = localStorage.getItem('biometric_enabled') === 'true';
-      setBiometricEnabled(localEnabled);
-    }
-  };
-
-  const checkBiometricAvailability = async () => {
-    if (window.PublicKeyCredential) {
-      const available = await PublicKeyCredential.isUserVerifyingPlatformAuthenticatorAvailable();
-      setBiometricAvailable(available);
-    }
-  };
 
   const handleChangePassword = () => {
     if (passwordData.currentPassword !== 'admin123') {
@@ -109,346 +64,180 @@ export default function AdminSecurity() {
 
   const handlePasswordRecovery = () => {
     toast({
-      title: 'Письмо отправлено',
-      description: 'Проверьте вашу почту для восстановления пароля'
+      title: 'Сообщение отправлено',
+      description: 'Ссылка для восстановления отправлена в Telegram'
     });
   };
 
-  const handleEnableBiometric = async () => {
-    try {
-      const challenge = new Uint8Array(32);
-      crypto.getRandomValues(challenge);
-
-      const credential = await navigator.credentials.create({
-        publicKey: {
-          challenge: challenge,
-          rp: {
-            name: "Admin Panel",
-            id: window.location.hostname
-          },
-          user: {
-            id: new Uint8Array(16),
-            name: userEmail,
-            displayName: adminProfile.full_name || userEmail
-          },
-          pubKeyCredParams: [
-            { alg: -7, type: "public-key" },
-            { alg: -257, type: "public-key" }
-          ],
-          authenticatorSelection: {
-            authenticatorAttachment: "platform",
-            userVerification: "required"
-          },
-          timeout: 60000,
-          attestation: "none"
-        }
-      });
-
-      if (credential) {
-        const credentialData = {
-          id: credential.id,
-          rawId: Array.from(new Uint8Array(credential.rawId))
-        };
-        
-        localStorage.setItem('biometric_enabled', 'true');
-        localStorage.setItem('biometric_credential', JSON.stringify(credentialData));
-
-        try {
-          const token = secureLocalStorage.get('admin_token');
-          await fetch('https://functions.poehali.dev/f06efb37-9437-4df8-8032-f2ba53b2e2d6', {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-              'X-Auth-Token': token || ''
-            },
-            body: JSON.stringify({
-              action: 'save_biometric',
-              biometric_enabled: true,
-              credential_id: credential.id
-            })
-          });
-        } catch (error) {
-          console.error('Failed to save biometric to server:', error);
-        }
-
-        setBiometricEnabled(true);
-        toast({
-          title: 'Биометрия настроена',
-          description: 'Теперь вы можете входить используя биометрию'
-        });
-      }
-    } catch (error) {
-      toast({
-        title: 'Ошибка',
-        description: 'Не удалось настроить биометрию. Попробуйте снова.',
-        variant: 'destructive'
-      });
-    }
-  };
-
-  const handleDisableBiometric = async () => {
-    try {
-      const challenge = new Uint8Array(32);
-      crypto.getRandomValues(challenge);
-      const credentialData = JSON.parse(localStorage.getItem('biometric_credential') || '{}');
-      
-      if (!credentialData.rawId) {
-        throw new Error('Credential not found');
-      }
-
-      await navigator.credentials.get({
-        publicKey: {
-          challenge: challenge,
-          allowCredentials: [{
-            id: new Uint8Array(credentialData.rawId),
-            type: 'public-key'
-          }],
-          timeout: 60000,
-          userVerification: 'required'
-        }
-      });
-
-      localStorage.removeItem('biometric_enabled');
-      localStorage.removeItem('biometric_credential');
-
-      try {
-        const token = secureLocalStorage.get('admin_token');
-        await fetch('https://functions.poehali.dev/f06efb37-9437-4df8-8032-f2ba53b2e2d6', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'X-Auth-Token': token || ''
-          },
-          body: JSON.stringify({
-            action: 'save_biometric',
-            biometric_enabled: false
-          })
-        });
-      } catch (error) {
-        console.error('Failed to update biometric on server:', error);
-      }
-
-      setBiometricEnabled(false);
-      toast({
-        title: 'Биометрия отключена',
-        description: 'Биометрическая аутентификация деактивирована'
-      });
-    } catch (error) {
-      toast({
-        title: 'Ошибка',
-        description: 'Требуется подтверждение биометрии для отключения',
-        variant: 'destructive'
-      });
-    }
-  };
-
-  const handleDeleteTestUsers = async () => {
-    try {
-      const token = secureLocalStorage.get('admin_token');
-      const response = await fetch('https://functions.poehali.dev/f06efb37-9437-4df8-8032-f2ba53b2e2d6', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'X-Auth-Token': token || ''
-        },
-        body: JSON.stringify({ action: 'delete_test_users' })
-      });
-
-      const data = await response.json();
-
-      if (response.ok) {
-        toast({
-          title: 'Успешно удалено',
-          description: data.message || 'Тестовые пользователи удалены'
-        });
-      } else {
-        toast({
-          title: 'Ошибка',
-          description: data.error || 'Не удалось удалить пользователей',
-          variant: 'destructive'
-        });
-      }
-    } catch (error) {
-      toast({
-        title: 'Ошибка',
-        description: 'Произошла ошибка при удалении',
-        variant: 'destructive'
-      });
-    }
-  };
-
   return (
-    <div className="space-y-6">
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Icon name="Lock" size={20} />
-            Безопасность и аутентификация
-          </CardTitle>
-          <CardDescription>
-            Управление паролями и методами входа в админ-панель
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-6">
-          <div className="space-y-4">
-            {biometricAvailable && (
-              <div className={`flex items-center justify-between p-4 border rounded-lg ${
-                biometricEnabled 
-                  ? 'bg-green-50 dark:bg-green-900/20 border-green-200 dark:border-green-800' 
-                  : 'bg-gray-50 dark:bg-gray-800 border-gray-200 dark:border-gray-700'
-              }`}>
-                <div className="flex items-center gap-3">
-                  <Icon 
-                    name="Fingerprint" 
-                    size={24} 
-                    className={biometricEnabled ? 'text-green-600 dark:text-green-400' : 'text-gray-600 dark:text-gray-400'} 
-                  />
-                  <div>
-                    <p className="font-medium">Биометрическая аутентификация</p>
-                    <p className="text-sm text-gray-600 dark:text-gray-400">
-                      {biometricEnabled ? 'Вход по отпечатку пальца или Face ID' : 'Используйте биометрию для входа'}
-                    </p>
-                  </div>
-                </div>
-                {biometricEnabled ? (
-                  <Button variant="outline" onClick={handleDisableBiometric}>
-                    Отключить
-                  </Button>
-                ) : (
-                  <Button onClick={handleEnableBiometric}>
-                    Настроить
-                  </Button>
-                )}
-              </div>
-            )}
-
-            <div className="flex items-center justify-between p-4 border rounded-lg">
-              <div className="flex items-center gap-3">
-                <Icon name="Key" size={24} />
-                <div>
-                  <p className="font-medium">Сменить пароль</p>
-                  <p className="text-sm text-gray-600 dark:text-gray-400">Обновите пароль для входа</p>
-                </div>
-              </div>
-              <Button onClick={() => setShowPasswordFields(!showPasswordFields)}>
-                {showPasswordFields ? 'Отменить' : 'Изменить'}
-              </Button>
-            </div>
-
-            {showPasswordFields && (
-              <Card className="border-2 border-blue-500/50">
-                <CardContent className="pt-6 space-y-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="current-password">Текущий пароль</Label>
-                    <div className="relative">
-                      <Input
-                        id="current-password"
-                        type={showCurrentPassword ? "text" : "password"}
-                        placeholder="Введите текущий пароль"
-                        value={passwordData.currentPassword}
-                        onChange={(e) => setPasswordData({ ...passwordData, currentPassword: e.target.value })}
-                        className="pr-10"
-                      />
-                      <button
-                        type="button"
-                        onClick={() => setShowCurrentPassword(!showCurrentPassword)}
-                        className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
-                      >
-                        <Icon name={showCurrentPassword ? "EyeOff" : "Eye"} size={18} />
-                      </button>
-                    </div>
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label htmlFor="new-password">Новый пароль</Label>
-                    <div className="relative">
-                      <Input
-                        id="new-password"
-                        type={showNewPassword ? "text" : "password"}
-                        placeholder="Введите новый пароль (минимум 8 символов)"
-                        value={passwordData.newPassword}
-                        onChange={(e) => setPasswordData({ ...passwordData, newPassword: e.target.value })}
-                        className="pr-10"
-                      />
-                      <button
-                        type="button"
-                        onClick={() => setShowNewPassword(!showNewPassword)}
-                        className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
-                      >
-                        <Icon name={showNewPassword ? "EyeOff" : "Eye"} size={18} />
-                      </button>
-                    </div>
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label htmlFor="confirm-password">Подтвердите пароль</Label>
-                    <div className="relative">
-                      <Input
-                        id="confirm-password"
-                        type={showConfirmPassword ? "text" : "password"}
-                        placeholder="Повторите новый пароль"
-                        value={passwordData.confirmPassword}
-                        onChange={(e) => setPasswordData({ ...passwordData, confirmPassword: e.target.value })}
-                        className="pr-10"
-                      />
-                      <button
-                        type="button"
-                        onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                        className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
-                      >
-                        <Icon name={showConfirmPassword ? "EyeOff" : "Eye"} size={18} />
-                      </button>
-                    </div>
-                  </div>
-
-                  <Button onClick={handleChangePassword} className="w-full">
-                    <Icon name="Check" size={18} className="mr-2" />
-                    Сохранить новый пароль
-                  </Button>
-                </CardContent>
-              </Card>
-            )}
-
-            <Card>
-              <CardHeader>
-                <CardTitle className="text-lg flex items-center gap-2">
-                  <Icon name="Mail" size={20} />
-                  Восстановление пароля
-                </CardTitle>
-                <CardDescription>Получите ссылку для сброса пароля на email</CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="space-y-2">
-                  <Label htmlFor="recovery-email">Email для восстановления</Label>
-                  <Input
-                    id="recovery-email"
-                    type="email"
-                    placeholder="admin@example.com"
-                    defaultValue={userEmail !== 'Не указан' ? userEmail : ''}
-                  />
-                </div>
-                <Button variant="outline" onClick={handlePasswordRecovery} className="w-full">
-                  <Icon name="Mail" size={16} className="mr-2" />
-                  Отправить письмо для восстановления
-                </Button>
-              </CardContent>
-            </Card>
-
-            <div className="flex items-center justify-between p-4 border rounded-lg border-red-200 dark:border-red-800 bg-red-50 dark:bg-red-900/20">
-              <div className="flex items-center gap-3">
-                <Icon name="Trash2" size={24} className="text-red-600 dark:text-red-400" />
-                <div>
-                  <p className="font-medium text-red-900 dark:text-red-100">Удалить тестовых пользователей</p>
-                  <p className="text-sm text-red-700 dark:text-red-300">Очистить БД от тестовых аккаунтов</p>
-                </div>
-              </div>
-              <Button variant="destructive" onClick={handleDeleteTestUsers}>
-                Удалить
-              </Button>
-            </div>
+    <div className="min-h-screen bg-background p-4">
+      <div className="max-w-4xl mx-auto space-y-6">
+        <div className="flex items-center gap-4 mb-6">
+          <Button variant="ghost" onClick={() => window.history.back()}>
+            <Icon name="ArrowLeft" size={20} />
+          </Button>
+          <div>
+            <h1 className="text-3xl font-bold flex items-center gap-2">
+              <Icon name="Shield" size={32} />
+              Безопасность и аутентификация
+            </h1>
+            <p className="text-muted-foreground">Управление паролем и восстановление доступа</p>
           </div>
-        </CardContent>
-      </Card>
+        </div>
+
+        <Card>
+          <CardHeader>
+            <CardTitle>Информация об аккаунте</CardTitle>
+            <CardDescription>Email для уведомлений</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="flex items-center gap-3 p-4 bg-muted rounded-lg">
+              <Icon name="Mail" size={24} className="text-muted-foreground" />
+              <div>
+                <p className="text-sm text-muted-foreground">Email</p>
+                <p className="font-medium">{userEmail}</p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader>
+            <CardTitle>Изменить пароль</CardTitle>
+            <CardDescription>Обновите пароль для входа в админ-панель</CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            {!showPasswordFields ? (
+              <Button onClick={() => setShowPasswordFields(true)} className="w-full">
+                <Icon name="Key" size={16} className="mr-2" />
+                Изменить пароль
+              </Button>
+            ) : (
+              <>
+                <div className="space-y-2">
+                  <Label htmlFor="current-password">Текущий пароль</Label>
+                  <div className="relative">
+                    <Input
+                      id="current-password"
+                      type={showCurrentPassword ? 'text' : 'password'}
+                      value={passwordData.currentPassword}
+                      onChange={(e) => setPasswordData({ ...passwordData, currentPassword: e.target.value })}
+                      placeholder="Введите текущий пароль"
+                    />
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="absolute right-2 top-1/2 -translate-y-1/2"
+                      onClick={() => setShowCurrentPassword(!showCurrentPassword)}
+                    >
+                      <Icon name={showCurrentPassword ? 'EyeOff' : 'Eye'} size={16} />
+                    </Button>
+                  </div>
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="new-password">Новый пароль</Label>
+                  <div className="relative">
+                    <Input
+                      id="new-password"
+                      type={showNewPassword ? 'text' : 'password'}
+                      value={passwordData.newPassword}
+                      onChange={(e) => setPasswordData({ ...passwordData, newPassword: e.target.value })}
+                      placeholder="Минимум 8 символов"
+                    />
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="absolute right-2 top-1/2 -translate-y-1/2"
+                      onClick={() => setShowNewPassword(!showNewPassword)}
+                    >
+                      <Icon name={showNewPassword ? 'EyeOff' : 'Eye'} size={16} />
+                    </Button>
+                  </div>
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="confirm-password">Подтвердите пароль</Label>
+                  <div className="relative">
+                    <Input
+                      id="confirm-password"
+                      type={showConfirmPassword ? 'text' : 'password'}
+                      value={passwordData.confirmPassword}
+                      onChange={(e) => setPasswordData({ ...passwordData, confirmPassword: e.target.value })}
+                      placeholder="Повторите новый пароль"
+                    />
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="absolute right-2 top-1/2 -translate-y-1/2"
+                      onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                    >
+                      <Icon name={showConfirmPassword ? 'EyeOff' : 'Eye'} size={16} />
+                    </Button>
+                  </div>
+                </div>
+
+                <div className="flex gap-2">
+                  <Button onClick={handleChangePassword} className="flex-1">
+                    Сохранить пароль
+                  </Button>
+                  <Button 
+                    variant="outline" 
+                    onClick={() => {
+                      setShowPasswordFields(false);
+                      setPasswordData({ currentPassword: '', newPassword: '', confirmPassword: '' });
+                    }}
+                  >
+                    Отмена
+                  </Button>
+                </div>
+              </>
+            )}
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader>
+            <CardTitle>Восстановление пароля</CardTitle>
+            <CardDescription>Получите ссылку для сброса пароля через Telegram</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="flex items-start gap-4 p-4 bg-blue-50 dark:bg-blue-950 rounded-lg mb-4">
+              <Icon name="Info" size={20} className="text-blue-600 mt-0.5" />
+              <div className="text-sm text-blue-900 dark:text-blue-100">
+                <p className="font-medium mb-1">Восстановление через Telegram</p>
+                <p>При запросе восстановления пароля ссылка будет отправлена в ваш Telegram. Убедитесь, что ваш аккаунт привязан к боту.</p>
+              </div>
+            </div>
+
+            <Button onClick={handlePasswordRecovery} variant="outline" className="w-full">
+              <Icon name="Send" size={16} className="mr-2" />
+              Отправить ссылку в Telegram
+            </Button>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader>
+            <CardTitle>История входов</CardTitle>
+            <CardDescription>Последние попытки входа в систему</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-3">
+              <div className="flex items-center justify-between p-3 border rounded-lg">
+                <div className="flex items-center gap-3">
+                  <div className="w-2 h-2 rounded-full bg-green-500" />
+                  <div>
+                    <p className="font-medium">Успешный вход</p>
+                    <p className="text-sm text-muted-foreground">Сегодня в {new Date().toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' })}</p>
+                  </div>
+                </div>
+                <Icon name="Check" size={20} className="text-green-600" />
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
     </div>
   );
 }
