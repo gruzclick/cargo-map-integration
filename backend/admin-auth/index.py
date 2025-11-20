@@ -225,7 +225,9 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                        'get_stats', 'get_users', 'get_deliveries', 'update_delivery_status', 'update_user_status',
                        'delete_test_users', 'get_biometric_status', 'save_biometric', 'get_all_users',
                        'delete_table_data', 'clear_all_test_data', 'delete_admin', 'change_password', 
-                       'get_user_analytics', 'update_telegram_chat_id']
+                       'get_user_analytics', 'update_telegram_chat_id',
+                       'update_profile', 'get_addresses', 'create_address', 'update_address', 'delete_address',
+                       'get_vehicles', 'create_vehicle', 'update_vehicle', 'delete_vehicle']
     
     action = body_data.get('action')
     print(f"Action: {action}")

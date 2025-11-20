@@ -79,12 +79,7 @@ export default function AdminNotifications() {
     audience: 'all',
     link: ''
   });
-  const [emailData, setEmailData] = useState({
-    subject: '',
-    body: '',
-    audience: 'all',
-    template: ''
-  });
+
 
   const handleSendPush = () => {
     if (!pushData.title || !pushData.body) {
@@ -104,45 +99,9 @@ export default function AdminNotifications() {
     setPushData({ title: '', body: '', audience: 'all', link: '' });
   };
 
-  const handleSendEmail = () => {
-    if (!emailData.subject || !emailData.body) {
-      toast({
-        title: 'Ошибка',
-        description: 'Заполните все поля',
-        variant: 'destructive'
-      });
-      return;
-    }
 
-    toast({
-      title: 'Email-рассылка запущена',
-      description: `Письма отправляются ${emailData.audience === 'all' ? 'всем пользователям' : 'выбранной группе'}`,
-    });
 
-    setEmailData({ subject: '', body: '', audience: 'all', template: '' });
-  };
 
-  const handleLoadTemplate = (templateId: string) => {
-    const templates: Record<string, { subject: string; body: string }> = {
-      '1': {
-        subject: 'Добро пожаловать в нашу платформу!',
-        body: 'Здравствуйте!\n\nМы рады приветствовать вас на нашей платформе доставки. Ваш аккаунт успешно создан.\n\nС уважением,\nКоманда поддержки'
-      },
-      '3': {
-        subject: 'Специальное предложение выходного дня!',
-        body: 'Только в эти выходные - скидка 20% на все доставки!\n\nУспейте воспользоваться предложением до понедельника.'
-      }
-    };
-
-    const template = templates[templateId];
-    if (template) {
-      setEmailData({ ...emailData, subject: template.subject, body: template.body });
-      toast({
-        title: 'Шаблон загружен',
-        description: 'Вы можете отредактировать текст перед отправкой',
-      });
-    }
-  };
 
   const getStatusBadge = (status: string) => {
     const variants: Record<string, { variant: 'default' | 'secondary' | 'destructive', text: string }> = {
@@ -166,14 +125,13 @@ export default function AdminNotifications() {
               <Icon name="Bell" size={32} />
               Уведомления
             </h1>
-            <p className="text-muted-foreground">Массовая рассылка push и email сообщений</p>
+            <p className="text-muted-foreground">Массовая рассылка push уведомлений</p>
           </div>
         </div>
 
         <Tabs defaultValue="push" className="w-full">
-          <TabsList className="grid w-full grid-cols-3">
+          <TabsList className="grid w-full grid-cols-2">
             <TabsTrigger value="push">Push-уведомления</TabsTrigger>
-            <TabsTrigger value="email">Email-рассылка</TabsTrigger>
             <TabsTrigger value="history">История</TabsTrigger>
           </TabsList>
 
@@ -277,84 +235,11 @@ export default function AdminNotifications() {
             </Card>
           </TabsContent>
 
-          <TabsContent value="email" className="space-y-4">
-            <Card>
-              <CardHeader>
-                <CardTitle>Отправить email-рассылку</CardTitle>
-                <CardDescription>Письмо на электронную почту пользователей</CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="space-y-2">
-                  <Label htmlFor="email-subject">Тема письма</Label>
-                  <Input
-                    id="email-subject"
-                    placeholder="Специальное предложение для вас!"
-                    value={emailData.subject}
-                    onChange={(e) => setEmailData({ ...emailData, subject: e.target.value })}
-                  />
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="email-body">Текст письма</Label>
-                  <Textarea
-                    id="email-body"
-                    placeholder="Здравствуйте!&#10;&#10;Мы рады предложить вам..."
-                    rows={8}
-                    value={emailData.body}
-                    onChange={(e) => setEmailData({ ...emailData, body: e.target.value })}
-                  />
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="email-audience">Кому отправить</Label>
-                  <Select value={emailData.audience} onValueChange={(val) => setEmailData({ ...emailData, audience: val })}>
-                    <SelectTrigger id="email-audience">
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="all">Всем пользователям (2,453)</SelectItem>
-                      <SelectItem value="clients">Только клиентам (1,678)</SelectItem>
-                      <SelectItem value="carriers">Только перевозчикам (775)</SelectItem>
-                      <SelectItem value="verified">С подтвержденной почтой (2,156)</SelectItem>
-                      <SelectItem value="subscribers">Подписанным на новости (1,892)</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-
-                <Button onClick={handleSendEmail} className="w-full" size="lg">
-                  <Icon name="Mail" size={20} className="mr-2" />
-                  Отправить email-рассылку
-                </Button>
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardHeader>
-                <CardTitle>Готовые шаблоны</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="grid grid-cols-2 gap-2">
-                  {templates.filter(t => t.type === 'email').map(template => (
-                    <Button
-                      key={template.id}
-                      variant="outline"
-                      className="justify-start"
-                      onClick={() => handleLoadTemplate(template.id)}
-                    >
-                      <Icon name="FileText" size={16} className="mr-2" />
-                      {template.name}
-                    </Button>
-                  ))}
-                </div>
-              </CardContent>
-            </Card>
-          </TabsContent>
-
           <TabsContent value="history">
             <Card>
               <CardHeader>
                 <CardTitle>История отправленных уведомлений</CardTitle>
-                <CardDescription>Все отправленные push и email за последние 30 дней</CardDescription>
+                <CardDescription>Все отправленные push за последние 30 дней</CardDescription>
               </CardHeader>
               <CardContent>
                 <Table>
