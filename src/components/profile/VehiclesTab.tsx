@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import Icon from '@/components/ui/icon';
 import { useToast } from '@/hooks/use-toast';
+import { ImageCropper } from '@/components/ImageCropper';
 
 interface Vehicle {
   id: string;
@@ -185,6 +186,8 @@ const VehicleForm = ({ vehicle, onSave, onClose }: any) => {
     color: vehicle?.color || '',
     photo: vehicle?.photo || ''
   });
+  const [tempPhoto, setTempPhoto] = useState<string | null>(null);
+  const [showCropper, setShowCropper] = useState(false);
 
   const handlePhotoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -197,13 +200,36 @@ const VehicleForm = ({ vehicle, onSave, onClose }: any) => {
 
     const reader = new FileReader();
     reader.onloadend = () => {
-      setFormData({ ...formData, photo: reader.result as string });
+      setTempPhoto(reader.result as string);
+      setShowCropper(true);
     };
     reader.readAsDataURL(file);
   };
 
+  const handleCropComplete = (croppedImage: string) => {
+    setFormData({ ...formData, photo: croppedImage });
+    setShowCropper(false);
+    setTempPhoto(null);
+  };
+
+  const handleCropCancel = () => {
+    setShowCropper(false);
+    setTempPhoto(null);
+  };
+
   return (
-    <div className="fixed inset-0 bg-black/70 flex items-end sm:items-center justify-center z-[60]">
+    <>
+      {showCropper && tempPhoto && (
+        <ImageCropper
+          image={tempPhoto}
+          onCropComplete={handleCropComplete}
+          onCancel={handleCropCancel}
+          aspectRatio={4 / 3}
+          shape="rect"
+        />
+      )}
+      
+      <div className="fixed inset-0 bg-black/70 flex items-end sm:items-center justify-center z-[60]">
       <div className="w-full sm:max-w-md bg-white dark:bg-[#212e3a] sm:rounded-t-2xl rounded-t-2xl max-h-[90vh] overflow-y-auto">
         <div className="sticky top-0 bg-white dark:bg-[#212e3a] border-b border-gray-200 dark:border-[#2b3943] p-4 flex items-center justify-between">
           <h2 className="text-lg font-semibold text-gray-900 dark:text-white">
@@ -328,5 +354,6 @@ const VehicleForm = ({ vehicle, onSave, onClose }: any) => {
         </div>
       </div>
     </div>
+    </>
   );
 };

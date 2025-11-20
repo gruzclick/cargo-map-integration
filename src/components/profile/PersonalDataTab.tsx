@@ -1,6 +1,7 @@
 import { useState, useRef } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import Icon from '@/components/ui/icon';
+import { ImageCropper } from '@/components/ImageCropper';
 
 interface PersonalDataTabProps {
   user: any;
@@ -16,6 +17,8 @@ export const PersonalDataTab = ({ user }: PersonalDataTabProps) => {
   const [company, setCompany] = useState(user?.company || '');
   const [inn, setInn] = useState(user?.inn || '');
   const [avatar, setAvatar] = useState(user?.avatar || '');
+  const [tempAvatar, setTempAvatar] = useState<string | null>(null);
+  const [showCropper, setShowCropper] = useState(false);
 
   const handleAvatarChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -32,9 +35,21 @@ export const PersonalDataTab = ({ user }: PersonalDataTabProps) => {
 
     const reader = new FileReader();
     reader.onloadend = () => {
-      setAvatar(reader.result as string);
+      setTempAvatar(reader.result as string);
+      setShowCropper(true);
     };
     reader.readAsDataURL(file);
+  };
+
+  const handleCropComplete = (croppedImage: string) => {
+    setAvatar(croppedImage);
+    setShowCropper(false);
+    setTempAvatar(null);
+  };
+
+  const handleCropCancel = () => {
+    setShowCropper(false);
+    setTempAvatar(null);
   };
 
   const handleSaveProfile = async () => {
@@ -72,8 +87,19 @@ export const PersonalDataTab = ({ user }: PersonalDataTabProps) => {
   };
 
   return (
-    <div className="bg-white dark:bg-[#212e3a]">
-      <div className="p-4 flex flex-col items-center">
+    <>
+      {showCropper && tempAvatar && (
+        <ImageCropper
+          image={tempAvatar}
+          onCropComplete={handleCropComplete}
+          onCancel={handleCropCancel}
+          aspectRatio={1}
+          shape="round"
+        />
+      )}
+      
+      <div className="bg-white dark:bg-[#212e3a]">
+        <div className="p-4 flex flex-col items-center">
         <div className="relative mb-4">
           <div className="w-32 h-32 rounded-full bg-gray-200 dark:bg-[#1c2733] flex items-center justify-center overflow-hidden">
             {avatar ? (
@@ -113,6 +139,7 @@ export const PersonalDataTab = ({ user }: PersonalDataTabProps) => {
         </button>
       </div>
     </div>
+    </>
   );
 };
 

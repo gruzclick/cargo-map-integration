@@ -31,6 +31,7 @@ import PWAInstallPrompt from '@/components/PWAInstallPrompt';
 import RotatingAdBanner from '@/components/RotatingAdBanner';
 import AppDownload from '@/components/AppDownload';
 import { UserProfile } from '@/components/UserProfile';
+import { UserStatusSelector } from '@/components/UserStatusSelector';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { detectUserCountry, getCurrencyByCountry, getLanguageByCountry } from '@/utils/geoip';
 import { secureLocalStorage } from '@/utils/security';
@@ -42,6 +43,9 @@ const Index = () => {
   const [driverRoute, setDriverRoute] = useState<Array<{ warehouse: string; time: string }>>([]);
   const [trackingDeliveryId, setTrackingDeliveryId] = useState<string | null>(null);
   const [showProfile, setShowProfile] = useState(false);
+  const [showStatusSelector, setShowStatusSelector] = useState(false);
+  const [userStatus, setUserStatus] = useState<'cargo' | 'vehicle' | null>(null);
+  const [userLocation, setUserLocation] = useState<{lat: number, lng: number} | null>(null);
 
   useEffect(() => {
     const token = secureLocalStorage.get('auth_token');
@@ -91,6 +95,33 @@ const Index = () => {
   const handleAuthSuccess = (userData: any) => {
     setUser(userData);
     setShowAuth(false);
+    
+    const savedStatus = localStorage.getItem('user_status');
+    if (!savedStatus) {
+      setShowStatusSelector(true);
+    } else {
+      setUserStatus(savedStatus as 'cargo' | 'vehicle');
+    }
+    
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          setUserLocation({
+            lat: position.coords.latitude,
+            lng: position.coords.longitude
+          });
+        },
+        (error) => {
+          console.error('Ошибка получения геолокации:', error);
+        }
+      );
+    }
+  };
+  
+  const handleStatusSelect = (status: 'cargo' | 'vehicle') => {
+    setUserStatus(status);
+    localStorage.setItem('user_status', status);
+    setShowStatusSelector(false);
   };
 
   if (!user && !showAuth) {
@@ -114,6 +145,10 @@ const Index = () => {
 
   return (
     <div className="min-h-screen bg-background animate-fade-in">
+      {showStatusSelector && (
+        <UserStatusSelector onStatusSelect={handleStatusSelect} />
+      )}
+      
       <PWAInstallPrompt />
       <CookieBanner />
       <header className="border-b border-gray-200/20 dark:border-gray-700/30 sticky top-0 bg-white/60 dark:bg-gray-900/60 backdrop-blur-2xl z-50 shadow-lg animate-slide-in-down">
