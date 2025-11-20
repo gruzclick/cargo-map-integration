@@ -30,6 +30,7 @@ import RatingSystem from '@/components/RatingSystem';
 import PWAInstallPrompt from '@/components/PWAInstallPrompt';
 import RotatingAdBanner from '@/components/RotatingAdBanner';
 import AppDownload from '@/components/AppDownload';
+import { UserProfile } from '@/components/UserProfile';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { detectUserCountry, getCurrencyByCountry, getLanguageByCountry } from '@/utils/geoip';
 import { secureLocalStorage } from '@/utils/security';
@@ -40,6 +41,7 @@ const Index = () => {
   const [showAuth, setShowAuth] = useState(false);
   const [driverRoute, setDriverRoute] = useState<Array<{ warehouse: string; time: string }>>([]);
   const [trackingDeliveryId, setTrackingDeliveryId] = useState<string | null>(null);
+  const [showProfile, setShowProfile] = useState(false);
 
   useEffect(() => {
     const token = secureLocalStorage.get('auth_token');
@@ -160,6 +162,11 @@ const Index = () => {
             <div className="h-9 flex items-center">
               <ThemeToggle />
             </div>
+            
+            <Button variant="ghost" size="sm" onClick={() => setShowProfile(true)} className="h-9 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800">
+              <Icon name="User" size={14} className="mr-1.5" />
+              <span className="text-xs hidden md:inline">Профиль</span>
+            </Button>
 
             <Button variant="ghost" size="sm" onClick={handleLogout} className="h-9 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800">
               <Icon name="LogOut" size={14} className="mr-1.5" />
@@ -342,6 +349,10 @@ const Index = () => {
           </TabsContent>
         </Tabs>
       </div>
+      
+      {showProfile && (
+        <UserProfile user={user} onClose={() => setShowProfile(false)} />
+      )}
     </div>
   );
 };

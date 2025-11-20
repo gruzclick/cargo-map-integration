@@ -262,15 +262,7 @@ export const AdminDashboard = ({ onLogout }: AdminDashboardProps) => {
                 </CardHeader>
               </Card>
 
-              <Card className="bg-white dark:bg-gray-900 border-gray-200 dark:border-gray-800 hover:shadow-lg transition-shadow cursor-pointer" onClick={() => window.location.href = '/admin/notifications'}>
-                <CardHeader>
-                  <CardTitle className="text-gray-900 dark:text-white flex items-center gap-2">
-                    <Icon name="Bell" size={24} />
-                    Уведомления
-                  </CardTitle>
-                  <CardDescription className="text-gray-600 dark:text-gray-400">Push, email рассылки</CardDescription>
-                </CardHeader>
-              </Card>
+
 
               <Card className="bg-white dark:bg-gray-900 border-gray-200 dark:border-gray-800 hover:shadow-lg transition-shadow cursor-pointer" onClick={() => window.location.href = '/admin/content'}>
                 <CardHeader>
