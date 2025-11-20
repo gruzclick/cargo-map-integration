@@ -40,68 +40,7 @@ interface TicketReply {
   timestamp: string;
 }
 
-const ticketsData: Ticket[] = [
-  {
-    id: '1',
-    number: 1234,
-    userId: 'U001',
-    userName: 'Иванов Иван',
-    subject: 'Не могу отменить заказ',
-    message: 'Здравствуйте! Пытаюсь отменить заказ #5678, но кнопка не работает. Помогите пожалуйста.',
-    status: 'open',
-    priority: 'high',
-    category: 'Заказы',
-    created: '2025-01-26 14:30',
-    updated: '2025-01-26 14:30',
-    replies: []
-  },
-  {
-    id: '2',
-    number: 1233,
-    userId: 'U002',
-    userName: 'Петрова Мария',
-    subject: 'Вопрос по оплате',
-    message: 'Деньги списались дважды за один заказ. Прошу вернуть',
-    status: 'in_progress',
-    priority: 'high',
-    category: 'Платежи',
-    created: '2025-01-26 12:15',
-    updated: '2025-01-26 13:00',
-    assignedTo: 'Администратор 1',
-    replies: [
-      {
-        id: 'r1',
-        author: 'Администратор 1',
-        isAdmin: true,
-        message: 'Здравствуйте! Проверяю информацию по вашему заказу. Ожидайте.',
-        timestamp: '2025-01-26 12:45'
-      }
-    ]
-  },
-  {
-    id: '3',
-    number: 1232,
-    userId: 'U003',
-    userName: 'Сидоров Петр',
-    subject: 'Предложение по улучшению',
-    message: 'Было бы удобно добавить фильтр по типу транспорта',
-    status: 'closed',
-    priority: 'low',
-    category: 'Предложения',
-    created: '2025-01-25 16:20',
-    updated: '2025-01-25 18:00',
-    assignedTo: 'Администратор 2',
-    replies: [
-      {
-        id: 'r2',
-        author: 'Администратор 2',
-        isAdmin: true,
-        message: 'Спасибо за предложение! Передал разработчикам, рассмотрим в следующем обновлении.',
-        timestamp: '2025-01-25 17:30'
-      }
-    ]
-  },
-];
+const ticketsData: Ticket[] = [];
 
 export default function AdminSupport() {
   const { toast } = useToast();

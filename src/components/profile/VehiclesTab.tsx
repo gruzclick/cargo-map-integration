@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import Icon from '@/components/ui/icon';
 import { useToast } from '@/hooks/use-toast';
 
@@ -11,6 +11,7 @@ interface Vehicle {
   licensePlate: string;
   capacity: number;
   color: string;
+  photo?: string;
 }
 
 interface VehiclesTabProps {
@@ -173,6 +174,7 @@ export const VehiclesTab = ({ user }: VehiclesTabProps) => {
 };
 
 const VehicleForm = ({ vehicle, onSave, onClose }: any) => {
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const [formData, setFormData] = useState({
     type: vehicle?.type || 'Грузовик',
     brand: vehicle?.brand || '',
@@ -180,8 +182,25 @@ const VehicleForm = ({ vehicle, onSave, onClose }: any) => {
     year: vehicle?.year || new Date().getFullYear(),
     licensePlate: vehicle?.licensePlate || '',
     capacity: vehicle?.capacity || 0,
-    color: vehicle?.color || ''
+    color: vehicle?.color || '',
+    photo: vehicle?.photo || ''
   });
+
+  const handlePhotoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (file.size > 10 * 1024 * 1024) {
+      alert('\u0420\u0430\u0437\u043c\u0435\u0440 \u0444\u0430\u0439\u043b\u0430 \u043d\u0435 \u0434\u043e\u043b\u0436\u0435\u043d \u043f\u0440\u0435\u0432\u044b\u0448\u0430\u0442\u044c 10 \u041c\u0411');
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      setFormData({ ...formData, photo: reader.result as string });
+    };
+    reader.readAsDataURL(file);
+  };
 
   return (
     <div className="fixed inset-0 bg-black/70 flex items-end sm:items-center justify-center z-[60]">
@@ -196,6 +215,32 @@ const VehicleForm = ({ vehicle, onSave, onClose }: any) => {
         </div>
         
         <div className="p-4 space-y-3">
+          <div className="flex justify-center">
+            <div className="relative">
+              <div className="w-40 h-40 rounded-lg bg-gray-200 dark:bg-[#1c2733] flex items-center justify-center overflow-hidden">
+                {formData.photo ? (
+                  <img src={formData.photo} alt="Транспорт" className="w-full h-full object-cover" />
+                ) : (
+                  <Icon name="Truck" size={48} className="text-gray-400" />
+                )}
+              </div>
+              <button
+                type="button"
+                onClick={() => fileInputRef.current?.click()}
+                className="absolute bottom-2 right-2 p-2 bg-blue-500 text-white rounded-full hover:bg-blue-600 transition-colors"
+              >
+                <Icon name="Camera" size={16} />
+              </button>
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept="image/*"
+                onChange={handlePhotoChange}
+                className="hidden"
+              />
+            </div>
+          </div>
+          
           <div className="bg-gray-50 dark:bg-[#1c2733] rounded-lg p-3">
             <label className="block text-xs text-gray-500 dark:text-gray-400 mb-1">Тип транспорта</label>
             <input

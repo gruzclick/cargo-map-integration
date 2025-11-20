@@ -1,5 +1,6 @@
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { useToast } from '@/hooks/use-toast';
+import Icon from '@/components/ui/icon';
 
 interface PersonalDataTabProps {
   user: any;
@@ -7,13 +8,34 @@ interface PersonalDataTabProps {
 
 export const PersonalDataTab = ({ user }: PersonalDataTabProps) => {
   const { toast } = useToast();
+  const fileInputRef = useRef<HTMLInputElement>(null);
   
   const [fullName, setFullName] = useState(user?.full_name || '');
   const [phone, setPhone] = useState(user?.phone_number || '');
   const [telegram, setTelegram] = useState(user?.telegram || '');
-  const [email, setEmail] = useState(user?.email || '');
   const [company, setCompany] = useState(user?.company || '');
   const [inn, setInn] = useState(user?.inn || '');
+  const [avatar, setAvatar] = useState(user?.avatar || '');
+
+  const handleAvatarChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (file.size > 5 * 1024 * 1024) {
+      toast({
+        title: 'Ошибка',
+        description: 'Размер файла не должен превышать 5 МБ',
+        variant: 'destructive'
+      });
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      setAvatar(reader.result as string);
+    };
+    reader.readAsDataURL(file);
+  };
 
   const handleSaveProfile = async () => {
     try {
@@ -26,9 +48,9 @@ export const PersonalDataTab = ({ user }: PersonalDataTabProps) => {
           full_name: fullName,
           phone_number: phone,
           telegram,
-          email,
           company,
-          inn
+          inn,
+          avatar
         })
       });
 
@@ -51,11 +73,34 @@ export const PersonalDataTab = ({ user }: PersonalDataTabProps) => {
 
   return (
     <div className="bg-white dark:bg-[#212e3a]">
+      <div className="p-4 flex flex-col items-center">
+        <div className="relative mb-4">
+          <div className="w-32 h-32 rounded-full bg-gray-200 dark:bg-[#1c2733] flex items-center justify-center overflow-hidden">
+            {avatar ? (
+              <img src={avatar} alt="Аватар" className="w-full h-full object-cover" />
+            ) : (
+              <Icon name="User" size={48} className="text-gray-400" />
+            )}
+          </div>
+          <button
+            onClick={() => fileInputRef.current?.click()}
+            className="absolute bottom-0 right-0 p-2 bg-blue-500 text-white rounded-full hover:bg-blue-600 transition-colors"
+          >
+            <Icon name="Camera" size={20} />
+          </button>
+          <input
+            ref={fileInputRef}
+            type="file"
+            accept="image/*"
+            onChange={handleAvatarChange}
+            className="hidden"
+          />
+        </div>
+      </div>
       <div className="p-4 space-y-2">
         <SettingItem label="ФИО" value={fullName} onChange={setFullName} />
         <SettingItem label="Телефон" value={phone} onChange={setPhone} type="tel" />
         <SettingItem label="Telegram" value={telegram} onChange={setTelegram} placeholder="@username" />
-        <SettingItem label="Email" value={email} onChange={setEmail} type="email" />
         <SettingItem label="Компания" value={company} onChange={setCompany} />
         <SettingItem label="ИНН" value={inn} onChange={setInn} />
       </div>

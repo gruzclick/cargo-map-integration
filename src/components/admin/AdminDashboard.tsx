@@ -87,19 +87,6 @@ export const AdminDashboard = ({ onLogout }: AdminDashboardProps) => {
   const loadStats = async () => {
     setLoading(true);
     try {
-      // ВРЕМЕННОЕ РЕШЕНИЕ: используем мок-данные из-за проблем с Cloud Provider (402)
-      await new Promise(resolve => setTimeout(resolve, 300));
-      
-      setStats({
-        totalUsers: 0,
-        activeOrders: 0,
-        totalRevenue: 0,
-        activeDrivers: 0,
-        newUsersThisWeek: 0,
-        averageSessionTime: 0
-      });
-      
-      /* ЗАКОММЕНТИРОВАНО ДО РЕШЕНИЯ ПРОБЛЕМЫ С БИЛЛИНГОМ
       const token = secureLocalStorage.get('admin_token');
       
       const response = await fetch('https://functions.poehali.dev/f06efb37-9437-4df8-8032-f2ba53b2e2d6', {
@@ -117,10 +104,26 @@ export const AdminDashboard = ({ onLogout }: AdminDashboardProps) => {
 
       if (response.ok && data.stats) {
         setStats(data.stats);
+      } else {
+        setStats({
+          totalUsers: 0,
+          activeOrders: 0,
+          totalRevenue: 0,
+          activeDrivers: 0,
+          newUsersThisWeek: 0,
+          averageSessionTime: 0
+        });
       }
-      */
     } catch (error) {
       console.error('Ошибка загрузки статистики:', error);
+      setStats({
+        totalUsers: 0,
+        activeOrders: 0,
+        totalRevenue: 0,
+        activeDrivers: 0,
+        newUsersThisWeek: 0,
+        averageSessionTime: 0
+      });
     } finally {
       setLoading(false);
     }
@@ -129,11 +132,29 @@ export const AdminDashboard = ({ onLogout }: AdminDashboardProps) => {
   const loadUsers = async () => {
     setLoadingUsers(true);
     try {
-      // ВРЕМЕННОЕ РЕШЕНИЕ: используем пустой массив из-за проблем с Cloud Provider (402)
-      await new Promise(resolve => setTimeout(resolve, 200));
-      setUsers([]);
+      const token = secureLocalStorage.get('admin_token');
+      
+      const response = await fetch('https://functions.poehali.dev/f06efb37-9437-4df8-8032-f2ba53b2e2d6', {
+        method: 'POST',
+        headers: { 
+          'Content-Type': 'application/json',
+          'X-Auth-Token': token || ''
+        },
+        body: JSON.stringify({
+          action: 'get_users'
+        })
+      });
+
+      const data = await response.json();
+
+      if (response.ok && data.users) {
+        setUsers(data.users);
+      } else {
+        setUsers([]);
+      }
     } catch (error) {
       console.error('Ошибка загрузки пользователей:', error);
+      setUsers([]);
     } finally {
       setLoadingUsers(false);
     }
@@ -142,11 +163,29 @@ export const AdminDashboard = ({ onLogout }: AdminDashboardProps) => {
   const loadDeliveries = async () => {
     setLoadingDeliveries(true);
     try {
-      // ВРЕМЕННОЕ РЕШЕНИЕ: используем пустой массив из-за проблем с Cloud Provider (402)
-      await new Promise(resolve => setTimeout(resolve, 200));
-      setDeliveries([]);
+      const token = secureLocalStorage.get('admin_token');
+      
+      const response = await fetch('https://functions.poehali.dev/f06efb37-9437-4df8-8032-f2ba53b2e2d6', {
+        method: 'POST',
+        headers: { 
+          'Content-Type': 'application/json',
+          'X-Auth-Token': token || ''
+        },
+        body: JSON.stringify({
+          action: 'get_deliveries'
+        })
+      });
+
+      const data = await response.json();
+
+      if (response.ok && data.deliveries) {
+        setDeliveries(data.deliveries);
+      } else {
+        setDeliveries([]);
+      }
     } catch (error) {
       console.error('Ошибка загрузки заказов:', error);
+      setDeliveries([]);
     } finally {
       setLoadingDeliveries(false);
     }
@@ -311,6 +350,16 @@ export const AdminDashboard = ({ onLogout }: AdminDashboardProps) => {
                     Маркетинг
                   </CardTitle>
                   <CardDescription className="text-gray-600 dark:text-gray-400">Промокоды и специальные предложения</CardDescription>
+                </CardHeader>
+              </Card>
+
+              <Card className="bg-white dark:bg-gray-900 border-gray-200 dark:border-gray-800 hover:shadow-lg transition-shadow cursor-pointer" onClick={() => window.location.href = '/admin/notifications'}>
+                <CardHeader>
+                  <CardTitle className="text-gray-900 dark:text-white flex items-center gap-2">
+                    <Icon name="Bell" size={24} />
+                    Уведомления
+                  </CardTitle>
+                  <CardDescription className="text-gray-600 dark:text-gray-400">Push, Email рассылки</CardDescription>
                 </CardHeader>
               </Card>
 
