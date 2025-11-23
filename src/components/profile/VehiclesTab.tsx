@@ -31,17 +31,27 @@ export const VehiclesTab = ({ user }: VehiclesTabProps) => {
 
   const loadVehicles = async () => {
     try {
-      const response = await fetch('https://functions.poehali.dev/f06efb37-9437-4df8-8032-f2ba53b2e2d6', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          action: 'get_vehicles',
-          user_id: user.id
-        })
+      const funcUrls = await import('../../../backend/func2url.json');
+      const response = await fetch(funcUrls.profile, {
+        method: 'GET',
+        headers: { 
+          'Content-Type': 'application/json',
+          'X-User-Id': user.id
+        }
       });
       const data = await response.json();
       if (response.ok) {
-        setVehicles(data.vehicles || []);
+        setVehicles(data.vehicles.map((v: any) => ({
+          id: v.id,
+          type: v.type,
+          brand: v.brand,
+          model: v.model,
+          year: v.year,
+          licensePlate: v.license_plate,
+          capacity: v.capacity,
+          color: v.color,
+          photo: v.photo
+        })) || []);
       }
     } catch (error) {
       console.error('Ошибка загрузки транспорта:', error);
@@ -50,14 +60,23 @@ export const VehiclesTab = ({ user }: VehiclesTabProps) => {
 
   const handleSaveVehicle = async (vehicle: Partial<Vehicle>) => {
     try {
-      const response = await fetch('https://functions.poehali.dev/f06efb37-9437-4df8-8032-f2ba53b2e2d6', {
+      const funcUrls = await import('../../../backend/func2url.json');
+      const response = await fetch(funcUrls.profile, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 
+          'Content-Type': 'application/json',
+          'X-User-Id': user.id
+        },
         body: JSON.stringify({
-          action: editingVehicle ? 'update_vehicle' : 'create_vehicle',
-          user_id: user.id,
-          vehicle_id: editingVehicle?.id,
-          ...vehicle
+          type: 'vehicle',
+          vehicle_type: vehicle.type,
+          brand: vehicle.brand,
+          model: vehicle.model,
+          year: vehicle.year,
+          license_plate: vehicle.licensePlate,
+          capacity: vehicle.capacity,
+          color: vehicle.color,
+          photo: vehicle.photo
         })
       });
 
@@ -83,13 +102,16 @@ export const VehiclesTab = ({ user }: VehiclesTabProps) => {
     if (!confirm('Удалить это транспортное средство?')) return;
     
     try {
-      const response = await fetch('https://functions.poehali.dev/f06efb37-9437-4df8-8032-f2ba53b2e2d6', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+      const funcUrls = await import('../../../backend/func2url.json');
+      const response = await fetch(funcUrls.profile, {
+        method: 'DELETE',
+        headers: { 
+          'Content-Type': 'application/json',
+          'X-User-Id': user.id
+        },
         body: JSON.stringify({
-          action: 'delete_vehicle',
-          user_id: user.id,
-          vehicle_id: vehicleId
+          type: 'vehicle',
+          id: vehicleId
         })
       });
 

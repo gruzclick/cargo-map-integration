@@ -157,7 +157,24 @@ const Index = () => {
             <div className="w-9 h-9 bg-gray-900 dark:bg-gray-100 rounded-xl flex items-center justify-center">
               <Icon name="Truck" size={18} className="text-white dark:text-gray-900" />
             </div>
-            <span className="text-base font-bold text-gray-900 dark:text-gray-100 hidden md:inline">ГрузКлик</span>
+            <div className="flex items-center gap-2">
+              <span className="text-base font-bold text-gray-900 dark:text-gray-100 hidden md:inline">ГрузКлик</span>
+              {userStatus && (
+                <div className={`flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium ${
+                  userStatus === 'cargo' 
+                    ? 'bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300' 
+                    : 'bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300'
+                }`}>
+                  <Icon 
+                    name={userStatus === 'cargo' ? 'Package' : 'Car'} 
+                    size={12} 
+                  />
+                  <span className="hidden sm:inline">
+                    {userStatus === 'cargo' ? 'Груз' : 'Авто'}
+                  </span>
+                </div>
+              )}
+            </div>
           </div>
           
           <div className="flex-1 max-w-md hidden md:block">

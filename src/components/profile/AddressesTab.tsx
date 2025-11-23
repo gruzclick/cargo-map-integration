@@ -30,17 +30,27 @@ export const AddressesTab = ({ user }: AddressesTabProps) => {
 
   const loadAddresses = async () => {
     try {
-      const response = await fetch('https://functions.poehali.dev/f06efb37-9437-4df8-8032-f2ba53b2e2d6', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          action: 'get_addresses',
-          user_id: user.id
-        })
+      const funcUrls = await import('../../../backend/func2url.json');
+      const response = await fetch(funcUrls.profile, {
+        method: 'GET',
+        headers: { 
+          'Content-Type': 'application/json',
+          'X-User-Id': user.id
+        }
       });
       const data = await response.json();
       if (response.ok) {
-        setAddresses(data.addresses || []);
+        setAddresses(data.addresses.map((a: any) => ({
+          id: a.id,
+          type: a.type,
+          name: a.name,
+          address: a.address,
+          city: a.city,
+          postcode: a.postcode,
+          country: a.country,
+          phone: a.phone,
+          isDefault: a.is_default
+        })) || []);
       }
     } catch (error) {
       console.error('Ошибка загрузки адресов:', error);
@@ -49,14 +59,22 @@ export const AddressesTab = ({ user }: AddressesTabProps) => {
 
   const handleSaveAddress = async (address: Partial<UserAddress>) => {
     try {
-      const response = await fetch('https://functions.poehali.dev/f06efb37-9437-4df8-8032-f2ba53b2e2d6', {
+      const funcUrls = await import('../../../backend/func2url.json');
+      const response = await fetch(funcUrls.profile, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 
+          'Content-Type': 'application/json',
+          'X-User-Id': user.id
+        },
         body: JSON.stringify({
-          action: editingAddress ? 'update_address' : 'create_address',
-          user_id: user.id,
-          address_id: editingAddress?.id,
-          ...address
+          type: 'address',
+          name: address.name,
+          address: address.address,
+          city: address.city,
+          postcode: address.postcode,
+          country: address.country,
+          phone: address.phone,
+          is_default: address.isDefault
         })
       });
 
@@ -82,13 +100,16 @@ export const AddressesTab = ({ user }: AddressesTabProps) => {
     if (!confirm('Удалить этот адрес?')) return;
     
     try {
-      const response = await fetch('https://functions.poehali.dev/f06efb37-9437-4df8-8032-f2ba53b2e2d6', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+      const funcUrls = await import('../../../backend/func2url.json');
+      const response = await fetch(funcUrls.profile, {
+        method: 'DELETE',
+        headers: { 
+          'Content-Type': 'application/json',
+          'X-User-Id': user.id
+        },
         body: JSON.stringify({
-          action: 'delete_address',
-          user_id: user.id,
-          address_id: addressId
+          type: 'address',
+          id: addressId
         })
       });
 

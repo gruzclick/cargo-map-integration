@@ -1,0 +1,23 @@
+{
+  "tests": [
+    {
+      "name": "Получение профиля",
+      "method": "GET",
+      "path": "/",
+      "headers": {
+        "X-User-Id": "test-user-123"
+      },
+      "expectedStatus": 200
+    },
+    {
+      "name": "Ошибка без user ID",
+      "method": "GET",
+      "path": "/",
+      "expectedStatus": 401,
+      "expectedBody": {
+        "error": "string"
+      },
+      "bodyMatcher": "partial"
+    }
+  ]
+}

@@ -1,0 +1,32 @@
+{
+  "tests": [
+    {
+      "name": "Отправка Telegram рассылки всем",
+      "method": "POST",
+      "path": "/",
+      "body": {
+        "message": "🎉 Тестовая рассылка",
+        "audience": "all",
+        "imageUrl": ""
+      },
+      "expectedStatus": 200,
+      "expectedBody": {
+        "success": true
+      },
+      "bodyMatcher": "partial"
+    },
+    {
+      "name": "Ошибка без сообщения",
+      "method": "POST",
+      "path": "/",
+      "body": {
+        "audience": "all"
+      },
+      "expectedStatus": 400,
+      "expectedBody": {
+        "error": "string"
+      },
+      "bodyMatcher": "partial"
+    }
+  ]
+}
