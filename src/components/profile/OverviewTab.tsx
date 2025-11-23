@@ -1,5 +1,7 @@
+import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import Icon from '@/components/ui/icon';
+import { useToast } from '@/hooks/use-toast';
 
 interface OverviewTabProps {
   mockUserName: string;
@@ -7,10 +9,76 @@ interface OverviewTabProps {
 }
 
 const OverviewTab = ({ mockUserName, userType }: OverviewTabProps) => {
+  const { toast } = useToast();
   const hasData = mockUserName && mockUserName.trim() !== '';
+  const [userStatus, setUserStatus] = useState<'cargo' | 'vehicle' | null>(null);
+
+  useEffect(() => {
+    const saved = localStorage.getItem('user_status') as 'cargo' | 'vehicle' | null;
+    setUserStatus(saved);
+  }, []);
+
+  const handleStatusChange = (newStatus: 'cargo' | 'vehicle') => {
+    setUserStatus(newStatus);
+    localStorage.setItem('user_status', newStatus);
+    toast({
+      title: 'Статус изменен',
+      description: `Теперь вы отображаетесь как "${newStatus === 'cargo' ? 'Отправитель груза' : 'Водитель с транспортом'}"`
+    });
+    setTimeout(() => window.location.reload(), 500);
+  };
 
   return (
     <div className="space-y-4">
+      <Card className="bg-gradient-to-br from-blue-50 to-purple-50 dark:from-blue-900/20 dark:to-purple-900/20 border-blue-200 dark:border-blue-800">
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Icon name="RefreshCw" size={20} />
+            Переключение статуса
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
+            Выберите свой текущий статус на сайте
+          </p>
+          <div className="grid grid-cols-2 gap-3">
+            <button
+              onClick={() => handleStatusChange('cargo')}
+              className={`p-4 rounded-xl border-2 transition-all ${
+                userStatus === 'cargo'
+                  ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/30 shadow-lg scale-105'
+                  : 'border-gray-200 dark:border-gray-700 hover:border-blue-300 dark:hover:border-blue-700'
+              }`}
+            >
+              <Icon name="Package" size={32} className={`mx-auto mb-2 ${userStatus === 'cargo' ? 'text-blue-500' : 'text-gray-400'}`} />
+              <div className={`font-semibold ${userStatus === 'cargo' ? 'text-blue-700 dark:text-blue-300' : 'text-gray-700 dark:text-gray-300'}`}>
+                Отправить груз
+              </div>
+              <div className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                Ищу транспорт
+              </div>
+            </button>
+            
+            <button
+              onClick={() => handleStatusChange('vehicle')}
+              className={`p-4 rounded-xl border-2 transition-all ${
+                userStatus === 'vehicle'
+                  ? 'border-green-500 bg-green-50 dark:bg-green-900/30 shadow-lg scale-105'
+                  : 'border-gray-200 dark:border-gray-700 hover:border-green-300 dark:hover:border-green-700'
+              }`}
+            >
+              <Icon name="Car" size={32} className={`mx-auto mb-2 ${userStatus === 'vehicle' ? 'text-green-500' : 'text-gray-400'}`} />
+              <div className={`font-semibold ${userStatus === 'vehicle' ? 'text-green-700 dark:text-green-300' : 'text-gray-700 dark:text-gray-300'}`}>
+                Предложить транспорт
+              </div>
+              <div className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                Ищу грузы
+              </div>
+            </button>
+          </div>
+        </CardContent>
+      </Card>
+
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <Card>
           <CardHeader>

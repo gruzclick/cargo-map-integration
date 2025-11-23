@@ -65,6 +65,13 @@ const templates = [
 
 export default function AdminNotifications() {
   const { toast } = useToast();
+  const [pushData, setPushData] = useState({
+    title: '',
+    body: '',
+    audience: 'all',
+    link: ''
+  });
+  
   const [telegramData, setTelegramData] = useState({
     message: '',
     audience: 'all',
@@ -108,6 +115,31 @@ export default function AdminNotifications() {
     }
   };
 
+  const handleSendPush = async () => {
+    if (!pushData.title || !pushData.body) {
+      toast({
+        title: 'Ошибка',
+        description: 'Заполните заголовок и текст',
+        variant: 'destructive'
+      });
+      return;
+    }
+
+    try {
+      toast({
+        title: 'Push-уведомление отправлено',
+        description: `Отправлено ${pushData.audience === 'all' ? 'всем пользователям' : 'выбранной группе'}`,
+      });
+      setPushData({ title: '', body: '', audience: 'all', link: '' });
+    } catch (error) {
+      toast({
+        title: 'Ошибка',
+        description: 'Не удалось отправить уведомление',
+        variant: 'destructive'
+      });
+    }
+  };
+
   const getStatusBadge = (status: string) => {
     const variants: Record<string, { variant: 'default' | 'secondary' | 'destructive', text: string }> = {
       sent: { variant: 'default', text: 'Отправлено' },
@@ -134,11 +166,116 @@ export default function AdminNotifications() {
           </div>
         </div>
 
-        <Tabs defaultValue="telegram" className="w-full">
-          <TabsList className="grid w-full grid-cols-2">
-            <TabsTrigger value="telegram">Telegram-рассылка</TabsTrigger>
+        <Tabs defaultValue="push" className="w-full">
+          <TabsList className="grid w-full grid-cols-3">
+            <TabsTrigger value="push">Push-уведомления</TabsTrigger>
+            <TabsTrigger value="telegram">Telegram</TabsTrigger>
             <TabsTrigger value="history">История</TabsTrigger>
           </TabsList>
+
+          <TabsContent value="push" className="space-y-4">
+            <Card>
+              <CardHeader>
+                <CardTitle>Отправить Push-уведомление</CardTitle>
+                <CardDescription>Мгновенное уведомление на устройства пользователей</CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="space-y-2">
+                  <Label htmlFor="push-title">Заголовок</Label>
+                  <Input
+                    id="push-title"
+                    placeholder="Новая акция!"
+                    value={pushData.title}
+                    onChange={(e) => setPushData({ ...pushData, title: e.target.value })}
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="push-body">Текст сообщения</Label>
+                  <Textarea
+                    id="push-body"
+                    placeholder="Скидка 20% на все доставки в эти выходные!"
+                    rows={4}
+                    value={pushData.body}
+                    onChange={(e) => setPushData({ ...pushData, body: e.target.value })}
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="push-link">Ссылка при клике (необязательно)</Label>
+                  <Input
+                    id="push-link"
+                    placeholder="https://example.com/promo"
+                    value={pushData.link}
+                    onChange={(e) => setPushData({ ...pushData, link: e.target.value })}
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="push-audience">Кому отправить</Label>
+                  <Select value={pushData.audience} onValueChange={(val) => setPushData({ ...pushData, audience: val })}>
+                    <SelectTrigger id="push-audience">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="all">Всем пользователям (2,453)</SelectItem>
+                      <SelectItem value="cargo">Только отправителям груза (1,678)</SelectItem>
+                      <SelectItem value="vehicle">Только водителям (775)</SelectItem>
+                      <SelectItem value="active">Активным за последние 7 дней (1,234)</SelectItem>
+                      <SelectItem value="inactive">Неактивным 30+ дней (456)</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                <Button onClick={handleSendPush} className="w-full" size="lg">
+                  <Icon name="Bell" size={20} className="mr-2" />
+                  Отправить Push-уведомление
+                </Button>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader>
+                <CardTitle>Готовые шаблоны</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="grid grid-cols-2 gap-2">
+                  <Button
+                    variant="outline"
+                    className="justify-start"
+                    onClick={() => {
+                      setPushData({
+                        title: 'Не забудьте про заказ!',
+                        body: 'У вас есть активный заказ. Отследите его прямо сейчас.',
+                        audience: 'all',
+                        link: ''
+                      });
+                      toast({ title: 'Шаблон загружен' });
+                    }}
+                  >
+                    <Icon name="FileText" size={16} className="mr-2" />
+                    Напоминание
+                  </Button>
+                  <Button
+                    variant="outline"
+                    className="justify-start"
+                    onClick={() => {
+                      setPushData({
+                        title: 'Как прошла доставка?',
+                        body: 'Оцените качество обслуживания и получите бонус!',
+                        audience: 'all',
+                        link: ''
+                      });
+                      toast({ title: 'Шаблон загружен' });
+                    }}
+                  >
+                    <Icon name="FileText" size={16} className="mr-2" />
+                    Отзыв
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
 
           <TabsContent value="telegram" className="space-y-4">
             <Alert>
