@@ -2,6 +2,8 @@ import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import Icon from '@/components/ui/icon';
 import { useToast } from '@/hooks/use-toast';
+import { Button } from '@/components/ui/button';
+import { useNavigate } from 'react-router-dom';
 
 interface OverviewTabProps {
   mockUserName: string;
@@ -10,12 +12,21 @@ interface OverviewTabProps {
 
 const OverviewTab = ({ mockUserName, userType }: OverviewTabProps) => {
   const { toast } = useToast();
+  const navigate = useNavigate();
   const hasData = mockUserName && mockUserName.trim() !== '';
   const [userStatus, setUserStatus] = useState<'cargo' | 'vehicle' | null>(null);
+  const [hasAdminAccess, setHasAdminAccess] = useState(false);
+  const [userRoles, setUserRoles] = useState<string[]>([]);
 
   useEffect(() => {
     const saved = localStorage.getItem('user_status') as 'cargo' | 'vehicle' | null;
     setUserStatus(saved);
+    
+    const adminToken = localStorage.getItem('admin_token');
+    if (adminToken) {
+      setHasAdminAccess(true);
+      setUserRoles(['admin']);
+    }
   }, []);
 
   const handleStatusChange = (newStatus: 'cargo' | 'vehicle') => {
@@ -30,6 +41,29 @@ const OverviewTab = ({ mockUserName, userType }: OverviewTabProps) => {
 
   return (
     <div className="space-y-4">
+      {hasAdminAccess && (
+        <Card className="bg-gradient-to-br from-purple-50 to-pink-50 dark:from-purple-900/20 dark:to-pink-900/20 border-purple-200 dark:border-purple-800">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Icon name="ShieldCheck" size={20} />
+              Административный доступ
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
+              У вас есть права администратора. Вы можете управлять платформой.
+            </p>
+            <Button 
+              onClick={() => navigate('/admin')} 
+              className="w-full bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700"
+            >
+              <Icon name="Settings" size={18} className="mr-2" />
+              Перейти в админ-панель
+            </Button>
+          </CardContent>
+        </Card>
+      )}
+
       <Card className="bg-gradient-to-br from-blue-50 to-purple-50 dark:from-blue-900/20 dark:to-purple-900/20 border-blue-200 dark:border-blue-800">
         <CardHeader>
           <CardTitle className="flex items-center gap-2">

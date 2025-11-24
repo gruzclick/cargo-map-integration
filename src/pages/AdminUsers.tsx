@@ -14,6 +14,21 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Checkbox } from '@/components/ui/checkbox';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from "@/components/ui/dialog";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 interface User {
   id: string;
@@ -27,6 +42,14 @@ interface User {
   status: string;
   created_at: string;
   updated_at: string;
+  roles?: string[];
+}
+
+interface Role {
+  id: string;
+  name: string;
+  description: string;
+  level: number;
 }
 
 export default function AdminUsers() {
@@ -35,6 +58,16 @@ export default function AdminUsers() {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedUsers, setSelectedUsers] = useState<Set<string>>(new Set());
   const [loading, setLoading] = useState(true);
+  const [roleDialogOpen, setRoleDialogOpen] = useState(false);
+  const [selectedUser, setSelectedUser] = useState<User | null>(null);
+  const [selectedRole, setSelectedRole] = useState<string>('');
+  const [availableRoles] = useState<Role[]>([
+    { id: 'super_admin', name: 'Суперадмин', description: 'Полный доступ', level: 100 },
+    { id: 'admin', name: 'Администратор', description: 'Управление платформой', level: 80 },
+    { id: 'moderator', name: 'Модератор', description: 'Модерация контента', level: 60 },
+    { id: 'support', name: 'Поддержка', description: 'Техподдержка', level: 40 },
+    { id: 'analyst', name: 'Аналитик', description: 'Просмотр аналитики', level: 20 },
+  ]);
   const { toast } = useToast();
 
   useEffect(() => {
@@ -187,6 +220,48 @@ export default function AdminUsers() {
     }
   };
 
+  const openRoleDialog = (user: User) => {
+    setSelectedUser(user);
+    setSelectedRole('');
+    setRoleDialogOpen(true);
+  };
+
+  const assignRole = async () => {
+    if (!selectedUser || !selectedRole) {
+      toast({
+        title: 'Ошибка',
+        description: 'Выберите роль',
+        variant: 'destructive'
+      });
+      return;
+    }
+
+    try {
+      const updatedUsers = users.map(u => 
+        u.id === selectedUser.id 
+          ? { ...u, roles: [...(u.roles || []), selectedRole] }
+          : u
+      );
+      setUsers(updatedUsers);
+      setFilteredUsers(updatedUsers);
+
+      toast({
+        title: 'Роль назначена',
+        description: `Пользователь ${selectedUser.full_name} теперь ${availableRoles.find(r => r.id === selectedRole)?.name}`
+      });
+
+      setRoleDialogOpen(false);
+      setSelectedUser(null);
+      setSelectedRole('');
+    } catch (error) {
+      toast({
+        title: 'Ошибка',
+        description: 'Не удалось назначить роль',
+        variant: 'destructive'
+      });
+    }
+  };
+
   return (
     <div className="min-h-screen bg-background p-4">
       <div className="max-w-7xl mx-auto">
@@ -292,7 +367,9 @@ export default function AdminUsers() {
                     <TableHead className="hidden sm:table-cell">Тип</TableHead>
                     <TableHead className="hidden md:table-cell">Юр. лицо</TableHead>
                     <TableHead>Статус</TableHead>
+                    <TableHead className="hidden md:table-cell">Роли</TableHead>
                     <TableHead className="hidden lg:table-cell">Дата регистрации</TableHead>
+                    <TableHead>Действия</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -356,12 +433,36 @@ export default function AdminUsers() {
                           )}
                         </div>
                       </TableCell>
+                      <TableCell className="hidden md:table-cell">
+                        {user.roles && user.roles.length > 0 ? (
+                          <div className="flex flex-wrap gap-1">
+                            {user.roles.map(role => (
+                              <Badge key={role} variant="secondary" className="text-xs">
+                                <Icon name="Shield" size={10} className="mr-1" />
+                                {availableRoles.find(r => r.id === role)?.name || role}
+                              </Badge>
+                            ))}
+                          </div>
+                        ) : (
+                          <span className="text-muted-foreground text-sm">—</span>
+                        )}
+                      </TableCell>
                       <TableCell className="hidden lg:table-cell">
                         {new Date(user.created_at).toLocaleDateString('ru-RU', { 
                           day: '2-digit', 
                           month: '2-digit', 
                           year: 'numeric' 
                         })}
+                      </TableCell>
+                      <TableCell>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => openRoleDialog(user)}
+                        >
+                          <Icon name="UserPlus" size={14} className="mr-1" />
+                          <span className="hidden sm:inline">Роль</span>
+                        </Button>
                       </TableCell>
                     </TableRow>
                   ))
@@ -380,6 +481,63 @@ export default function AdminUsers() {
             )}
           </CardContent>
         </Card>
+
+        <Dialog open={roleDialogOpen} onOpenChange={setRoleDialogOpen}>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Назначить роль пользователю</DialogTitle>
+              <DialogDescription>
+                {selectedUser && (
+                  <span>Назначение роли для: <strong>{selectedUser.full_name}</strong> ({selectedUser.email})</span>
+                )}
+              </DialogDescription>
+            </DialogHeader>
+            <div className="space-y-4 py-4">
+              <div className="space-y-2">
+                <label className="text-sm font-medium">Выберите роль</label>
+                <Select value={selectedRole} onValueChange={setSelectedRole}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Выберите роль..." />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {availableRoles.map(role => (
+                      <SelectItem key={role.id} value={role.id}>
+                        <div className="flex items-center gap-2">
+                          <Icon name="Shield" size={14} />
+                          <div>
+                            <div className="font-medium">{role.name}</div>
+                            <div className="text-xs text-muted-foreground">{role.description}</div>
+                          </div>
+                        </div>
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              {selectedUser && selectedUser.roles && selectedUser.roles.length > 0 && (
+                <div className="space-y-2">
+                  <label className="text-sm font-medium">Текущие роли</label>
+                  <div className="flex flex-wrap gap-2">
+                    {selectedUser.roles.map(role => (
+                      <Badge key={role} variant="secondary">
+                        {availableRoles.find(r => r.id === role)?.name || role}
+                      </Badge>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+            <DialogFooter>
+              <Button variant="outline" onClick={() => setRoleDialogOpen(false)}>
+                Отмена
+              </Button>
+              <Button onClick={assignRole}>
+                <Icon name="Plus" size={16} className="mr-2" />
+                Назначить роль
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
       </div>
     </div>
   );

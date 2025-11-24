@@ -260,6 +260,14 @@ export const AdminDashboard = ({ onLogout }: AdminDashboardProps) => {
           <div className="flex gap-2">
             <Button 
               variant="ghost" 
+              onClick={() => window.location.href = '/'}
+              className="text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white"
+            >
+              <Icon name="Home" size={16} className="mr-2" />
+              На сайт
+            </Button>
+            <Button 
+              variant="ghost" 
               size="icon"
               onClick={toggleTheme}
               className="text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white"
