@@ -241,19 +241,65 @@ export default function AdminUsers() {
       );
       setUsers(updatedUsers);
       setFilteredUsers(updatedUsers);
+      setSelectedUser(updatedUsers.find(u => u.id === selectedUser.id) || null);
 
       toast({
         title: 'Роль назначена',
         description: `Пользователь ${selectedUser.full_name} теперь ${availableRoles.find(r => r.id === selectedRole)?.name}`
       });
 
-      setRoleDialogOpen(false);
-      setSelectedUser(null);
       setSelectedRole('');
     } catch (error) {
       toast({
         title: 'Ошибка',
         description: error instanceof Error ? error.message : 'Не удалось назначить роль',
+        variant: 'destructive'
+      });
+    }
+  };
+
+  const removeRole = async (roleId: string) => {
+    if (!selectedUser) return;
+
+    try {
+      const adminToken = localStorage.getItem('admin_token');
+      
+      const response = await fetch('https://functions.poehali.dev/f06efb37-9437-4df8-8032-f2ba53b2e2d6', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-Auth-Token': adminToken || ''
+        },
+        body: JSON.stringify({
+          action: 'remove_role',
+          user_id: selectedUser.id,
+          role_id: roleId
+        })
+      });
+
+      const data = await response.json();
+      
+      if (!response.ok || !data.success) {
+        throw new Error(data.error || 'Ошибка сервера');
+      }
+
+      const updatedUsers = users.map(u => 
+        u.id === selectedUser.id 
+          ? { ...u, roles: (u.roles || []).filter(r => r !== roleId) }
+          : u
+      );
+      setUsers(updatedUsers);
+      setFilteredUsers(updatedUsers);
+      setSelectedUser(updatedUsers.find(u => u.id === selectedUser.id) || null);
+
+      toast({
+        title: 'Роль удалена',
+        description: `Роль ${availableRoles.find(r => r.id === roleId)?.name} удалена`
+      });
+    } catch (error) {
+      toast({
+        title: 'Ошибка',
+        description: error instanceof Error ? error.message : 'Не удалось удалить роль',
         variant: 'destructive'
       });
     }
@@ -308,6 +354,7 @@ export default function AdminUsers() {
           onRoleChange={setSelectedRole}
           availableRoles={availableRoles}
           onAssignRole={assignRole}
+          onRemoveRole={removeRole}
         />
       </div>
     </div>

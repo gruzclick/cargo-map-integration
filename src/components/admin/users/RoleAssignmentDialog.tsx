@@ -47,6 +47,7 @@ interface RoleAssignmentDialogProps {
   onRoleChange: (role: string) => void;
   availableRoles: Role[];
   onAssignRole: () => void;
+  onRemoveRole: (roleId: string) => void;
 }
 
 export function RoleAssignmentDialog({
@@ -57,6 +58,7 @@ export function RoleAssignmentDialog({
   onRoleChange,
   availableRoles,
   onAssignRole,
+  onRemoveRole,
 }: RoleAssignmentDialogProps) {
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -96,8 +98,15 @@ export function RoleAssignmentDialog({
               <label className="text-sm font-medium">Текущие роли</label>
               <div className="flex flex-wrap gap-2">
                 {selectedUser.roles.map(role => (
-                  <Badge key={role} variant="secondary">
+                  <Badge key={role} variant="secondary" className="flex items-center gap-1 pr-1">
                     {availableRoles.find(r => r.id === role)?.name || role}
+                    <button
+                      onClick={() => onRemoveRole(role)}
+                      className="ml-1 hover:bg-red-500 hover:text-white rounded-full p-0.5 transition-colors"
+                      title="Удалить роль"
+                    >
+                      <Icon name="X" size={12} />
+                    </button>
                   </Badge>
                 ))}
               </div>
