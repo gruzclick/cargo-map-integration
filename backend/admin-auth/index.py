@@ -227,7 +227,8 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                        'delete_table_data', 'clear_all_test_data', 'delete_admin', 'change_password', 
                        'get_user_analytics', 'update_telegram_chat_id',
                        'update_profile', 'get_addresses', 'create_address', 'update_address', 'delete_address',
-                       'get_vehicles', 'create_vehicle', 'update_vehicle', 'delete_vehicle']
+                       'get_vehicles', 'create_vehicle', 'update_vehicle', 'delete_vehicle',
+                       'get_roles', 'assign_role', 'remove_role', 'get_user_roles']
     
     action = body_data.get('action')
     print(f"Action: {action}")
@@ -553,6 +554,14 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             
             users_list = []
             for user in users_data:
+                cur.execute("""
+                    SELECT r.id
+                    FROM t_p93479485_cargo_map_integratio.user_roles ur
+                    JOIN t_p93479485_cargo_map_integratio.roles r ON ur.role_id = r.id
+                    WHERE ur.user_id = %s AND ur.is_active = true
+                """, (user['user_id'],))
+                user_roles = [r['id'] for r in cur.fetchall()]
+                
                 users_list.append({
                     'id': str(user['user_id']),
                     'email': user['email'],
@@ -564,7 +573,8 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                     'phone_verified': user['phone_verified'],
                     'status': 'active' if user['email_verified'] else 'inactive',
                     'created_at': user['created_at'].isoformat() if user['created_at'] else None,
-                    'updated_at': user['updated_at'].isoformat() if user['updated_at'] else None
+                    'updated_at': user['updated_at'].isoformat() if user['updated_at'] else None,
+                    'roles': user_roles
                 })
             
             return {
@@ -961,6 +971,142 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                     'success': True,
                     'message': 'Пароль успешно изменён',
                     'token': new_token
+                }),
+                'isBase64Encoded': False
+            }
+        
+        elif action == 'get_roles':
+            cur.execute("""
+                SELECT id, name, description, level 
+                FROM t_p93479485_cargo_map_integratio.roles 
+                ORDER BY level DESC
+            """)
+            roles = cur.fetchall()
+            
+            roles_list = [{
+                'id': r['id'],
+                'name': r['name'],
+                'description': r['description'],
+                'level': r['level']
+            } for r in roles]
+            
+            return {
+                'statusCode': 200,
+                'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                'body': json.dumps({'roles': roles_list}),
+                'isBase64Encoded': False
+            }
+        
+        elif action == 'get_user_roles':
+            user_id = body_data.get('user_id')
+            if not user_id:
+                return {
+                    'statusCode': 400,
+                    'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                    'body': json.dumps({'error': 'user_id is required'}),
+                    'isBase64Encoded': False
+                }
+            
+            cur.execute("""
+                SELECT r.id, r.name, r.description, r.level
+                FROM t_p93479485_cargo_map_integratio.user_roles ur
+                JOIN t_p93479485_cargo_map_integratio.roles r ON ur.role_id = r.id
+                WHERE ur.user_id = %s AND ur.is_active = true
+                ORDER BY r.level DESC
+            """, (user_id,))
+            roles = cur.fetchall()
+            
+            roles_list = [{
+                'id': r['id'],
+                'name': r['name'],
+                'description': r['description'],
+                'level': r['level']
+            } for r in roles]
+            
+            return {
+                'statusCode': 200,
+                'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                'body': json.dumps({'roles': roles_list}),
+                'isBase64Encoded': False
+            }
+        
+        elif action == 'assign_role':
+            admin_token = event.get('headers', {}).get('x-auth-token') or event.get('headers', {}).get('X-Auth-Token')
+            token_check = verify_admin_token(admin_token, conn)
+            
+            if not token_check['valid']:
+                return {
+                    'statusCode': 401,
+                    'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                    'body': json.dumps({'error': token_check.get('error', 'Недействительный токен')}),
+                    'isBase64Encoded': False
+                }
+            
+            user_id = body_data.get('user_id')
+            role_id = body_data.get('role_id')
+            
+            if not user_id or not role_id:
+                return {
+                    'statusCode': 400,
+                    'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                    'body': json.dumps({'error': 'user_id and role_id are required'}),
+                    'isBase64Encoded': False
+                }
+            
+            cur.execute("""
+                INSERT INTO t_p93479485_cargo_map_integratio.user_roles (user_id, role_id, assigned_by)
+                VALUES (%s, %s, %s)
+                ON CONFLICT (user_id, role_id) 
+                DO UPDATE SET is_active = true, assigned_at = CURRENT_TIMESTAMP
+            """, (user_id, role_id, token_check['admin_id']))
+            conn.commit()
+            
+            return {
+                'statusCode': 200,
+                'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                'body': json.dumps({
+                    'success': True,
+                    'message': 'Роль успешно назначена'
+                }),
+                'isBase64Encoded': False
+            }
+        
+        elif action == 'remove_role':
+            admin_token = event.get('headers', {}).get('x-auth-token') or event.get('headers', {}).get('X-Auth-Token')
+            token_check = verify_admin_token(admin_token, conn)
+            
+            if not token_check['valid']:
+                return {
+                    'statusCode': 401,
+                    'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                    'body': json.dumps({'error': token_check.get('error', 'Недействительный токен')}),
+                    'isBase64Encoded': False
+                }
+            
+            user_id = body_data.get('user_id')
+            role_id = body_data.get('role_id')
+            
+            if not user_id or not role_id:
+                return {
+                    'statusCode': 400,
+                    'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                    'body': json.dumps({'error': 'user_id and role_id are required'}),
+                    'isBase64Encoded': False
+                }
+            
+            cur.execute("""
+                UPDATE t_p93479485_cargo_map_integratio.user_roles 
+                SET is_active = false 
+                WHERE user_id = %s AND role_id = %s
+            """, (user_id, role_id))
+            conn.commit()
+            
+            return {
+                'statusCode': 200,
+                'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                'body': json.dumps({
+                    'success': True,
+                    'message': 'Роль успешно удалена'
                 }),
                 'isBase64Encoded': False
             }

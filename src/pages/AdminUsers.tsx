@@ -213,6 +213,27 @@ export default function AdminUsers() {
     }
 
     try {
+      const adminToken = localStorage.getItem('admin_token');
+      
+      const response = await fetch('https://functions.poehali.dev/f06efb37-9437-4df8-8032-f2ba53b2e2d6', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-Auth-Token': adminToken || ''
+        },
+        body: JSON.stringify({
+          action: 'assign_role',
+          user_id: selectedUser.id,
+          role_id: selectedRole
+        })
+      });
+
+      const data = await response.json();
+      
+      if (!response.ok || !data.success) {
+        throw new Error(data.error || 'Ошибка сервера');
+      }
+
       const updatedUsers = users.map(u => 
         u.id === selectedUser.id 
           ? { ...u, roles: [...(u.roles || []), selectedRole] }
@@ -232,7 +253,7 @@ export default function AdminUsers() {
     } catch (error) {
       toast({
         title: 'Ошибка',
-        description: 'Не удалось назначить роль',
+        description: error instanceof Error ? error.message : 'Не удалось назначить роль',
         variant: 'destructive'
       });
     }
