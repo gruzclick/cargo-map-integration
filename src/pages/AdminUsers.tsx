@@ -1,34 +1,10 @@
 import { useState, useEffect } from 'react';
-import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
-import { Badge } from '@/components/ui/badge';
 import Icon from '@/components/ui/icon';
 import { useToast } from '@/hooks/use-toast';
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
-import { Checkbox } from '@/components/ui/checkbox';
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-  DialogFooter,
-} from "@/components/ui/dialog";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+import { UserManagementToolbar } from '@/components/admin/users/UserManagementToolbar';
+import { UsersDataTable } from '@/components/admin/users/UsersDataTable';
+import { RoleAssignmentDialog } from '@/components/admin/users/RoleAssignmentDialog';
 
 interface User {
   id: string;
@@ -158,7 +134,7 @@ export default function AdminUsers() {
     setUsers(updatedUsers);
     setFilteredUsers(updatedUsers.filter(user => 
       user.phone.includes(searchQuery) || 
-      (user.company_name?.toLowerCase().includes(searchQuery.toLowerCase()))
+      (user.email?.toLowerCase().includes(searchQuery.toLowerCase()))
     ));
     setSelectedUsers(new Set());
     toast({
@@ -170,12 +146,12 @@ export default function AdminUsers() {
 
   const blockUsers = (userIds: string[]) => {
     const updatedUsers = users.map(user => 
-      userIds.includes(user.id) ? { ...user, blocked: true } : user
+      userIds.includes(user.id) ? { ...user, status: 'blocked' } : user
     );
     setUsers(updatedUsers);
     setFilteredUsers(updatedUsers.filter(user => 
       user.phone.includes(searchQuery) || 
-      (user.company_name?.toLowerCase().includes(searchQuery.toLowerCase()))
+      (user.email?.toLowerCase().includes(searchQuery.toLowerCase()))
     ));
     setSelectedUsers(new Set());
     toast({
@@ -186,12 +162,12 @@ export default function AdminUsers() {
 
   const unblockUsers = (userIds: string[]) => {
     const updatedUsers = users.map(user => 
-      userIds.includes(user.id) ? { ...user, blocked: false } : user
+      userIds.includes(user.id) ? { ...user, status: 'active' } : user
     );
     setUsers(updatedUsers);
     setFilteredUsers(updatedUsers.filter(user => 
       user.phone.includes(searchQuery) || 
-      (user.company_name?.toLowerCase().includes(searchQuery.toLowerCase()))
+      (user.email?.toLowerCase().includes(searchQuery.toLowerCase()))
     ));
     setSelectedUsers(new Set());
     toast({
@@ -265,213 +241,34 @@ export default function AdminUsers() {
   return (
     <div className="min-h-screen bg-background p-4">
       <div className="max-w-7xl mx-auto">
-        <div className="flex items-center justify-between mb-6">
-          <div className="flex items-center gap-4">
-            <Button
-              variant="ghost"
-              onClick={() => window.history.back()}
-            >
-              <Icon name="ArrowLeft" size={20} />
-            </Button>
-            <h1 className="text-3xl font-bold">Управление пользователями</h1>
-          </div>
-          <Button
-            variant="ghost"
-            onClick={() => window.location.href = '/profile'}
-          >
-            <Icon name="User" size={20} className="mr-2" />
-            Профиль
-          </Button>
-        </div>
-
         <Card>
           <CardHeader>
-            <CardTitle className="flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <Icon name="Users" size={24} />
-                Пользователи платформы
-              </div>
-              <Badge variant="secondary">
-                Всего: {users.length}
-              </Badge>
+            <CardTitle className="flex items-center gap-2">
+              <Icon name="Users" size={24} />
+              Пользователи платформы
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
-            <div className="flex flex-col md:flex-row gap-2">
-              <div className="flex-1">
-                <Input
-                  placeholder="Поиск по email, телефону или имени..."
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  className="w-full"
-                />
-              </div>
-              <Button onClick={loadUsers} variant="outline">
-                <Icon name="RefreshCw" size={16} className="mr-2" />
-                Обновить
-              </Button>
-              <div className="flex gap-2 flex-wrap">
-                <Button
-                  variant="outline"
-                  onClick={() => handleBulkAction('block')}
-                  disabled={selectedUsers.size === 0}
-                  className="flex-1 md:flex-none"
-                >
-                  <Icon name="Ban" size={16} className="mr-2" />
-                  <span className="hidden sm:inline">Заблокировать</span>
-                  <span className="sm:hidden">Блок</span>
-                </Button>
-                <Button
-                  variant="outline"
-                  onClick={() => handleBulkAction('unblock')}
-                  disabled={selectedUsers.size === 0}
-                  className="flex-1 md:flex-none"
-                >
-                  <Icon name="Unlock" size={16} className="mr-2" />
-                  <span className="hidden sm:inline">Разблокировать</span>
-                  <span className="sm:hidden">Разблок</span>
-                </Button>
-                <Button
-                  variant="destructive"
-                  onClick={() => handleBulkAction('delete')}
-                  disabled={selectedUsers.size === 0}
-                  className="flex-1 md:flex-none"
-                >
-                  <Icon name="Trash2" size={16} className="mr-2" />
-                  Удалить
-                </Button>
-              </div>
-            </div>
+            <UserManagementToolbar
+              searchQuery={searchQuery}
+              onSearchChange={setSearchQuery}
+              onRefresh={loadUsers}
+              selectedCount={selectedUsers.size}
+              totalCount={users.length}
+              onBulkAction={handleBulkAction}
+            />
 
-            {selectedUsers.size > 0 && (
-              <div className="bg-blue-500/10 border border-blue-500/30 rounded-lg p-3">
-                <p className="text-sm text-blue-400">
-                  Выбрано пользователей: {selectedUsers.size}
-                </p>
-              </div>
-            )}
+            <UsersDataTable
+              users={filteredUsers}
+              loading={loading}
+              selectedUsers={selectedUsers}
+              availableRoles={availableRoles}
+              onToggleUserSelection={toggleUserSelection}
+              onSelectAll={selectAll}
+              onOpenRoleDialog={openRoleDialog}
+            />
 
-            <div className="rounded-md border overflow-x-auto">
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead className="w-12">
-                      <Checkbox
-                        checked={selectedUsers.size === filteredUsers.length && filteredUsers.length > 0}
-                        onCheckedChange={selectAll}
-                      />
-                    </TableHead>
-                    <TableHead>Email</TableHead>
-                    <TableHead>Имя</TableHead>
-                    <TableHead className="hidden sm:table-cell">Телефон</TableHead>
-                    <TableHead className="hidden sm:table-cell">Тип</TableHead>
-                    <TableHead className="hidden md:table-cell">Юр. лицо</TableHead>
-                    <TableHead>Статус</TableHead>
-                    <TableHead className="hidden md:table-cell">Роли</TableHead>
-                    <TableHead className="hidden lg:table-cell">Дата регистрации</TableHead>
-                    <TableHead>Действия</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {loading ? (
-                    <TableRow>
-                      <TableCell colSpan={8} className="text-center py-8">
-                        <Icon name="Loader2" size={24} className="animate-spin mx-auto mb-2" />
-                        <p className="text-muted-foreground">Загрузка пользователей...</p>
-                      </TableCell>
-                    </TableRow>
-                  ) : filteredUsers.length === 0 ? (
-                    <TableRow>
-                      <TableCell colSpan={8} className="text-center py-8 text-muted-foreground">
-                        Пользователи не найдены
-                      </TableCell>
-                    </TableRow>
-                  ) : (
-                    filteredUsers.map((user) => (
-                    <TableRow key={user.id}>
-                      <TableCell>
-                        <Checkbox
-                          checked={selectedUsers.has(user.id)}
-                          onCheckedChange={() => toggleUserSelection(user.id)}
-                        />
-                      </TableCell>
-                      <TableCell className="font-medium">{user.email}</TableCell>
-                      <TableCell>{user.full_name}</TableCell>
-                      <TableCell className="hidden sm:table-cell">{user.phone}</TableCell>
-                      <TableCell className="hidden sm:table-cell">
-                        <Badge variant={user.user_type === 'client' ? 'default' : user.user_type === 'carrier' ? 'secondary' : 'outline'}>
-                          <Icon 
-                            name={user.user_type === 'client' ? 'Package' : user.user_type === 'carrier' ? 'Truck' : 'ClipboardList'} 
-                            size={12} 
-                            className="mr-1" 
-                          />
-                          {user.user_type === 'client' ? 'Клиент' : user.user_type === 'carrier' ? 'Водитель' : 'Логист'}
-                        </Badge>
-                      </TableCell>
-                      <TableCell className="hidden md:table-cell">
-                        <Badge variant="outline">
-                          {user.entity_type === 'individual' ? 'Физ. лицо' : user.entity_type === 'self_employed' ? 'Самозанятый' : 'Юр. лицо'}
-                        </Badge>
-                      </TableCell>
-                      <TableCell>
-                        <div className="flex flex-col gap-1">
-                          <Badge variant={user.status === 'active' ? 'default' : 'secondary'} className="w-fit">
-                            <Icon name={user.status === 'active' ? 'CheckCircle' : 'XCircle'} size={12} className="mr-1" />
-                            {user.status === 'active' ? 'Активен' : 'Неактивен'}
-                          </Badge>
-                          {user.email_verified && (
-                            <Badge variant="outline" className="w-fit text-xs">
-                              <Icon name="Mail" size={10} className="mr-1" />
-                              Email ✓
-                            </Badge>
-                          )}
-                          {user.phone_verified && (
-                            <Badge variant="outline" className="w-fit text-xs">
-                              <Icon name="Phone" size={10} className="mr-1" />
-                              Телефон ✓
-                            </Badge>
-                          )}
-                        </div>
-                      </TableCell>
-                      <TableCell className="hidden md:table-cell">
-                        {user.roles && user.roles.length > 0 ? (
-                          <div className="flex flex-wrap gap-1">
-                            {user.roles.map(role => (
-                              <Badge key={role} variant="secondary" className="text-xs">
-                                <Icon name="Shield" size={10} className="mr-1" />
-                                {availableRoles.find(r => r.id === role)?.name || role}
-                              </Badge>
-                            ))}
-                          </div>
-                        ) : (
-                          <span className="text-muted-foreground text-sm">—</span>
-                        )}
-                      </TableCell>
-                      <TableCell className="hidden lg:table-cell">
-                        {new Date(user.created_at).toLocaleDateString('ru-RU', { 
-                          day: '2-digit', 
-                          month: '2-digit', 
-                          year: 'numeric' 
-                        })}
-                      </TableCell>
-                      <TableCell>
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() => openRoleDialog(user)}
-                        >
-                          <Icon name="UserPlus" size={14} className="mr-1" />
-                          <span className="hidden sm:inline">Роль</span>
-                        </Button>
-                      </TableCell>
-                    </TableRow>
-                  ))
-                  )}
-                </TableBody>
-              </Table>
-            </div>
-
-            {filteredUsers.length === 0 && (
+            {filteredUsers.length === 0 && !loading && (
               <div className="text-center py-12">
                 <Icon name="Search" size={48} className="mx-auto text-muted-foreground mb-4" />
                 <p className="text-muted-foreground">
@@ -482,62 +279,15 @@ export default function AdminUsers() {
           </CardContent>
         </Card>
 
-        <Dialog open={roleDialogOpen} onOpenChange={setRoleDialogOpen}>
-          <DialogContent>
-            <DialogHeader>
-              <DialogTitle>Назначить роль пользователю</DialogTitle>
-              <DialogDescription>
-                {selectedUser && (
-                  <span>Назначение роли для: <strong>{selectedUser.full_name}</strong> ({selectedUser.email})</span>
-                )}
-              </DialogDescription>
-            </DialogHeader>
-            <div className="space-y-4 py-4">
-              <div className="space-y-2">
-                <label className="text-sm font-medium">Выберите роль</label>
-                <Select value={selectedRole} onValueChange={setSelectedRole}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Выберите роль..." />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {availableRoles.map(role => (
-                      <SelectItem key={role.id} value={role.id}>
-                        <div className="flex items-center gap-2">
-                          <Icon name="Shield" size={14} />
-                          <div>
-                            <div className="font-medium">{role.name}</div>
-                            <div className="text-xs text-muted-foreground">{role.description}</div>
-                          </div>
-                        </div>
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-              {selectedUser && selectedUser.roles && selectedUser.roles.length > 0 && (
-                <div className="space-y-2">
-                  <label className="text-sm font-medium">Текущие роли</label>
-                  <div className="flex flex-wrap gap-2">
-                    {selectedUser.roles.map(role => (
-                      <Badge key={role} variant="secondary">
-                        {availableRoles.find(r => r.id === role)?.name || role}
-                      </Badge>
-                    ))}
-                  </div>
-                </div>
-              )}
-            </div>
-            <DialogFooter>
-              <Button variant="outline" onClick={() => setRoleDialogOpen(false)}>
-                Отмена
-              </Button>
-              <Button onClick={assignRole}>
-                <Icon name="Plus" size={16} className="mr-2" />
-                Назначить роль
-              </Button>
-            </DialogFooter>
-          </DialogContent>
-        </Dialog>
+        <RoleAssignmentDialog
+          open={roleDialogOpen}
+          onOpenChange={setRoleDialogOpen}
+          selectedUser={selectedUser}
+          selectedRole={selectedRole}
+          onRoleChange={setSelectedRole}
+          availableRoles={availableRoles}
+          onAssignRole={assignRole}
+        />
       </div>
     </div>
   );
