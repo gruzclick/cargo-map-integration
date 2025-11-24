@@ -68,6 +68,7 @@ export const AddressesTab = ({ user }: AddressesTabProps) => {
         },
         body: JSON.stringify({
           type: 'address',
+          address_type: address.type || 'warehouse',
           name: address.name,
           address: address.address,
           city: address.city,

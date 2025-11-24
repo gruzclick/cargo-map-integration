@@ -103,7 +103,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             data_type = body_data.get('type')
             
             if data_type == 'address':
-                addr_type = body_data.get('type', 'warehouse')
+                addr_type = body_data.get('address_type', 'warehouse')
                 name = body_data.get('name')
                 address = body_data.get('address')
                 city = body_data.get('city')
@@ -132,7 +132,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                 }
             
             elif data_type == 'vehicle':
-                vehicle_type = body_data.get('type')
+                vehicle_type = body_data.get('vehicle_type')
                 brand = body_data.get('brand')
                 model = body_data.get('model')
                 year = body_data.get('year')

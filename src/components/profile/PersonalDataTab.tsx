@@ -69,18 +69,25 @@ export const PersonalDataTab = ({ user }: PersonalDataTabProps) => {
         })
       });
 
-      if (response.ok) {
-        toast({
-          title: 'Профиль обновлен',
-          description: 'Ваши данные успешно сохранены'
-        });
-      } else {
-        throw new Error('Ошибка сохранения');
+      const data = await response.json();
+
+      if (!response.ok || !data.success) {
+        throw new Error(data.error || 'Ошибка сервера');
       }
-    } catch (error: any) {
+
       toast({
-        title: 'Ошибка',
-        description: error.message,
+        title: 'Профиль обновлен',
+        description: 'Ваши данные успешно сохранены'
+      });
+      
+      setTimeout(() => {
+        window.location.reload();
+      }, 1000);
+    } catch (error: any) {
+      console.error('Ошибка сохранения профиля:', error);
+      toast({
+        title: 'Ошибка сохранения',
+        description: error.message || 'Не удалось сохранить данные',
         variant: 'destructive'
       });
     }
