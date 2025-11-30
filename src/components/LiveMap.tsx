@@ -84,19 +84,34 @@ const LiveMap = ({ isPublic = false, onMarkerClick }: LiveMapProps = {}) => {
     let filtered = [...markers];
     
     if (filters.userType === 'client') {
-      filtered = filtered.filter(m => m.type === 'driver');
+      filtered = filtered.filter(m => {
+        const role = (m as any).role || m.type;
+        return role === 'carrier' || m.type === 'driver';
+      });
       if (driverStatus) {
-        filtered = filtered.filter(m => m.vehicleStatus === driverStatus);
+        filtered = filtered.filter(m => {
+          const carrierStatus = (m as any).carrierStatus || m.vehicleStatus;
+          return carrierStatus === driverStatus;
+        });
       }
     } else if (filters.userType === 'carrier') {
-      filtered = filtered.filter(m => m.type === 'cargo');
+      filtered = filtered.filter(m => {
+        const role = (m as any).role || m.type;
+        return role === 'client' || m.type === 'cargo';
+      });
       if (cargoStatus) {
         filtered = filtered.filter(m => {
-          if (cargoStatus === 'ready') return m.readyStatus === 'ready';
-          if (cargoStatus === 'scheduled') return m.readyStatus === 'scheduled';
+          const clientStatus = (m as any).clientStatus;
+          if (cargoStatus === 'ready') return clientStatus === 'ready_now' || m.readyStatus === 'ready';
+          if (cargoStatus === 'scheduled') return clientStatus === 'ready_later' || m.readyStatus === 'scheduled';
           return true;
         });
       }
+    } else if (filters.userType === 'all') {
+      filtered = filtered.filter(m => {
+        const role = (m as any).role || m.type;
+        return role === 'logist';
+      });
     }
 
     if (filters.cargoType && filters.cargoType !== 'all') {

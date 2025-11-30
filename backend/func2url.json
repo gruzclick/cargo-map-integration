@@ -1,4 +1,5 @@
 {
+  "telegram-verify": "https://functions.poehali.dev/60a1cff5-ff31-4b02-9d6a-83f52d5254e2",
   "profile": "https://functions.poehali.dev/3cbf743d-85ab-443f-a7b1-638ca01d5314",
   "telegram-broadcast": "https://functions.poehali.dev/33721dd4-4a8b-4698-8cfb-c5854b3aa8e4",
   "admin-auth": "https://functions.poehali.dev/f06efb37-9437-4df8-8032-f2ba53b2e2d6",

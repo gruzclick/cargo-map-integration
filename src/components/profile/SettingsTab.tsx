@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Input } from '@/components/ui/input';
 import NotificationSettings from '@/components/NotificationSettings';
+import TelegramVerification from '@/components/profile/TelegramVerification';
 import Icon from '@/components/ui/icon';
 import { useToast } from '@/hooks/use-toast';
 import { secureLocalStorage } from '@/utils/security';
@@ -220,6 +221,21 @@ const SettingsTab = ({ entityType, onEntityTypeChange }: SettingsTabProps) => {
           <Button onClick={savePassportData} className="w-full md:w-auto">
             Сохранить паспортные данные
           </Button>
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Icon name="MessageCircle" size={20} />
+            Подтверждение Telegram
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <p className="text-sm text-muted-foreground">
+            Подтвердите свой Telegram для получения уведомлений о заказах
+          </p>
+          <TelegramVerification />
         </CardContent>
       </Card>
 

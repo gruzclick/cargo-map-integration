@@ -83,10 +83,15 @@ export const RoleSelectionModal = ({ user, onComplete }: RoleSelectionModalProps
         })
       });
 
-      const data = await response.json();
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Ошибка сервера');
+      }
 
-      if (!response.ok || !data.success) {
-        throw new Error(data.error || 'Ошибка сервера');
+      const data = await response.json();
+      
+      if (!data.success) {
+        throw new Error(data.error || data.message || 'Ошибка сервера');
       }
 
       if (navigator.geolocation) {
@@ -133,7 +138,15 @@ export const RoleSelectionModal = ({ user, onComplete }: RoleSelectionModalProps
 
   return (
     <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4">
-      <div className="bg-white dark:bg-[#212e3a] rounded-2xl max-w-lg w-full p-6 space-y-6">
+      <div className="bg-white dark:bg-[#212e3a] rounded-2xl max-w-lg w-full p-6 space-y-6 relative">
+        <button
+          onClick={onComplete}
+          className="absolute top-4 right-4 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 transition-colors"
+          aria-label="Закрыть"
+        >
+          <Icon name="X" size={24} />
+        </button>
+        
         {step === 'role' && (
           <>
             <div className="text-center space-y-2">
