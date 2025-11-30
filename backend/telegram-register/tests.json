@@ -1,0 +1,35 @@
+{
+  "tests": [
+    {
+      "name": "Send verification code",
+      "method": "POST",
+      "path": "/",
+      "body": {
+        "action": "send_code",
+        "telegram_username": "@testuser",
+        "phone": "+79991234567"
+      },
+      "expectedStatus": 200,
+      "expectedBody": {
+        "success": true,
+        "message": "string",
+        "code_for_demo": "string"
+      },
+      "bodyMatcher": "partial"
+    },
+    {
+      "name": "Missing telegram username",
+      "method": "POST",
+      "path": "/",
+      "body": {
+        "action": "send_code",
+        "phone": "+79991234567"
+      },
+      "expectedStatus": 400,
+      "expectedBody": {
+        "error": "Telegram username is required"
+      },
+      "bodyMatcher": "partial"
+    }
+  ]
+}

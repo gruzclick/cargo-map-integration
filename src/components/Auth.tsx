@@ -11,6 +11,7 @@ import CarrierFields from './auth/CarrierFields';
 import PassportFields from './auth/PassportFields';
 import AgreementFields from './auth/AgreementFields';
 import LoginFields from './auth/LoginFields';
+import TelegramAuth from './TelegramAuth';
 import { sanitizeInput, secureLocalStorage, rateLimit, validateEmail, validatePhone, validateINN } from '@/utils/security';
 
 interface AuthProps {
@@ -18,6 +19,7 @@ interface AuthProps {
 }
 
 const Auth = ({ onSuccess }: AuthProps) => {
+  const [authMethod, setAuthMethod] = useState<'email' | 'telegram' | null>(null);
   const [isLogin, setIsLogin] = useState(true);
   const [loading, setLoading] = useState(false);
   const [userType, setUserType] = useState<'client' | 'carrier'>('client');
@@ -273,9 +275,65 @@ const Auth = ({ onSuccess }: AuthProps) => {
     );
   }
 
+  if (authMethod === 'telegram') {
+    return (
+      <div className="min-h-screen flex items-center justify-center p-3 sm:p-4 bg-gradient-to-br from-blue-50 via-white to-purple-50 dark:from-gray-900 dark:via-gray-950 dark:to-blue-950">
+        <TelegramAuth 
+          onSuccess={onSuccess} 
+          onBack={() => setAuthMethod(null)} 
+        />
+      </div>
+    );
+  }
+
+  if (authMethod === null) {
+    return (
+      <div className="min-h-screen flex items-center justify-center p-3 sm:p-4 bg-gradient-to-br from-blue-50 via-white to-purple-50 dark:from-gray-900 dark:via-gray-950 dark:to-blue-950">
+        <Card className="w-full max-w-md shadow-2xl rounded-2xl">
+          <CardHeader>
+            <div className="w-16 h-16 bg-accent rounded-2xl flex items-center justify-center mx-auto mb-4">
+              <Icon name="Truck" size={32} className="text-accent-foreground" />
+            </div>
+            <CardTitle className="text-3xl font-bold text-center">
+              ГрузКлик
+            </CardTitle>
+            <CardDescription className="text-center">
+              Выберите способ входа
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-3">
+            <Button
+              onClick={() => setAuthMethod('telegram')}
+              className="w-full h-14 text-lg"
+              variant="default"
+            >
+              <Icon name="MessageCircle" size={24} className="mr-3" />
+              Продолжить через Telegram
+            </Button>
+            <Button
+              onClick={() => setAuthMethod('email')}
+              className="w-full h-14 text-lg"
+              variant="outline"
+            >
+              <Icon name="Mail" size={24} className="mr-3" />
+              Email / Пароль
+            </Button>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen flex items-center justify-center p-3 sm:p-4 bg-gradient-to-br from-blue-50 via-white to-purple-50 dark:from-gray-900 dark:via-gray-950 dark:to-blue-950">
       <Card className="w-full max-w-md shadow-2xl rounded-2xl sm:rounded-3xl relative bg-white/80 dark:bg-gray-900/80 backdrop-blur-2xl border-white/30 dark:border-gray-700/30">
+        <button
+          onClick={() => setAuthMethod(null)}
+          className="absolute top-3 left-3 sm:top-4 sm:left-4 z-10 p-1.5 sm:p-2 rounded-full hover:bg-muted/50 transition-colors"
+          title="Назад"
+        >
+          <Icon name="ArrowLeft" size={20} className="text-muted-foreground hover:text-foreground sm:w-6 sm:h-6" />
+        </button>
         <button
           onClick={() => window.location.href = '/'}
           className="absolute top-3 right-3 sm:top-4 sm:right-4 z-10 p-1.5 sm:p-2 rounded-full hover:bg-muted/50 transition-colors"
