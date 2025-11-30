@@ -26,6 +26,7 @@ import QRPage from "./pages/QRPage";
 import NotFound from "./pages/NotFound";
 import PrivacyPolicy from "./pages/PrivacyPolicy";
 import TermsOfService from "./pages/TermsOfService";
+import TelegramBotSetupPage from "./pages/TelegramBotSetupPage";
 import TermsUpdateDialog from "./components/TermsUpdateDialog";
 import './i18n/config';
 import { secureLocalStorage } from './utils/security';
@@ -102,6 +103,7 @@ useEffect(() => {
               <Route path="/qr" element={<QRPage />} />
               <Route path="/privacy" element={<PrivacyPolicy />} />
               <Route path="/terms" element={<TermsOfService />} />
+              <Route path="/setup/telegram-bot" element={<TelegramBotSetupPage />} />
               {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
               <Route path="*" element={<NotFound />} />
             </Routes>

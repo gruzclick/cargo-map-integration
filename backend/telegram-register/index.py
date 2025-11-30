@@ -86,12 +86,14 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             conn.commit()
             
             telegram_bot_token = os.environ.get('TELEGRAM_BOT_TOKEN')
-            if telegram_bot_token:
+            code_sent_via_bot = False
+            
+            if telegram_bot_token and telegram_bot_token.strip():
                 try:
                     import requests
                     action_text = 'входа' if is_login else 'регистрации'
                     message = f"🔐 Ваш код подтверждения для {action_text}: {code}\n\nКод действителен 10 минут."
-                    requests.post(
+                    response = requests.post(
                         f'https://api.telegram.org/bot{telegram_bot_token}/sendMessage',
                         json={
                             'chat_id': f'@{telegram_username}',
@@ -99,18 +101,25 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                         },
                         timeout=5
                     )
+                    if response.status_code == 200:
+                        code_sent_via_bot = True
                 except Exception as e:
                     print(f"Failed to send Telegram message: {e}")
+            
+            response_body = {
+                'success': True,
+                'message': f'Код отправлен в Telegram @{telegram_username}',
+                'is_login': is_login,
+                'bot_configured': code_sent_via_bot
+            }
+            
+            if not code_sent_via_bot:
+                response_body['code_for_demo'] = code
             
             return {
                 'statusCode': 200,
                 'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
-                'body': json.dumps({
-                    'success': True,
-                    'message': f'Код отправлен в Telegram @{telegram_username}',
-                    'code_for_demo': code,
-                    'is_login': is_login
-                }),
+                'body': json.dumps(response_body),
                 'isBase64Encoded': False
             }
         

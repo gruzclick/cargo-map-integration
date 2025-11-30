@@ -1,3 +1,16 @@
+/**
+ * Компонент выбора метода авторизации
+ * 
+ * Назначение: Начальный экран, где пользователь выбирает способ входа/регистрации
+ * 
+ * Функциональность:
+ * - Две кнопки: Telegram вход или Email/Пароль
+ * - Минималистичный дизайн с брендингом приложения
+ * - Адаптивная вёрстка для мобильных и десктоп устройств
+ * 
+ * Используется в: Auth.tsx как первый шаг авторизации
+ */
+
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import Icon from '@/components/ui/icon';

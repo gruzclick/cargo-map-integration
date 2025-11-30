@@ -1,3 +1,24 @@
+/**
+ * Компонент авторизации через Telegram
+ * 
+ * Назначение: Выполняет вход/регистрацию пользователя через Telegram username
+ * 
+ * Флоу:
+ * 1. Пользователь вводит Telegram username
+ * 2. Система отправляет 6-значный код через Telegram бота
+ * 3. Backend определяет: это вход или регистрация
+ * 4. Пользователь вводит код
+ * 5. При успехе: создаётся токен, сохраняются данные пользователя
+ * 
+ * Особенности:
+ * - Автоматическое определение входа/регистрации
+ * - Разные сообщения для новых и существующих пользователей
+ * - Показ демо-кода, если Telegram бот не настроен
+ * - Опциональные поля: телефон и имя
+ * 
+ * Используется в: Auth.tsx при выборе Telegram метода
+ */
+
 import { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -50,10 +71,27 @@ const TelegramAuth = ({ onSuccess, onBack }: TelegramAuthProps) => {
       }
 
       const actionText = data.is_login ? 'входа' : 'регистрации';
-      toast({
-        title: 'Код отправлен!',
-        description: `Проверьте Telegram @${telegramUsername}. ${data.is_login ? 'Добро пожаловать снова!' : 'Новая регистрация'} Демо-код: ${data.code_for_demo}`
-      });
+      
+      if (data.bot_configured) {
+        toast({
+          title: 'Код отправлен!',
+          description: `Проверьте Telegram @${telegramUsername}. ${data.is_login ? 'Добро пожаловать снова!' : 'Новая регистрация'}`
+        });
+      } else {
+        toast({
+          title: 'Демо-режим',
+          description: (
+            <div className="space-y-2">
+              <p>Telegram бот не настроен. Код для входа: <strong>{data.code_for_demo}</strong></p>
+              <a href="/setup/telegram-bot" className="text-blue-500 underline text-sm">
+                Настроить бота сейчас →
+              </a>
+            </div>
+          ) as any,
+          variant: 'default',
+          duration: 10000
+        });
+      }
 
       setStep('code');
     } catch (error: any) {
