@@ -95,28 +95,47 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                     action_text = 'входа' if is_login else 'регистрации'
                     message = f"🔐 Ваш код подтверждения для {action_text}: {code}\n\nКод действителен 10 минут."
                     
-                    # Получаем chat_id по username
-                    # Сначала пробуем найти пользователя по username
+                    # Получаем chat_id из базы данных
                     chat_id = None
                     
-                    # Пробуем получить updates чтобы найти chat_id
-                    updates_response = requests.get(
-                        f'https://api.telegram.org/bot{telegram_bot_token}/getUpdates',
-                        timeout=5
-                    )
+                    cur.execute(f"""
+                        SELECT telegram_chat_id 
+                        FROM t_p93479485_cargo_map_integratio.users 
+                        WHERE LOWER(telegram) = '{telegram_escaped}'
+                        LIMIT 1
+                    """)
                     
-                    print(f"[DEBUG] Getting updates for bot to find chat_id for @{telegram_username}")
-                    
-                    if updates_response.status_code == 200:
-                        updates_data = updates_response.json()
-                        if updates_data.get('ok'):
-                            for update in updates_data.get('result', []):
-                                msg = update.get('message', {})
-                                from_user = msg.get('from', {})
-                                if from_user.get('username', '').lower() == telegram_username.lower():
-                                    chat_id = from_user.get('id')
-                                    print(f"[DEBUG] Found chat_id: {chat_id} for @{telegram_username}")
-                                    break
+                    chat_result = cur.fetchone()
+                    if chat_result and chat_result['telegram_chat_id']:
+                        chat_id = chat_result['telegram_chat_id']
+                        print(f"[DEBUG] Found chat_id from DB: {chat_id} for @{telegram_username}")
+                    else:
+                        print(f"[DEBUG] No chat_id in DB for @{telegram_username}, trying getUpdates")
+                        
+                        # Fallback: пробуем получить из updates
+                        updates_response = requests.get(
+                            f'https://api.telegram.org/bot{telegram_bot_token}/getUpdates',
+                            timeout=5
+                        )
+                        
+                        if updates_response.status_code == 200:
+                            updates_data = updates_response.json()
+                            if updates_data.get('ok'):
+                                for update in updates_data.get('result', []):
+                                    msg = update.get('message', {})
+                                    from_user = msg.get('from', {})
+                                    if from_user.get('username', '').lower() == telegram_username.lower():
+                                        chat_id = from_user.get('id')
+                                        print(f"[DEBUG] Found chat_id from updates: {chat_id} for @{telegram_username}")
+                                        
+                                        # Сохраняем в базу для будущих использований
+                                        cur.execute(f"""
+                                            UPDATE t_p93479485_cargo_map_integratio.users 
+                                            SET telegram_chat_id = {chat_id}
+                                            WHERE LOWER(telegram) = '{telegram_escaped}'
+                                        """)
+                                        conn.commit()
+                                        break
                     
                     if chat_id:
                         response = requests.post(

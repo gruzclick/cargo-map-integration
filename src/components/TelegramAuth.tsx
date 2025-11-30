@@ -74,17 +74,19 @@ const TelegramAuth = ({ onSuccess, onBack }: TelegramAuthProps) => {
       
       if (data.bot_configured) {
         toast({
-          title: 'Код отправлен!',
-          description: `Проверьте Telegram @${telegramUsername}. ${data.is_login ? 'Добро пожаловать снова!' : 'Новая регистрация'}`
+          title: 'Код отправлен в Telegram!',
+          description: `Проверьте сообщения от бота @gruzclick_2fa_bot`
         });
       } else {
         const errorMsg = data.bot_error || 'Бот не настроен';
+        const needsStart = errorMsg.includes('написать боту') || errorMsg.includes('должен сначала');
+        
         toast({
-          title: errorMsg.includes('написать боту') ? 'Напишите боту /start' : 'Код для входа',
-          description: errorMsg.includes('написать боту') 
-            ? `Сначала откройте бота в Telegram и напишите /start, затем запросите код снова. Временный код: ${data.code_for_demo}`
-            : `Используйте код: ${data.code_for_demo}`,
-          duration: 15000
+          title: needsStart ? 'Требуется активация бота' : 'Временный код',
+          description: needsStart 
+            ? `1. Откройте бота: https://t.me/gruzclick_2fa_bot\n2. Нажмите START или напишите /start\n3. Запросите код снова\n\nВременный код: ${data.code_for_demo}`
+            : `Код для входа: ${data.code_for_demo}`,
+          duration: 20000
         });
       }
 
@@ -176,6 +178,24 @@ const TelegramAuth = ({ onSuccess, onBack }: TelegramAuthProps) => {
       <CardContent className="space-y-4">
         {step === 'username' ? (
           <>
+            <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-3 space-y-2">
+              <p className="text-sm text-blue-900 dark:text-blue-100 font-medium">
+                📱 Важно: сначала активируйте бота
+              </p>
+              <a 
+                href="https://t.me/gruzclick_2fa_bot" 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="flex items-center gap-2 text-sm text-blue-600 dark:text-blue-400 hover:underline"
+              >
+                <Icon name="ExternalLink" size={14} />
+                Открыть @gruzclick_2fa_bot
+              </a>
+              <p className="text-xs text-blue-700 dark:text-blue-300">
+                Нажмите START или отправьте /start боту
+              </p>
+            </div>
+
             <div className="space-y-2">
               <label className="text-sm font-medium">Telegram username *</label>
               <Input
@@ -184,9 +204,6 @@ const TelegramAuth = ({ onSuccess, onBack }: TelegramAuthProps) => {
                 placeholder="@username"
                 disabled={loading}
               />
-              <p className="text-xs text-muted-foreground">
-                Убедитесь, что у вас открыт Telegram
-              </p>
             </div>
 
             <div className="space-y-2">
