@@ -79,16 +79,8 @@ const TelegramAuth = ({ onSuccess, onBack }: TelegramAuthProps) => {
         });
       } else {
         toast({
-          title: 'Демо-режим',
-          description: (
-            <div className="space-y-2">
-              <p>Telegram бот не настроен. Код для входа: <strong>{data.code_for_demo}</strong></p>
-              <a href="/setup/telegram-bot" className="text-blue-500 underline text-sm">
-                Настроить бота сейчас →
-              </a>
-            </div>
-          ) as any,
-          variant: 'default',
+          title: 'Код для входа',
+          description: `Используйте код: ${data.code_for_demo}`,
           duration: 10000
         });
       }
