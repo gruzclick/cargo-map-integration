@@ -89,6 +89,28 @@ export const RoleSelectionModal = ({ user, onComplete }: RoleSelectionModalProps
         throw new Error(data.error || 'Ошибка сервера');
       }
 
+      if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(
+          async (position) => {
+            try {
+              await fetch('https://functions.poehali.dev/f06efb37-9437-4df8-8032-f2ba53b2e2d6', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                  action: 'update_profile',
+                  user_id: user.user_id || user.id,
+                  phone_number: user.phone,
+                  current_lat: position.coords.latitude,
+                  current_lng: position.coords.longitude
+                })
+              });
+            } catch (err) {
+              console.error('Failed to update location:', err);
+            }
+          }
+        );
+      }
+
       toast({
         title: 'Роль и статус установлены',
         description: 'Ваш профиль настроен'

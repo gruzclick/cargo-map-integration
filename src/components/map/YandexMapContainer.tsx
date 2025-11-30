@@ -86,20 +86,24 @@ const YandexMapContainer = ({ filteredMarkers, isPublic, onMarkerClick, onMapLoa
       let iconSvg = '';
       let bgColor = '';
       
-      if (marker.type === 'cargo') {
+      const markerRole = (marker as any).role || marker.type;
+      
+      if (marker.type === 'cargo' || markerRole === 'client') {
         if (marker.status === 'accepted' || marker.status === 'in_transit' || marker.status === 'delivered') {
           return;
         }
         
-        iconSvg = getCargoIcon(marker.cargoType);
-        bgColor = '#0EA5E9';
+        const clientStatus = (marker as any).clientStatus || 'ready_now';
+        bgColor = clientStatus === 'ready_now' ? '#0EA5E9' : '#F59E0B';
+        
+        iconSvg = getCargoIcon(marker.cargoType || 'box');
         const iconContent = `<div style="width: 44px; height: 44px; background: ${bgColor}; border-radius: 12px; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 12px rgba(0,0,0,0.15);">${iconSvg}</div>`;
         
         const placemark = new (window as any).ymaps.Placemark(
           [marker.lat, marker.lng],
           {
             hintContent: marker.name,
-            balloonContent: `<div style="padding: 8px;"><strong>${marker.name}</strong><br/>${marker.details}<br/><span style="color: ${bgColor};">${marker.status}</span></div>`
+            balloonContent: `<div style="padding: 8px;"><strong>${marker.name}</strong><br/>${marker.phone || ''}<br/><span style="color: ${bgColor};">${clientStatus === 'ready_now' ? 'Готов сейчас' : 'Будет готов позже'}</span></div>`
           },
           {
             iconLayout: 'default#imageWithContent',
@@ -117,33 +121,64 @@ const YandexMapContainer = ({ filteredMarkers, isPublic, onMarkerClick, onMapLoa
         });
 
         map.geoObjects.add(placemark);
-      } else {
-        iconSvg = getVehicleIcon(marker.vehicleCategory, (marker as any).vehicleStatus || 'free');
+      } else if (marker.type === 'driver' || markerRole === 'carrier' || markerRole === 'logist') {
+        const carrierStatus = (marker as any).carrierStatus || (marker as any).vehicleStatus || 'free';
         
-        const iconContent = `<div style="width: 50px; height: 50px; display: flex; align-items: center; justify-content: center; filter: drop-shadow(0 4px 12px rgba(0,0,0,0.25));">${iconSvg}</div>`;
-        
-        const placemark = new (window as any).ymaps.Placemark(
-          [marker.lat, marker.lng],
-          {
-            hintContent: marker.name,
-            balloonContent: `<div style="padding: 8px;"><strong>${marker.name}</strong><br/>${marker.details}<br/><span>${marker.status}</span></div>`
-          },
-          {
-            iconLayout: 'default#imageWithContent',
-            iconImageHref: '',
-            iconImageSize: [50, 50],
-            iconImageOffset: [-25, -25],
-            iconContentLayout: (window as any).ymaps.templateLayoutFactory.createClass(iconContent)
-          }
-        );
+        if (markerRole === 'logist') {
+          bgColor = '#8B5CF6';
+          iconSvg = `<svg width="28" height="28" viewBox="0 0 24 24" fill="white"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>`;
+          const iconContent = `<div style="width: 44px; height: 44px; background: ${bgColor}; border-radius: 12px; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 12px rgba(0,0,0,0.15);">${iconSvg}</div>`;
+          
+          const placemark = new (window as any).ymaps.Placemark(
+            [marker.lat, marker.lng],
+            {
+              hintContent: marker.name,
+              balloonContent: `<div style="padding: 8px;"><strong>${marker.name}</strong><br/>${marker.phone || ''}<br/><span style="color: ${bgColor};">Логист</span></div>`
+            },
+            {
+              iconLayout: 'default#imageWithContent',
+              iconImageHref: '',
+              iconImageSize: [44, 44],
+              iconImageOffset: [-22, -22],
+              iconContentLayout: (window as any).ymaps.templateLayoutFactory.createClass(iconContent)
+            }
+          );
 
-        placemark.events.add('click', () => {
-          if (onMarkerClick) {
-            onMarkerClick(marker);
-          }
-        });
+          placemark.events.add('click', () => {
+            if (onMarkerClick) {
+              onMarkerClick(marker);
+            }
+          });
 
-        map.geoObjects.add(placemark);
+          map.geoObjects.add(placemark);
+        } else {
+          iconSvg = getVehicleIcon(marker.vehicleCategory || 'car', carrierStatus);
+          
+          const iconContent = `<div style="width: 50px; height: 50px; display: flex; align-items: center; justify-content: center; filter: drop-shadow(0 4px 12px rgba(0,0,0,0.25));">${iconSvg}</div>`;
+          
+          const placemark = new (window as any).ymaps.Placemark(
+            [marker.lat, marker.lng],
+            {
+              hintContent: marker.name,
+              balloonContent: `<div style="padding: 8px;"><strong>${marker.name}</strong><br/>${marker.phone || marker.details || ''}<br/><span>${carrierStatus === 'free' ? 'Свободен' : 'Есть места'}</span></div>`
+            },
+            {
+              iconLayout: 'default#imageWithContent',
+              iconImageHref: '',
+              iconImageSize: [50, 50],
+              iconImageOffset: [-25, -25],
+              iconContentLayout: (window as any).ymaps.templateLayoutFactory.createClass(iconContent)
+            }
+          );
+
+          placemark.events.add('click', () => {
+            if (onMarkerClick) {
+              onMarkerClick(marker);
+            }
+          });
+
+          map.geoObjects.add(placemark);
+        }
       }
     });
 

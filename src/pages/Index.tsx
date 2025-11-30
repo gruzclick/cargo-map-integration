@@ -218,6 +218,18 @@ const Index = () => {
               <ThemeToggle />
             </div>
             
+            {user.email === 'bgs1990st@mail.ru' && (
+              <Button 
+                variant="ghost" 
+                size="sm" 
+                onClick={() => window.open('/admin', '_blank')} 
+                className="h-9 rounded-lg text-orange-600 dark:text-orange-400 hover:bg-orange-100 dark:hover:bg-orange-900/20"
+              >
+                <Icon name="Shield" size={14} className="mr-1.5" />
+                <span className="text-xs hidden md:inline">Админ</span>
+              </Button>
+            )}
+
             <Button variant="ghost" size="sm" onClick={() => setShowProfile(true)} className="h-9 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800">
               <Icon name="User" size={14} className="mr-1.5" />
               <span className="text-xs hidden md:inline">Профиль</span>

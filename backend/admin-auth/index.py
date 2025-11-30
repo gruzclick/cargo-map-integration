@@ -983,6 +983,8 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             company = body_data.get('company')
             inn = body_data.get('inn')
             avatar = body_data.get('avatar')
+            current_lat = body_data.get('current_lat')
+            current_lng = body_data.get('current_lng')
             
             if not user_id and not phone_number:
                 return {
@@ -1025,6 +1027,9 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                 if avatar is not None:
                     avatar_escaped = avatar.replace("'", "''")
                     update_fields.append(f"avatar = '{avatar_escaped}'")
+                if current_lat is not None and current_lng is not None:
+                    update_fields.append(f"current_lat = {float(current_lat)}")
+                    update_fields.append(f"current_lng = {float(current_lng)}")
                 
                 if not update_fields:
                     return {
@@ -1226,6 +1231,70 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                 'body': json.dumps({
                     'success': True,
                     'message': 'Роль успешно назначена'
+                }),
+                'isBase64Encoded': False
+            }
+        
+        elif action == 'update_role_status':
+            user_id = body_data.get('user_id')
+            phone_number = body_data.get('phone_number')
+            role = body_data.get('role')
+            carrier_status = body_data.get('carrier_status')
+            client_status = body_data.get('client_status')
+            client_ready_date = body_data.get('client_ready_date')
+            
+            if not phone_number:
+                return {
+                    'statusCode': 400,
+                    'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                    'body': json.dumps({'error': 'phone_number is required'}),
+                    'isBase64Encoded': False
+                }
+            
+            if not role or role not in ['carrier', 'logist', 'client']:
+                return {
+                    'statusCode': 400,
+                    'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                    'body': json.dumps({'error': 'valid role is required (carrier, logist, client)'}),
+                    'isBase64Encoded': False
+                }
+            
+            phone_escaped = phone_number.replace("'", "''")
+            role_escaped = role.replace("'", "''")
+            carrier_status_escaped = carrier_status.replace("'", "''") if carrier_status else 'NULL'
+            client_status_escaped = client_status.replace("'", "''") if client_status else 'NULL'
+            client_ready_date_escaped = client_ready_date.replace("'", "''") if client_ready_date else 'NULL'
+            
+            carrier_status_sql = f"'{carrier_status_escaped}'" if carrier_status else 'NULL'
+            client_status_sql = f"'{client_status_escaped}'" if client_status else 'NULL'
+            client_ready_date_sql = f"'{client_ready_date_escaped}'" if client_ready_date else 'NULL'
+            
+            cur.execute(f"""
+                UPDATE t_p93479485_cargo_map_integratio.users 
+                SET role = '{role_escaped}',
+                    carrier_status = {carrier_status_sql},
+                    client_status = {client_status_sql},
+                    client_ready_date = {client_ready_date_sql},
+                    role_status_set = true
+                WHERE phone = '{phone_escaped}'
+            """)
+            
+            if cur.rowcount == 0:
+                return {
+                    'statusCode': 404,
+                    'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                    'body': json.dumps({'error': 'User not found'}),
+                    'isBase64Encoded': False
+                }
+            
+            conn.commit()
+            
+            return {
+                'statusCode': 200,
+                'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                'body': json.dumps({
+                    'success': True,
+                    'message': 'Роль и статус успешно обновлены'
                 }),
                 'isBase64Encoded': False
             }

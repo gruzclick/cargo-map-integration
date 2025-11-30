@@ -77,6 +77,67 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
     
     database_url = os.environ.get('DATABASE_URL')
     
+    if method == 'GET' and '/users' in path:
+        try:
+            conn = psycopg2.connect(database_url)
+            cur = conn.cursor()
+            
+            cur.execute("""
+                SELECT user_id, full_name, phone, role, carrier_status, client_status, 
+                       client_ready_date, current_lat, current_lng
+                FROM t_p93479485_cargo_map_integratio.users
+                WHERE role_status_set = true 
+                    AND current_lat IS NOT NULL 
+                    AND current_lng IS NOT NULL
+                LIMIT 500
+            """)
+            
+            user_rows = cur.fetchall()
+            cur.close()
+            conn.close()
+            
+            markers: List[Dict[str, Any]] = []
+            
+            for row in user_rows:
+                user_id, full_name, phone, role, carrier_status, client_status, client_ready_date, lat, lng = row
+                
+                marker_type = 'cargo' if role == 'client' else 'driver'
+                
+                markers.append({
+                    'id': str(user_id),
+                    'type': marker_type,
+                    'role': role,
+                    'lat': float(lat) if lat else 55.7558,
+                    'lng': float(lng) if lng else 37.6173,
+                    'name': full_name or phone or 'Пользователь',
+                    'phone': phone or '',
+                    'carrierStatus': carrier_status,
+                    'clientStatus': client_status,
+                    'clientReadyDate': client_ready_date.isoformat() if client_ready_date else None,
+                    'vehicleStatus': carrier_status if carrier_status else 'free',
+                    'readyStatus': 'ready' if client_status == 'ready_now' else 'scheduled'
+                })
+            
+            return {
+                'statusCode': 200,
+                'headers': {
+                    'Content-Type': 'application/json',
+                    'Access-Control-Allow-Origin': '*'
+                },
+                'body': json.dumps({'markers': markers}),
+                'isBase64Encoded': False
+            }
+        except Exception as e:
+            return {
+                'statusCode': 500,
+                'headers': {
+                    'Content-Type': 'application/json',
+                    'Access-Control-Allow-Origin': '*'
+                },
+                'body': json.dumps({'error': str(e), 'markers': []}),
+                'isBase64Encoded': False
+            }
+    
     if method == 'GET':
         try:
             conn = psycopg2.connect(database_url)

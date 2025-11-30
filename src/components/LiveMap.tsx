@@ -123,9 +123,23 @@ const LiveMap = ({ isPublic = false, onMarkerClick }: LiveMapProps = {}) => {
   };
 
   const fetchMarkers = async () => {
-    const { generateAllMockData } = await import('@/utils/mockData');
-    const mockMarkers = generateAllMockData();
-    setMarkers(mockMarkers);
+    try {
+      const response = await fetch('https://functions.poehali.dev/e0c57b5b-aa36-4b28-8b31-c70ece513cae?path=/users');
+      const data = await response.json();
+      
+      if (data.markers && data.markers.length > 0) {
+        setMarkers(data.markers);
+      } else {
+        const { generateAllMockData } = await import('@/utils/mockData');
+        const mockMarkers = generateAllMockData();
+        setMarkers(mockMarkers);
+      }
+    } catch (error) {
+      console.error('Failed to fetch real users, using mock data:', error);
+      const { generateAllMockData } = await import('@/utils/mockData');
+      const mockMarkers = generateAllMockData();
+      setMarkers(mockMarkers);
+    }
   };
 
   const handleCargoTypeClick = (type: 'box' | 'pallet' | 'oversized', isDriver: boolean) => {
