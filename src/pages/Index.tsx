@@ -32,6 +32,7 @@ import RotatingAdBanner from '@/components/RotatingAdBanner';
 import AppDownload from '@/components/AppDownload';
 import { UserProfile } from '@/components/UserProfile';
 import { UserStatusSelector } from '@/components/UserStatusSelector';
+import { RoleSelectionModal } from '@/components/RoleSelectionModal';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { detectUserCountry, getCurrencyByCountry, getLanguageByCountry } from '@/utils/geoip';
 import { secureLocalStorage } from '@/utils/security';
@@ -96,11 +97,8 @@ const Index = () => {
     setUser(userData);
     setShowAuth(false);
     
-    const savedStatus = localStorage.getItem('user_status');
-    if (!savedStatus) {
+    if (!userData.role_status_set) {
       setShowStatusSelector(true);
-    } else {
-      setUserStatus(savedStatus as 'cargo' | 'vehicle');
     }
     
     if (navigator.geolocation) {
@@ -124,6 +122,11 @@ const Index = () => {
     setShowStatusSelector(false);
   };
 
+  const handleRoleStatusComplete = () => {
+    setShowStatusSelector(false);
+    window.location.reload();
+  };
+
   if (!user && !showAuth) {
     return (
       <>
@@ -145,8 +148,8 @@ const Index = () => {
 
   return (
     <div className="min-h-screen bg-background animate-fade-in">
-      {showStatusSelector && (
-        <UserStatusSelector onStatusSelect={handleStatusSelect} />
+      {showStatusSelector && user && (
+        <RoleSelectionModal user={user} onComplete={handleRoleStatusComplete} />
       )}
       
       <PWAInstallPrompt />

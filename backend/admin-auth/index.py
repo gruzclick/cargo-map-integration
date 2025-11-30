@@ -228,7 +228,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                        'get_user_analytics', 'update_telegram_chat_id',
                        'update_profile', 'get_addresses', 'create_address', 'update_address', 'delete_address',
                        'get_vehicles', 'create_vehicle', 'update_vehicle', 'delete_vehicle',
-                       'get_roles', 'assign_role', 'remove_role', 'get_user_roles']
+                       'get_roles', 'assign_role', 'remove_role', 'get_user_roles', 'update_role_status']
     
     action = body_data.get('action')
     print(f"Action: {action}")
@@ -977,65 +977,162 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
         
         elif action == 'update_profile':
             user_id = body_data.get('user_id')
-            full_name = body_data.get('full_name')
             phone_number = body_data.get('phone_number')
+            full_name = body_data.get('full_name')
             telegram = body_data.get('telegram')
             company = body_data.get('company')
             inn = body_data.get('inn')
             avatar = body_data.get('avatar')
             
-            if not user_id:
+            if not user_id and not phone_number:
                 return {
                     'statusCode': 400,
                     'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
-                    'body': json.dumps({'error': 'user_id is required'}),
+                    'body': json.dumps({'error': 'user_id or phone_number is required'}),
                     'isBase64Encoded': False
                 }
             
-            update_fields = []
-            if full_name is not None:
-                full_name_escaped = full_name.replace("'", "''")
-                update_fields.append(f"full_name = '{full_name_escaped}'")
-            if phone_number is not None:
-                phone_escaped = phone_number.replace("'", "''")
-                update_fields.append(f"phone = '{phone_escaped}'")
-            if telegram is not None:
-                telegram_escaped = telegram.replace("'", "''")
-                update_fields.append(f"telegram = '{telegram_escaped}'")
-            if company is not None:
-                company_escaped = company.replace("'", "''")
-                update_fields.append(f"company = '{company_escaped}'")
-            if inn is not None:
-                inn_escaped = inn.replace("'", "''")
-                update_fields.append(f"inn = '{inn_escaped}'")
-            if avatar is not None:
-                avatar_escaped = avatar.replace("'", "''")
-                update_fields.append(f"avatar = '{avatar_escaped}'")
+            try:
+                if phone_number:
+                    phone_escaped = phone_number.replace("'", "''")
+                    cur.execute(f"SELECT user_id FROM t_p93479485_cargo_map_integratio.users WHERE phone = '{phone_escaped}'")
+                    result = cur.fetchone()
+                    if not result:
+                        return {
+                            'statusCode': 404,
+                            'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                            'body': json.dumps({'error': 'User not found'}),
+                            'isBase64Encoded': False
+                        }
+                    user_id = str(result['user_id'])
+                
+                update_fields = []
+                if full_name is not None:
+                    full_name_escaped = full_name.replace("'", "''")
+                    update_fields.append(f"full_name = '{full_name_escaped}'")
+                if phone_number is not None:
+                    phone_escaped = phone_number.replace("'", "''")
+                    update_fields.append(f"phone = '{phone_escaped}'")
+                if telegram is not None:
+                    telegram_escaped = telegram.replace("'", "''")
+                    update_fields.append(f"telegram = '{telegram_escaped}'")
+                if company is not None:
+                    company_escaped = company.replace("'", "''")
+                    update_fields.append(f"organization_name = '{company_escaped}'")
+                if inn is not None:
+                    inn_escaped = inn.replace("'", "''")
+                    update_fields.append(f"inn = '{inn_escaped}'")
+                if avatar is not None:
+                    avatar_escaped = avatar.replace("'", "''")
+                    update_fields.append(f"avatar = '{avatar_escaped}'")
+                
+                if not update_fields:
+                    return {
+                        'statusCode': 400,
+                        'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                        'body': json.dumps({'error': 'No fields to update'}),
+                        'isBase64Encoded': False
+                    }
+                
+                update_fields.append("updated_at = NOW()")
+                
+                user_id_escaped = str(user_id).replace("'", "''")
+                query = f"UPDATE t_p93479485_cargo_map_integratio.users SET {', '.join(update_fields)} WHERE user_id::text = '{user_id_escaped}'"
+                cur.execute(query)
+                conn.commit()
+                
+                return {
+                    'statusCode': 200,
+                    'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                    'body': json.dumps({
+                        'success': True,
+                        'message': 'Профиль успешно обновлен'
+                    }),
+                    'isBase64Encoded': False
+                }
+            except Exception as e:
+                print(f"Error updating profile: {e}")
+                return {
+                    'statusCode': 500,
+                    'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                    'body': json.dumps({'error': f'Database error: {str(e)}'}),
+                    'isBase64Encoded': False
+                }
+        
+        elif action == 'update_role_status':
+            user_id = body_data.get('user_id')
+            phone_number = body_data.get('phone_number')
+            role = body_data.get('role')
+            carrier_status = body_data.get('carrier_status')
+            client_status = body_data.get('client_status')
+            client_ready_date = body_data.get('client_ready_date')
             
-            if not update_fields:
+            if not user_id and not phone_number:
                 return {
                     'statusCode': 400,
                     'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
-                    'body': json.dumps({'error': 'No fields to update'}),
+                    'body': json.dumps({'error': 'user_id or phone_number is required'}),
                     'isBase64Encoded': False
                 }
             
-            update_fields.append("updated_at = NOW()")
+            if not role or role not in ['carrier', 'logist', 'client']:
+                return {
+                    'statusCode': 400,
+                    'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                    'body': json.dumps({'error': 'Invalid role'}),
+                    'isBase64Encoded': False
+                }
             
-            user_id_escaped = str(user_id).replace("'", "''")
-            query = f"UPDATE t_p93479485_cargo_map_integratio.users SET {', '.join(update_fields)} WHERE user_id = '{user_id_escaped}'"
-            cur.execute(query)
-            conn.commit()
-            
-            return {
-                'statusCode': 200,
-                'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
-                'body': json.dumps({
-                    'success': True,
-                    'message': 'Профиль успешно обновлен'
-                }),
-                'isBase64Encoded': False
-            }
+            try:
+                if phone_number:
+                    phone_escaped = phone_number.replace("'", "''")
+                    cur.execute(f"SELECT user_id FROM t_p93479485_cargo_map_integratio.users WHERE phone = '{phone_escaped}'")
+                    result = cur.fetchone()
+                    if not result:
+                        return {
+                            'statusCode': 404,
+                            'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                            'body': json.dumps({'error': 'User not found'}),
+                            'isBase64Encoded': False
+                        }
+                    user_id = str(result['user_id'])
+                
+                update_parts = [f"role = '{role}'", "role_status_set = TRUE"]
+                
+                if carrier_status and carrier_status in ['free', 'has_space']:
+                    update_parts.append(f"carrier_status = '{carrier_status}'")
+                
+                if client_status and client_status in ['ready_now', 'ready_later']:
+                    update_parts.append(f"client_status = '{client_status}'")
+                
+                if client_ready_date:
+                    date_escaped = client_ready_date.replace("'", "''")
+                    update_parts.append(f"client_ready_date = '{date_escaped}'")
+                else:
+                    update_parts.append("client_ready_date = NULL")
+                
+                user_id_escaped = str(user_id).replace("'", "''")
+                query = f"UPDATE t_p93479485_cargo_map_integratio.users SET {', '.join(update_parts)} WHERE user_id::text = '{user_id_escaped}'"
+                cur.execute(query)
+                conn.commit()
+                
+                return {
+                    'statusCode': 200,
+                    'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                    'body': json.dumps({
+                        'success': True,
+                        'message': 'Роль и статус успешно обновлены'
+                    }),
+                    'isBase64Encoded': False
+                }
+            except Exception as e:
+                print(f"Error updating role status: {e}")
+                return {
+                    'statusCode': 500,
+                    'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                    'body': json.dumps({'error': f'Database error: {str(e)}'}),
+                    'isBase64Encoded': False
+                }
         
         elif action == 'get_roles':
             cur.execute("""

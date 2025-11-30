@@ -470,7 +470,7 @@ def login_user(data: Dict[str, Any], database_url: str, jwt_secret: str,
         cur = conn.cursor()
         cur.execute("""
             SELECT user_id, email, password_hash, full_name, user_type, phone, 
-                   terms_version, privacy_version
+                   terms_version, privacy_version, role_status_set
             FROM t_p93479485_cargo_map_integratio.users 
             WHERE phone = %s
         """, (phone,))
@@ -489,7 +489,7 @@ def login_user(data: Dict[str, Any], database_url: str, jwt_secret: str,
                 'isBase64Encoded': False
             }
         
-        user_id, email, password_hash, full_name, user_type, user_phone, terms_version, privacy_version = result
+        user_id, email, password_hash, full_name, user_type, user_phone, terms_version, privacy_version, role_status_set = result
         
         # Проверка пароля с bcrypt
         if not bcrypt.checkpw(password.encode('utf-8'), password_hash.encode('utf-8')):
@@ -536,7 +536,8 @@ def login_user(data: Dict[str, Any], database_url: str, jwt_secret: str,
                     'email': email,
                     'full_name': full_name,
                     'user_type': user_type,
-                    'phone': user_phone
+                    'phone': user_phone,
+                    'role_status_set': bool(role_status_set)
                 },
                 'needs_agreement': needs_agreement
             }),

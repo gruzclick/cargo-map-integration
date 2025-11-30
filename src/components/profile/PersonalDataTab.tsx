@@ -53,13 +53,22 @@ export const PersonalDataTab = ({ user }: PersonalDataTabProps) => {
   };
 
   const handleSaveProfile = async () => {
+    if (!phone) {
+      toast({
+        title: 'Ошибка',
+        description: 'Телефон обязателен для идентификации',
+        variant: 'destructive'
+      });
+      return;
+    }
+
     try {
       const response = await fetch('https://functions.poehali.dev/f06efb37-9437-4df8-8032-f2ba53b2e2d6', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           action: 'update_profile',
-          user_id: user.id,
+          user_id: user.user_id || user.id,
           full_name: fullName,
           phone_number: phone,
           telegram,
