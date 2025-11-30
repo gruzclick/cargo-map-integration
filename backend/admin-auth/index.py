@@ -1072,6 +1072,8 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             client_status = body_data.get('client_status')
             client_ready_date = body_data.get('client_ready_date')
             
+            print(f"update_role_status: user_id={user_id}, phone={phone_number}, role={role}")
+            
             if not user_id and not phone_number:
                 return {
                     'statusCode': 400,
@@ -1091,16 +1093,20 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             try:
                 if phone_number:
                     phone_escaped = phone_number.replace("'", "''")
+                    print(f"Looking for user with phone: {phone_escaped}")
                     cur.execute(f"SELECT user_id FROM t_p93479485_cargo_map_integratio.users WHERE phone = '{phone_escaped}'")
                     result = cur.fetchone()
+                    print(f"User lookup result: {result}")
                     if not result:
+                        print(f"User not found for phone: {phone_escaped}")
                         return {
                             'statusCode': 404,
                             'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
-                            'body': json.dumps({'error': 'User not found'}),
+                            'body': json.dumps({'error': 'User not found', 'phone': phone_number}),
                             'isBase64Encoded': False
                         }
                     user_id = str(result['user_id'])
+                    print(f"Found user_id: {user_id}")
                 
                 update_parts = [f"role = '{role}'", "role_status_set = TRUE"]
                 

@@ -33,6 +33,7 @@ import AppDownload from '@/components/AppDownload';
 import { UserProfile } from '@/components/UserProfile';
 import { UserStatusSelector } from '@/components/UserStatusSelector';
 import { RoleSelectionModal } from '@/components/RoleSelectionModal';
+import TelegramPromptModal from '@/components/TelegramPromptModal';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { detectUserCountry, getCurrencyByCountry, getLanguageByCountry } from '@/utils/geoip';
 import { secureLocalStorage } from '@/utils/security';
@@ -45,6 +46,7 @@ const Index = () => {
   const [trackingDeliveryId, setTrackingDeliveryId] = useState<string | null>(null);
   const [showProfile, setShowProfile] = useState(false);
   const [showStatusSelector, setShowStatusSelector] = useState(false);
+  const [showTelegramPrompt, setShowTelegramPrompt] = useState(false);
   const [userStatus, setUserStatus] = useState<'cargo' | 'vehicle' | null>(null);
   const [userLocation, setUserLocation] = useState<{lat: number, lng: number} | null>(null);
 
@@ -99,6 +101,15 @@ const Index = () => {
     
     if (!userData.role_status_set) {
       setShowStatusSelector(true);
+    } else {
+      const telegramVerified = localStorage.getItem('telegram_verified');
+      const telegramSkipped = localStorage.getItem('telegram_prompt_skipped');
+      
+      if (!telegramVerified && !telegramSkipped && !userData.telegram_verified) {
+        setTimeout(() => {
+          setShowTelegramPrompt(true);
+        }, 2000);
+      }
     }
     
     if (navigator.geolocation) {
@@ -122,9 +133,29 @@ const Index = () => {
     setShowStatusSelector(false);
   };
 
-  const handleRoleStatusComplete = () => {
+  const handleRoleStatusComplete = async () => {
     setShowStatusSelector(false);
-    window.location.reload();
+    
+    const userData = secureLocalStorage.get('user_data');
+    if (userData) {
+      try {
+        const updatedUser = JSON.parse(userData);
+        updatedUser.role_status_set = true;
+        secureLocalStorage.set('user_data', JSON.stringify(updatedUser));
+        setUser(updatedUser);
+        
+        const telegramVerified = localStorage.getItem('telegram_verified');
+        const telegramSkipped = localStorage.getItem('telegram_prompt_skipped');
+        
+        if (!telegramVerified && !telegramSkipped && !updatedUser.telegram_verified) {
+          setTimeout(() => {
+            setShowTelegramPrompt(true);
+          }, 1000);
+        }
+      } catch (error) {
+        console.error('Failed to update user data:', error);
+      }
+    }
   };
 
   if (!user && !showAuth) {
@@ -150,6 +181,10 @@ const Index = () => {
     <div className="min-h-screen bg-background animate-fade-in">
       {showStatusSelector && user && (
         <RoleSelectionModal user={user} onComplete={handleRoleStatusComplete} />
+      )}
+      
+      {showTelegramPrompt && user && (
+        <TelegramPromptModal user={user} onComplete={() => setShowTelegramPrompt(false)} />
       )}
       
       <PWAInstallPrompt />
