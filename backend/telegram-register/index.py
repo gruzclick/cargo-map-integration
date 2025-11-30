@@ -87,24 +87,68 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             
             telegram_bot_token = os.environ.get('TELEGRAM_BOT_TOKEN')
             code_sent_via_bot = False
+            telegram_error = None
             
             if telegram_bot_token and telegram_bot_token.strip():
                 try:
                     import requests
                     action_text = 'входа' if is_login else 'регистрации'
                     message = f"🔐 Ваш код подтверждения для {action_text}: {code}\n\nКод действителен 10 минут."
-                    response = requests.post(
-                        f'https://api.telegram.org/bot{telegram_bot_token}/sendMessage',
-                        json={
-                            'chat_id': f'@{telegram_username}',
-                            'text': message
-                        },
+                    
+                    # Получаем chat_id по username
+                    # Сначала пробуем найти пользователя по username
+                    chat_id = None
+                    
+                    # Пробуем получить updates чтобы найти chat_id
+                    updates_response = requests.get(
+                        f'https://api.telegram.org/bot{telegram_bot_token}/getUpdates',
                         timeout=5
                     )
-                    if response.status_code == 200:
-                        code_sent_via_bot = True
+                    
+                    print(f"[DEBUG] Getting updates for bot to find chat_id for @{telegram_username}")
+                    
+                    if updates_response.status_code == 200:
+                        updates_data = updates_response.json()
+                        if updates_data.get('ok'):
+                            for update in updates_data.get('result', []):
+                                msg = update.get('message', {})
+                                from_user = msg.get('from', {})
+                                if from_user.get('username', '').lower() == telegram_username.lower():
+                                    chat_id = from_user.get('id')
+                                    print(f"[DEBUG] Found chat_id: {chat_id} for @{telegram_username}")
+                                    break
+                    
+                    if chat_id:
+                        response = requests.post(
+                            f'https://api.telegram.org/bot{telegram_bot_token}/sendMessage',
+                            json={
+                                'chat_id': chat_id,
+                                'text': message
+                            },
+                            timeout=5
+                        )
+                        
+                        print(f"[DEBUG] Send message response: status={response.status_code}, body={response.text}")
+                        
+                        if response.status_code == 200:
+                            response_data = response.json()
+                            if response_data.get('ok'):
+                                code_sent_via_bot = True
+                            else:
+                                telegram_error = response_data.get('description', 'Unknown error')
+                                print(f"[ERROR] Telegram API error: {telegram_error}")
+                        else:
+                            telegram_error = f"HTTP {response.status_code}"
+                            print(f"[ERROR] HTTP error: {response.status_code} - {response.text}")
+                    else:
+                        telegram_error = "Пользователь должен сначала написать боту /start"
+                        print(f"[ERROR] Chat ID not found for @{telegram_username}. User needs to start bot first.")
+                        
                 except Exception as e:
-                    print(f"Failed to send Telegram message: {e}")
+                    telegram_error = str(e)
+                    print(f"[ERROR] Failed to send Telegram message: {e}")
+                    import traceback
+                    print(traceback.format_exc())
             
             response_body = {
                 'success': True,
@@ -115,6 +159,8 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             
             if not code_sent_via_bot:
                 response_body['code_for_demo'] = code
+                if telegram_error:
+                    response_body['bot_error'] = telegram_error
             
             return {
                 'statusCode': 200,

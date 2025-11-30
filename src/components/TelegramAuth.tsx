@@ -78,10 +78,13 @@ const TelegramAuth = ({ onSuccess, onBack }: TelegramAuthProps) => {
           description: `Проверьте Telegram @${telegramUsername}. ${data.is_login ? 'Добро пожаловать снова!' : 'Новая регистрация'}`
         });
       } else {
+        const errorMsg = data.bot_error || 'Бот не настроен';
         toast({
-          title: 'Код для входа',
-          description: `Используйте код: ${data.code_for_demo}`,
-          duration: 10000
+          title: errorMsg.includes('написать боту') ? 'Напишите боту /start' : 'Код для входа',
+          description: errorMsg.includes('написать боту') 
+            ? `Сначала откройте бота в Telegram и напишите /start, затем запросите код снова. Временный код: ${data.code_for_demo}`
+            : `Используйте код: ${data.code_for_demo}`,
+          duration: 15000
         });
       }
 
