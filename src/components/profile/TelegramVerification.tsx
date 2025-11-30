@@ -120,12 +120,28 @@ export default function TelegramVerification() {
 
   if (verified) {
     return (
-      <div className="flex items-center gap-3 p-4 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg">
-        <Icon name="CheckCircle2" size={24} className="text-green-600 dark:text-green-400" />
-        <div>
-          <p className="font-medium text-green-900 dark:text-green-100">Telegram подтверждён</p>
-          <p className="text-sm text-green-700 dark:text-green-300">@{telegramUsername}</p>
+      <div className="space-y-3">
+        <div className="flex items-center gap-3 p-4 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg">
+          <Icon name="CheckCircle2" size={24} className="text-green-600 dark:text-green-400" />
+          <div className="flex-1">
+            <p className="font-medium text-green-900 dark:text-green-100">Telegram подтверждён</p>
+            <p className="text-sm text-green-700 dark:text-green-300">@{telegramUsername}</p>
+          </div>
         </div>
+        <Button
+          onClick={() => {
+            setVerified(false);
+            setTelegramUsername('');
+            setCode('');
+            setCodeSent(false);
+            localStorage.removeItem('telegram_verified');
+          }}
+          variant="outline"
+          className="w-full"
+        >
+          <Icon name="RefreshCw" size={18} className="mr-2" />
+          Изменить Telegram
+        </Button>
       </div>
     );
   }

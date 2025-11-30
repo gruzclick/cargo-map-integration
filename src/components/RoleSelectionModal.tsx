@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import Icon from '@/components/ui/icon';
 import { useToast } from '@/hooks/use-toast';
+import { secureLocalStorage } from '@/utils/security';
 
 interface RoleSelectionModalProps {
   user: any;
@@ -69,51 +70,82 @@ export const RoleSelectionModal = ({ user, onComplete }: RoleSelectionModalProps
         ? new Date(`${readyDate}T${readyTime}`).toISOString()
         : null;
 
-      const response = await fetch('https://functions.poehali.dev/f06efb37-9437-4df8-8032-f2ba53b2e2d6', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          action: 'update_role_status',
-          user_id: user.user_id || user.id,
-          phone_number: user.phone,
-          role,
-          carrier_status: role === 'carrier' || role === 'logist' ? carrierStatus : null,
-          client_status: role === 'client' || role === 'logist' ? clientStatus : null,
-          client_ready_date: readyDateTime
-        })
-      });
+      let backendSuccess = false;
 
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || 'Ошибка сервера');
-      }
+      try {
+        const response = await fetch('https://functions.poehali.dev/f06efb37-9437-4df8-8032-f2ba53b2e2d6', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            action: 'update_role_status',
+            user_id: user.user_id || user.id,
+            phone_number: user.phone,
+            role,
+            carrier_status: role === 'carrier' || role === 'logist' ? carrierStatus : null,
+            client_status: role === 'client' || role === 'logist' ? clientStatus : null,
+            client_ready_date: readyDateTime
+          })
+        });
 
-      const data = await response.json();
-      
-      if (!data.success) {
-        throw new Error(data.error || data.message || 'Ошибка сервера');
-      }
-
-      if (navigator.geolocation) {
-        navigator.geolocation.getCurrentPosition(
-          async (position) => {
-            try {
-              await fetch('https://functions.poehali.dev/f06efb37-9437-4df8-8032-f2ba53b2e2d6', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                  action: 'update_profile',
-                  user_id: user.user_id || user.id,
-                  phone_number: user.phone,
-                  current_lat: position.coords.latitude,
-                  current_lng: position.coords.longitude
-                })
-              });
-            } catch (err) {
-              console.error('Failed to update location:', err);
+        if (response.ok) {
+          const data = await response.json();
+          if (data.success) {
+            backendSuccess = true;
+            
+            if (navigator.geolocation) {
+              navigator.geolocation.getCurrentPosition(
+                async (position) => {
+                  try {
+                    await fetch('https://functions.poehali.dev/f06efb37-9437-4df8-8032-f2ba53b2e2d6', {
+                      method: 'POST',
+                      headers: { 'Content-Type': 'application/json' },
+                      body: JSON.stringify({
+                        action: 'update_profile',
+                        user_id: user.user_id || user.id,
+                        phone_number: user.phone,
+                        current_lat: position.coords.latitude,
+                        current_lng: position.coords.longitude
+                      })
+                    });
+                  } catch (err) {
+                    console.error('Failed to update location:', err);
+                  }
+                }
+              );
             }
           }
-        );
+        }
+      } catch (backendError) {
+        console.log('Backend unavailable, using local storage:', backendError);
+      }
+
+      if (!backendSuccess) {
+        console.log('Saving role and status to local storage');
+        const userData = secureLocalStorage.get('user_data');
+        if (userData) {
+          const updatedUser = JSON.parse(userData);
+          updatedUser.role = role;
+          updatedUser.role_status_set = true;
+          updatedUser.carrier_status = role === 'carrier' || role === 'logist' ? carrierStatus : null;
+          updatedUser.client_status = role === 'client' || role === 'logist' ? clientStatus : null;
+          updatedUser.client_ready_date = readyDateTime;
+          console.log('Updated user data:', updatedUser);
+          secureLocalStorage.set('user_data', JSON.stringify(updatedUser));
+          console.log('User data saved successfully');
+        } else {
+          console.error('No user_data found in storage');
+        }
+        
+        if (navigator.geolocation) {
+          navigator.geolocation.getCurrentPosition(
+            (position) => {
+              localStorage.setItem('user_location', JSON.stringify({
+                lat: position.coords.latitude,
+                lng: position.coords.longitude
+              }));
+            }
+          );
+        }
       }
 
       toast({
