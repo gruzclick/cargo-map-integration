@@ -9,10 +9,10 @@ import uuid
 
 def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
     '''
-    Business: User registration via Telegram verification
+    Business: User registration and login via Telegram verification
     Args: event with httpMethod, body containing action, telegram_username, code, phone
           context with request_id attribute
-    Returns: HTTP response with registration status and user data
+    Returns: HTTP response with registration/login status and user data
     '''
     method: str = event.get('httpMethod', 'GET')
     
@@ -69,14 +69,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             cur.execute(f"SELECT user_id FROM t_p93479485_cargo_map_integratio.users WHERE telegram = '{telegram_escaped}' AND telegram_verified = TRUE")
             existing_user = cur.fetchone()
             
-            if existing_user:
-                return {
-                    'statusCode': 400,
-                    'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
-                    'body': json.dumps({'error': 'Этот Telegram уже зарегистрирован'}),
-                    'isBase64Encoded': False
-                }
-            
+            is_login = existing_user is not None
             code = str(random.randint(100000, 999999))
             expires_at = (datetime.now() + timedelta(minutes=10)).isoformat()
             
@@ -96,7 +89,8 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             if telegram_bot_token:
                 try:
                     import requests
-                    message = f"🔐 Ваш код подтверждения для регистрации: {code}\n\nКод действителен 10 минут."
+                    action_text = 'входа' if is_login else 'регистрации'
+                    message = f"🔐 Ваш код подтверждения для {action_text}: {code}\n\nКод действителен 10 минут."
                     requests.post(
                         f'https://api.telegram.org/bot{telegram_bot_token}/sendMessage',
                         json={
@@ -114,7 +108,8 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                 'body': json.dumps({
                     'success': True,
                     'message': f'Код отправлен в Telegram @{telegram_username}',
-                    'code_for_demo': code
+                    'code_for_demo': code,
+                    'is_login': is_login
                 }),
                 'isBase64Encoded': False
             }
@@ -159,6 +154,41 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                     'isBase64Encoded': False
                 }
             
+            cur.execute(f"SELECT user_id, telegram, phone, full_name, role, carrier_status, client_status, client_ready_date, role_status_set, current_lat, current_lng, telegram_verified FROM t_p93479485_cargo_map_integratio.users WHERE telegram = '{telegram_escaped}' AND telegram_verified = TRUE")
+            existing_user = cur.fetchone()
+            
+            if existing_user:
+                cur.execute(f"""
+                    DELETE FROM t_p93479485_cargo_map_integratio.telegram_verification_codes 
+                    WHERE telegram_username = '{telegram_escaped}'
+                """)
+                conn.commit()
+                
+                return {
+                    'statusCode': 200,
+                    'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                    'body': json.dumps({
+                        'success': True,
+                        'message': 'Вход выполнен успешно!',
+                        'is_login': True,
+                        'user': {
+                            'user_id': str(existing_user['user_id']),
+                            'telegram': existing_user['telegram'],
+                            'telegram_verified': existing_user['telegram_verified'],
+                            'phone': existing_user.get('phone'),
+                            'full_name': existing_user.get('full_name'),
+                            'role': existing_user.get('role'),
+                            'carrier_status': existing_user.get('carrier_status'),
+                            'client_status': existing_user.get('client_status'),
+                            'client_ready_date': existing_user['client_ready_date'].isoformat() if existing_user.get('client_ready_date') else None,
+                            'role_status_set': existing_user.get('role_status_set', False),
+                            'current_lat': float(existing_user['current_lat']) if existing_user.get('current_lat') else None,
+                            'current_lng': float(existing_user['current_lng']) if existing_user.get('current_lng') else None
+                        }
+                    }),
+                    'isBase64Encoded': False
+                }
+            
             new_user_id = str(uuid.uuid4())
             phone_escaped = phone.replace("'", "''") if phone else ''
             full_name_escaped = full_name.replace("'", "''") if full_name else telegram_username
@@ -194,6 +224,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                 'body': json.dumps({
                     'success': True,
                     'message': 'Регистрация успешна!',
+                    'is_login': False,
                     'user': {
                         'user_id': str(new_user['user_id']),
                         'telegram': new_user['telegram'],

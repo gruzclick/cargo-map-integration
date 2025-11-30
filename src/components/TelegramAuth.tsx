@@ -49,9 +49,10 @@ const TelegramAuth = ({ onSuccess, onBack }: TelegramAuthProps) => {
         throw new Error(data.error || 'Не удалось отправить код');
       }
 
+      const actionText = data.is_login ? 'входа' : 'регистрации';
       toast({
         title: 'Код отправлен!',
-        description: `Проверьте Telegram @${telegramUsername}. Демо-код: ${data.code_for_demo}`
+        description: `Проверьте Telegram @${telegramUsername}. ${data.is_login ? 'Добро пожаловать снова!' : 'Новая регистрация'} Демо-код: ${data.code_for_demo}`
       });
 
       setStep('code');
@@ -101,9 +102,12 @@ const TelegramAuth = ({ onSuccess, onBack }: TelegramAuthProps) => {
       secureLocalStorage.set('auth_token', mockToken);
       secureLocalStorage.set('user_data', JSON.stringify(data.user));
 
+      const successTitle = data.is_login ? 'Вход выполнен!' : 'Регистрация успешна!';
+      const successDescription = data.is_login ? 'С возвращением!' : 'Добро пожаловать!';
+      
       toast({
-        title: 'Регистрация успешна!',
-        description: 'Добро пожаловать!'
+        title: successTitle,
+        description: successDescription
       });
 
       onSuccess(data.user);
@@ -128,7 +132,7 @@ const TelegramAuth = ({ onSuccess, onBack }: TelegramAuthProps) => {
           <div>
             <CardTitle className="flex items-center gap-2">
               <Icon name="MessageCircle" size={24} className="text-blue-500" />
-              Регистрация через Telegram
+              Telegram вход
             </CardTitle>
             <CardDescription>
               {step === 'username' ? 'Введите ваш Telegram username' : 'Введите код из Telegram'}
