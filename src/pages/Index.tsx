@@ -52,13 +52,41 @@ const Index = () => {
   const [userLocation, setUserLocation] = useState<{lat: number, lng: number} | null>(null);
 
   useEffect(() => {
-    const checkAuth = () => {
+    const checkAuth = async () => {
       const token = secureLocalStorage.get('auth_token');
       const userData = secureLocalStorage.get('user_data');
       
       if (token && userData) {
         try {
           const parsedUser = JSON.parse(userData);
+          
+          // Пытаемся загрузить актуальные данные с сервера
+          const userId = parsedUser.user_id || parsedUser.id;
+          if (userId) {
+            try {
+              const response = await fetch('https://functions.poehali.dev/1ff38065-516a-4892-8531-03c46020b273', {
+                method: 'GET',
+                headers: {
+                  'X-User-Id': userId
+                }
+              });
+              
+              if (response.ok) {
+                const data = await response.json();
+                if (data.success && data.user) {
+                  console.log('Loaded fresh user data from server');
+                  secureLocalStorage.set('user_data', JSON.stringify(data.user));
+                  setUser(data.user);
+                  setShowAuth(false);
+                  return;
+                }
+              }
+            } catch (serverError) {
+              console.log('Server unavailable, using cached data');
+            }
+          }
+          
+          // Fallback: используем данные из localStorage
           setUser(parsedUser);
           setShowAuth(false);
         } catch (error) {

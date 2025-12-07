@@ -77,15 +77,17 @@ export const PersonalDataTab = ({ user }: PersonalDataTabProps) => {
       return;
     }
 
-    let backendSuccess = false;
-
     try {
-      const response = await fetch('https://functions.poehali.dev/f06efb37-9437-4df8-8032-f2ba53b2e2d6', {
+      const userId = user?.user_id || user?.id;
+      console.log('Sending to backend, user_id:', userId);
+      
+      const response = await fetch('https://functions.poehali.dev/1ff38065-516a-4892-8531-03c46020b273', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 
+          'Content-Type': 'application/json',
+          'X-User-Id': userId
+        },
         body: JSON.stringify({
-          action: 'update_profile',
-          user_id: user?.user_id || user?.id,
           full_name: fullName,
           phone_number: phone,
           telegram,
@@ -95,53 +97,34 @@ export const PersonalDataTab = ({ user }: PersonalDataTabProps) => {
         })
       });
 
-      if (response.ok) {
-        const data = await response.json();
-        if (data.success) {
-          backendSuccess = true;
-        }
+      const data = await response.json();
+      console.log('Backend response:', data);
+
+      if (!response.ok) {
+        throw new Error(data.error || 'Не удалось сохранить данные на сервере');
+      }
+
+      if (data.success && data.user) {
+        console.log('Profile updated successfully on server');
+        
+        // Обновляем localStorage с данными с сервера
+        secureLocalStorage.set('user_data', JSON.stringify(data.user));
+        
+        // Отправляем событие для обновления всех компонентов
+        window.dispatchEvent(new CustomEvent('userDataUpdated', { detail: data.user }));
+        
+        toast({
+          title: 'Профиль обновлен',
+          description: 'Ваши данные успешно сохранены и синхронизированы'
+        });
+        
+        return; // Выходим, если успешно сохранили на сервере
       }
     } catch (backendError) {
-      console.log('Backend unavailable, using local storage:', backendError);
-    }
-
-    try {
-      let updatedUser: any;
-      const userData = secureLocalStorage.get('user_data');
-      console.log('Current user_data from storage:', userData);
-      
-      if (userData) {
-        updatedUser = JSON.parse(userData);
-      } else if (user) {
-        console.log('No user_data in storage, creating from user prop');
-        updatedUser = { ...user };
-      } else {
-        throw new Error('No user data available');
-      }
-
-      updatedUser.full_name = fullName;
-      updatedUser.phone_number = phone;
-      updatedUser.telegram = telegram;
-      updatedUser.company = company;
-      updatedUser.inn = inn;
-      updatedUser.avatar = avatar;
-      
-      console.log('Updated user object:', updatedUser);
-      
-      secureLocalStorage.set('user_data', JSON.stringify(updatedUser));
-      console.log('Saved to storage, dispatching event');
-      
-      window.dispatchEvent(new CustomEvent('userDataUpdated', { detail: updatedUser }));
-      
+      console.error('Backend error:', backendError);
       toast({
-        title: 'Профиль обновлен',
-        description: 'Ваши данные успешно сохранены'
-      });
-    } catch (error) {
-      console.error('Error saving profile:', error);
-      toast({
-        title: 'Ошибка',
-        description: error instanceof Error ? error.message : 'Не удалось сохранить данные',
+        title: 'Ошибка сохранения',
+        description: backendError instanceof Error ? backendError.message : 'Не удалось сохранить данные',
         variant: 'destructive'
       });
     }

@@ -21,11 +21,40 @@ export default function Profile() {
   const [entityType, setEntityType] = useState('individual');
 
   useEffect(() => {
-    const checkAuth = () => {
+    const checkAuth = async () => {
       const token = secureLocalStorage.get('auth_token');
       if (!token) {
         navigate('/');
         return;
+      }
+      
+      // Загружаем свежие данные с сервера при открытии профиля
+      const userData = secureLocalStorage.get('user_data');
+      if (userData) {
+        try {
+          const parsedUser = JSON.parse(userData);
+          const userId = parsedUser.user_id || parsedUser.id;
+          
+          if (userId) {
+            const response = await fetch('https://functions.poehali.dev/1ff38065-516a-4892-8531-03c46020b273', {
+              method: 'GET',
+              headers: {
+                'X-User-Id': userId
+              }
+            });
+            
+            if (response.ok) {
+              const data = await response.json();
+              if (data.success && data.user) {
+                console.log('Profile: Loaded fresh user data from server');
+                secureLocalStorage.set('user_data', JSON.stringify(data.user));
+                window.dispatchEvent(new CustomEvent('userDataUpdated', { detail: data.user }));
+              }
+            }
+          }
+        } catch (error) {
+          console.log('Profile: Using cached user data');
+        }
       }
     };
 

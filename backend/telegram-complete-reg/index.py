@@ -115,6 +115,8 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                 SET 
                     full_name = '{full_name_escaped}',
                     phone = '{phone_escaped}',
+                    phone_number = '{phone_escaped}',
+                    telegram_id = {telegram_user_id_int},
                     user_type = '{user_type}',
                     role = '{user_type}',
                     telegram = {f"'{telegram_username_escaped}'" if telegram_username else 'NULL'},
@@ -126,18 +128,21 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                     role_status_set = TRUE,
                     updated_at = NOW()
                 WHERE user_id = '{user_id}'
-                RETURNING user_id, telegram, full_name, phone, user_type, role, created_at
+                RETURNING user_id, telegram_id, telegram, full_name, phone_number, 
+                          company, inn, avatar, role
             """)
             
             row = cur.fetchone()
             updated_user = {
-                'user_id': row[0],
-                'telegram': row[1],
-                'full_name': row[2],
-                'phone': row[3],
-                'user_type': row[4],
-                'role': row[5],
-                'created_at': row[6]
+                'user_id': str(row[0]),
+                'telegram_id': row[1],
+                'telegram': row[2],
+                'full_name': row[3],
+                'phone_number': row[4],
+                'company': row[5],
+                'inn': row[6],
+                'avatar': row[7],
+                'role': row[8]
             }
             conn.commit()
             
@@ -146,15 +151,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             result = {
                 'success': True,
                 'message': 'Регистрация завершена успешно!',
-                'user': {
-                    'user_id': updated_user['user_id'],
-                    'telegram': updated_user['telegram'],
-                    'full_name': updated_user['full_name'],
-                    'phone': updated_user['phone'],
-                    'role': updated_user['role'],
-                    'telegram_verified': True,
-                    'role_status_set': True
-                }
+                'user': updated_user
             }
             
         else:
@@ -169,15 +166,18 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             
             cur.execute(f"""
                 INSERT INTO t_p93479485_cargo_map_integratio.users 
-                (user_id, email, password_hash, telegram, telegram_verified, telegram_chat_id, phone, full_name, user_type, role, 
+                (user_id, email, password_hash, telegram, telegram_id, telegram_verified, telegram_chat_id, 
+                 phone, phone_number, full_name, user_type, role, 
                  entity_type, inn, organization_name, avatar, role_status_set, email_verified, created_at, updated_at)
                 VALUES (
                     '{new_user_id}',
                     '{email_placeholder}',
                     '{password_hash_placeholder}',
                     {f"'{telegram_username_escaped}'" if telegram_username else 'NULL'},
+                    {telegram_user_id_int},
                     TRUE,
                     {telegram_user_id_int},
+                    '{phone_escaped}',
                     '{phone_escaped}',
                     '{full_name_escaped}',
                     '{user_type}',
@@ -191,18 +191,20 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                     NOW(),
                     NOW()
                 )
-                RETURNING user_id, telegram, phone, full_name, user_type, role, created_at
+                RETURNING user_id, telegram_id, telegram, phone_number, full_name, company, inn, avatar, role
             """)
             
             row = cur.fetchone()
             new_user = {
-                'user_id': row[0],
-                'telegram': row[1],
-                'phone': row[2],
-                'full_name': row[3],
-                'user_type': row[4],
-                'role': row[5],
-                'created_at': row[6]
+                'user_id': str(row[0]),
+                'telegram_id': row[1],
+                'telegram': row[2],
+                'phone_number': row[3],
+                'full_name': row[4],
+                'company': row[5],
+                'inn': row[6],
+                'avatar': row[7],
+                'role': row[8]
             }
             conn.commit()
             
@@ -211,16 +213,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             result = {
                 'success': True,
                 'message': 'Регистрация завершена успешно!',
-                'user': {
-                    'user_id': new_user['user_id'],
-                    'telegram': new_user['telegram'],
-                    'full_name': new_user['full_name'],
-                    'phone': new_user['phone'],
-                    'role': new_user['role'],
-                    'telegram_verified': True,
-                    'role_status_set': True,
-                    'created_at': new_user['created_at'].isoformat() if new_user['created_at'] else None
-                }
+                'user': new_user
             }
         
         cur.close()

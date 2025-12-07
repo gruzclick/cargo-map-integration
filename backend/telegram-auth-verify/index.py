@@ -132,7 +132,8 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
         
         # Проверяем, существует ли пользователь с таким telegram_chat_id
         cur.execute(f"""
-            SELECT user_id, telegram, full_name, phone, role
+            SELECT user_id, telegram_id, telegram, full_name, phone, phone_number, 
+                   company, inn, avatar, role
             FROM t_p93479485_cargo_map_integratio.users
             WHERE telegram_chat_id = {session['telegram_user_id']}
             LIMIT 1
@@ -157,10 +158,14 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
         
         if existing_user:
             result['user'] = {
-                'user_id': existing_user['user_id'],
+                'user_id': str(existing_user['user_id']),
+                'telegram_id': existing_user['telegram_id'],
                 'telegram': existing_user['telegram'],
                 'full_name': existing_user['full_name'],
-                'phone': existing_user['phone'],
+                'phone_number': existing_user['phone_number'] or existing_user['phone'],
+                'company': existing_user['company'],
+                'inn': existing_user['inn'],
+                'avatar': existing_user['avatar'],
                 'role': existing_user['role']
             }
         
