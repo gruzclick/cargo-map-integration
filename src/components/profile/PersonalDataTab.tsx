@@ -149,11 +149,11 @@ export const PersonalDataTab = ({ user }: PersonalDataTabProps) => {
         </div>
       </div>
       <div className="p-4 space-y-2">
-        <SettingItem label="ФИО" value={fullName} onChange={setFullName} />
-        <SettingItem label="Телефон" value={phone} onChange={setPhone} type="tel" />
-        <SettingItem label="Telegram" value={telegram} onChange={setTelegram} placeholder="@username" />
-        <SettingItem label="Компания" value={company} onChange={setCompany} />
-        <SettingItem label="ИНН" value={inn} onChange={setInn} />
+        <SettingItem label="ФИО" value={fullName} onChange={setFullName} required helperText="Обязательно для безопасных сделок" />
+        <SettingItem label="Телефон" value={phone} onChange={setPhone} type="tel" required helperText="Для связи и подтверждения сделок" />
+        <SettingItem label="Telegram" value={telegram} onChange={setTelegram} placeholder="@username" recommended helperText="Рекомендуется для быстрой связи" />
+        <SettingItem label="Компания" value={company} onChange={setCompany} recommended helperText="Повышает доверие контрагентов" />
+        <SettingItem label="ИНН" value={inn} onChange={setInn} recommended helperText="Подтверждает легальность бизнеса" />
       </div>
       <div className="p-4">
         <button
@@ -168,9 +168,15 @@ export const PersonalDataTab = ({ user }: PersonalDataTabProps) => {
   );
 };
 
-const SettingItem = ({ label, value, onChange, type = 'text', placeholder = '' }: any) => (
+const SettingItem = ({ label, value, onChange, type = 'text', placeholder = '', required = false, recommended = false, helperText = '' }: any) => (
   <div className="bg-gray-50 dark:bg-[#1c2733] rounded-lg p-3">
-    <label className="block text-xs text-gray-500 dark:text-gray-400 mb-1">{label}</label>
+    <div className="flex items-center justify-between mb-1">
+      <label className="block text-xs text-gray-500 dark:text-gray-400">
+        {label}
+        {required && <span className="text-red-500 ml-1">*</span>}
+        {recommended && <span className="text-blue-500 text-[10px] ml-1">реком.</span>}
+      </label>
+    </div>
     <input
       type={type}
       value={value}
@@ -178,5 +184,8 @@ const SettingItem = ({ label, value, onChange, type = 'text', placeholder = '' }
       placeholder={placeholder}
       className="w-full bg-transparent border-none outline-none text-gray-900 dark:text-white text-base"
     />
+    {helperText && (
+      <p className="text-[10px] text-gray-400 dark:text-gray-500 mt-1">{helperText}</p>
+    )}
   </div>
 );

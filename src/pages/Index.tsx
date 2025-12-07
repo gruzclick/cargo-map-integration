@@ -52,21 +52,39 @@ const Index = () => {
   const [userLocation, setUserLocation] = useState<{lat: number, lng: number} | null>(null);
 
   useEffect(() => {
-    const token = secureLocalStorage.get('auth_token');
-    const userData = secureLocalStorage.get('user_data');
-    
-    if (token && userData) {
-      try {
-        setUser(JSON.parse(userData));
-      } catch (error) {
-        console.error('Failed to parse user data:', error);
-        secureLocalStorage.remove('auth_token');
-        secureLocalStorage.remove('user_data');
+    const checkAuth = () => {
+      const token = secureLocalStorage.get('auth_token');
+      const userData = secureLocalStorage.get('user_data');
+      
+      if (token && userData) {
+        try {
+          const parsedUser = JSON.parse(userData);
+          setUser(parsedUser);
+          setShowAuth(false);
+        } catch (error) {
+          console.error('Failed to parse user data:', error);
+          secureLocalStorage.remove('auth_token');
+          secureLocalStorage.remove('user_data');
+          setShowAuth(true);
+        }
+      } else {
+        setShowAuth(true);
       }
-    }
+    };
+
+    checkAuth();
 
     const handleUserDataUpdate = (event: CustomEvent) => {
       setUser(event.detail);
+      const userData = secureLocalStorage.get('user_data');
+      if (userData) {
+        try {
+          const parsedUser = JSON.parse(userData);
+          setUser(parsedUser);
+        } catch (error) {
+          console.error('Failed to update user data:', error);
+        }
+      }
     };
 
     window.addEventListener('userDataUpdated', handleUserDataUpdate as EventListener);

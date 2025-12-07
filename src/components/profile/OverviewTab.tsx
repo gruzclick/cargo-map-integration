@@ -4,6 +4,7 @@ import Icon from '@/components/ui/icon';
 import { useToast } from '@/hooks/use-toast';
 import { Button } from '@/components/ui/button';
 import { useNavigate } from 'react-router-dom';
+import { ProfileSecurityTips } from '@/components/ProfileSecurityTips';
 
 interface OverviewTabProps {
   mockUserName: string;
@@ -112,6 +113,8 @@ const OverviewTab = ({ mockUserName, userType }: OverviewTabProps) => {
           </div>
         </CardContent>
       </Card>
+
+      <ProfileSecurityTips />
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <Card>

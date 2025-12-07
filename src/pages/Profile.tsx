@@ -21,17 +21,30 @@ export default function Profile() {
   const [entityType, setEntityType] = useState('individual');
 
   useEffect(() => {
-    const token = secureLocalStorage.get('auth_token');
-    if (!token) {
-      navigate('/');
-      return;
-    }
+    const checkAuth = () => {
+      const token = secureLocalStorage.get('auth_token');
+      if (!token) {
+        navigate('/');
+        return;
+      }
+    };
+
+    checkAuth();
 
     const loadCountryInfo = async () => {
       const info = await detectUserCountry();
       setCountryInfo(info);
     };
     loadCountryInfo();
+
+    const handleStorageChange = (e: StorageEvent) => {
+      if (e.key === 'auth_token' && !e.newValue) {
+        navigate('/');
+      }
+    };
+
+    window.addEventListener('storage', handleStorageChange);
+    return () => window.removeEventListener('storage', handleStorageChange);
   }, [navigate]);
 
   return (

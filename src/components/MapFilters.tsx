@@ -66,25 +66,25 @@ const MapFilters = ({ onFilterChange, className }: MapFiltersProps) => {
                   variant={filters.userType === 'all' ? 'default' : 'outline'}
                   size="sm"
                   onClick={() => updateFilter('userType', 'all')}
-                  className="text-xs h-8 rounded-lg px-2 whitespace-nowrap flex-1"
+                  className="text-[11px] h-9 rounded-lg px-1.5 whitespace-nowrap flex-1 min-w-0"
                 >
-                  Логист
+                  <span className="truncate">Логист</span>
                 </Button>
                 <Button
                   variant={filters.userType === 'client' ? 'default' : 'outline'}
                   size="sm"
                   onClick={() => updateFilter('userType', 'client')}
-                  className="text-xs h-8 rounded-lg px-2 whitespace-nowrap flex-1"
+                  className="text-[11px] h-9 rounded-lg px-1.5 whitespace-nowrap flex-1 min-w-0"
                 >
-                  Клиент
+                  <span className="truncate">Клиент</span>
                 </Button>
                 <Button
                   variant={filters.userType === 'carrier' ? 'default' : 'outline'}
                   size="sm"
                   onClick={() => updateFilter('userType', 'carrier')}
-                  className="text-xs h-8 rounded-lg px-2 whitespace-nowrap flex-1"
+                  className="text-[11px] h-9 rounded-lg px-1 whitespace-nowrap flex-1 min-w-0"
                 >
-                  Перевозчик
+                  <span className="truncate">Перевозчик</span>
                 </Button>
               </div>
             </div>
@@ -179,19 +179,30 @@ const MapFilters = ({ onFilterChange, className }: MapFiltersProps) => {
                   </>
                 )}
 
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => {
-                    const resetFilters = { userType: 'all' as const };
-                    setFilters(resetFilters);
-                    onFilterChange(resetFilters);
-                  }}
-                  className="w-full text-[10px] md:text-xs h-7 md:h-8 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800"
-                >
-                  <Icon name="RotateCcw" size={12} className="mr-1 md:w-[14px] md:h-[14px]" />
-                  Сбросить фильтры
-                </Button>
+                <div className="grid grid-cols-2 gap-1.5">
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => setIsExpanded(!isExpanded)}
+                    className="text-[11px] h-8 rounded-lg px-2 hover:bg-gray-100 dark:hover:bg-gray-800 min-w-0"
+                  >
+                    <Icon name="SlidersHorizontal" size={14} className="mr-1" />
+                    <span className="truncate">{isExpanded ? 'Меньше' : 'Больше'}</span>
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => {
+                      const resetFilters = { userType: 'all' as const };
+                      setFilters(resetFilters);
+                      onFilterChange(resetFilters);
+                    }}
+                    className="text-[11px] h-8 rounded-lg px-2 hover:bg-gray-100 dark:hover:bg-gray-800 min-w-0"
+                  >
+                    <Icon name="RotateCcw" size={14} className="mr-1" />
+                    <span className="truncate">Сбросить</span>
+                  </Button>
+                </div>
               </>
             )}
           </div>
