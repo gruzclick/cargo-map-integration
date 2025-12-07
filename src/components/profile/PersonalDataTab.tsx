@@ -91,29 +91,24 @@ export const PersonalDataTab = ({ user }: PersonalDataTabProps) => {
       console.log('Backend unavailable, using local storage:', backendError);
     }
 
-    if (!backendSuccess) {
-      console.log('Saving profile to local storage');
-      const userData = secureLocalStorage.get('user_data');
-      if (userData) {
-        const updatedUser = JSON.parse(userData);
-        updatedUser.full_name = fullName;
-        updatedUser.phone = phone;
-        updatedUser.telegram = telegram;
-        updatedUser.company = company;
-        updatedUser.inn = inn;
-        updatedUser.avatar = avatar;
-        secureLocalStorage.set('user_data', JSON.stringify(updatedUser));
-      }
+    const userData = secureLocalStorage.get('user_data');
+    if (userData) {
+      const updatedUser = JSON.parse(userData);
+      updatedUser.full_name = fullName;
+      updatedUser.phone = phone;
+      updatedUser.telegram = telegram;
+      updatedUser.company = company;
+      updatedUser.inn = inn;
+      updatedUser.avatar = avatar;
+      secureLocalStorage.set('user_data', JSON.stringify(updatedUser));
+      
+      window.dispatchEvent(new CustomEvent('userDataUpdated', { detail: updatedUser }));
     }
 
     toast({
       title: 'Профиль обновлен',
       description: 'Ваши данные успешно сохранены'
     });
-    
-    setTimeout(() => {
-      window.location.reload();
-    }, 1000);
   };
 
   return (

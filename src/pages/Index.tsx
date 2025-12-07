@@ -64,6 +64,13 @@ const Index = () => {
       }
     }
 
+    const handleUserDataUpdate = (event: CustomEvent) => {
+      setUser(event.detail);
+    };
+
+    window.addEventListener('userDataUpdated', handleUserDataUpdate as EventListener);
+    return () => window.removeEventListener('userDataUpdated', handleUserDataUpdate as EventListener);
+
     const initializeGeoSettings = async () => {
       const savedCurrency = localStorage.getItem('user_currency');
       const savedLanguage = localStorage.getItem('user_language');
@@ -316,10 +323,6 @@ const Index = () => {
               <span className="hidden md:inline">История</span>
             </TabsTrigger>
 
-            <TabsTrigger value="profile" className="rounded-xl data-[state=active]:bg-white/80 dark:data-[state=active]:bg-gray-800/80 data-[state=active]:backdrop-blur-xl data-[state=active]:shadow-md text-xs md:text-sm">
-              <Icon name="User" size={16} className="md:mr-2" />
-              <span className="hidden md:inline">Профиль</span>
-            </TabsTrigger>
             <TabsTrigger value="download" className="rounded-xl data-[state=active]:bg-white/80 dark:data-[state=active]:bg-gray-800/80 data-[state=active]:backdrop-blur-xl data-[state=active]:shadow-md text-xs md:text-sm">
               <Icon name="Download" size={16} className="md:mr-2" />
               <span className="hidden md:inline">Скачать</span>
@@ -400,49 +403,6 @@ const Index = () => {
           <TabsContent value="history" className="animate-slide-in-up">
             <div className="max-w-4xl mx-auto">
               <DeliveryHistory userId={user.id} userType={user.user_type} />
-            </div>
-          </TabsContent>
-
-
-
-          <TabsContent value="profile" className="animate-slide-in-up">
-            <div className="max-w-4xl mx-auto space-y-6">
-              {user.user_type === 'client' && (
-                <RestStatusManager userType="client" onStatusChange={() => {}} />
-              )}
-              
-              <div className="bg-card rounded-3xl shadow-xl p-8 space-y-6">
-                <div className="flex items-center gap-4 pb-6 border-b">
-                  <div className="w-20 h-20 bg-accent/10 rounded-2xl flex items-center justify-center">
-                    <Icon name="User" size={36} className="text-accent" />
-                  </div>
-                  <div>
-                    <h3 className="text-2xl font-semibold">{user.full_name}</h3>
-                    <p className="text-muted-foreground">{user.email}</p>
-                  </div>
-                </div>
-
-                <div className="space-y-4">
-                  <div className="flex justify-between items-center py-3 border-b">
-                    <span className="text-muted-foreground">Тип аккаунта</span>
-                    <span className="font-medium">
-                      {user.user_type === 'client' ? 'Клиент' : 'Перевозчик'}
-                    </span>
-                  </div>
-                  <div className="flex justify-between items-center py-3 border-b">
-                    <span className="text-muted-foreground">Email</span>
-                    <span className="font-medium">{user.email}</span>
-                  </div>
-                </div>
-              </div>
-
-              {user.user_type === 'carrier' && (
-                <RatingSystem 
-                  carrierId={user.id} 
-                  carrierName={user.full_name}
-                  canReview={false}
-                />
-              )}
             </div>
           </TabsContent>
 
