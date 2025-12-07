@@ -95,7 +95,7 @@ export const PersonalDataTab = ({ user }: PersonalDataTabProps) => {
     if (userData) {
       const updatedUser = JSON.parse(userData);
       updatedUser.full_name = fullName;
-      updatedUser.phone = phone;
+      updatedUser.phone_number = phone;
       updatedUser.telegram = telegram;
       updatedUser.company = company;
       updatedUser.inn = inn;

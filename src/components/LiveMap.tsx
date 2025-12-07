@@ -224,14 +224,14 @@ const LiveMap = ({ isPublic = false, onMarkerClick }: LiveMapProps = {}) => {
       )}
 
 
-      {/* Боковая панель слева - компактная */}
+      {/* Боковая панель слева - ультра компактная */}
       {showSidebar && (
         <div 
           onClick={() => setLastInteraction(Date.now())}
           onTouchStart={handleTouchStart}
           onTouchMove={handleTouchMove}
           onTouchEnd={handleTouchEnd}
-          className="absolute top-20 left-1/2 md:left-3 md:top-20 -translate-x-1/2 md:translate-x-0 max-h-[calc(100vh-5.5rem)] w-[calc(100%-1.5rem)] md:w-72 bg-white/15 dark:bg-gray-900/15 backdrop-blur-3xl border border-white/40 dark:border-gray-700/40 shadow-2xl rounded-2xl z-10 overflow-hidden animate-slide-in-left flex flex-col touch-pan-y overscroll-contain">
+          className="absolute top-20 left-1/2 md:left-3 md:top-20 -translate-x-1/2 md:translate-x-0 max-h-[calc(100vh-5.5rem)] w-[calc(100%-1.5rem)] md:w-56 bg-white/10 dark:bg-gray-900/10 backdrop-blur-3xl border border-white/30 dark:border-gray-700/30 shadow-2xl rounded-2xl z-10 overflow-hidden animate-slide-in-left flex flex-col touch-pan-y overscroll-contain">
           {/* Табы и Поиск/Статистика */}
           <div className="flex items-center justify-between p-2 gap-2">
             <div className="flex items-center gap-2 flex-1">
@@ -284,13 +284,10 @@ const LiveMap = ({ isPublic = false, onMarkerClick }: LiveMapProps = {}) => {
                         className="flex items-center justify-between p-2 cursor-pointer hover:bg-white/20 dark:hover:bg-gray-800/20 transition-all"
                       >
                         <div className="flex items-center gap-2">
-                          <div className="w-7 h-7 bg-gradient-to-br from-blue-400 to-blue-600 rounded-lg flex items-center justify-center shadow-lg">
-                            <Icon name="Package" size={14} className="text-white" />
+                          <div className="w-6 h-6 bg-blue-500 rounded-lg flex items-center justify-center">
+                            <Icon name="Package" size={12} className="text-white" />
                           </div>
-                          <div className="flex items-center gap-1.5">
-                            <p className="text-base font-bold text-gray-900 dark:text-white">{cargoCount}</p>
-                            <p className="text-xs text-gray-700 dark:text-gray-300">Грузов</p>
-                          </div>
+                          <span className="text-sm font-semibold text-gray-900 dark:text-white">{cargoCount} грузов</span>
                         </div>
                         <Icon name={cargoBlockExpanded ? 'ChevronUp' : 'ChevronDown'} size={16} className="text-gray-600 dark:text-gray-400" />
                       </div>
@@ -315,13 +312,10 @@ const LiveMap = ({ isPublic = false, onMarkerClick }: LiveMapProps = {}) => {
                         className="flex items-center justify-between p-2 cursor-pointer hover:bg-white/20 dark:hover:bg-gray-800/20 transition-all"
                       >
                         <div className="flex items-center gap-2">
-                          <div className="w-7 h-7 bg-gradient-to-br from-green-400 to-green-600 rounded-lg flex items-center justify-center shadow-lg">
-                            <Icon name="Truck" size={14} className="text-white" />
+                          <div className="w-6 h-6 bg-green-500 rounded-lg flex items-center justify-center">
+                            <Icon name="Truck" size={12} className="text-white" />
                           </div>
-                          <div className="flex items-center gap-1.5">
-                            <p className="text-base font-bold text-gray-900 dark:text-white">{driverCount}</p>
-                            <p className="text-xs text-gray-700 dark:text-gray-300">Перевозчиков</p>
-                          </div>
+                          <span className="text-sm font-semibold text-gray-900 dark:text-white">{driverCount} водителей</span>
                         </div>
                         <Icon name={driverBlockExpanded ? 'ChevronUp' : 'ChevronDown'} size={16} className="text-gray-600 dark:text-gray-400" />
                       </div>
