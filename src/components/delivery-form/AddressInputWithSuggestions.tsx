@@ -82,18 +82,18 @@ const AddressInputWithSuggestions = ({
             className="min-h-[80px]"
           />
           {showSuggestions && suggestions.length > 0 && (
-            <div className="absolute top-full left-0 right-0 mt-1 bg-white dark:bg-gray-800 border rounded-lg shadow-lg max-h-60 overflow-y-auto z-50">
+            <div className="absolute top-full left-0 right-0 mt-1 bg-white dark:bg-gray-800 border rounded-lg shadow-xl max-h-[300px] sm:max-h-[400px] overflow-y-auto z-[100]">
               {suggestions.map((warehouse, idx) => (
                 <button
                   key={idx}
                   type="button"
                   onClick={() => selectWarehouse(warehouse)}
-                  className="w-full px-3 py-2 text-left hover:bg-gray-100 dark:hover:bg-gray-700 border-b last:border-b-0"
+                  className="w-full px-3 py-3 sm:px-4 sm:py-3 text-left hover:bg-gray-100 dark:hover:bg-gray-700 border-b last:border-b-0 transition-colors"
                 >
-                  <div className="font-semibold text-sm">
+                  <div className="font-semibold text-sm sm:text-base break-words">
                     {warehouse.marketplace} — {warehouse.city}
                   </div>
-                  <div className="text-xs text-gray-600 dark:text-gray-400">
+                  <div className="text-xs sm:text-sm text-gray-600 dark:text-gray-400 mt-1 break-words leading-relaxed">
                     {warehouse.address}
                   </div>
                 </button>

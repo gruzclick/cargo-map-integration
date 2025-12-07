@@ -97,6 +97,8 @@ const Index = () => {
 
   const handleAuthSuccess = (userData: any) => {
     setUser(userData);
+    secureLocalStorage.set('auth_token', userData.session_token || 'authenticated');
+    secureLocalStorage.set('user_data', JSON.stringify(userData));
     setShowAuth(false);
     
     if (!userData.role_status_set) {
