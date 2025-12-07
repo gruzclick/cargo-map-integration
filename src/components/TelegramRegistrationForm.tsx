@@ -61,12 +61,22 @@ const TelegramRegistrationForm = ({ telegramData, onSuccess, onBack }: TelegramR
     setLoading(true);
 
     try {
-      // Регистрация через telegram-register
-      const response = await fetch('https://functions.poehali.dev/fce21e37-0815-4e15-9fe5-73fccd09e187', {
+      // Сначала проверяем, что пользователь прошёл через Telegram auth
+      if (!telegramData.user_id || !telegramData.session_token) {
+        throw new Error('Необходима авторизация через Telegram');
+      }
+
+      // Обновляем данные пользователя после Telegram auth
+      const dsn = import.meta.env.VITE_DATABASE_URL;
+      if (!dsn) {
+        throw new Error('Database connection not configured');
+      }
+
+      // Завершение регистрации через новую функцию
+      const response = await fetch('https://functions.poehali.dev/1aff09b3-0b6f-47fa-bcee-64b365767001', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          action: 'register',
           telegram_user_id: telegramData.user_id,
           telegram_username: telegramData.username || '',
           full_name: formData.full_name,
@@ -75,8 +85,6 @@ const TelegramRegistrationForm = ({ telegramData, onSuccess, onBack }: TelegramR
           entity_type: formData.entity_type,
           inn: formData.inn || null,
           organization_name: formData.organization_name || null,
-          language: formData.language,
-          currency: formData.currency,
           photo_url: telegramData.photo_url || null
         })
       });
@@ -167,13 +175,13 @@ const TelegramRegistrationForm = ({ telegramData, onSuccess, onBack }: TelegramR
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="full_name">ФИО *</Label>
+              <Label htmlFor="full_name">ФИО (можно изменить) *</Label>
               <Input
                 id="full_name"
                 value={formData.full_name}
                 onChange={(e) => setFormData({ ...formData, full_name: e.target.value })}
-                disabled
-                className="bg-muted"
+                required
+                placeholder="Иванов Иван Иванович"
               />
             </div>
 
