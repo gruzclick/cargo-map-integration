@@ -292,7 +292,17 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             # Если есть параметр (токен авторизации)
             if len(parts) > 1 and parts[1].startswith('AUTH_'):
                 session_token = parts[1]
+                print(f"[DEBUG] Auth request with token: {session_token}")
                 handle_auth_request(chat_id, username, first_name, last_name, session_token, bot_token)
+                print(f"[DEBUG] Sent auth confirmation request to {chat_id}")
+                
+                # Завершаем обработку - не нужно сохранять в базу
+                return {
+                    'statusCode': 200,
+                    'headers': {'Content-Type': 'application/json'},
+                    'body': json.dumps({'ok': True}),
+                    'isBase64Encoded': False
+                }
             else:
                 # Обычный /start без параметров
                 response_text = "👋 Добро пожаловать в GruzClick!\n\n✅ Бот активирован! Теперь вы будете получать коды для входа в приложение."
