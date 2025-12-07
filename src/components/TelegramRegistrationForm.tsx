@@ -61,17 +61,6 @@ const TelegramRegistrationForm = ({ telegramData, onSuccess, onBack }: TelegramR
     setLoading(true);
 
     try {
-      // Сначала проверяем, что пользователь прошёл через Telegram auth
-      if (!telegramData.user_id || !telegramData.session_token) {
-        throw new Error('Необходима авторизация через Telegram');
-      }
-
-      // Обновляем данные пользователя после Telegram auth
-      const dsn = import.meta.env.VITE_DATABASE_URL;
-      if (!dsn) {
-        throw new Error('Database connection not configured');
-      }
-
       // Завершение регистрации через новую функцию
       const response = await fetch('https://functions.poehali.dev/1aff09b3-0b6f-47fa-bcee-64b365767001', {
         method: 'POST',
