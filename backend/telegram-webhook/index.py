@@ -76,7 +76,7 @@ def handle_auth_request(chat_id: int, username: str, first_name: str, last_name:
             ]]
         }
         
-        requests.post(
+        response = requests.post(
             f'https://api.telegram.org/bot{bot_token}/sendMessage',
             json={
                 'chat_id': chat_id,
@@ -87,7 +87,10 @@ def handle_auth_request(chat_id: int, username: str, first_name: str, last_name:
             timeout=5
         )
         
-        print(f"[DEBUG] Sent auth confirmation request to {chat_id}")
+        if response.ok:
+            print(f"[DEBUG] Sent auth confirmation request to {chat_id}")
+        else:
+            print(f"[ERROR] Failed to send auth message: {response.status_code} - {response.text}")
         
     except Exception as e:
         print(f"[ERROR] Failed to handle auth request: {e}")
