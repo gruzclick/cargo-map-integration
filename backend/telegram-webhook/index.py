@@ -1,6 +1,7 @@
 import json
 import os
 import psycopg2
+import requests
 from psycopg2.extras import RealDictCursor
 from typing import Dict, Any
 
@@ -54,6 +55,28 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             }
         
         print(f"[DEBUG] Webhook received from @{username} with chat_id={chat_id}")
+        
+        # Отправляем ответ пользователю
+        bot_token = os.environ.get('TELEGRAM_BOT_TOKEN')
+        message_text = message.get('text', '')
+        
+        if bot_token:
+            response_text = "✅ Бот активирован! Теперь вы можете получать коды для входа."
+            if message_text.lower() == '/start':
+                response_text = "👋 Добро пожаловать!\n\n✅ Бот активирован! Теперь вы будете получать коды для входа в приложение."
+            
+            try:
+                requests.post(
+                    f'https://api.telegram.org/bot{bot_token}/sendMessage',
+                    json={
+                        'chat_id': chat_id,
+                        'text': response_text
+                    },
+                    timeout=5
+                )
+                print(f"[DEBUG] Sent welcome message to @{username}")
+            except Exception as e:
+                print(f"[ERROR] Failed to send message: {e}")
         
         # Сохраняем chat_id в базу данных
         dsn = os.environ.get('DATABASE_URL')
