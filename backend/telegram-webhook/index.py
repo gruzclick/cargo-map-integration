@@ -287,6 +287,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
         
         # Обработка команды /start с параметром
         bot_token = os.environ.get('TELEGRAM_BOT_TOKEN')
+        print(f"[DEBUG] Bot token present: {bool(bot_token)}, starts with: {bot_token[:15] if bot_token else 'NONE'}...")
         message_text = message.get('text', '')
         
         if bot_token and message_text.startswith('/start'):
