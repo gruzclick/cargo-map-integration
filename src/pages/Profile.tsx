@@ -11,7 +11,6 @@ import { secureLocalStorage } from '@/utils/security';
 import OverviewTab from '@/components/profile/OverviewTab';
 import SettingsTab from '@/components/profile/SettingsTab';
 import CalculatorTab from '@/components/profile/CalculatorTab';
-import EmailTab from '@/components/profile/EmailTab';
 
 export default function Profile() {
   const navigate = useNavigate();
@@ -20,8 +19,6 @@ export default function Profile() {
   const userName = '';
   const [countryInfo, setCountryInfo] = useState<CountryInfo | null>(null);
   const [entityType, setEntityType] = useState('individual');
-  const [showEmailVerification, setShowEmailVerification] = useState(false);
-  const [emailVerified, setEmailVerified] = useState(false);
 
   useEffect(() => {
     const token = secureLocalStorage.get('auth_token');

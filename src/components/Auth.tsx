@@ -1,34 +1,21 @@
 /**
- * Главный компонент авторизации
+ * Главный компонент авторизации через Telegram
  * 
- * Назначение: Оркестратор всего процесса авторизации/регистрации
- * 
- * Структура:
- * 1. Показывает пользовательское соглашение (TermsAgreement)
- * 2. Предлагает выбор метода входа (AuthMethodSelector)
- * 3. Открывает Telegram авторизацию (TelegramAuth) или
- * 4. Открывает Email форму (EmailAuthForm)
+ * Назначение: Единая точка входа через Telegram с автозаполнением данных
  * 
  * Функциональность:
- * - Управляет состоянием формы (вход/регистрация)
- * - Хранит все данные формы в едином state
- * - Вызывает обработчики входа/регистрации
- * - Обрабатывает ошибки и показывает toast-уведомления
- * - Применяет rate limiting для защиты от брут-форса
- * 
- * Используется в: App.tsx как главная точка входа для неавторизованных пользователей
+ * - Вход через Telegram с deep link
+ * - Автозаполнение ФИО из Telegram профиля
+ * - Форма регистрации для новых пользователей
+ * - Автоматический вход для существующих
  */
 
 import { useState } from 'react';
 import { useToast } from '@/hooks/use-toast';
-import TermsAgreement from './TermsAgreement';
-import TelegramAuth from './TelegramAuth';
 import TelegramLoginButton from './TelegramLoginButton';
-import AuthMethodSelector from './auth/AuthMethodSelector';
-import EmailAuthForm from './auth/EmailAuthForm';
-import { handleLogin } from './auth/AuthLoginHandler';
-import { handleRegister } from './auth/AuthRegisterHandler';
-import { rateLimit } from '@/utils/security';
+import TelegramRegistrationForm from './TelegramRegistrationForm';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import Icon from '@/components/ui/icon';
 import { secureLocalStorage } from '@/utils/security';
 
 interface AuthProps {
@@ -36,159 +23,87 @@ interface AuthProps {
 }
 
 const Auth = ({ onSuccess }: AuthProps) => {
-  const [authMethod, setAuthMethod] = useState<'email' | 'telegram' | 'telegram_new' | null>(null);
-  const [isLogin, setIsLogin] = useState(true);
-  const [loading, setLoading] = useState(false);
-  const [userType, setUserType] = useState<'client' | 'carrier' | 'logist'>('client');
-  const [showTerms, setShowTerms] = useState(false);
-  const [termsAccepted, setTermsAccepted] = useState(false);
-  const [showPassword, setShowPassword] = useState(false);
+  const [showRegistration, setShowRegistration] = useState(false);
   const [telegramData, setTelegramData] = useState<any>(null);
-
   const { toast } = useToast();
 
-  const [formData, setFormData] = useState({
-    email: '',
-    password: '',
-    full_name: '',
-    entity_type: 'individual',
-    inn: '',
-    organization_name: '',
-    phone: '',
-    passport_series: '',
-    passport_number: '',
-    passport_date: '',
-    passport_issued_by: '',
-    vehicle_type: 'car_small',
-    capacity: '',
-    agree_geolocation: false,
-    agree_verification: false,
-    use_gosuslugi: false,
-    agree_terms: false,
-    language: 'ru',
-    currency: 'RUB',
-    telegram: '',
-    telegram_chat_id: 0
-  });
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleTelegramSuccess = (userData: any, tgData: any) => {
+    // Пользователь существует - сохраняем и входим
+    secureLocalStorage.set('auth_token', 'telegram_' + userData.user_id);
+    secureLocalStorage.set('user_data', JSON.stringify(userData));
     
-    if (!rateLimit('auth-form', 5, 60000)) {
-      toast({
-        variant: 'destructive',
-        title: 'Слишком много попыток',
-        description: 'Подождите минуту перед следующей попыткой'
-      });
-      return;
-    }
+    toast({
+      title: 'Вход выполнен!',
+      description: `Добро пожаловать, ${userData.full_name}!`
+    });
     
-    setLoading(true);
-
-    try {
-      if (isLogin) {
-        await handleLogin(formData, onSuccess, toast);
-      } else {
-        await handleRegister(formData, userType, onSuccess, toast);
-      }
-    } catch (error: any) {
-      if (error.message !== 'Missing required fields' && 
-          error.message !== 'Missing full name' && 
-          error.message !== 'Missing phone' && 
-          error.message !== 'Terms not accepted') {
-        toast({
-          title: 'Ошибка',
-          description: error.message,
-          variant: 'destructive'
-        });
-      }
-    } finally {
-      setLoading(false);
-    }
+    onSuccess(userData);
   };
 
-  if (showTerms) {
+  const handlePendingRegistration = (tgData: any) => {
+    // Новый пользователь - показываем форму регистрации
+    setTelegramData(tgData);
+    setShowRegistration(true);
+  };
+
+  const handleRegistrationComplete = (userData: any) => {
+    // Регистрация завершена
+    secureLocalStorage.set('auth_token', 'telegram_' + userData.user_id);
+    secureLocalStorage.set('user_data', JSON.stringify(userData));
+    
+    toast({
+      title: 'Регистрация завершена!',
+      description: 'Добро пожаловать в GruzClick!'
+    });
+    
+    onSuccess(userData);
+  };
+
+  if (showRegistration && telegramData) {
     return (
-      <TermsAgreement
-        onAccept={() => {
-          setTermsAccepted(true);
-          setShowTerms(false);
-        }}
-        onDecline={() => {
-          setTermsAccepted(false);
-          setShowTerms(false);
-        }}
+      <TelegramRegistrationForm
+        telegramData={telegramData}
+        onSuccess={handleRegistrationComplete}
+        onBack={() => setShowRegistration(false)}
       />
     );
   }
 
-  // Старый метод Telegram (с кодами)
-  if (authMethod === 'telegram') {
-    return (
-      <div className="min-h-screen flex items-center justify-center p-3 sm:p-4 bg-gradient-to-br from-blue-50 via-white to-purple-50 dark:from-gray-900 dark:via-gray-950 dark:to-blue-950">
-        <TelegramAuth 
-          onSuccess={onSuccess} 
-          onBack={() => setAuthMethod(null)} 
-        />
-      </div>
-    );
-  }
-
-  // Новый метод Telegram (с deep link)
-  if (authMethod === 'telegram_new') {
-    const handleTelegramSuccess = (userData: any, tgData: any) => {
-      // Пользователь существует - сохраняем и входим
-      secureLocalStorage.set('auth_token', 'telegram_' + userData.user_id);
-      secureLocalStorage.set('user_data', JSON.stringify(userData));
-      onSuccess(userData);
-    };
-
-    const handlePendingRegistration = (tgData: any) => {
-      // Новый пользователь - сохраняем данные Telegram и показываем форму
-      setTelegramData(tgData);
-      setIsLogin(false);
-      setAuthMethod('email');
-      
-      // Автозаполняем ФИО
-      const fullName = `${tgData.first_name || ''} ${tgData.last_name || ''}`.trim();
-      setFormData(prev => ({
-        ...prev,
-        full_name: fullName,
-        telegram: tgData.username || '',
-        telegram_chat_id: tgData.user_id
-      }));
-    };
-
-    return (
-      <div className="min-h-screen flex items-center justify-center p-3 sm:p-4 bg-gradient-to-br from-blue-50 via-white to-purple-50 dark:from-gray-900 dark:via-gray-950 dark:to-blue-950">
-        <div className="w-full max-w-md">
+  return (
+    <div className="min-h-screen flex items-center justify-center p-3 sm:p-4 bg-gradient-to-br from-blue-50 via-white to-purple-50 dark:from-gray-900 dark:via-gray-950 dark:to-blue-950">
+      <Card className="w-full max-w-md shadow-2xl rounded-2xl">
+        <CardHeader>
+          <div className="w-16 h-16 bg-accent rounded-2xl flex items-center justify-center mx-auto mb-4">
+            <Icon name="Truck" size={32} className="text-accent-foreground" />
+          </div>
+          <CardTitle className="text-3xl font-bold text-center">
+            ГрузКлик
+          </CardTitle>
+          <CardDescription className="text-center">
+            Войдите через Telegram для продолжения
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-4">
           <TelegramLoginButton 
             onSuccess={handleTelegramSuccess}
             onPendingRegistration={handlePendingRegistration}
           />
-        </div>
-      </div>
-    );
-  }
-
-  if (authMethod === null) {
-    return <AuthMethodSelector onSelectMethod={setAuthMethod} />;
-  }
-
-  return (
-    <EmailAuthForm
-      isLogin={isLogin}
-      loading={loading}
-      userType={userType}
-      showPassword={showPassword}
-      formData={formData}
-      onSubmit={handleSubmit}
-      onFormDataChange={setFormData}
-      onUserTypeChange={setUserType}
-      onTogglePassword={() => setShowPassword(!showPassword)}
-      onToggleMode={() => setIsLogin(!isLogin)}
-      onBack={() => setAuthMethod(null)}
-    />
+          
+          <div className="text-center space-y-2 pt-4">
+            <p className="text-sm text-muted-foreground">
+              При входе вы соглашаетесь с{' '}
+              <a href="/terms" target="_blank" className="text-primary hover:underline">
+                Условиями использования
+              </a>
+              {' '}и{' '}
+              <a href="/privacy" target="_blank" className="text-primary hover:underline">
+                Политикой конфиденциальности
+              </a>
+            </p>
+          </div>
+        </CardContent>
+      </Card>
+    </div>
   );
 };
 

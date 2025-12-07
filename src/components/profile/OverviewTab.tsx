@@ -184,8 +184,8 @@ const OverviewTab = ({ mockUserName, userType }: OverviewTabProps) => {
                   <div className="font-medium text-gray-900 dark:text-gray-100">Не указан</div>
                 </div>
                 <div>
-                  <div className="text-sm text-gray-600 dark:text-gray-400">Email</div>
-                  <div className="font-medium text-gray-900 dark:text-gray-100">Не указан</div>
+                  <div className="text-sm text-gray-600 dark:text-gray-400">Telegram</div>
+                  <div className="font-medium text-gray-900 dark:text-gray-100">Подключен</div>
                 </div>
                 <div>
                   <div className="text-sm text-gray-600 dark:text-gray-400">Транспорт</div>

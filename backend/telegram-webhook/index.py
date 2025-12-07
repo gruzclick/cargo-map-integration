@@ -5,6 +5,54 @@ import requests
 from psycopg2.extras import RealDictCursor
 from typing import Dict, Any
 
+def get_user_profile_photo(user_id: int, bot_token: str) -> str:
+    '''
+    Получает URL фото профиля пользователя
+    '''
+    try:
+        # Получаем список фото профиля
+        response = requests.get(
+            f'https://api.telegram.org/bot{bot_token}/getUserProfilePhotos',
+            params={'user_id': user_id, 'limit': 1},
+            timeout=5
+        )
+        
+        if not response.ok:
+            return ''
+        
+        data = response.json()
+        photos = data.get('result', {}).get('photos', [])
+        
+        if not photos or not photos[0]:
+            return ''
+        
+        # Берём самое большое фото (последнее в массиве)
+        file_id = photos[0][-1]['file_id']
+        
+        # Получаем путь к файлу
+        file_response = requests.get(
+            f'https://api.telegram.org/bot{bot_token}/getFile',
+            params={'file_id': file_id},
+            timeout=5
+        )
+        
+        if not file_response.ok:
+            return ''
+        
+        file_data = file_response.json()
+        file_path = file_data.get('result', {}).get('file_path', '')
+        
+        if not file_path:
+            return ''
+        
+        # Формируем URL для загрузки
+        photo_url = f'https://api.telegram.org/file/bot{bot_token}/{file_path}'
+        return photo_url
+        
+    except Exception as e:
+        print(f"[ERROR] Failed to get profile photo: {e}")
+        return ''
+
 def handle_auth_request(chat_id: int, username: str, first_name: str, last_name: str, session_token: str, bot_token: str):
     '''
     Обрабатывает запрос авторизации через Telegram
@@ -77,6 +125,9 @@ def handle_callback_query(callback_query: Dict[str, Any]) -> Dict[str, Any]:
             action, session_token = callback_data.split(':', 1)
             
             if action == 'auth_confirm':
+                # Получаем URL фото профиля
+                photo_url = get_user_profile_photo(chat_id, bot_token)
+                
                 # Сохраняем данные в сессию
                 dsn = os.environ.get('DATABASE_URL')
                 if dsn:
@@ -87,6 +138,7 @@ def handle_callback_query(callback_query: Dict[str, Any]) -> Dict[str, Any]:
                     username_escaped = username.replace("'", "''")
                     first_name_escaped = first_name.replace("'", "''")
                     last_name_escaped = last_name.replace("'", "''")
+                    photo_url_escaped = photo_url.replace("'", "''") if photo_url else ''
                     
                     cur.execute(f"""
                         UPDATE t_p93479485_cargo_map_integratio.telegram_auth_sessions
@@ -94,7 +146,8 @@ def handle_callback_query(callback_query: Dict[str, Any]) -> Dict[str, Any]:
                             telegram_user_id = {chat_id},
                             telegram_username = '{username_escaped}',
                             telegram_first_name = '{first_name_escaped}',
-                            telegram_last_name = '{last_name_escaped}'
+                            telegram_last_name = '{last_name_escaped}',
+                            telegram_photo_url = '{photo_url_escaped}'
                         WHERE session_token = '{session_token_escaped}'
                     """)
                     
@@ -102,7 +155,7 @@ def handle_callback_query(callback_query: Dict[str, Any]) -> Dict[str, Any]:
                     cur.close()
                     conn.close()
                     
-                    print(f"[DEBUG] Auth confirmed for session {session_token}")
+                    print(f"[DEBUG] Auth confirmed for session {session_token}, photo: {bool(photo_url)}")
                 
                 # Обновляем сообщение
                 success_text = "✅ *Вход подтверждён!*\n\nВозвращайтесь на сайт GruzClick для продолжения."
