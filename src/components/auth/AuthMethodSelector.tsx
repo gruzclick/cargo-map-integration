@@ -16,7 +16,7 @@ import { Button } from '@/components/ui/button';
 import Icon from '@/components/ui/icon';
 
 interface AuthMethodSelectorProps {
-  onSelectMethod: (method: 'email' | 'telegram') => void;
+  onSelectMethod: (method: 'email' | 'telegram' | 'telegram_new') => void;
 }
 
 const AuthMethodSelector = ({ onSelectMethod }: AuthMethodSelectorProps) => {
@@ -36,12 +36,12 @@ const AuthMethodSelector = ({ onSelectMethod }: AuthMethodSelectorProps) => {
         </CardHeader>
         <CardContent className="space-y-3">
           <Button
-            onClick={() => onSelectMethod('telegram')}
-            className="w-full h-14 text-lg"
+            onClick={() => onSelectMethod('telegram_new')}
+            className="w-full h-14 text-lg bg-[#0088cc] hover:bg-[#006699]"
             variant="default"
           >
             <Icon name="MessageCircle" size={24} className="mr-3" />
-            Продолжить через Telegram
+            Войти через Telegram
           </Button>
           <Button
             onClick={() => onSelectMethod('email')}

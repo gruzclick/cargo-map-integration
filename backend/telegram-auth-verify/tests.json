@@ -1,0 +1,17 @@
+{
+  "tests": [
+    {
+      "name": "Verify pending session",
+      "method": "POST",
+      "path": "/",
+      "body": {
+        "session_token": "AUTH_test123"
+      },
+      "expectedStatus": 404,
+      "expectedBody": {
+        "error": "string"
+      },
+      "bodyMatcher": "partial"
+    }
+  ]
+}

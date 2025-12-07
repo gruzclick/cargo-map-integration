@@ -1,0 +1,17 @@
+{
+  "tests": [
+    {
+      "name": "Create auth session",
+      "method": "POST",
+      "path": "/",
+      "expectedStatus": 200,
+      "expectedBody": {
+        "success": true,
+        "session_token": "string",
+        "bot_link": "string",
+        "expires_in": 300
+      },
+      "bodyMatcher": "partial"
+    }
+  ]
+}

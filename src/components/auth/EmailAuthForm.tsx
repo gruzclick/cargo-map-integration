@@ -29,12 +29,12 @@ import LoginFields from './LoginFields';
 interface EmailAuthFormProps {
   isLogin: boolean;
   loading: boolean;
-  userType: 'client' | 'carrier';
+  userType: 'client' | 'carrier' | 'logist';
   showPassword: boolean;
   formData: any;
   onSubmit: (e: React.FormEvent) => void;
   onFormDataChange: (data: any) => void;
-  onUserTypeChange: (type: 'client' | 'carrier') => void;
+  onUserTypeChange: (type: 'client' | 'carrier' | 'logist') => void;
   onTogglePassword: () => void;
   onToggleMode: () => void;
   onBack: () => void;
@@ -87,6 +87,19 @@ const EmailAuthForm = ({
 
         <CardContent className="px-4 sm:px-6">
           <form onSubmit={onSubmit} className="space-y-3 sm:space-y-4">
+            {!isLogin && formData.full_name && formData.telegram_chat_id && (
+              <div className="bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg p-3 flex items-start gap-2">
+                <Icon name="CheckCircle2" size={20} className="text-green-600 dark:text-green-400 flex-shrink-0 mt-0.5" />
+                <div className="text-sm">
+                  <p className="font-medium text-green-900 dark:text-green-100">
+                    Данные из Telegram получены
+                  </p>
+                  <p className="text-xs text-green-700 dark:text-green-300 mt-1">
+                    ФИО автоматически заполнено. Укажите дополнительные данные для завершения регистрации.
+                  </p>
+                </div>
+              </div>
+            )}
             {!isLogin && (
               <>
                 <LanguageCurrencyFields

@@ -3,8 +3,8 @@ import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import Icon from '@/components/ui/icon';
 
 interface UserTypeSelectorProps {
-  userType: 'client' | 'carrier';
-  onUserTypeChange: (value: 'client' | 'carrier') => void;
+  userType: 'client' | 'carrier' | 'logist';
+  onUserTypeChange: (value: 'client' | 'carrier' | 'logist') => void;
 }
 
 const UserTypeSelector = ({ userType, onUserTypeChange }: UserTypeSelectorProps) => {
@@ -27,8 +27,8 @@ const UserTypeSelector = ({ userType, onUserTypeChange }: UserTypeSelectorProps)
           </Label>
         </div>
         <div className="flex items-center space-x-2">
-          <RadioGroupItem value="logistician" id="logistician" />
-          <Label htmlFor="logistician" className="cursor-pointer flex items-center gap-1.5 text-sm">
+          <RadioGroupItem value="logist" id="logist" />
+          <Label htmlFor="logist" className="cursor-pointer flex items-center gap-1.5 text-sm">
             <Icon name="ClipboardList" size={16} />
             Логист
           </Label>
