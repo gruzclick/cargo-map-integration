@@ -85,7 +85,7 @@ export const PersonalDataTab = ({ user }: PersonalDataTabProps) => {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           action: 'update_profile',
-          user_id: user.user_id || user.id,
+          user_id: user?.user_id || user?.id,
           full_name: fullName,
           phone_number: phone,
           telegram,
@@ -105,43 +105,43 @@ export const PersonalDataTab = ({ user }: PersonalDataTabProps) => {
       console.log('Backend unavailable, using local storage:', backendError);
     }
 
-    const userData = secureLocalStorage.get('user_data');
-    console.log('Current user_data from storage:', userData);
-    
-    if (userData) {
-      try {
-        const updatedUser = JSON.parse(userData);
-        updatedUser.full_name = fullName;
-        updatedUser.phone_number = phone;
-        updatedUser.telegram = telegram;
-        updatedUser.company = company;
-        updatedUser.inn = inn;
-        updatedUser.avatar = avatar;
-        
-        console.log('Updated user object:', updatedUser);
-        
-        secureLocalStorage.set('user_data', JSON.stringify(updatedUser));
-        console.log('Saved to storage, dispatching event');
-        
-        window.dispatchEvent(new CustomEvent('userDataUpdated', { detail: updatedUser }));
-        
-        toast({
-          title: 'Профиль обновлен',
-          description: 'Ваши данные успешно сохранены'
-        });
-      } catch (error) {
-        console.error('Error saving profile:', error);
-        toast({
-          title: 'Ошибка',
-          description: 'Не удалось сохранить данные',
-          variant: 'destructive'
-        });
+    try {
+      let updatedUser: any;
+      const userData = secureLocalStorage.get('user_data');
+      console.log('Current user_data from storage:', userData);
+      
+      if (userData) {
+        updatedUser = JSON.parse(userData);
+      } else if (user) {
+        console.log('No user_data in storage, creating from user prop');
+        updatedUser = { ...user };
+      } else {
+        throw new Error('No user data available');
       }
-    } else {
-      console.error('No user_data in storage!');
+
+      updatedUser.full_name = fullName;
+      updatedUser.phone_number = phone;
+      updatedUser.telegram = telegram;
+      updatedUser.company = company;
+      updatedUser.inn = inn;
+      updatedUser.avatar = avatar;
+      
+      console.log('Updated user object:', updatedUser);
+      
+      secureLocalStorage.set('user_data', JSON.stringify(updatedUser));
+      console.log('Saved to storage, dispatching event');
+      
+      window.dispatchEvent(new CustomEvent('userDataUpdated', { detail: updatedUser }));
+      
+      toast({
+        title: 'Профиль обновлен',
+        description: 'Ваши данные успешно сохранены'
+      });
+    } catch (error) {
+      console.error('Error saving profile:', error);
       toast({
         title: 'Ошибка',
-        description: 'Пользователь не авторизован',
+        description: error instanceof Error ? error.message : 'Не удалось сохранить данные',
         variant: 'destructive'
       });
     }
