@@ -1,4 +1,4 @@
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import Icon from '@/components/ui/icon';
 import { ImageCropper } from '@/components/ImageCropper';
@@ -20,6 +20,18 @@ export const PersonalDataTab = ({ user }: PersonalDataTabProps) => {
   const [avatar, setAvatar] = useState(user?.avatar || '');
   const [tempAvatar, setTempAvatar] = useState<string | null>(null);
   const [showCropper, setShowCropper] = useState(false);
+
+  useEffect(() => {
+    console.log('User prop changed:', user);
+    if (user) {
+      setFullName(user.full_name || '');
+      setPhone(user.phone_number || '');
+      setTelegram(user.telegram || '');
+      setCompany(user.company || '');
+      setInn(user.inn || '');
+      setAvatar(user.avatar || '');
+    }
+  }, [user]);
 
   const handleAvatarChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -54,10 +66,12 @@ export const PersonalDataTab = ({ user }: PersonalDataTabProps) => {
   };
 
   const handleSaveProfile = async () => {
-    if (!phone) {
+    console.log('Saving profile...', { fullName, phone, telegram, company, inn, avatar });
+    
+    if (!fullName || !phone) {
       toast({
         title: 'Ошибка',
-        description: 'Телефон обязателен для идентификации',
+        description: 'ФИО и телефон обязательны для заполнения',
         variant: 'destructive'
       });
       return;
@@ -92,23 +106,45 @@ export const PersonalDataTab = ({ user }: PersonalDataTabProps) => {
     }
 
     const userData = secureLocalStorage.get('user_data');
+    console.log('Current user_data from storage:', userData);
+    
     if (userData) {
-      const updatedUser = JSON.parse(userData);
-      updatedUser.full_name = fullName;
-      updatedUser.phone_number = phone;
-      updatedUser.telegram = telegram;
-      updatedUser.company = company;
-      updatedUser.inn = inn;
-      updatedUser.avatar = avatar;
-      secureLocalStorage.set('user_data', JSON.stringify(updatedUser));
-      
-      window.dispatchEvent(new CustomEvent('userDataUpdated', { detail: updatedUser }));
+      try {
+        const updatedUser = JSON.parse(userData);
+        updatedUser.full_name = fullName;
+        updatedUser.phone_number = phone;
+        updatedUser.telegram = telegram;
+        updatedUser.company = company;
+        updatedUser.inn = inn;
+        updatedUser.avatar = avatar;
+        
+        console.log('Updated user object:', updatedUser);
+        
+        secureLocalStorage.set('user_data', JSON.stringify(updatedUser));
+        console.log('Saved to storage, dispatching event');
+        
+        window.dispatchEvent(new CustomEvent('userDataUpdated', { detail: updatedUser }));
+        
+        toast({
+          title: 'Профиль обновлен',
+          description: 'Ваши данные успешно сохранены'
+        });
+      } catch (error) {
+        console.error('Error saving profile:', error);
+        toast({
+          title: 'Ошибка',
+          description: 'Не удалось сохранить данные',
+          variant: 'destructive'
+        });
+      }
+    } else {
+      console.error('No user_data in storage!');
+      toast({
+        title: 'Ошибка',
+        description: 'Пользователь не авторизован',
+        variant: 'destructive'
+      });
     }
-
-    toast({
-      title: 'Профиль обновлен',
-      description: 'Ваши данные успешно сохранены'
-    });
   };
 
   return (

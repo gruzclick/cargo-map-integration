@@ -75,16 +75,8 @@ const Index = () => {
     checkAuth();
 
     const handleUserDataUpdate = (event: CustomEvent) => {
+      console.log('User data updated:', event.detail);
       setUser(event.detail);
-      const userData = secureLocalStorage.get('user_data');
-      if (userData) {
-        try {
-          const parsedUser = JSON.parse(userData);
-          setUser(parsedUser);
-        } catch (error) {
-          console.error('Failed to update user data:', error);
-        }
-      }
     };
 
     window.addEventListener('userDataUpdated', handleUserDataUpdate as EventListener);
@@ -122,6 +114,7 @@ const Index = () => {
   };
 
   const handleAuthSuccess = (userData: any) => {
+    console.log('Auth success, saving user data:', userData);
     setUser(userData);
     secureLocalStorage.set('auth_token', userData.session_token || 'authenticated');
     secureLocalStorage.set('user_data', JSON.stringify(userData));

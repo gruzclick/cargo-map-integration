@@ -5,6 +5,8 @@ import { useToast } from '@/hooks/use-toast';
 import { Button } from '@/components/ui/button';
 import { useNavigate } from 'react-router-dom';
 import { ProfileSecurityTips } from '@/components/ProfileSecurityTips';
+import { ProfileVerificationBadge } from '@/components/ProfileVerificationBadge';
+import { secureLocalStorage } from '@/utils/security';
 
 interface OverviewTabProps {
   mockUserName: string;
@@ -18,8 +20,18 @@ const OverviewTab = ({ mockUserName, userType }: OverviewTabProps) => {
   const [userStatus, setUserStatus] = useState<'cargo' | 'vehicle' | null>(null);
   const [hasAdminAccess, setHasAdminAccess] = useState(false);
   const [userRoles, setUserRoles] = useState<string[]>([]);
+  const [currentUser, setCurrentUser] = useState<any>(null);
 
   useEffect(() => {
+    const userData = secureLocalStorage.get('user_data');
+    if (userData) {
+      try {
+        setCurrentUser(JSON.parse(userData));
+      } catch (error) {
+        console.error('Failed to parse user data:', error);
+      }
+    }
+
     const saved = localStorage.getItem('user_status') as 'cargo' | 'vehicle' | null;
     setUserStatus(saved);
     
@@ -28,6 +40,13 @@ const OverviewTab = ({ mockUserName, userType }: OverviewTabProps) => {
       setHasAdminAccess(true);
       setUserRoles(['admin']);
     }
+
+    const handleUserUpdate = (event: CustomEvent) => {
+      setCurrentUser(event.detail);
+    };
+
+    window.addEventListener('userDataUpdated', handleUserUpdate as EventListener);
+    return () => window.removeEventListener('userDataUpdated', handleUserUpdate as EventListener);
   }, []);
 
   const handleStatusChange = (newStatus: 'cargo' | 'vehicle') => {
@@ -113,6 +132,8 @@ const OverviewTab = ({ mockUserName, userType }: OverviewTabProps) => {
           </div>
         </CardContent>
       </Card>
+
+      <ProfileVerificationBadge user={currentUser} />
 
       <ProfileSecurityTips />
 

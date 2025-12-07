@@ -1,8 +1,9 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Icon from '@/components/ui/icon';
 import { PersonalDataTab } from './profile/PersonalDataTab';
 import { AddressesTab } from './profile/AddressesTab';
 import { VehiclesTab } from './profile/VehiclesTab';
+import { secureLocalStorage } from '@/utils/security';
 
 interface UserProfileProps {
   user: any;
@@ -11,6 +12,21 @@ interface UserProfileProps {
 
 export const UserProfile = ({ user, onClose }: UserProfileProps) => {
   const [activeTab, setActiveTab] = useState<'personal' | 'addresses' | 'vehicles'>('personal');
+  const [currentUser, setCurrentUser] = useState(user);
+
+  useEffect(() => {
+    setCurrentUser(user);
+  }, [user]);
+
+  useEffect(() => {
+    const handleUserUpdate = (event: CustomEvent) => {
+      console.log('UserProfile received update:', event.detail);
+      setCurrentUser(event.detail);
+    };
+
+    window.addEventListener('userDataUpdated', handleUserUpdate as EventListener);
+    return () => window.removeEventListener('userDataUpdated', handleUserUpdate as EventListener);
+  }, []);
 
   return (
     <div className="fixed inset-0 bg-[#f4f4f5] dark:bg-[#18222d] z-50 overflow-y-auto">
@@ -68,9 +84,9 @@ export const UserProfile = ({ user, onClose }: UserProfileProps) => {
             </button>
           </div>
 
-          {activeTab === 'personal' && <PersonalDataTab user={user} />}
-          {activeTab === 'addresses' && <AddressesTab user={user} />}
-          {activeTab === 'vehicles' && <VehiclesTab user={user} />}
+          {activeTab === 'personal' && <PersonalDataTab user={currentUser} />}
+          {activeTab === 'addresses' && <AddressesTab user={currentUser} />}
+          {activeTab === 'vehicles' && <VehiclesTab user={currentUser} />}
         </div>
       </div>
     </div>
