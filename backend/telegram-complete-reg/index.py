@@ -165,6 +165,8 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             email_placeholder = f"{new_user_id}@telegram.gruzclick.temp"
             password_hash_placeholder = "TELEGRAM_AUTH"
             
+            print(f"[DEBUG] Attempting INSERT with: user_type={user_type}, entity_type={entity_type}, phone={phone}, full_name={full_name}")
+            
             cur.execute(f"""
                 INSERT INTO t_p93479485_cargo_map_integratio.users 
                 (user_id, email, password_hash, telegram, telegram_verified, telegram_chat_id, phone, full_name, user_type, role, 
