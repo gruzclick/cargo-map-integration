@@ -47,10 +47,7 @@ const SecurityRecommendations = ({ onClose }: SecurityRecommendationsProps) => {
                 <Icon name="X" size={16} className="flex-shrink-0 mt-0.5" />
                 <span><strong>Фиктивные заказы:</strong> Грузоотправитель создает заявку, но груза не существует</span>
               </li>
-              <li className="flex items-start gap-2">
-                <Icon name="X" size={16} className="flex-shrink-0 mt-0.5" />
-                <span><strong>Запрос предоплаты:</strong> Просят перевести деньги до выполнения услуги</span>
-              </li>
+
             </ul>
           </div>
 
@@ -108,29 +105,7 @@ const SecurityRecommendations = ({ onClose }: SecurityRecommendationsProps) => {
                 </div>
               </div>
 
-              <div className="flex items-start gap-3">
-                <div className="w-8 h-8 bg-green-600 rounded-lg flex items-center justify-center flex-shrink-0">
-                  <Icon name="Lock" size={16} className="text-white" />
-                </div>
-                <div>
-                  <div className="font-medium text-sm">Безопасные платежи</div>
-                  <div className="text-xs text-gray-600 dark:text-gray-400">
-                    Оплата через платформу с эскроу-сервисом. Деньги переводятся только после подтверждения доставки.
-                  </div>
-                </div>
-              </div>
 
-              <div className="flex items-start gap-3">
-                <div className="w-8 h-8 bg-green-600 rounded-lg flex items-center justify-center flex-shrink-0">
-                  <Icon name="Shield" size={16} className="text-white" />
-                </div>
-                <div>
-                  <div className="font-medium text-sm">Страхование груза</div>
-                  <div className="text-xs text-gray-600 dark:text-gray-400">
-                    Опциональное страхование на сумму до 500 000 ₽. В случае пропажи - полная компенсация.
-                  </div>
-                </div>
-              </div>
             </div>
           </div>
 
@@ -156,10 +131,7 @@ const SecurityRecommendations = ({ onClose }: SecurityRecommendationsProps) => {
                 <Icon name="CheckCircle" size={16} className="flex-shrink-0 mt-0.5 text-blue-600" />
                 <span><strong>Делайте фото:</strong> Фотографируйте груз при передаче как доказательство</span>
               </li>
-              <li className="flex items-start gap-2">
-                <Icon name="CheckCircle" size={16} className="flex-shrink-0 mt-0.5 text-blue-600" />
-                <span><strong>Никогда не платите напрямую:</strong> Все платежи только через платформу</span>
-              </li>
+
               <li className="flex items-start gap-2">
                 <Icon name="CheckCircle" size={16} className="flex-shrink-0 mt-0.5 text-blue-600" />
                 <span><strong>Сообщайте о нарушениях:</strong> Если что-то не так - немедленно свяжитесь с поддержкой</span>

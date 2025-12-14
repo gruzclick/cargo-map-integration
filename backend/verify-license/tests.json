@@ -1,0 +1,37 @@
+{
+  "tests": [
+    {
+      "name": "Успешная проверка ВУ",
+      "method": "POST",
+      "body": {
+        "license_number": "7711123456",
+        "birth_date": "1990-05-15"
+      },
+      "expectedStatus": 200,
+      "expectedBody": {
+        "valid": true,
+        "license_number": "string"
+      },
+      "bodyMatcher": "partial"
+    },
+    {
+      "name": "Неверный формат ВУ",
+      "method": "POST",
+      "body": {
+        "license_number": "123",
+        "birth_date": "1990-05-15"
+      },
+      "expectedStatus": 400,
+      "expectedBody": {
+        "valid": false,
+        "error": "string"
+      },
+      "bodyMatcher": "partial"
+    },
+    {
+      "name": "OPTIONS запрос для CORS",
+      "method": "OPTIONS",
+      "expectedStatus": 200
+    }
+  ]
+}

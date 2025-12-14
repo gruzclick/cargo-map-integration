@@ -28,6 +28,7 @@ const MapFilters = ({ onFilterChange, className }: MapFiltersProps) => {
   const { t } = useTranslation();
   const [isExpanded, setIsExpanded] = useState(false);
   const [isVisible, setIsVisible] = useState(true);
+  const [roleExpanded, setRoleExpanded] = useState(false);
   const [filters, setFilters] = useState<FilterState>({
     userType: 'all',
   });
@@ -54,41 +55,98 @@ const MapFilters = ({ onFilterChange, className }: MapFiltersProps) => {
         <div className="space-y-2">
 
 
-          <div className="space-y-2 md:space-y-3">
+          <div className="space-y-2.5">
             <div>
-              <div className="mb-1.5">
-                <label className="text-xs font-medium text-gray-900 dark:text-white block mb-1.5">
-                  Я ищу как:
-                </label>
-              </div>
-              <div className="grid grid-cols-3 gap-1.5">
-                <Button
-                  variant={filters.userType === 'all' ? 'default' : 'outline'}
-                  size="sm"
-                  onClick={() => updateFilter('userType', 'all')}
-                  className="text-[11px] h-9 rounded-lg px-1.5 whitespace-nowrap flex-1 min-w-0"
-                >
-                  <span className="truncate">Логист</span>
-                </Button>
-                <Button
-                  variant={filters.userType === 'client' ? 'default' : 'outline'}
-                  size="sm"
-                  onClick={() => updateFilter('userType', 'client')}
-                  className="text-[11px] h-9 rounded-lg px-1.5 whitespace-nowrap flex-1 min-w-0"
-                >
-                  <span className="truncate">Клиент</span>
-                </Button>
-                <Button
-                  variant={filters.userType === 'carrier' ? 'default' : 'outline'}
-                  size="sm"
-                  onClick={() => updateFilter('userType', 'carrier')}
-                  className="text-[11px] h-9 rounded-lg px-1 whitespace-nowrap flex-1 min-w-0"
-                >
-                  <span className="truncate">Перевозчик</span>
-                </Button>
-              </div>
+              <button
+                onClick={() => setRoleExpanded(!roleExpanded)}
+                className="w-full flex items-center justify-between px-3 py-2.5 bg-gradient-to-r from-blue-50 to-purple-50 dark:from-blue-900/20 dark:to-purple-900/20 border border-blue-200 dark:border-blue-700 rounded-xl hover:shadow-md transition-all"
+              >
+                <div className="flex items-center gap-2">
+                  <Icon name="User" size={18} className="text-blue-600" />
+                  <div className="text-left">
+                    <div className="text-xs font-semibold text-gray-700 dark:text-gray-300">Я ищу как:</div>
+                    <div className="text-sm font-bold text-gray-900 dark:text-white">
+                      {filters.userType === 'carrier' ? '🚚 Перевозчик' : '📦 Отправитель'}
+                    </div>
+                  </div>
+                </div>
+                <Icon 
+                  name={roleExpanded ? "ChevronUp" : "ChevronDown"} 
+                  size={20} 
+                  className="text-blue-600 transition-transform"
+                />
+              </button>
+              
+              {roleExpanded && (
+                <div className="mt-2 p-2 bg-white/60 dark:bg-gray-900/60 backdrop-blur-sm rounded-lg border border-gray-200 dark:border-gray-700 space-y-1.5">
+                  <button
+                    onClick={() => {
+                      updateFilter('userType', 'carrier');
+                      setRoleExpanded(false);
+                    }}
+                    className={`w-full flex items-center gap-2.5 px-3 py-2.5 rounded-lg transition-all ${
+                      filters.userType === 'carrier'
+                        ? 'bg-blue-600 text-white shadow-md'
+                        : 'bg-gray-50 dark:bg-gray-800 hover:bg-gray-100 dark:hover:bg-gray-700'
+                    }`}
+                  >
+                    <Icon name="Truck" size={18} />
+                    <div className="text-left flex-1">
+                      <div className="text-sm font-semibold">Перевозчик</div>
+                      <div className="text-xs opacity-75">Ищу грузы для перевозки</div>
+                    </div>
+                  </button>
+                  <button
+                    onClick={() => {
+                      updateFilter('userType', 'client');
+                      setRoleExpanded(false);
+                    }}
+                    className={`w-full flex items-center gap-2.5 px-3 py-2.5 rounded-lg transition-all ${
+                      filters.userType === 'client'
+                        ? 'bg-blue-600 text-white shadow-md'
+                        : 'bg-gray-50 dark:bg-gray-800 hover:bg-gray-100 dark:hover:bg-gray-700'
+                    }`}
+                  >
+                    <Icon name="Package" size={18} />
+                    <div className="text-left flex-1">
+                      <div className="text-sm font-semibold">Отправитель</div>
+                      <div className="text-xs opacity-75">Ищу автомобили для доставки</div>
+                    </div>
+                  </button>
+                </div>
+              )}
             </div>
 
+            <div className="border-t border-gray-200 dark:border-gray-700 my-2"></div>
+            
+            {filters.userType === 'carrier' && (
+              <div className="bg-green-50/50 dark:bg-green-900/10 p-3 rounded-lg border border-green-200 dark:border-green-800">
+                <div className="flex items-center gap-2 mb-2">
+                  <Icon name="Package" size={16} className="text-green-600" />
+                  <div className="text-xs font-semibold text-green-900 dark:text-green-100">Доступные грузы</div>
+                </div>
+                <div className="text-xs text-green-800 dark:text-green-200 space-y-1">
+                  <div>• Поставки на склады WB/Ozon</div>
+                  <div>• Короба и паллеты</div>
+                  <div>• Оплата по факту доставки</div>
+                </div>
+              </div>
+            )}
+            
+            {filters.userType === 'client' && (
+              <div className="bg-blue-50/50 dark:bg-blue-900/10 p-3 rounded-lg border border-blue-200 dark:border-blue-800">
+                <div className="flex items-center gap-2 mb-2">
+                  <Icon name="Truck" size={16} className="text-blue-600" />
+                  <div className="text-xs font-semibold text-blue-900 dark:text-blue-100">Свободные авто</div>
+                </div>
+                <div className="text-xs text-blue-800 dark:text-blue-200 space-y-1">
+                  <div>• Проверенные перевозчики</div>
+                  <div>• Онлайн отслеживание</div>
+                  <div>• Гарантия доставки</div>
+                </div>
+              </div>
+            )}
+            
             {isExpanded && (
               <>
                 {filters.userType === 'client' && (

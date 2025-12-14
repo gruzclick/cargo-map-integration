@@ -1,4 +1,5 @@
 {
+  "verify-license": "https://functions.poehali.dev/6e5ce61e-8397-4473-8bbf-5083c0dbfb7c",
   "user-profile-update": "https://functions.poehali.dev/1ff38065-516a-4892-8531-03c46020b273",
   "telegram-complete-reg": "https://functions.poehali.dev/1aff09b3-0b6f-47fa-bcee-64b365767001",
   "telegram-auth-verify": "https://functions.poehali.dev/65fdf841-ac48-4f1e-aff3-1b6c810838cc",

@@ -1,7 +1,8 @@
-import { useState } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import Icon from '@/components/ui/icon';
 import { searchWarehouses, type MarketplaceWarehouse } from '@/data/marketplaceWarehouses';
+import { debounce } from '@/lib/debounce';
 
 interface CargoItem {
   id: string;
@@ -13,6 +14,12 @@ interface CargoItem {
   pickupTime: string;
   photo: File | null;
   contactPhone: string;
+}
+
+interface YandexSuggestion {
+  title: string;
+  subtitle?: string;
+  description: string;
 }
 
 interface CargoShipperFormProps {
@@ -35,6 +42,8 @@ const CargoShipperForm = ({ onComplete, onBack }: CargoShipperFormProps) => {
   
   const [warehouseSearch, setWarehouseSearch] = useState<{[key: string]: string}>({});
   const [warehouseResults, setWarehouseResults] = useState<{[key: string]: MarketplaceWarehouse[]}>({});
+  const [addressSuggestions, setAddressSuggestions] = useState<{[key: string]: YandexSuggestion[]}>({});
+  const [loadingAddresses, setLoadingAddresses] = useState<{[key: string]: boolean}>({});
 
   const handleWarehouseSearch = (itemId: string, query: string) => {
     setWarehouseSearch(prev => ({ ...prev, [itemId]: query }));
@@ -55,6 +64,48 @@ const CargoShipperForm = ({ onComplete, onBack }: CargoShipperFormProps) => {
       [itemId]: `${warehouse.marketplace} - ${warehouse.city}, ${warehouse.address}` 
     }));
     setWarehouseResults(prev => ({ ...prev, [itemId]: [] }));
+  };
+
+  const searchYandexAddress = useCallback(
+    debounce(async (itemId: string, query: string) => {
+      if (query.length < 3) {
+        setAddressSuggestions(prev => ({ ...prev, [itemId]: [] }));
+        return;
+      }
+
+      setLoadingAddresses(prev => ({ ...prev, [itemId]: true }));
+      
+      try {
+        const response = await fetch(
+          `https://suggest-maps.yandex.ru/v1/suggest?apikey=YOUR_KEY&text=${encodeURIComponent(query)}&results=5&types=house`
+        );
+        const data = await response.json();
+        
+        const suggestions: YandexSuggestion[] = data.results?.map((item: any) => ({
+          title: item.title?.text || '',
+          subtitle: item.subtitle?.text,
+          description: item.title?.text || ''
+        })) || [];
+        
+        setAddressSuggestions(prev => ({ ...prev, [itemId]: suggestions }));
+      } catch (error) {
+        console.error('Address search error:', error);
+        setAddressSuggestions(prev => ({ ...prev, [itemId]: [] }));
+      } finally {
+        setLoadingAddresses(prev => ({ ...prev, [itemId]: false }));
+      }
+    }, 500),
+    []
+  );
+
+  const handleAddressChange = (itemId: string, address: string) => {
+    updateItem(itemId, 'pickupAddress', address);
+    searchYandexAddress(itemId, address);
+  };
+
+  const selectAddress = (itemId: string, suggestion: YandexSuggestion) => {
+    updateItem(itemId, 'pickupAddress', suggestion.description);
+    setAddressSuggestions(prev => ({ ...prev, [itemId]: [] }));
   };
 
   const updateItem = (itemId: string, field: keyof CargoItem, value: any) => {
@@ -105,45 +156,57 @@ const CargoShipperForm = ({ onComplete, onBack }: CargoShipperFormProps) => {
     ctx.fillRect(0, 0, canvas.width, canvas.height);
     
     ctx.fillStyle = 'black';
-    ctx.font = 'bold 16px Arial';
     ctx.textAlign = 'center';
     
     const centerX = canvas.width / 2;
-    let y = 30;
+    let y;
+    const isLarge = format === '75x120';
+    const titleSize = isLarge ? 16 : 12;
+    const headerSize = isLarge ? 11 : 9;
+    const textSize = isLarge ? 10 : 8;
+    const boldSize = isLarge ? 13 : 10;
+    const lineHeight = isLarge ? 20 : 14;
+    const spacing = isLarge ? 10 : 6;
     
-    ctx.fillText('ТЕРМОНАКЛЕЙКА', centerX, y);
-    y += 30;
+    y = isLarge ? 30 : 18;
+    ctx.font = `bold ${titleSize}px Arial`;
+    ctx.fillText('ИНФОРМАЦИЯ ДЛЯ ВОДИТЕЛЯ', centerX, y);
     
-    ctx.font = '12px Arial';
+    y += isLarge ? 25 : 16;
+    ctx.font = `${headerSize}px Arial`;
     ctx.fillText('Склад назначения:', centerX, y);
-    y += 20;
-    ctx.font = 'bold 11px Arial';
-    const warehouseText = `${item.warehouse.marketplace}`;
-    ctx.fillText(warehouseText, centerX, y);
-    y += 18;
-    ctx.font = '9px Arial';
-    const lines = item.warehouse.address.match(/.{1,35}/g) || [];
-    lines.forEach(line => {
-      ctx.fillText(line, centerX, y);
-      y += 14;
+    
+    y += lineHeight;
+    ctx.font = `bold ${textSize}px Arial`;
+    ctx.fillText(`${item.warehouse.marketplace}`, centerX, y);
+    
+    y += isLarge ? 16 : 12;
+    ctx.font = `${textSize}px Arial`;
+    const maxChars = isLarge ? 35 : 28;
+    const addressLines = item.warehouse.address.match(new RegExp(`.{1,${maxChars}}`, 'g')) || [];
+    addressLines.forEach(line => {
+      ctx.fillText(line.trim(), centerX, y);
+      y += isLarge ? 14 : 10;
     });
     
-    y += 10;
-    ctx.font = '12px Arial';
+    y += spacing;
+    ctx.font = `${headerSize}px Arial`;
     ctx.fillText('Дата поставки:', centerX, y);
-    y += 20;
-    ctx.font = 'bold 14px Arial';
-    ctx.fillText(new Date(item.pickupDate).toLocaleDateString('ru-RU'), centerX, y);
-    y += 30;
     
-    ctx.font = '12px Arial';
+    y += lineHeight;
+    ctx.font = `bold ${boldSize}px Arial`;
+    ctx.fillText(new Date(item.pickupDate).toLocaleDateString('ru-RU'), centerX, y);
+    
+    y += isLarge ? 25 : 16;
+    ctx.font = `${headerSize}px Arial`;
     ctx.fillText('Контакт:', centerX, y);
-    y += 20;
-    ctx.font = 'bold 14px Arial';
+    
+    y += lineHeight;
+    ctx.font = `bold ${boldSize}px Arial`;
     ctx.fillText(item.contactPhone, centerX, y);
     
-    y += 30;
-    ctx.font = '10px Arial';
+    y += isLarge ? 25 : 16;
+    ctx.font = `${textSize}px Arial`;
     ctx.fillText(`${item.type === 'box' ? 'Короб' : 'Паллет'} - ${item.quantity} шт`, centerX, y);
 
     const link = document.createElement('a');
@@ -247,15 +310,36 @@ const CargoShipperForm = ({ onComplete, onBack }: CargoShipperFormProps) => {
             )}
           </div>
 
-          <div>
+          <div className="relative">
             <label className="block text-sm font-medium mb-2">Адрес забора груза *</label>
             <input
               type="text"
               value={item.pickupAddress}
-              onChange={(e) => updateItem(item.id, 'pickupAddress', e.target.value)}
-              placeholder="г. Москва, ул. Примерная, д. 1"
+              onChange={(e) => handleAddressChange(item.id, e.target.value)}
+              placeholder="Начните вводить: Москва, ул. Примерная..."
               className="w-full px-4 py-2 rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800"
             />
+            {loadingAddresses[item.id] && (
+              <div className="absolute right-3 top-10 text-gray-400">
+                <Icon name="Loader2" size={16} className="animate-spin" />
+              </div>
+            )}
+            {addressSuggestions[item.id]?.length > 0 && (
+              <div className="absolute z-20 w-full mt-1 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-lg max-h-60 overflow-y-auto">
+                {addressSuggestions[item.id].map((suggestion, idx) => (
+                  <button
+                    key={idx}
+                    onClick={() => selectAddress(item.id, suggestion)}
+                    className="w-full text-left px-4 py-3 hover:bg-gray-50 dark:hover:bg-gray-700 border-b last:border-b-0"
+                  >
+                    <div className="font-medium text-sm">{suggestion.title}</div>
+                    {suggestion.subtitle && (
+                      <div className="text-xs text-gray-500">{suggestion.subtitle}</div>
+                    )}
+                  </button>
+                ))}
+              </div>
+            )}
           </div>
 
           <div className="grid grid-cols-2 gap-3">
@@ -312,7 +396,7 @@ const CargoShipperForm = ({ onComplete, onBack }: CargoShipperFormProps) => {
                 className="flex-1"
               >
                 <Icon name="Download" size={16} className="mr-2" />
-                75×120 мм (Ozon)
+                75×120 мм
               </Button>
               <Button
                 onClick={() => generateLabel(item, '58x40')}
