@@ -5,7 +5,7 @@ import PWAInstallPrompt from '@/components/PWAInstallPrompt';
 import CookieBanner from '@/components/CookieBanner';
 import UserStats from '@/components/UserStats';
 import { UserProfile } from '@/components/UserProfile';
-import { RoleSelectionModal } from '@/components/RoleSelectionModal';
+import UserRoleSelectionModal from '@/components/UserRoleSelectionModal';
 import TelegramPromptModal from '@/components/TelegramPromptModal';
 import IndexHeader from '@/components/IndexHeader';
 import IndexDesktopNavigation from '@/components/IndexDesktopNavigation';
@@ -204,7 +204,7 @@ const Index = () => {
   return (
     <div className="min-h-screen bg-background animate-fade-in">
       {showStatusSelector && user && (
-        <RoleSelectionModal user={user} onComplete={handleRoleStatusComplete} />
+        <UserRoleSelectionModal user={user} onComplete={handleRoleStatusComplete} />
       )}
       
       {showTelegramPrompt && user && (

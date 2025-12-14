@@ -77,7 +77,7 @@ const IndexHeader = ({ user, userStatus, onProfileClick, onLogout }: IndexHeader
             <ThemeToggle />
           </div>
           
-          {user.email === 'bgs1990st@mail.ru' && (
+          {user.phone === '89144679910' && (
             <Button 
               variant="ghost" 
               size="sm" 

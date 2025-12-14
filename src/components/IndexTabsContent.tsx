@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import LiveMap from '@/components/LiveMap';
 import OnboardingTour from '@/components/OnboardingTour';
 import AIAssistant from '@/components/AIAssistant';
@@ -12,6 +13,7 @@ import FleetManager from '@/components/FleetManager';
 import DeliveryHistory from '@/components/DeliveryHistory';
 import ClientNotifications from '@/components/ClientNotifications';
 import AppDownload from '@/components/AppDownload';
+import SecurityRecommendations from '@/components/SecurityRecommendations';
 import Icon from '@/components/ui/icon';
 import { TabsContent } from '@/components/ui/tabs';
 
@@ -21,8 +23,12 @@ interface IndexTabsContentProps {
 }
 
 const IndexTabsContent = ({ user, driverRoute }: IndexTabsContentProps) => {
+  const [showSecurity, setShowSecurity] = useState(false);
+
   return (
     <>
+      {showSecurity && <SecurityRecommendations onClose={() => setShowSecurity(false)} />}
+      
       <TabsContent value="map" className="animate-slide-in-up">
         {user.user_type === 'client' && (
           <div className="max-w-6xl mx-auto mb-2 px-2">
@@ -126,6 +132,17 @@ const IndexTabsContent = ({ user, driverRoute }: IndexTabsContentProps) => {
           )}
           
           <div className="border-t border-gray-200 dark:border-gray-700 my-4"></div>
+          
+          <button
+            onClick={() => setShowSecurity(true)}
+            className="w-full flex items-center gap-3 p-4 bg-gradient-to-r from-red-50 to-orange-50 dark:from-red-900/20 dark:to-orange-900/20 rounded-xl border border-red-200 dark:border-red-700 hover:shadow-lg transition-all"
+          >
+            <Icon name="Shield" size={24} className="text-red-600" />
+            <div className="text-left">
+              <div className="font-medium">Правила безопасности</div>
+              <div className="text-sm text-gray-500">Защита от мошенников</div>
+            </div>
+          </button>
           
           <AppDownload />
         </div>
