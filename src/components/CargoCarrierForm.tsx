@@ -147,14 +147,19 @@ const CargoCarrierForm = ({ onComplete, onBack }: CargoCarrierFormProps) => {
 
   return (
     <div className="space-y-6 max-h-[80vh] overflow-y-auto px-1">
-      <div className="flex items-center gap-3 sticky top-0 bg-white dark:bg-gray-900 py-4 border-b z-10">
-        <Button variant="ghost" size="sm" onClick={onBack}>
-          <Icon name="ArrowLeft" size={20} />
-        </Button>
-        <div>
-          <h2 className="text-xl font-bold">Перевозка груза</h2>
-          <p className="text-sm text-gray-500">Данные о водителях и автомобилях</p>
+      <div className="flex items-center justify-between sticky top-0 bg-white dark:bg-gray-900 py-4 border-b z-10">
+        <div className="flex items-center gap-3">
+          <Button variant="ghost" size="sm" onClick={onBack}>
+            <Icon name="ArrowLeft" size={20} />
+          </Button>
+          <div>
+            <h2 className="text-xl font-bold">Перевозка груза</h2>
+            <p className="text-sm text-gray-500">Данные о водителях и автомобилях</p>
+          </div>
         </div>
+        <Button variant="ghost" size="sm" onClick={onBack}>
+          <Icon name="X" size={20} />
+        </Button>
       </div>
 
       <div className="flex gap-2 overflow-x-auto pb-2 items-center">

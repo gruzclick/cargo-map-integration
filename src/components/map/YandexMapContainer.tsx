@@ -102,10 +102,13 @@ const YandexMapContainer = ({ filteredMarkers, isPublic, onMarkerClick, onMapLoa
         }
         
         const clientStatus = (marker as any).clientStatus || 'ready_now';
+        const isCurrentUser = (marker as any).isCurrentUser;
         bgColor = clientStatus === 'ready_now' ? '#0EA5E9' : '#F59E0B';
         
         iconSvg = getCargoIcon(marker.cargoType || 'box');
-        const iconContent = `<div style="width: 44px; height: 44px; background: ${bgColor}; border-radius: 12px; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 12px rgba(0,0,0,0.15);">${iconSvg}</div>`;
+        const iconContent = isCurrentUser 
+          ? `<div style="width: 48px; height: 48px; background: ${bgColor}; border-radius: 12px; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 16px rgba(0,0,0,0.25); border: 3px solid white;">${iconSvg}</div>`
+          : `<div style="width: 44px; height: 44px; background: ${bgColor}; border-radius: 12px; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 12px rgba(0,0,0,0.15);">${iconSvg}</div>`;
         
         const placemark = new (window as any).ymaps.Placemark(
           [marker.lat, marker.lng],
@@ -160,9 +163,12 @@ const YandexMapContainer = ({ filteredMarkers, isPublic, onMarkerClick, onMapLoa
 
           map.geoObjects.add(placemark);
         } else {
+          const isCurrentUser = (marker as any).isCurrentUser;
           iconSvg = getVehicleIcon(marker.vehicleCategory || 'car', carrierStatus);
           
-          const iconContent = `<div style="width: 50px; height: 50px; display: flex; align-items: center; justify-content: center; filter: drop-shadow(0 4px 12px rgba(0,0,0,0.25));">${iconSvg}</div>`;
+          const iconContent = isCurrentUser
+            ? `<div style="width: 56px; height: 56px; display: flex; align-items: center; justify-content: center; filter: drop-shadow(0 4px 16px rgba(0,0,0,0.35)); transform: scale(1.1);">${iconSvg}</div>`
+            : `<div style="width: 50px; height: 50px; display: flex; align-items: center; justify-content: center; filter: drop-shadow(0 4px 12px rgba(0,0,0,0.25));">${iconSvg}</div>`;
           
           const placemark = new (window as any).ymaps.Placemark(
             [marker.lat, marker.lng],

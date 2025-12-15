@@ -41,7 +41,11 @@ const LiveMap = ({ isPublic = false, onMarkerClick }: LiveMapProps = {}) => {
   useEffect(() => {
     fetchMarkers();
     detectUserLocation();
-    const interval = setInterval(fetchMarkers, 5000);
+    loadUserActiveOrder();
+    const interval = setInterval(() => {
+      fetchMarkers();
+      loadUserActiveOrder();
+    }, 5000);
     return () => clearInterval(interval);
   }, []);
 
@@ -152,23 +156,90 @@ const LiveMap = ({ isPublic = false, onMarkerClick }: LiveMapProps = {}) => {
     setFilters(newFilters);
   };
 
+  const loadUserActiveOrder = async () => {
+    try {
+      const userData = localStorage.getItem('user_data');
+      if (!userData) return;
+
+      const user = JSON.parse(userData);
+      const userType = user.role; // 'client' или 'carrier'
+      
+      let activeOrders = [];
+      
+      if (userType === 'client') {
+        // Получаем активные заявки отправителя
+        const response = await fetch('https://functions.poehali.dev/6b12a65e-1dc2-4374-a1b0-0260cc1a1c95', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ user_id: user.id })
+        });
+        const data = await response.json();
+        activeOrders = data.orders || [];
+      } else if (userType === 'carrier') {
+        // Получаем активную заявку перевозчика
+        const response = await fetch('https://functions.poehali.dev/1bf7c6c6-3e8d-4aed-a063-32efaf0118a4', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ user_id: user.id })
+        });
+        const data = await response.json();
+        if (data.order) activeOrders = [data.order];
+      }
+
+      // Добавляем маркеры пользователя на карту
+      if (activeOrders.length > 0 && userLocation) {
+        const userMarkers: MapMarker[] = activeOrders.map((order: any) => ({
+          id: `user-${order.id}`,
+          lat: order.lat || userLocation.lat,
+          lng: order.lng || userLocation.lng,
+          type: userType === 'client' ? 'cargo' : 'driver',
+          role: userType,
+          name: user.name || 'Вы',
+          phone: user.phone,
+          details: order.details || '',
+          cargoType: order.cargo_type,
+          vehicleCategory: order.vehicle_type,
+          isCurrentUser: true
+        }));
+
+        setMarkers(prev => {
+          // Удаляем старые маркеры пользователя
+          const filtered = prev.filter(m => !m.id.startsWith('user-'));
+          return [...filtered, ...userMarkers];
+        });
+      }
+    } catch (error) {
+      console.error('Error loading user active order:', error);
+    }
+  };
+
   const fetchMarkers = async () => {
     try {
       const response = await fetch('https://functions.poehali.dev/e0c57b5b-aa36-4b28-8b31-c70ece513cae?path=/users');
       const data = await response.json();
       
       if (data.markers && data.markers.length > 0) {
-        setMarkers(data.markers);
+        setMarkers(prev => {
+          // Сохраняем маркеры пользователя
+          const userMarkers = prev.filter(m => m.id.startsWith('user-'));
+          return [...data.markers, ...userMarkers];
+        });
       } else {
         const { generateAllMockData } = await import('@/utils/mockData');
         const mockMarkers = generateAllMockData();
-        setMarkers(mockMarkers);
+        setMarkers(prev => {
+          const userMarkers = prev.filter(m => m.id.startsWith('user-'));
+          return [...mockMarkers, ...userMarkers];
+        });
       }
     } catch (error) {
       console.error('Failed to fetch real users, using mock data:', error);
       const { generateAllMockData } = await import('@/utils/mockData');
       const mockMarkers = generateAllMockData();
-      setMarkers(mockMarkers);
+      setMarkers(prev => {
+        const userMarkers = prev.filter(m => m.id.startsWith('user-'));
+        return [...mockMarkers, ...userMarkers];
+      });
     }
   };
 

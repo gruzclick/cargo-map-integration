@@ -150,7 +150,7 @@ const CargoShipperForm = ({ onComplete, onBack }: CargoShipperFormProps) => {
       format: format === '75x120' ? [75, 120] : [58, 40]
     });
 
-    pdf.setFont('helvetica', 'bold');
+    pdf.setFont('times', 'bold');
     
     if (format === '75x120') {
       // Горизонтальная 120×75мм
@@ -160,27 +160,27 @@ const CargoShipperForm = ({ onComplete, onBack }: CargoShipperFormProps) => {
       pdf.text('ИНФОРМАЦИЯ ДЛЯ ВОДИТЕЛЯ', 60, y, { align: 'center' });
       
       y += 10;
-      pdf.setFont('helvetica', 'normal');
+      pdf.setFont('times', 'normal');
       pdf.setFontSize(9);
       pdf.text('Отправитель:', 60, y, { align: 'center' });
       
       y += 5;
-      pdf.setFont('helvetica', 'bold');
+      pdf.setFont('times', 'bold');
       pdf.setFontSize(11);
       pdf.text(item.senderName, 60, y, { align: 'center' });
       
       y += 8;
-      pdf.setFont('helvetica', 'normal');
+      pdf.setFont('times', 'normal');
       pdf.setFontSize(9);
       pdf.text('Склад назначения:', 60, y, { align: 'center' });
       
       y += 5;
-      pdf.setFont('helvetica', 'bold');
+      pdf.setFont('times', 'bold');
       pdf.setFontSize(10);
       pdf.text(item.warehouse.marketplace, 60, y, { align: 'center' });
       
       y += 5;
-      pdf.setFont('helvetica', 'normal');
+      pdf.setFont('times', 'normal');
       pdf.setFontSize(8);
       const addressLines = pdf.splitTextToSize(item.warehouse.address, 110);
       pdf.text(addressLines, 60, y, { align: 'center' });
@@ -191,22 +191,22 @@ const CargoShipperForm = ({ onComplete, onBack }: CargoShipperFormProps) => {
       pdf.text('Дата поставки:', 60, y, { align: 'center' });
       
       y += 5;
-      pdf.setFont('helvetica', 'bold');
+      pdf.setFont('times', 'bold');
       pdf.setFontSize(11);
       pdf.text(new Date(item.pickupDate).toLocaleDateString('ru-RU'), 60, y, { align: 'center' });
       
       y += 8;
-      pdf.setFont('helvetica', 'normal');
+      pdf.setFont('times', 'normal');
       pdf.setFontSize(9);
       pdf.text('Контакт:', 60, y, { align: 'center' });
       
       y += 5;
-      pdf.setFont('helvetica', 'bold');
+      pdf.setFont('times', 'bold');
       pdf.setFontSize(11);
       pdf.text(item.contactPhone, 60, y, { align: 'center' });
       
       y += 7;
-      pdf.setFont('helvetica', 'normal');
+      pdf.setFont('times', 'normal');
       pdf.setFontSize(9);
       pdf.text(`${item.type === 'box' ? 'Короб' : 'Паллет'} - ${item.quantity} шт`, 60, y, { align: 'center' });
     } else {
@@ -217,22 +217,22 @@ const CargoShipperForm = ({ onComplete, onBack }: CargoShipperFormProps) => {
       pdf.text('ИНФО ДЛЯ ВОДИТЕЛЯ', 29, y, { align: 'center' });
       
       y += 5;
-      pdf.setFont('helvetica', 'normal');
+      pdf.setFont('times', 'normal');
       pdf.setFontSize(7);
       pdf.text('От:', 29, y, { align: 'center' });
       
       y += 3;
-      pdf.setFont('helvetica', 'bold');
+      pdf.setFont('times', 'bold');
       pdf.setFontSize(8);
       pdf.text(item.senderName, 29, y, { align: 'center' });
       
       y += 5;
-      pdf.setFont('helvetica', 'bold');
+      pdf.setFont('times', 'bold');
       pdf.setFontSize(8);
       pdf.text(item.warehouse.marketplace, 29, y, { align: 'center' });
       
       y += 4;
-      pdf.setFont('helvetica', 'normal');
+      pdf.setFont('times', 'normal');
       pdf.setFontSize(11);
       pdf.text(new Date(item.pickupDate).toLocaleDateString('ru-RU'), 29, y, { align: 'center' });
       
@@ -257,14 +257,29 @@ const CargoShipperForm = ({ onComplete, onBack }: CargoShipperFormProps) => {
 
   return (
     <div className="space-y-6 max-h-[80vh] overflow-y-auto px-1">
-      <div className="flex items-center gap-3 sticky top-0 bg-white dark:bg-gray-900 py-4 border-b z-10">
-        <Button variant="ghost" size="sm" onClick={onBack}>
-          <Icon name="ArrowLeft" size={20} />
-        </Button>
-        <div>
-          <h2 className="text-xl font-bold">Отправка груза</h2>
-          <p className="text-sm text-gray-500">Заполните данные для каждого груза</p>
+      <div className="sticky top-0 bg-white dark:bg-gray-900 py-4 border-b z-10 space-y-3">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <Button variant="ghost" size="sm" onClick={onBack}>
+              <Icon name="ArrowLeft" size={20} />
+            </Button>
+            <div>
+              <h2 className="text-xl font-bold">Отправка груза</h2>
+              <p className="text-sm text-gray-500">Заполните данные для каждого груза</p>
+            </div>
+          </div>
+          <Button variant="ghost" size="sm" onClick={onBack}>
+            <Icon name="X" size={20} />
+          </Button>
         </div>
+        <Button
+          onClick={addCargoItem}
+          variant="outline"
+          className="w-full"
+        >
+          <Icon name="Plus" size={16} className="mr-2" />
+          Добавить груз
+        </Button>
       </div>
 
       {cargoItems.map((item, index) => (
@@ -280,29 +295,31 @@ const CargoShipperForm = ({ onComplete, onBack }: CargoShipperFormProps) => {
 
           <div>
             <label className="block text-sm font-medium mb-2">Тип груза *</label>
-            <div className="grid grid-cols-2 gap-3">
-              <button
-                onClick={() => updateItem(item.id, 'type', 'box')}
-                className={`p-4 rounded-xl border-2 transition-all ${
-                  item.type === 'box'
-                    ? 'border-blue-600 bg-blue-50 dark:bg-blue-900/20'
-                    : 'border-gray-200 dark:border-gray-700 hover:border-gray-300'
-                }`}
-              >
-                <Icon name="Package" size={32} className="mx-auto mb-2" />
-                <div className="font-medium">Короб</div>
-              </button>
-              <button
-                onClick={() => updateItem(item.id, 'type', 'pallet')}
-                className={`p-4 rounded-xl border-2 transition-all ${
-                  item.type === 'pallet'
-                    ? 'border-blue-600 bg-blue-50 dark:bg-blue-900/20'
-                    : 'border-gray-200 dark:border-gray-700 hover:border-gray-300'
-                }`}
-              >
-                <Icon name="Container" size={32} className="mx-auto mb-2" />
-                <div className="font-medium">Паллет</div>
-              </button>
+            <div className="flex gap-3">
+              <div className="flex flex-col gap-3 flex-1">
+                <button
+                  onClick={() => updateItem(item.id, 'type', 'box')}
+                  className={`p-3 rounded-xl border-2 transition-all ${
+                    item.type === 'box'
+                      ? 'border-blue-600 bg-blue-50 dark:bg-blue-900/20'
+                      : 'border-gray-200 dark:border-gray-700 hover:border-gray-300'
+                  }`}
+                >
+                  <Icon name="Package" size={28} className="mx-auto mb-1" />
+                  <div className="font-medium text-sm">Короб</div>
+                </button>
+                <button
+                  onClick={() => updateItem(item.id, 'type', 'pallet')}
+                  className={`p-3 rounded-xl border-2 transition-all ${
+                    item.type === 'pallet'
+                      ? 'border-blue-600 bg-blue-50 dark:bg-blue-900/20'
+                      : 'border-gray-200 dark:border-gray-700 hover:border-gray-300'
+                  }`}
+                >
+                  <Icon name="Container" size={28} className="mx-auto mb-1" />
+                  <div className="font-medium text-sm">Паллет</div>
+                </button>
+              </div>
             </div>
           </div>
 
@@ -457,19 +474,11 @@ const CargoShipperForm = ({ onComplete, onBack }: CargoShipperFormProps) => {
         </div>
       ))}
 
-      <div className="flex gap-3 sticky bottom-0 bg-white dark:bg-gray-900 py-4 border-t">
-        <Button
-          onClick={addCargoItem}
-          variant="outline"
-          className="flex-1"
-        >
-          <Icon name="Plus" size={16} className="mr-2" />
-          Добавить груз
-        </Button>
+      <div className="sticky bottom-0 bg-white dark:bg-gray-900 py-4 border-t">
         <Button
           onClick={() => onComplete(cargoItems)}
           disabled={!canSubmit}
-          className="flex-1"
+          className="w-full"
         >
           Создать заявку
         </Button>
