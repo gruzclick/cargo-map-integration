@@ -1,0 +1,5 @@
+ALTER TABLE orders_carrier ADD COLUMN IF NOT EXISTS latitude NUMERIC(10, 7);
+ALTER TABLE orders_carrier ADD COLUMN IF NOT EXISTS longitude NUMERIC(10, 7);
+
+ALTER TABLE orders_shipper ADD COLUMN IF NOT EXISTS latitude NUMERIC(10, 7);
+ALTER TABLE orders_shipper ADD COLUMN IF NOT EXISTS longitude NUMERIC(10, 7);

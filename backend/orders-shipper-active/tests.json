@@ -1,0 +1,17 @@
+{
+  "tests": [
+    {
+      "name": "Get active shipper orders",
+      "method": "GET",
+      "headers": {
+        "X-User-Id": "test-shipper-456"
+      },
+      "expectedStatus": 200,
+      "expectedBody": {
+        "success": true,
+        "orders": []
+      },
+      "bodyMatcher": "partial"
+    }
+  ]
+}

@@ -17,22 +17,14 @@ const UserRoleSelectionModal = ({ user, onComplete }: UserRoleSelectionModalProp
 
   const handleShipperComplete = async (items: any[]) => {
     console.log('Shipper cargo items:', items);
-    
-    // Здесь будет отправка данных на сервер
-    // TODO: Реализовать API endpoint для создания заявок грузоотправителя
-    
     setSuccessMessage(`Создано заявок на отправку: ${items.length}`);
-    setStep('success');
+    setTimeout(() => setSuccessMessage(''), 3000);
   };
 
   const handleCarrierComplete = async (vehicles: any[]) => {
     console.log('Carrier vehicles:', vehicles);
-    
-    // Здесь будет отправка данных на сервер
-    // TODO: Реализовать API endpoint для регистрации перевозчиков
-    
     setSuccessMessage(`Зарегистрировано автомобилей: ${vehicles.length}`);
-    setStep('success');
+    setTimeout(() => setSuccessMessage(''), 3000);
   };
 
   return (
@@ -154,24 +146,14 @@ const UserRoleSelectionModal = ({ user, onComplete }: UserRoleSelectionModalProp
           />
         )}
 
-        {step === 'success' && (
-          <div className="p-8 text-center">
-            <div className="inline-flex items-center justify-center w-20 h-20 bg-green-100 dark:bg-green-900/30 rounded-full mb-6">
-              <Icon name="CheckCircle" size={48} className="text-green-600" />
-            </div>
-            <h2 className="text-3xl font-bold mb-4">Заявка создана!</h2>
-            <p className="text-gray-600 dark:text-gray-400 mb-8">
-              {successMessage}
-            </p>
-            <Button
-              onClick={onComplete}
-              className="px-8 py-3 text-lg"
-            >
-              Закрыть
-            </Button>
-          </div>
-        )}
       </div>
+      
+      {successMessage && (
+        <div className="fixed bottom-4 right-4 bg-green-500 text-white px-6 py-3 rounded-lg shadow-lg z-[60] flex items-center gap-3">
+          <Icon name="CheckCircle" size={24} />
+          <span>Заявка создана!</span>
+        </div>
+      )}
     </div>
   );
 };

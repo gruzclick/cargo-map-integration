@@ -1,4 +1,8 @@
 {
+  "orders-shipper-create": "https://functions.poehali.dev/c33a92ed-ad2e-4ab2-b8ba-a956e96b12aa",
+  "orders-shipper-active": "https://functions.poehali.dev/6b12a65e-1dc2-4374-a1b0-0260cc1a1c95",
+  "orders-carrier-active": "https://functions.poehali.dev/1bf7c6c6-3e8d-4aed-a063-32efaf0118a4",
+  "orders-carrier-create": "https://functions.poehali.dev/e8daeb62-e1d0-45c3-b316-9ce66d59997b",
   "vehicles-list": "https://functions.poehali.dev/5738c15a-767b-4f8c-adbe-dd4fd7aee924",
   "vehicles-save": "https://functions.poehali.dev/3af96f4d-33d9-420a-8bb5-027d6cc404f0",
   "verify-license": "https://functions.poehali.dev/6e5ce61e-8397-4473-8bbf-5083c0dbfb7c",

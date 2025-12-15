@@ -40,9 +40,24 @@ const LiveMap = ({ isPublic = false, onMarkerClick }: LiveMapProps = {}) => {
 
   useEffect(() => {
     fetchMarkers();
+    detectUserLocation();
     const interval = setInterval(fetchMarkers, 5000);
     return () => clearInterval(interval);
   }, []);
+
+  const detectUserLocation = () => {
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          const { latitude, longitude } = position.coords;
+          setUserLocation({ lat: latitude, lng: longitude });
+        },
+        (error) => {
+          console.error('Ошибка определения геопозиции:', error);
+        }
+      );
+    }
+  };
 
   useEffect(() => {
     applyFilters();
@@ -158,13 +173,11 @@ const LiveMap = ({ isPublic = false, onMarkerClick }: LiveMapProps = {}) => {
   };
 
   const handleCargoTypeClick = (type: 'box' | 'pallet' | 'oversized', isDriver: boolean) => {
-    setCargoDetailsModal({ type, isDriver });
-    setCargoDetails({ quantity: '', weight: '', volume: '' });
+    console.log('Cargo type clicked:', type, 'isDriver:', isDriver);
   };
 
   const handleVehicleTypeClick = (type: 'car' | 'truck' | 'semi', isClient: boolean) => {
-    setVehicleDetailsModal({ type, isClient });
-    setVehicleDetails({ boxCount: '', palletCount: '', oversizedCount: '', volume: '' });
+    console.log('Vehicle type clicked:', type, 'isClient:', isClient);
   };
 
   const submitCargoDetails = () => {
@@ -343,17 +356,19 @@ const LiveMap = ({ isPublic = false, onMarkerClick }: LiveMapProps = {}) => {
                 )}
                 
                 {/* Типы грузов и транспорта */}
-                <div className="bg-white/10 dark:bg-gray-800/10 backdrop-blur-3xl rounded-xl p-2 border border-white/30 dark:border-gray-700/30">
-                  <h3 className="text-xs font-semibold text-gray-900 dark:text-white mb-1.5">Показать</h3>
-                  <CargoVehicleSelector 
-                    filters={filters}
-                    onCargoTypeClick={handleCargoTypeClick}
-                    onVehicleTypeClick={handleVehicleTypeClick}
-                  />
-                </div>
+                {filters.userType !== 'all' && (
+                  <div className="p-2">
+                    <h3 className="text-xs font-semibold text-gray-900 dark:text-white mb-1.5">Показать</h3>
+                    <CargoVehicleSelector 
+                      filters={filters}
+                      onCargoTypeClick={handleCargoTypeClick}
+                      onVehicleTypeClick={handleVehicleTypeClick}
+                    />
+                  </div>
+                )}
                 
                 {/* Поиск маршрутов */}
-                <div className="bg-white/10 dark:bg-gray-800/10 backdrop-blur-3xl rounded-xl p-2 border border-white/30 dark:border-gray-700/30">
+                <div className="p-2">
                   <RouteSearchPanel 
                     routeSearch={routeSearch} 
                     onRouteChange={setRouteSearch}
