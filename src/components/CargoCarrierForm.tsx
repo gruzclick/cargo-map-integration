@@ -157,7 +157,7 @@ const CargoCarrierForm = ({ onComplete, onBack }: CargoCarrierFormProps) => {
         </div>
       </div>
 
-      <div className="flex gap-2 overflow-x-auto pb-2">
+      <div className="flex gap-2 overflow-x-auto pb-2 items-center">
         {vehicles.map((vehicle, index) => (
           <button
             key={vehicle.id}
@@ -169,12 +169,24 @@ const CargoCarrierForm = ({ onComplete, onBack }: CargoCarrierFormProps) => {
             }`}
           >
             <Icon name="Truck" size={16} className="inline mr-2" />
-            Автомобиль #{index + 1}
+            {vehicle.carBrand && vehicle.carNumber 
+              ? `${vehicle.carBrand} ${vehicle.carNumber}`
+              : `Автомобиль #${index + 1}`
+            }
             {isVehicleValid(vehicle) && (
               <Icon name="CheckCircle" size={14} className="inline ml-2 text-green-400" />
             )}
           </button>
         ))}
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={addVehicle}
+          className="whitespace-nowrap"
+        >
+          <Icon name="Plus" size={16} className="mr-2" />
+          Добавить
+        </Button>
       </div>
 
       {vehicles.map(vehicle => (
@@ -292,13 +304,25 @@ const CargoCarrierForm = ({ onComplete, onBack }: CargoCarrierFormProps) => {
 
             <div className="relative">
               <label className="block text-sm font-medium mb-2">Склад назначения сегодня *</label>
-              <input
-                type="text"
-                value={warehouseSearch[vehicle.id] || ''}
-                onChange={(e) => handleWarehouseSearch(vehicle.id, e.target.value)}
-                placeholder="Начните вводить: Wildberries, Ozon, Москва..."
-                className="w-full px-4 py-2 rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800"
-              />
+              <div className="flex gap-2">
+                <input
+                  type="text"
+                  value={warehouseSearch[vehicle.id] || ''}
+                  onChange={(e) => handleWarehouseSearch(vehicle.id, e.target.value)}
+                  placeholder="Начните вводить: Wildberries, Ozon, Москва..."
+                  className="flex-1 px-4 py-2 rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800"
+                />
+                <Button
+                  variant="outline"
+                  onClick={() => {
+                    updateVehicle(vehicle.id, 'warehouse', { marketplace: 'Любой склад', city: '', address: '', code: '' } as MarketplaceWarehouse);
+                    setWarehouseSearch(prev => ({ ...prev, [vehicle.id]: 'Любой склад' }));
+                  }}
+                  className="whitespace-nowrap"
+                >
+                  Любой склад
+                </Button>
+              </div>
               {warehouseResults[vehicle.id]?.length > 0 && (
                 <div className="absolute z-20 w-full mt-1 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-lg max-h-60 overflow-y-auto">
                   {warehouseResults[vehicle.id].map((warehouse, idx) => (
@@ -347,17 +371,9 @@ const CargoCarrierForm = ({ onComplete, onBack }: CargoCarrierFormProps) => {
 
       <div className="flex gap-3 sticky bottom-0 bg-white dark:bg-gray-900 py-4 border-t">
         <Button
-          onClick={addVehicle}
-          variant="outline"
-          className="flex-1"
-        >
-          <Icon name="Plus" size={16} className="mr-2" />
-          Добавить автомобиль
-        </Button>
-        <Button
           onClick={() => onComplete(vehicles)}
           disabled={!canSubmit}
-          className="flex-1"
+          className="w-full"
         >
           Создать заявку
         </Button>

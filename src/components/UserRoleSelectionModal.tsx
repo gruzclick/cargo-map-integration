@@ -9,10 +9,11 @@ interface UserRoleSelectionModalProps {
   onComplete: () => void;
 }
 
-type Step = 'role-selection' | 'shipper-form' | 'carrier-form';
+type Step = 'role-selection' | 'shipper-form' | 'carrier-form' | 'success';
 
 const UserRoleSelectionModal = ({ user, onComplete }: UserRoleSelectionModalProps) => {
   const [step, setStep] = useState<Step>('role-selection');
+  const [successMessage, setSuccessMessage] = useState('');
 
   const handleShipperComplete = async (items: any[]) => {
     console.log('Shipper cargo items:', items);
@@ -20,8 +21,8 @@ const UserRoleSelectionModal = ({ user, onComplete }: UserRoleSelectionModalProp
     // Здесь будет отправка данных на сервер
     // TODO: Реализовать API endpoint для создания заявок грузоотправителя
     
-    alert(`✅ Создано заявок: ${items.length}\n\nВаши заявки будут видны перевозчикам. Ожидайте предложений!`);
-    onComplete();
+    setSuccessMessage(`Создано заявок на отправку: ${items.length}`);
+    setStep('success');
   };
 
   const handleCarrierComplete = async (vehicles: any[]) => {
@@ -30,8 +31,8 @@ const UserRoleSelectionModal = ({ user, onComplete }: UserRoleSelectionModalProp
     // Здесь будет отправка данных на сервер
     // TODO: Реализовать API endpoint для регистрации перевозчиков
     
-    alert(`✅ Зарегистрировано автомобилей: ${vehicles.length}\n\nВаш профиль перевозчика активирован. Вы можете просматривать доступные грузы!`);
-    onComplete();
+    setSuccessMessage(`Зарегистрировано автомобилей: ${vehicles.length}`);
+    setStep('success');
   };
 
   return (
@@ -151,6 +152,24 @@ const UserRoleSelectionModal = ({ user, onComplete }: UserRoleSelectionModalProp
             onComplete={handleCarrierComplete}
             onBack={() => setStep('role-selection')}
           />
+        )}
+
+        {step === 'success' && (
+          <div className="p-8 text-center">
+            <div className="inline-flex items-center justify-center w-20 h-20 bg-green-100 dark:bg-green-900/30 rounded-full mb-6">
+              <Icon name="CheckCircle" size={48} className="text-green-600" />
+            </div>
+            <h2 className="text-3xl font-bold mb-4">Заявка создана!</h2>
+            <p className="text-gray-600 dark:text-gray-400 mb-8">
+              {successMessage}
+            </p>
+            <Button
+              onClick={onComplete}
+              className="px-8 py-3 text-lg"
+            >
+              Закрыть
+            </Button>
+          </div>
         )}
       </div>
     </div>

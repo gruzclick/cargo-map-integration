@@ -3,6 +3,7 @@ import { Button } from '@/components/ui/button';
 import Icon from '@/components/ui/icon';
 import { searchWarehouses, type MarketplaceWarehouse } from '@/data/marketplaceWarehouses';
 import { debounce } from '@/lib/debounce';
+import jsPDF from 'jspdf';
 
 interface CargoItem {
   id: string;
@@ -14,6 +15,7 @@ interface CargoItem {
   pickupTime: string;
   photo: File | null;
   contactPhone: string;
+  senderName: string;
 }
 
 interface YandexSuggestion {
@@ -37,7 +39,8 @@ const CargoShipperForm = ({ onComplete, onBack }: CargoShipperFormProps) => {
     pickupDate: '',
     pickupTime: '',
     photo: null,
-    contactPhone: ''
+    contactPhone: '',
+    senderName: ''
   }]);
   
   const [warehouseSearch, setWarehouseSearch] = useState<{[key: string]: string}>({});
@@ -124,7 +127,8 @@ const CargoShipperForm = ({ onComplete, onBack }: CargoShipperFormProps) => {
       pickupDate: '',
       pickupTime: '',
       photo: null,
-      contactPhone: ''
+      contactPhone: '',
+      senderName: ''
     }]);
   };
 
@@ -135,89 +139,118 @@ const CargoShipperForm = ({ onComplete, onBack }: CargoShipperFormProps) => {
   };
 
   const generateLabel = (item: CargoItem, format: '75x120' | '58x40') => {
-    if (!item.warehouse || !item.pickupDate || !item.contactPhone) {
-      alert('⚠️ Заполните все обязательные поля: склад назначения, дата и номер телефона');
+    if (!item.warehouse || !item.pickupDate || !item.contactPhone || !item.senderName) {
+      alert('⚠️ Заполните все обязательные поля: имя отправителя, склад назначения, дата и номер телефона');
       return;
     }
 
-    const canvas = document.createElement('canvas');
-    const ctx = canvas.getContext('2d');
-    if (!ctx) return;
+    const pdf = new jsPDF({
+      orientation: format === '75x120' ? 'landscape' : 'portrait',
+      unit: 'mm',
+      format: format === '75x120' ? [75, 120] : [58, 40]
+    });
 
+    pdf.setFont('helvetica', 'bold');
+    
     if (format === '75x120') {
-      canvas.width = 283; // 75mm at 96dpi
-      canvas.height = 453; // 120mm at 96dpi
+      // Горизонтальная 120×75мм
+      let y = 12;
+      
+      pdf.setFontSize(14);
+      pdf.text('ИНФОРМАЦИЯ ДЛЯ ВОДИТЕЛЯ', 60, y, { align: 'center' });
+      
+      y += 10;
+      pdf.setFont('helvetica', 'normal');
+      pdf.setFontSize(9);
+      pdf.text('Отправитель:', 60, y, { align: 'center' });
+      
+      y += 5;
+      pdf.setFont('helvetica', 'bold');
+      pdf.setFontSize(11);
+      pdf.text(item.senderName, 60, y, { align: 'center' });
+      
+      y += 8;
+      pdf.setFont('helvetica', 'normal');
+      pdf.setFontSize(9);
+      pdf.text('Склад назначения:', 60, y, { align: 'center' });
+      
+      y += 5;
+      pdf.setFont('helvetica', 'bold');
+      pdf.setFontSize(10);
+      pdf.text(item.warehouse.marketplace, 60, y, { align: 'center' });
+      
+      y += 5;
+      pdf.setFont('helvetica', 'normal');
+      pdf.setFontSize(8);
+      const addressLines = pdf.splitTextToSize(item.warehouse.address, 110);
+      pdf.text(addressLines, 60, y, { align: 'center' });
+      y += addressLines.length * 4;
+      
+      y += 5;
+      pdf.setFontSize(9);
+      pdf.text('Дата поставки:', 60, y, { align: 'center' });
+      
+      y += 5;
+      pdf.setFont('helvetica', 'bold');
+      pdf.setFontSize(11);
+      pdf.text(new Date(item.pickupDate).toLocaleDateString('ru-RU'), 60, y, { align: 'center' });
+      
+      y += 8;
+      pdf.setFont('helvetica', 'normal');
+      pdf.setFontSize(9);
+      pdf.text('Контакт:', 60, y, { align: 'center' });
+      
+      y += 5;
+      pdf.setFont('helvetica', 'bold');
+      pdf.setFontSize(11);
+      pdf.text(item.contactPhone, 60, y, { align: 'center' });
+      
+      y += 7;
+      pdf.setFont('helvetica', 'normal');
+      pdf.setFontSize(9);
+      pdf.text(`${item.type === 'box' ? 'Короб' : 'Паллет'} - ${item.quantity} шт`, 60, y, { align: 'center' });
     } else {
-      canvas.width = 219; // 58mm at 96dpi
-      canvas.height = 151; // 40mm at 96dpi
+      // Вертикальная 58×40мм
+      let y = 8;
+      
+      pdf.setFontSize(10);
+      pdf.text('ИНФО ДЛЯ ВОДИТЕЛЯ', 29, y, { align: 'center' });
+      
+      y += 5;
+      pdf.setFont('helvetica', 'normal');
+      pdf.setFontSize(7);
+      pdf.text('От:', 29, y, { align: 'center' });
+      
+      y += 3;
+      pdf.setFont('helvetica', 'bold');
+      pdf.setFontSize(8);
+      pdf.text(item.senderName, 29, y, { align: 'center' });
+      
+      y += 5;
+      pdf.setFont('helvetica', 'bold');
+      pdf.setFontSize(8);
+      pdf.text(item.warehouse.marketplace, 29, y, { align: 'center' });
+      
+      y += 4;
+      pdf.setFont('helvetica', 'normal');
+      pdf.setFontSize(11);
+      pdf.text(new Date(item.pickupDate).toLocaleDateString('ru-RU'), 29, y, { align: 'center' });
+      
+      y += 4;
+      pdf.setFontSize(8);
+      pdf.text(item.contactPhone, 29, y, { align: 'center' });
+      
+      y += 4;
+      pdf.setFontSize(7);
+      pdf.text(`${item.type === 'box' ? 'Короб' : 'Паллет'} - ${item.quantity} шт`, 29, y, { align: 'center' });
     }
 
-    ctx.fillStyle = 'white';
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
-    
-    ctx.fillStyle = 'black';
-    ctx.textAlign = 'center';
-    
-    const centerX = canvas.width / 2;
-    let y;
-    const isLarge = format === '75x120';
-    const titleSize = isLarge ? 16 : 12;
-    const headerSize = isLarge ? 11 : 9;
-    const textSize = isLarge ? 10 : 8;
-    const boldSize = isLarge ? 13 : 10;
-    const lineHeight = isLarge ? 20 : 14;
-    const spacing = isLarge ? 10 : 6;
-    
-    y = isLarge ? 30 : 18;
-    ctx.font = `bold ${titleSize}px Arial`;
-    ctx.fillText('ИНФОРМАЦИЯ ДЛЯ ВОДИТЕЛЯ', centerX, y);
-    
-    y += isLarge ? 25 : 16;
-    ctx.font = `${headerSize}px Arial`;
-    ctx.fillText('Склад назначения:', centerX, y);
-    
-    y += lineHeight;
-    ctx.font = `bold ${textSize}px Arial`;
-    ctx.fillText(`${item.warehouse.marketplace}`, centerX, y);
-    
-    y += isLarge ? 16 : 12;
-    ctx.font = `${textSize}px Arial`;
-    const maxChars = isLarge ? 35 : 28;
-    const addressLines = item.warehouse.address.match(new RegExp(`.{1,${maxChars}}`, 'g')) || [];
-    addressLines.forEach(line => {
-      ctx.fillText(line.trim(), centerX, y);
-      y += isLarge ? 14 : 10;
-    });
-    
-    y += spacing;
-    ctx.font = `${headerSize}px Arial`;
-    ctx.fillText('Дата поставки:', centerX, y);
-    
-    y += lineHeight;
-    ctx.font = `bold ${boldSize}px Arial`;
-    ctx.fillText(new Date(item.pickupDate).toLocaleDateString('ru-RU'), centerX, y);
-    
-    y += isLarge ? 25 : 16;
-    ctx.font = `${headerSize}px Arial`;
-    ctx.fillText('Контакт:', centerX, y);
-    
-    y += lineHeight;
-    ctx.font = `bold ${boldSize}px Arial`;
-    ctx.fillText(item.contactPhone, centerX, y);
-    
-    y += isLarge ? 25 : 16;
-    ctx.font = `${textSize}px Arial`;
-    ctx.fillText(`${item.type === 'box' ? 'Короб' : 'Паллет'} - ${item.quantity} шт`, centerX, y);
-
-    const link = document.createElement('a');
-    link.download = `label_${format}_${Date.now()}.png`;
-    link.href = canvas.toDataURL('image/png');
-    link.click();
+    pdf.save(`label_${format}_${item.senderName}_${Date.now()}.pdf`);
   };
 
   const isItemValid = (item: CargoItem) => {
     return item.warehouse && item.pickupAddress && item.pickupDate && 
-           item.pickupTime && item.contactPhone && item.quantity > 0;
+           item.pickupTime && item.contactPhone && item.senderName && item.quantity > 0;
   };
 
   const canSubmit = cargoItems.every(isItemValid);
@@ -271,6 +304,17 @@ const CargoShipperForm = ({ onComplete, onBack }: CargoShipperFormProps) => {
                 <div className="font-medium">Паллет</div>
               </button>
             </div>
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium mb-2">Имя отправителя *</label>
+            <input
+              type="text"
+              value={item.senderName}
+              onChange={(e) => updateItem(item.id, 'senderName', e.target.value)}
+              placeholder="Иванов Иван"
+              className="w-full px-4 py-2 rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800"
+            />
           </div>
 
           <div>
