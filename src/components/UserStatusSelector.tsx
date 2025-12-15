@@ -3,9 +3,10 @@ import Icon from '@/components/ui/icon';
 
 interface UserStatusSelectorProps {
   onStatusSelect: (status: 'cargo' | 'vehicle') => void;
+  onClose?: () => void;
 }
 
-export const UserStatusSelector = ({ onStatusSelect }: UserStatusSelectorProps) => {
+export const UserStatusSelector = ({ onStatusSelect, onClose }: UserStatusSelectorProps) => {
   const [selected, setSelected] = useState<'cargo' | 'vehicle' | null>(null);
 
   const handleSelect = (status: 'cargo' | 'vehicle') => {
@@ -15,7 +16,15 @@ export const UserStatusSelector = ({ onStatusSelect }: UserStatusSelectorProps) 
 
   return (
     <div className="fixed inset-0 bg-black/80 z-50 flex items-center justify-center p-4">
-      <div className="bg-white dark:bg-[#212e3a] rounded-2xl max-w-md w-full p-6 space-y-6">
+      <div className="bg-white dark:bg-[#212e3a] rounded-2xl max-w-md w-full p-6 space-y-6 relative">
+        {onClose && (
+          <button
+            onClick={onClose}
+            className="absolute top-4 right-4 p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
+          >
+            <Icon name="X" size={20} className="text-gray-500 dark:text-gray-400" />
+          </button>
+        )}
         <div className="text-center">
           <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">
             Добро пожаловать!

@@ -1,4 +1,5 @@
 {
+  "orders-delete": "https://functions.poehali.dev/721d0ad6-9f96-4114-80d2-1d66b005a7d9",
   "orders-shipper-create": "https://functions.poehali.dev/c33a92ed-ad2e-4ab2-b8ba-a956e96b12aa",
   "orders-shipper-active": "https://functions.poehali.dev/6b12a65e-1dc2-4374-a1b0-0260cc1a1c95",
   "orders-carrier-active": "https://functions.poehali.dev/1bf7c6c6-3e8d-4aed-a063-32efaf0118a4",

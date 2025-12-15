@@ -7,8 +7,8 @@ import jsPDF from 'jspdf';
 
 interface CargoItem {
   id: string;
-  type: 'box' | 'pallet';
-  quantity: number;
+  boxQuantity: number;
+  palletQuantity: number;
   warehouse: MarketplaceWarehouse | null;
   pickupAddress: string;
   pickupDate: string;
@@ -32,8 +32,8 @@ interface CargoShipperFormProps {
 const CargoShipperForm = ({ onComplete, onBack }: CargoShipperFormProps) => {
   const [cargoItems, setCargoItems] = useState<CargoItem[]>([{
     id: crypto.randomUUID(),
-    type: 'box',
-    quantity: 1,
+    boxQuantity: 0,
+    palletQuantity: 0,
     warehouse: null,
     pickupAddress: '',
     pickupDate: '',
@@ -120,8 +120,8 @@ const CargoShipperForm = ({ onComplete, onBack }: CargoShipperFormProps) => {
   const addCargoItem = () => {
     setCargoItems([...cargoItems, {
       id: crypto.randomUUID(),
-      type: 'box',
-      quantity: 1,
+      boxQuantity: 0,
+      palletQuantity: 0,
       warehouse: null,
       pickupAddress: '',
       pickupDate: '',
@@ -208,7 +208,10 @@ const CargoShipperForm = ({ onComplete, onBack }: CargoShipperFormProps) => {
       y += 7;
       pdf.setFont('times', 'normal');
       pdf.setFontSize(9);
-      pdf.text(`${item.type === 'box' ? 'Короб' : 'Паллет'} - ${item.quantity} шт`, 60, y, { align: 'center' });
+      const cargoInfo = [];
+      if (item.boxQuantity > 0) cargoInfo.push(`Коробов: ${item.boxQuantity}`);
+      if (item.palletQuantity > 0) cargoInfo.push(`Паллет: ${item.palletQuantity}`);
+      pdf.text(cargoInfo.join(', '), 60, y, { align: 'center' });
     } else {
       // Вертикальная 58×40мм
       let y = 8;
@@ -242,7 +245,10 @@ const CargoShipperForm = ({ onComplete, onBack }: CargoShipperFormProps) => {
       
       y += 4;
       pdf.setFontSize(7);
-      pdf.text(`${item.type === 'box' ? 'Короб' : 'Паллет'} - ${item.quantity} шт`, 29, y, { align: 'center' });
+      const cargoInfo = [];
+      if (item.boxQuantity > 0) cargoInfo.push(`К: ${item.boxQuantity}`);
+      if (item.palletQuantity > 0) cargoInfo.push(`П: ${item.palletQuantity}`);
+      pdf.text(cargoInfo.join(', '), 29, y, { align: 'center' });
     }
 
     pdf.save(`label_${format}_${item.senderName}_${Date.now()}.pdf`);
@@ -250,14 +256,26 @@ const CargoShipperForm = ({ onComplete, onBack }: CargoShipperFormProps) => {
 
   const isItemValid = (item: CargoItem) => {
     return item.warehouse && item.pickupAddress && item.pickupDate && 
-           item.pickupTime && item.contactPhone && item.senderName && item.quantity > 0;
+           item.pickupTime && item.contactPhone && item.senderName && 
+           (item.boxQuantity > 0 || item.palletQuantity > 0);
+  };
+
+  const getCargoItemName = (item: CargoItem) => {
+    if (!item.warehouse) return `Груз`;
+    
+    const city = item.warehouse.city || item.warehouse.marketplace;
+    const types = [];
+    if (item.boxQuantity > 0) types.push(`${item.boxQuantity} К`);
+    if (item.palletQuantity > 0) types.push(`${item.palletQuantity} П`);
+    
+    return `${city} ${types.join(' ')}`.trim() || 'Груз';
   };
 
   const canSubmit = cargoItems.every(isItemValid);
 
   return (
     <div className="space-y-6 max-h-[80vh] overflow-y-auto px-1">
-      <div className="sticky top-0 bg-white dark:bg-gray-900 py-4 border-b z-10 space-y-3">
+      <div className="sticky top-0 bg-white dark:bg-gray-900 py-4 border-b z-10">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
             <Button variant="ghost" size="sm" onClick={onBack}>
@@ -272,20 +290,12 @@ const CargoShipperForm = ({ onComplete, onBack }: CargoShipperFormProps) => {
             <Icon name="X" size={20} />
           </Button>
         </div>
-        <Button
-          onClick={addCargoItem}
-          variant="outline"
-          className="w-full"
-        >
-          <Icon name="Plus" size={16} className="mr-2" />
-          Добавить груз
-        </Button>
       </div>
 
       {cargoItems.map((item, index) => (
         <div key={item.id} className="border border-gray-200 dark:border-gray-700 rounded-xl p-4 space-y-4 bg-gray-50 dark:bg-gray-800/50">
           <div className="flex items-center justify-between">
-            <h3 className="font-semibold">Груз #{index + 1}</h3>
+            <h3 className="font-semibold">{getCargoItemName(item)}</h3>
             {cargoItems.length > 1 && (
               <Button variant="ghost" size="sm" onClick={() => removeItem(item.id)} className="text-red-600">
                 <Icon name="Trash2" size={16} />
@@ -294,31 +304,45 @@ const CargoShipperForm = ({ onComplete, onBack }: CargoShipperFormProps) => {
           </div>
 
           <div>
-            <label className="block text-sm font-medium mb-2">Тип груза *</label>
-            <div className="flex gap-3">
-              <div className="flex flex-col gap-3 flex-1">
-                <button
-                  onClick={() => updateItem(item.id, 'type', 'box')}
-                  className={`p-3 rounded-xl border-2 transition-all ${
-                    item.type === 'box'
-                      ? 'border-blue-600 bg-blue-50 dark:bg-blue-900/20'
-                      : 'border-gray-200 dark:border-gray-700 hover:border-gray-300'
-                  }`}
-                >
-                  <Icon name="Package" size={28} className="mx-auto mb-1" />
-                  <div className="font-medium text-sm">Короб</div>
-                </button>
-                <button
-                  onClick={() => updateItem(item.id, 'type', 'pallet')}
-                  className={`p-3 rounded-xl border-2 transition-all ${
-                    item.type === 'pallet'
-                      ? 'border-blue-600 bg-blue-50 dark:bg-blue-900/20'
-                      : 'border-gray-200 dark:border-gray-700 hover:border-gray-300'
-                  }`}
-                >
-                  <Icon name="Container" size={28} className="mx-auto mb-1" />
-                  <div className="font-medium text-sm">Паллет</div>
-                </button>
+            <div className="flex items-center justify-between mb-2">
+              <label className="text-sm font-medium">Тип груза *</label>
+              <Button
+                onClick={addCargoItem}
+                variant="outline"
+                size="sm"
+              >
+                <Icon name="Plus" size={14} className="mr-1" />
+                Добавить груз
+              </Button>
+            </div>
+            <div className="grid grid-cols-2 gap-3">
+              <div className="border-2 border-gray-200 dark:border-gray-700 rounded-xl p-3">
+                <div className="flex items-center gap-2 mb-2">
+                  <Icon name="Package" size={20} />
+                  <span className="font-medium text-sm">Короба</span>
+                </div>
+                <input
+                  type="number"
+                  min="0"
+                  value={item.boxQuantity}
+                  onChange={(e) => updateItem(item.id, 'boxQuantity', parseInt(e.target.value) || 0)}
+                  placeholder="0"
+                  className="w-full px-3 py-2 rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800"
+                />
+              </div>
+              <div className="border-2 border-gray-200 dark:border-gray-700 rounded-xl p-3">
+                <div className="flex items-center gap-2 mb-2">
+                  <Icon name="Container" size={20} />
+                  <span className="font-medium text-sm">Паллеты</span>
+                </div>
+                <input
+                  type="number"
+                  min="0"
+                  value={item.palletQuantity}
+                  onChange={(e) => updateItem(item.id, 'palletQuantity', parseInt(e.target.value) || 0)}
+                  placeholder="0"
+                  className="w-full px-3 py-2 rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800"
+                />
               </div>
             </div>
           </div>
@@ -330,17 +354,6 @@ const CargoShipperForm = ({ onComplete, onBack }: CargoShipperFormProps) => {
               value={item.senderName}
               onChange={(e) => updateItem(item.id, 'senderName', e.target.value)}
               placeholder="Иванов Иван"
-              className="w-full px-4 py-2 rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800"
-            />
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium mb-2">Количество *</label>
-            <input
-              type="number"
-              min="1"
-              value={item.quantity}
-              onChange={(e) => updateItem(item.id, 'quantity', parseInt(e.target.value) || 1)}
               className="w-full px-4 py-2 rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800"
             />
           </div>
