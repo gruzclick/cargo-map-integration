@@ -52,9 +52,7 @@ const MapFilters = ({ onFilterChange, className }: MapFiltersProps) => {
       </Button>
       
       <div className={`${!isVisible ? 'hidden md:block' : ''} transition-smooth`}>
-        <div className="space-y-2">
-
-
+        <div className="bg-white/10 dark:bg-gray-800/10 backdrop-blur-3xl rounded-xl p-2 border border-white/30 dark:border-gray-700/30">
           <div className="space-y-2.5">
             <div>
               <button
@@ -64,7 +62,6 @@ const MapFilters = ({ onFilterChange, className }: MapFiltersProps) => {
                 <div className="flex items-center gap-2">
                   <Icon name="User" size={18} className="text-blue-600" />
                   <div className="text-left">
-                    <div className="text-xs font-semibold text-gray-700 dark:text-gray-300">Я ищу как:</div>
                     <div className="text-sm font-bold text-gray-900 dark:text-white">
                       {filters.userType === 'carrier' ? '🚚 Перевозчик' : '📦 Отправитель'}
                     </div>
@@ -84,43 +81,35 @@ const MapFilters = ({ onFilterChange, className }: MapFiltersProps) => {
                       updateFilter('userType', 'carrier');
                       setRoleExpanded(false);
                     }}
-                    className={`w-full flex items-center gap-2.5 px-3 py-2.5 rounded-lg transition-all ${
+                    className={`w-full flex items-center justify-center gap-2.5 px-3 py-2.5 rounded-lg transition-all font-semibold ${
                       filters.userType === 'carrier'
-                        ? 'bg-blue-600 text-white shadow-md'
+                        ? 'bg-green-600 text-white shadow-md'
                         : 'bg-gray-50 dark:bg-gray-800 hover:bg-gray-100 dark:hover:bg-gray-700'
                     }`}
                   >
                     <Icon name="Truck" size={18} />
-                    <div className="text-left flex-1">
-                      <div className="text-sm font-semibold">Перевозчик</div>
-                      <div className="text-xs opacity-75">Ищу грузы для перевозки</div>
-                    </div>
+                    Перевозчик
                   </button>
                   <button
                     onClick={() => {
                       updateFilter('userType', 'client');
                       setRoleExpanded(false);
                     }}
-                    className={`w-full flex items-center gap-2.5 px-3 py-2.5 rounded-lg transition-all ${
+                    className={`w-full flex items-center justify-center gap-2.5 px-3 py-2.5 rounded-lg transition-all font-semibold ${
                       filters.userType === 'client'
                         ? 'bg-blue-600 text-white shadow-md'
                         : 'bg-gray-50 dark:bg-gray-800 hover:bg-gray-100 dark:hover:bg-gray-700'
                     }`}
                   >
                     <Icon name="Package" size={18} />
-                    <div className="text-left flex-1">
-                      <div className="text-sm font-semibold">Отправитель</div>
-                      <div className="text-xs opacity-75">Ищу автомобили для доставки</div>
-                    </div>
+                    Отправитель
                   </button>
                 </div>
               )}
             </div>
 
-            <div className="border-t border-gray-200 dark:border-gray-700 my-2"></div>
-            
             {filters.userType === 'carrier' && (
-              <div className="bg-green-50/50 dark:bg-green-900/10 p-3 rounded-lg border border-green-200 dark:border-green-800">
+              <div className="bg-green-50/50 dark:bg-green-900/10 p-2.5 rounded-lg mt-2">
                 <div className="flex items-center gap-2 mb-2">
                   <Icon name="Package" size={16} className="text-green-600" />
                   <div className="text-xs font-semibold text-green-900 dark:text-green-100">Доступные грузы</div>
@@ -134,7 +123,7 @@ const MapFilters = ({ onFilterChange, className }: MapFiltersProps) => {
             )}
             
             {filters.userType === 'client' && (
-              <div className="bg-blue-50/50 dark:bg-blue-900/10 p-3 rounded-lg border border-blue-200 dark:border-blue-800">
+              <div className="bg-blue-50/50 dark:bg-blue-900/10 p-2.5 rounded-lg mt-2">
                 <div className="flex items-center gap-2 mb-2">
                   <Icon name="Truck" size={16} className="text-blue-600" />
                   <div className="text-xs font-semibold text-blue-900 dark:text-blue-100">Свободные авто</div>

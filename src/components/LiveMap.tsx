@@ -31,7 +31,7 @@ const LiveMap = ({ isPublic = false, onMarkerClick }: LiveMapProps = {}) => {
   const [vehicleDetails, setVehicleDetails] = useState({ boxCount: '', palletCount: '', oversizedCount: '', volume: '' });
 
   const [showSidebar, setShowSidebar] = useState(true);
-  const [activeTab, setActiveTab] = useState<'stats' | 'search'>('stats');
+  const [activeTab, setActiveTab] = useState<'stats' | 'search'>('search');
   const [cargoBlockExpanded, setCargoBlockExpanded] = useState(true);
   const [driverBlockExpanded, setDriverBlockExpanded] = useState(true);
   const [lastInteraction, setLastInteraction] = useState(Date.now());
@@ -236,17 +236,6 @@ const LiveMap = ({ isPublic = false, onMarkerClick }: LiveMapProps = {}) => {
           <div className="flex items-center justify-between p-2 gap-2">
             <div className="flex items-center gap-2 flex-1">
               <button
-                onClick={() => setActiveTab('stats')}
-                className={`flex-1 px-3 py-2 text-sm font-semibold rounded-lg transition-all flex items-center justify-center gap-1.5 ${
-                  activeTab === 'stats'
-                    ? 'bg-white/60 dark:bg-gray-800/60 text-gray-900 dark:text-white shadow-md'
-                    : 'text-gray-700 dark:text-gray-400 hover:bg-white/30 dark:hover:bg-gray-800/30'
-                }`}
-              >
-                <Icon name="BarChart3" size={14} />
-                <span>Статистика</span>
-              </button>
-              <button
                 onClick={() => setActiveTab('search')}
                 className={`flex-1 px-3 py-2 text-sm font-semibold rounded-lg transition-all flex items-center justify-center gap-1.5 ${
                   activeTab === 'search'
@@ -256,6 +245,17 @@ const LiveMap = ({ isPublic = false, onMarkerClick }: LiveMapProps = {}) => {
               >
                 <Icon name="Search" size={14} />
                 <span>Поиск</span>
+              </button>
+              <button
+                onClick={() => setActiveTab('stats')}
+                className={`flex-1 px-3 py-2 text-sm font-semibold rounded-lg transition-all flex items-center justify-center gap-1.5 ${
+                  activeTab === 'stats'
+                    ? 'bg-white/60 dark:bg-gray-800/60 text-gray-900 dark:text-white shadow-md'
+                    : 'text-gray-700 dark:text-gray-400 hover:bg-white/30 dark:hover:bg-gray-800/30'
+                }`}
+              >
+                <Icon name="BarChart3" size={14} />
+                <span>Статистика</span>
               </button>
             </div>
             <button
@@ -339,9 +339,7 @@ const LiveMap = ({ isPublic = false, onMarkerClick }: LiveMapProps = {}) => {
               <div className="space-y-2">
                 {/* Фильтры */}
                 {!isPublic && (
-                  <div className="bg-white/10 dark:bg-gray-800/10 backdrop-blur-3xl rounded-xl p-2 border border-white/30 dark:border-gray-700/30">
-                    <MapFilters onFilterChange={handleFilterChange} />
-                  </div>
+                  <MapFilters onFilterChange={handleFilterChange} />
                 )}
                 
                 {/* Типы грузов и транспорта */}

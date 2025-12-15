@@ -135,19 +135,7 @@ const UserRoleSelectionModal = ({ user, onComplete }: UserRoleSelectionModalProp
               </button>
             </div>
 
-            <div className="mt-6 p-4 bg-yellow-50 dark:bg-yellow-900/20 rounded-xl border border-yellow-200 dark:border-yellow-800">
-              <div className="flex items-start gap-3">
-                <Icon name="Shield" size={20} className="text-yellow-600 flex-shrink-0 mt-0.5" />
-                <div className="text-sm">
-                  <p className="font-medium text-yellow-900 dark:text-yellow-100 mb-1">
-                    Безопасность превыше всего
-                  </p>
-                  <p className="text-yellow-800 dark:text-yellow-200">
-                    Все перевозчики проходят проверку документов. Грузы застрахованы. Рейтинговая система защищает от мошенников.
-                  </p>
-                </div>
-              </div>
-            </div>
+
           </div>
         )}
 

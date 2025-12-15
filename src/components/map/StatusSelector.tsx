@@ -54,7 +54,7 @@ const StatusSelector = ({ userType, status, onStatusChange }: StatusSelectorProp
           style={status === 'free' ? { backgroundColor: '#22c55e' } : {}}
         >
           <div className="w-2 h-2 rounded-full bg-green-500 mr-1.5" />
-          Свободен
+          Легковые
         </Button>
         <Popover open={isSpaceOpen} onOpenChange={setIsSpaceOpen}>
           <PopoverTrigger asChild>
@@ -66,7 +66,7 @@ const StatusSelector = ({ userType, status, onStatusChange }: StatusSelectorProp
               style={status === 'has_space' ? { backgroundColor: '#eab308' } : {}}
             >
               <div className="w-2 h-2 rounded-full bg-yellow-500 mr-1.5" />
-              {cargoQuantity ? `Есть места (${cargoQuantity} ${cargoType === 'boxes' ? 'коробок' : 'паллет'})` : 'Есть места'}
+              {cargoQuantity ? `Грузовые (${cargoQuantity} ${cargoType === 'boxes' ? 'коробок' : 'паллет'})` : 'Грузовые'}
             </Button>
           </PopoverTrigger>
           <PopoverContent className="w-72 p-3" align="start">
@@ -118,7 +118,7 @@ const StatusSelector = ({ userType, status, onStatusChange }: StatusSelectorProp
         style={status === 'ready' ? { backgroundColor: '#22c55e' } : {}}
       >
         <div className="w-2 h-2 rounded-full bg-green-500 mr-1.5" />
-        Готов к отгрузке
+        Паллеты
       </Button>
       <Popover open={isDateTimeOpen} onOpenChange={setIsDateTimeOpen}>
         <PopoverTrigger asChild>
@@ -131,8 +131,8 @@ const StatusSelector = ({ userType, status, onStatusChange }: StatusSelectorProp
           >
             <div className="w-2 h-2 rounded-full bg-yellow-500 mr-1.5" />
             {scheduledDate && scheduledTime 
-              ? `Будет готов ${scheduledDate} в ${scheduledTime}` 
-              : 'Будет готов'}
+              ? `Короба ${scheduledDate} в ${scheduledTime}` 
+              : 'Короба'}
           </Button>
         </PopoverTrigger>
         <PopoverContent className="w-72 p-3" align="start">

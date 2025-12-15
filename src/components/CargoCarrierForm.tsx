@@ -267,16 +267,6 @@ const CargoCarrierForm = ({ onComplete, onBack }: CargoCarrierFormProps) => {
             </div>
 
             <div>
-              <label className="block text-sm font-medium mb-2">Фото автомобиля (опционально)</label>
-              <input
-                type="file"
-                accept="image/*"
-                onChange={(e) => updateVehicle(vehicle.id, 'carPhoto', e.target.files?.[0] || null)}
-                className="w-full px-4 py-2 rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800"
-              />
-            </div>
-
-            <div>
               <label className="block text-sm font-medium mb-2">
                 Фото авто с госномером * 
                 {vehicle.carNumberReadable === false && (
