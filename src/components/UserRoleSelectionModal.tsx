@@ -31,7 +31,14 @@ const UserRoleSelectionModal = ({ user, onComplete }: UserRoleSelectionModalProp
     <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
       <div className="bg-white dark:bg-gray-900 rounded-2xl shadow-2xl max-w-4xl w-full max-h-[90vh] overflow-hidden">
         {step === 'role-selection' && (
-          <div className="p-8">
+          <div className="p-8 relative">
+            <button
+              onClick={onComplete}
+              className="absolute top-4 right-4 p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors z-10"
+            >
+              <Icon name="X" size={20} className="text-gray-500 dark:text-gray-400" />
+            </button>
+            
             <div className="text-center mb-8">
               <div className="inline-flex items-center justify-center w-16 h-16 bg-blue-100 dark:bg-blue-900/30 rounded-2xl mb-4">
                 <Icon name="Truck" size={32} className="text-blue-600" />

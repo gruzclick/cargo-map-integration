@@ -8,98 +8,91 @@ export const generateLabel = (item: CargoItem, format: '75x120' | '58x40') => {
   }
 
   const pdf = new jsPDF({
-    orientation: format === '75x120' ? 'landscape' : 'portrait',
+    orientation: format === '75x120' ? 'portrait' : 'portrait',
     unit: 'mm',
-    format: format === '75x120' ? [75, 120] : [58, 40]
+    format: format === '75x120' ? [120, 75] : [58, 40]
   });
 
-  pdf.setFont('times', 'bold');
-  
   if (format === '75x120') {
-    // Горизонтальная 120×75мм
-    let y = 12;
-    
-    pdf.setFontSize(14);
-    pdf.text('ИНФОРМАЦИЯ ДЛЯ ВОДИТЕЛЯ', 60, y, { align: 'center' });
+    let y = 10;
+    pdf.setFont('courier', 'bold');
+    pdf.setFontSize(16);
+    pdf.text('INFO VODITELYA', 60, y, { align: 'center' });
     
     y += 10;
-    pdf.setFont('times', 'normal');
-    pdf.setFontSize(9);
-    pdf.text('Отправитель:', 60, y, { align: 'center' });
-    
-    y += 5;
-    pdf.setFont('times', 'bold');
+    pdf.setFont('courier', 'normal');
     pdf.setFontSize(11);
-    pdf.text(item.senderName, 60, y, { align: 'center' });
+    pdf.text('Otpravitel:', 10, y);
+    y += 6;
+    pdf.setFont('courier', 'bold');
+    pdf.setFontSize(12);
+    pdf.text(item.senderName, 10, y);
     
-    y += 8;
-    pdf.setFont('times', 'normal');
+    y += 9;
+    pdf.setFont('courier', 'normal');
+    pdf.setFontSize(11);
+    pdf.text('Sklad naznacheniya:', 10, y);
+    y += 6;
+    pdf.setFont('courier', 'bold');
+    pdf.setFontSize(11);
+    const warehouseLines = pdf.splitTextToSize(`${item.warehouse.marketplace}, ${item.warehouse.city}`, 100);
+    pdf.text(warehouseLines, 10, y);
+    y += warehouseLines.length * 5 + 1;
+    pdf.setFont('courier', 'normal');
     pdf.setFontSize(9);
-    pdf.text('Склад назначения:', 60, y, { align: 'center' });
+    const addressLines = pdf.splitTextToSize(item.warehouse.address, 100);
+    pdf.text(addressLines, 10, y);
+    y += addressLines.length * 4 + 4;
     
-    y += 5;
-    pdf.setFont('times', 'bold');
+    pdf.setFont('courier', 'normal');
+    pdf.setFontSize(11);
+    pdf.text('Adres zabora:', 10, y);
+    y += 6;
+    pdf.setFont('courier', 'bold');
     pdf.setFontSize(10);
-    pdf.text(item.warehouse.marketplace, 60, y, { align: 'center' });
+    const pickupLines = pdf.splitTextToSize(item.pickupAddress, 100);
+    pdf.text(pickupLines, 10, y);
+    y += pickupLines.length * 5 + 4;
     
-    y += 5;
-    pdf.setFont('times', 'normal');
-    pdf.setFontSize(8);
-    const addressLines = pdf.splitTextToSize(item.warehouse.address, 110);
-    pdf.text(addressLines, 60, y, { align: 'center' });
-    y += addressLines.length * 4;
-    
-    y += 5;
-    pdf.setFontSize(9);
-    pdf.text('Дата поставки:', 60, y, { align: 'center' });
-    
-    y += 5;
-    pdf.setFont('times', 'bold');
+    pdf.setFont('courier', 'normal');
     pdf.setFontSize(11);
-    pdf.text(new Date(item.pickupDate).toLocaleDateString('ru-RU'), 60, y, { align: 'center' });
+    pdf.text(`Data: ${new Date(item.pickupDate).toLocaleDateString('ru-RU')}   Vremya: ${item.pickupTime}`, 10, y);
     
     y += 8;
-    pdf.setFont('times', 'normal');
-    pdf.setFontSize(9);
-    pdf.text('Контакт:', 60, y, { align: 'center' });
-    
-    y += 5;
-    pdf.setFont('times', 'bold');
-    pdf.setFontSize(11);
-    pdf.text(item.contactPhone, 60, y, { align: 'center' });
+    pdf.setFont('courier', 'bold');
+    pdf.setFontSize(12);
+    pdf.text(`Tel: ${item.contactPhone}`, 10, y);
     
     y += 7;
-    pdf.setFont('times', 'normal');
-    pdf.setFontSize(9);
+    pdf.setFont('courier', 'normal');
+    pdf.setFontSize(11);
     const cargoInfo = [];
-    if (item.boxQuantity > 0) cargoInfo.push(`Коробов: ${item.boxQuantity}`);
-    if (item.palletQuantity > 0) cargoInfo.push(`Паллет: ${item.palletQuantity}`);
-    pdf.text(cargoInfo.join(', '), 60, y, { align: 'center' });
+    if (item.boxQuantity > 0) cargoInfo.push(`Korobov: ${item.boxQuantity}`);
+    if (item.palletQuantity > 0) cargoInfo.push(`Pallet: ${item.palletQuantity}`);
+    pdf.text(cargoInfo.join(', '), 10, y);
   } else {
-    // Вертикальная 58×40мм
-    let y = 8;
-    
+    let y = 6;
+    pdf.setFont('courier', 'bold');
     pdf.setFontSize(10);
-    pdf.text('ИНФО ДЛЯ ВОДИТЕЛЯ', 29, y, { align: 'center' });
+    pdf.text('INFO VODITELYA', 29, y, { align: 'center' });
     
-    y += 5;
-    pdf.setFont('times', 'normal');
-    pdf.setFontSize(7);
-    pdf.text('От:', 29, y, { align: 'center' });
-    
-    y += 3;
-    pdf.setFont('times', 'bold');
+    y += 6;
+    pdf.setFont('courier', 'normal');
     pdf.setFontSize(8);
+    pdf.text('Ot:', 29, y, { align: 'center' });
+    y += 4;
+    pdf.setFont('courier', 'bold');
+    pdf.setFontSize(9);
     pdf.text(item.senderName, 29, y, { align: 'center' });
     
     y += 5;
-    pdf.setFont('times', 'bold');
+    pdf.setFont('courier', 'bold');
     pdf.setFontSize(8);
     pdf.text(item.warehouse.marketplace, 29, y, { align: 'center' });
     
     y += 4;
-    pdf.setFont('times', 'normal');
-    pdf.setFontSize(11);
+    pdf.setFont('courier', 'normal');
+    pdf.setFontSize(9);
     pdf.text(new Date(item.pickupDate).toLocaleDateString('ru-RU'), 29, y, { align: 'center' });
     
     y += 4;
@@ -109,8 +102,8 @@ export const generateLabel = (item: CargoItem, format: '75x120' | '58x40') => {
     y += 4;
     pdf.setFontSize(7);
     const cargoInfo = [];
-    if (item.boxQuantity > 0) cargoInfo.push(`К: ${item.boxQuantity}`);
-    if (item.palletQuantity > 0) cargoInfo.push(`П: ${item.palletQuantity}`);
+    if (item.boxQuantity > 0) cargoInfo.push(`K: ${item.boxQuantity}`);
+    if (item.palletQuantity > 0) cargoInfo.push(`P: ${item.palletQuantity}`);
     pdf.text(cargoInfo.join(', '), 29, y, { align: 'center' });
   }
 

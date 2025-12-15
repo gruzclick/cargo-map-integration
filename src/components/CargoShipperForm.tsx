@@ -62,8 +62,9 @@ const CargoShipperForm = ({ onComplete, onBack }: CargoShipperFormProps) => {
       setLoadingAddresses(prev => ({ ...prev, [itemId]: true }));
       
       try {
+        const apiKey = import.meta.env.VITE_YANDEX_MAPS_API_KEY || '';
         const response = await fetch(
-          `https://suggest-maps.yandex.ru/v1/suggest?apikey=YOUR_KEY&text=${encodeURIComponent(query)}&results=5&types=house`
+          `https://suggest-maps.yandex.ru/v1/suggest?apikey=${apiKey}&text=${encodeURIComponent(query)}&results=5&types=house`
         );
         const data = await response.json();
         
