@@ -1,4 +1,6 @@
 {
+  "vehicles-list": "https://functions.poehali.dev/5738c15a-767b-4f8c-adbe-dd4fd7aee924",
+  "vehicles-save": "https://functions.poehali.dev/3af96f4d-33d9-420a-8bb5-027d6cc404f0",
   "verify-license": "https://functions.poehali.dev/6e5ce61e-8397-4473-8bbf-5083c0dbfb7c",
   "user-profile-update": "https://functions.poehali.dev/1ff38065-516a-4892-8531-03c46020b273",
   "telegram-complete-reg": "https://functions.poehali.dev/1aff09b3-0b6f-47fa-bcee-64b365767001",
