@@ -1,28 +1,11 @@
-import { useState, useCallback, useEffect } from 'react';
+import { useState, useCallback } from 'react';
 import { Button } from '@/components/ui/button';
 import Icon from '@/components/ui/icon';
 import { searchWarehouses, type MarketplaceWarehouse } from '@/data/marketplaceWarehouses';
 import { debounce } from '@/lib/debounce';
-import jsPDF from 'jspdf';
-
-interface CargoItem {
-  id: string;
-  boxQuantity: number;
-  palletQuantity: number;
-  warehouse: MarketplaceWarehouse | null;
-  pickupAddress: string;
-  pickupDate: string;
-  pickupTime: string;
-  photo: File | null;
-  contactPhone: string;
-  senderName: string;
-}
-
-interface YandexSuggestion {
-  title: string;
-  subtitle?: string;
-  description: string;
-}
+import { CargoItem, YandexSuggestion } from './cargo-shipper/types';
+import { CargoItemCard } from './cargo-shipper/CargoItemCard';
+import { isItemValid } from './cargo-shipper/LabelGenerator';
 
 interface CargoShipperFormProps {
   onComplete: (items: CargoItem[]) => void;
@@ -138,139 +121,6 @@ const CargoShipperForm = ({ onComplete, onBack }: CargoShipperFormProps) => {
     }
   };
 
-  const generateLabel = (item: CargoItem, format: '75x120' | '58x40') => {
-    if (!item.warehouse || !item.pickupDate || !item.contactPhone || !item.senderName) {
-      alert('⚠️ Заполните все обязательные поля: имя отправителя, склад назначения, дата и номер телефона');
-      return;
-    }
-
-    const pdf = new jsPDF({
-      orientation: format === '75x120' ? 'landscape' : 'portrait',
-      unit: 'mm',
-      format: format === '75x120' ? [75, 120] : [58, 40]
-    });
-
-    pdf.setFont('times', 'bold');
-    
-    if (format === '75x120') {
-      // Горизонтальная 120×75мм
-      let y = 12;
-      
-      pdf.setFontSize(14);
-      pdf.text('ИНФОРМАЦИЯ ДЛЯ ВОДИТЕЛЯ', 60, y, { align: 'center' });
-      
-      y += 10;
-      pdf.setFont('times', 'normal');
-      pdf.setFontSize(9);
-      pdf.text('Отправитель:', 60, y, { align: 'center' });
-      
-      y += 5;
-      pdf.setFont('times', 'bold');
-      pdf.setFontSize(11);
-      pdf.text(item.senderName, 60, y, { align: 'center' });
-      
-      y += 8;
-      pdf.setFont('times', 'normal');
-      pdf.setFontSize(9);
-      pdf.text('Склад назначения:', 60, y, { align: 'center' });
-      
-      y += 5;
-      pdf.setFont('times', 'bold');
-      pdf.setFontSize(10);
-      pdf.text(item.warehouse.marketplace, 60, y, { align: 'center' });
-      
-      y += 5;
-      pdf.setFont('times', 'normal');
-      pdf.setFontSize(8);
-      const addressLines = pdf.splitTextToSize(item.warehouse.address, 110);
-      pdf.text(addressLines, 60, y, { align: 'center' });
-      y += addressLines.length * 4;
-      
-      y += 5;
-      pdf.setFontSize(9);
-      pdf.text('Дата поставки:', 60, y, { align: 'center' });
-      
-      y += 5;
-      pdf.setFont('times', 'bold');
-      pdf.setFontSize(11);
-      pdf.text(new Date(item.pickupDate).toLocaleDateString('ru-RU'), 60, y, { align: 'center' });
-      
-      y += 8;
-      pdf.setFont('times', 'normal');
-      pdf.setFontSize(9);
-      pdf.text('Контакт:', 60, y, { align: 'center' });
-      
-      y += 5;
-      pdf.setFont('times', 'bold');
-      pdf.setFontSize(11);
-      pdf.text(item.contactPhone, 60, y, { align: 'center' });
-      
-      y += 7;
-      pdf.setFont('times', 'normal');
-      pdf.setFontSize(9);
-      const cargoInfo = [];
-      if (item.boxQuantity > 0) cargoInfo.push(`Коробов: ${item.boxQuantity}`);
-      if (item.palletQuantity > 0) cargoInfo.push(`Паллет: ${item.palletQuantity}`);
-      pdf.text(cargoInfo.join(', '), 60, y, { align: 'center' });
-    } else {
-      // Вертикальная 58×40мм
-      let y = 8;
-      
-      pdf.setFontSize(10);
-      pdf.text('ИНФО ДЛЯ ВОДИТЕЛЯ', 29, y, { align: 'center' });
-      
-      y += 5;
-      pdf.setFont('times', 'normal');
-      pdf.setFontSize(7);
-      pdf.text('От:', 29, y, { align: 'center' });
-      
-      y += 3;
-      pdf.setFont('times', 'bold');
-      pdf.setFontSize(8);
-      pdf.text(item.senderName, 29, y, { align: 'center' });
-      
-      y += 5;
-      pdf.setFont('times', 'bold');
-      pdf.setFontSize(8);
-      pdf.text(item.warehouse.marketplace, 29, y, { align: 'center' });
-      
-      y += 4;
-      pdf.setFont('times', 'normal');
-      pdf.setFontSize(11);
-      pdf.text(new Date(item.pickupDate).toLocaleDateString('ru-RU'), 29, y, { align: 'center' });
-      
-      y += 4;
-      pdf.setFontSize(8);
-      pdf.text(item.contactPhone, 29, y, { align: 'center' });
-      
-      y += 4;
-      pdf.setFontSize(7);
-      const cargoInfo = [];
-      if (item.boxQuantity > 0) cargoInfo.push(`К: ${item.boxQuantity}`);
-      if (item.palletQuantity > 0) cargoInfo.push(`П: ${item.palletQuantity}`);
-      pdf.text(cargoInfo.join(', '), 29, y, { align: 'center' });
-    }
-
-    pdf.save(`label_${format}_${item.senderName}_${Date.now()}.pdf`);
-  };
-
-  const isItemValid = (item: CargoItem) => {
-    return item.warehouse && item.pickupAddress && item.pickupDate && 
-           item.pickupTime && item.contactPhone && item.senderName && 
-           (item.boxQuantity > 0 || item.palletQuantity > 0);
-  };
-
-  const getCargoItemName = (item: CargoItem) => {
-    if (!item.warehouse) return `Груз`;
-    
-    const city = item.warehouse.city || item.warehouse.marketplace;
-    const types = [];
-    if (item.boxQuantity > 0) types.push(`${item.boxQuantity} К`);
-    if (item.palletQuantity > 0) types.push(`${item.palletQuantity} П`);
-    
-    return `${city} ${types.join(' ')}`.trim() || 'Груз';
-  };
-
   const canSubmit = cargoItems.every(isItemValid);
 
   return (
@@ -292,199 +142,24 @@ const CargoShipperForm = ({ onComplete, onBack }: CargoShipperFormProps) => {
         </div>
       </div>
 
-      {cargoItems.map((item, index) => (
-        <div key={item.id} className="border border-gray-200 dark:border-gray-700 rounded-xl p-4 space-y-4 bg-gray-50 dark:bg-gray-800/50">
-          <div className="flex items-center justify-between">
-            <h3 className="font-semibold">{getCargoItemName(item)}</h3>
-            {cargoItems.length > 1 && (
-              <Button variant="ghost" size="sm" onClick={() => removeItem(item.id)} className="text-red-600">
-                <Icon name="Trash2" size={16} />
-              </Button>
-            )}
-          </div>
-
-          <div>
-            <div className="flex items-center justify-between mb-2">
-              <label className="text-sm font-medium">Тип груза *</label>
-              <Button
-                onClick={addCargoItem}
-                variant="outline"
-                size="sm"
-              >
-                <Icon name="Plus" size={14} className="mr-1" />
-                Добавить груз
-              </Button>
-            </div>
-            <div className="grid grid-cols-2 gap-3">
-              <div className="border-2 border-gray-200 dark:border-gray-700 rounded-xl p-3">
-                <div className="flex items-center gap-2 mb-2">
-                  <Icon name="Package" size={20} />
-                  <span className="font-medium text-sm">Короба</span>
-                </div>
-                <input
-                  type="number"
-                  min="0"
-                  value={item.boxQuantity}
-                  onChange={(e) => updateItem(item.id, 'boxQuantity', parseInt(e.target.value) || 0)}
-                  placeholder="0"
-                  className="w-full px-3 py-2 rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800"
-                />
-              </div>
-              <div className="border-2 border-gray-200 dark:border-gray-700 rounded-xl p-3">
-                <div className="flex items-center gap-2 mb-2">
-                  <Icon name="Container" size={20} />
-                  <span className="font-medium text-sm">Паллеты</span>
-                </div>
-                <input
-                  type="number"
-                  min="0"
-                  value={item.palletQuantity}
-                  onChange={(e) => updateItem(item.id, 'palletQuantity', parseInt(e.target.value) || 0)}
-                  placeholder="0"
-                  className="w-full px-3 py-2 rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800"
-                />
-              </div>
-            </div>
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium mb-2">Имя отправителя *</label>
-            <input
-              type="text"
-              value={item.senderName}
-              onChange={(e) => updateItem(item.id, 'senderName', e.target.value)}
-              placeholder="Иванов Иван"
-              className="w-full px-4 py-2 rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800"
-            />
-          </div>
-
-          <div className="relative">
-            <label className="block text-sm font-medium mb-2">Склад назначения *</label>
-            <input
-              type="text"
-              value={warehouseSearch[item.id] || ''}
-              onChange={(e) => handleWarehouseSearch(item.id, e.target.value)}
-              placeholder="Начните вводить: Wildberries, Ozon, Москва..."
-              className="w-full px-4 py-2 rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800"
-            />
-            {warehouseResults[item.id]?.length > 0 && (
-              <div className="absolute z-20 w-full mt-1 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-lg max-h-60 overflow-y-auto">
-                {warehouseResults[item.id].map((warehouse, idx) => (
-                  <button
-                    key={idx}
-                    onClick={() => handleWarehouseSelect(item.id, warehouse)}
-                    className="w-full text-left px-4 py-3 hover:bg-gray-50 dark:hover:bg-gray-700 border-b last:border-b-0"
-                  >
-                    <div className="font-medium text-sm">{warehouse.marketplace}</div>
-                    <div className="text-xs text-gray-500">{warehouse.city}</div>
-                    <div className="text-xs text-gray-400 truncate">{warehouse.address}</div>
-                  </button>
-                ))}
-              </div>
-            )}
-          </div>
-
-          <div className="relative">
-            <label className="block text-sm font-medium mb-2">Адрес забора груза *</label>
-            <input
-              type="text"
-              value={item.pickupAddress}
-              onChange={(e) => handleAddressChange(item.id, e.target.value)}
-              placeholder="Начните вводить: Москва, ул. Примерная..."
-              className="w-full px-4 py-2 rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800"
-            />
-            {loadingAddresses[item.id] && (
-              <div className="absolute right-3 top-10 text-gray-400">
-                <Icon name="Loader2" size={16} className="animate-spin" />
-              </div>
-            )}
-            {addressSuggestions[item.id]?.length > 0 && (
-              <div className="absolute z-20 w-full mt-1 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-lg max-h-60 overflow-y-auto">
-                {addressSuggestions[item.id].map((suggestion, idx) => (
-                  <button
-                    key={idx}
-                    onClick={() => selectAddress(item.id, suggestion)}
-                    className="w-full text-left px-4 py-3 hover:bg-gray-50 dark:hover:bg-gray-700 border-b last:border-b-0"
-                  >
-                    <div className="font-medium text-sm">{suggestion.title}</div>
-                    {suggestion.subtitle && (
-                      <div className="text-xs text-gray-500">{suggestion.subtitle}</div>
-                    )}
-                  </button>
-                ))}
-              </div>
-            )}
-          </div>
-
-          <div className="grid grid-cols-2 gap-3">
-            <div>
-              <label className="block text-sm font-medium mb-2">Дата забора *</label>
-              <input
-                type="date"
-                value={item.pickupDate}
-                onChange={(e) => updateItem(item.id, 'pickupDate', e.target.value)}
-                min={new Date().toISOString().split('T')[0]}
-                className="w-full px-4 py-2 rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800"
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium mb-2">Время забора *</label>
-              <input
-                type="time"
-                value={item.pickupTime}
-                onChange={(e) => updateItem(item.id, 'pickupTime', e.target.value)}
-                className="w-full px-4 py-2 rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800"
-              />
-            </div>
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium mb-2">Контактный телефон *</label>
-            <input
-              type="tel"
-              value={item.contactPhone}
-              onChange={(e) => updateItem(item.id, 'contactPhone', e.target.value)}
-              placeholder="+7 (999) 123-45-67"
-              className="w-full px-4 py-2 rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800"
-            />
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium mb-2">Фото груза (опционально)</label>
-            <input
-              type="file"
-              accept="image/*"
-              onChange={(e) => updateItem(item.id, 'photo', e.target.files?.[0] || null)}
-              className="w-full px-4 py-2 rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800"
-            />
-          </div>
-
-          <div className="pt-3 border-t border-gray-200 dark:border-gray-700">
-            <p className="text-sm font-medium mb-3">Скачать термонаклейку:</p>
-            <div className="flex gap-2">
-              <Button
-                onClick={() => generateLabel(item, '75x120')}
-                disabled={!isItemValid(item)}
-                variant="outline"
-                size="sm"
-                className="flex-1"
-              >
-                <Icon name="Download" size={16} className="mr-2" />
-                75×120 мм
-              </Button>
-              <Button
-                onClick={() => generateLabel(item, '58x40')}
-                disabled={!isItemValid(item)}
-                variant="outline"
-                size="sm"
-                className="flex-1"
-              >
-                <Icon name="Download" size={16} className="mr-2" />
-                58×40 мм
-              </Button>
-            </div>
-          </div>
-        </div>
+      {cargoItems.map((item) => (
+        <CargoItemCard
+          key={item.id}
+          item={item}
+          canDelete={cargoItems.length > 1}
+          warehouseSearch={warehouseSearch[item.id] || ''}
+          warehouseResults={warehouseResults[item.id] || []}
+          addressSuggestions={addressSuggestions[item.id] || []}
+          loadingAddress={loadingAddresses[item.id] || false}
+          onUpdate={(field, value) => updateItem(item.id, field, value)}
+          onWarehouseSearch={(query) => handleWarehouseSearch(item.id, query)}
+          onWarehouseSelect={(warehouse) => handleWarehouseSelect(item.id, warehouse)}
+          onAddressChange={(address) => handleAddressChange(item.id, address)}
+          onAddressSelect={(suggestion) => selectAddress(item.id, suggestion)}
+          onPhotoUpload={(file) => updateItem(item.id, 'photo', file)}
+          onDelete={() => removeItem(item.id)}
+          onAddNew={addCargoItem}
+        />
       ))}
 
       <div className="sticky bottom-0 bg-white dark:bg-gray-900 py-4 border-t">
