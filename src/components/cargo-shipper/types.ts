@@ -6,6 +6,7 @@ export interface CargoItem {
   palletQuantity: number;
   warehouse: MarketplaceWarehouse | null;
   pickupAddress: string;
+  pickupInstructions: string;
   pickupDate: string;
   pickupTime: string;
   photo: File | null;

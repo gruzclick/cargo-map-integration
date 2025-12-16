@@ -184,6 +184,17 @@ export const CargoItemCard = ({
       </div>
 
       <div>
+        <label className="block text-sm font-medium mb-2">Как проехать</label>
+        <textarea
+          value={item.pickupInstructions}
+          onChange={(e) => onUpdate('pickupInstructions', e.target.value)}
+          placeholder="Укажите особенности проезда: нужен пропуск, въезд платный, идет ремонт дороги..."
+          rows={3}
+          className="w-full px-4 py-2 rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 resize-none"
+        />
+      </div>
+
+      <div>
         <label className="block text-sm font-medium mb-2">Телефон для связи *</label>
         <input
           type="tel"

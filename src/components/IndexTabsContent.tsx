@@ -14,6 +14,7 @@ import DeliveryHistory from '@/components/DeliveryHistory';
 import ClientNotifications from '@/components/ClientNotifications';
 import AppDownload from '@/components/AppDownload';
 import SecurityRecommendations from '@/components/SecurityRecommendations';
+import { AllOrdersMap } from '@/components/orders/AllOrdersMap';
 import Icon from '@/components/ui/icon';
 import { TabsContent } from '@/components/ui/tabs';
 
@@ -35,6 +36,14 @@ const IndexTabsContent = ({ user, driverRoute }: IndexTabsContentProps) => {
             <ClientNotifications />
           </div>
         )}
+        
+        <div className="max-w-6xl mx-auto mb-4 px-4">
+          <AllOrdersMap
+            currentUserId={user.id || user.user_id}
+            currentUserName={user.name || user.email}
+            onOrderAccept={(orderId) => console.log('Order accepted:', orderId)}
+          />
+        </div>
         
         <LiveMap />
         <OnboardingTour 

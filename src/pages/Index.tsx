@@ -11,6 +11,9 @@ import IndexHeader from '@/components/IndexHeader';
 import IndexDesktopNavigation from '@/components/IndexDesktopNavigation';
 import IndexMobileNavigation from '@/components/IndexMobileNavigation';
 import IndexTabsContent from '@/components/IndexTabsContent';
+import { OrdersPanel } from '@/components/orders/OrdersPanel';
+import { NotificationsPanel } from '@/components/orders/NotificationsPanel';
+import { AllOrdersMap } from '@/components/orders/AllOrdersMap';
 import { Tabs } from '@/components/ui/tabs';
 import { useTranslation } from 'react-i18next';
 import { detectUserCountry, getCurrencyByCountry, getLanguageByCountry } from '@/utils/geoip';
@@ -27,6 +30,7 @@ const Index = () => {
   const [showTelegramPrompt, setShowTelegramPrompt] = useState(false);
   const [userStatus, setUserStatus] = useState<'cargo' | 'vehicle' | null>(null);
   const [userLocation, setUserLocation] = useState<{lat: number, lng: number} | null>(null);
+  const [isOrdersPanelOpen, setIsOrdersPanelOpen] = useState(false);
 
   useEffect(() => {
     const checkAuth = async () => {
@@ -219,6 +223,18 @@ const Index = () => {
         userStatus={userStatus}
         onProfileClick={() => setShowProfile(true)}
         onLogout={handleLogout}
+      />
+
+      <OrdersPanel
+        userId={user.id || user.user_id}
+        userName={user.name || user.email}
+        isOpen={isOrdersPanelOpen}
+        onToggle={() => setIsOrdersPanelOpen(!isOrdersPanelOpen)}
+      />
+
+      <NotificationsPanel
+        userId={user.id || user.user_id}
+        userName={user.name || user.email}
       />
 
       <div className="container mx-auto px-0 pb-20 md:pb-2">

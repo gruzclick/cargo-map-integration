@@ -3,6 +3,8 @@ import { Button } from '@/components/ui/button';
 import Icon from '@/components/ui/icon';
 import CargoShipperForm from '@/components/CargoShipperForm';
 import CargoCarrierForm from '@/components/CargoCarrierForm';
+import { saveOrder, addNotification } from '@/utils/orderStorage';
+import { OrderShipper, OrderCarrier } from '@/types/order';
 
 interface UserRoleSelectionModalProps {
   user: any;
@@ -16,15 +18,45 @@ const UserRoleSelectionModal = ({ user, onComplete }: UserRoleSelectionModalProp
   const [successMessage, setSuccessMessage] = useState('');
 
   const handleShipperComplete = async (items: any[]) => {
-    console.log('Shipper cargo items:', items);
-    setSuccessMessage(`Создано заявок на отправку: ${items.length}`);
-    setTimeout(() => setSuccessMessage(''), 3000);
+    const order: OrderShipper = {
+      id: crypto.randomUUID(),
+      type: 'shipper',
+      userId: user.id,
+      userName: user.name || user.email,
+      userPhone: items[0]?.contactPhone || '',
+      status: 'active',
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+      items: items
+    };
+    
+    saveOrder(order);
+    setSuccessMessage(`Заявка создана!`);
+    setTimeout(() => {
+      setSuccessMessage('');
+      setStep('role-selection');
+    }, 2000);
   };
 
   const handleCarrierComplete = async (vehicles: any[]) => {
-    console.log('Carrier vehicles:', vehicles);
-    setSuccessMessage(`Зарегистрировано автомобилей: ${vehicles.length}`);
-    setTimeout(() => setSuccessMessage(''), 3000);
+    const order: OrderCarrier = {
+      id: crypto.randomUUID(),
+      type: 'carrier',
+      userId: user.id,
+      userName: user.name || user.email,
+      userPhone: vehicles[0]?.driverPhone || '',
+      status: 'active',
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+      vehicles: vehicles
+    };
+    
+    saveOrder(order);
+    setSuccessMessage(`Заявка создана!`);
+    setTimeout(() => {
+      setSuccessMessage('');
+      setStep('role-selection');
+    }, 2000);
   };
 
   return (
