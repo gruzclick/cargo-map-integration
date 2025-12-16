@@ -25,14 +25,31 @@ export const ProfileCompletionModal = ({ userId, onComplete }: ProfileCompletion
   });
   const [errors, setErrors] = useState<Partial<ProfileData>>({});
 
+  const [isLoading, setIsLoading] = useState(true);
+
   useEffect(() => {
-    // Проверяем, есть ли уже профиль
-    const existingProfile = localStorage.getItem(`user_profile_${userId}`);
-    if (existingProfile) {
-      const profile = JSON.parse(existingProfile);
-      onComplete(profile);
-    }
+    checkExistingProfile();
   }, [userId]);
+
+  const checkExistingProfile = async () => {
+    try {
+      const response = await fetch(`https://functions.poehali.dev/68eeafbf-9a17-45b5-98a1-3908370655c4?user_id=${userId}`);
+      
+      if (response.ok) {
+        const profile = await response.json();
+        onComplete({
+          name: profile.full_name,
+          passport_series: profile.passport_series,
+          passport_number: profile.passport_number,
+          phone: profile.phone
+        });
+      }
+    } catch (error) {
+      console.error('Error checking profile:', error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   const validate = (): boolean => {
     const newErrors: Partial<ProfileData> = {};
@@ -58,15 +75,41 @@ export const ProfileCompletionModal = ({ userId, onComplete }: ProfileCompletion
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
     if (!validate()) return;
 
-    // Сохраняем профиль
-    localStorage.setItem(`user_profile_${userId}`, JSON.stringify(formData));
-    
-    onComplete(formData);
+    setIsLoading(true);
+
+    try {
+      const response = await fetch('https://functions.poehali.dev/68eeafbf-9a17-45b5-98a1-3908370655c4', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          user_id: userId,
+          full_name: formData.name,
+          passport_series: formData.passport_series,
+          passport_number: formData.passport_number,
+          phone: formData.phone
+        })
+      });
+
+      if (response.ok) {
+        const profile = await response.json();
+        onComplete(formData);
+      } else {
+        const error = await response.json();
+        alert(`Ошибка: ${error.error || 'Не удалось сохранить профиль'}`);
+      }
+    } catch (error) {
+      console.error('Error saving profile:', error);
+      alert('Не удалось сохранить профиль. Проверьте подключение к интернету.');
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const handleInputChange = (field: keyof ProfileData, value: string) => {
@@ -185,9 +228,18 @@ export const ProfileCompletionModal = ({ userId, onComplete }: ProfileCompletion
             </p>
           </div>
 
-          <Button type="submit" className="w-full" size="lg">
-            <Icon name="CheckCircle" size={18} className="mr-2" />
-            Сохранить и продолжить
+          <Button type="submit" className="w-full" size="lg" disabled={isLoading}>
+            {isLoading ? (
+              <>
+                <Icon name="Loader2" size={18} className="mr-2 animate-spin" />
+                Сохранение...
+              </>
+            ) : (
+              <>
+                <Icon name="CheckCircle" size={18} className="mr-2" />
+                Сохранить и продолжить
+              </>
+            )}
           </Button>
         </form>
       </div>

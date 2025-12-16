@@ -14,6 +14,7 @@ interface LimitsData {
   driverMaxHours: number;
   driverBreakAfter: number;
   driverMaxQueue: number;
+  minRating: number;
   apiRequestsPerMinute: number;
   apiRequestsPerHour: number;
   apiBlockDuration: number;
@@ -29,6 +30,7 @@ export const LimitsSettings = () => {
     driverMaxHours: 12,
     driverBreakAfter: 4,
     driverMaxQueue: 5,
+    minRating: 3.0,
     apiRequestsPerMinute: 100,
     apiRequestsPerHour: 1000,
     apiBlockDuration: 1
@@ -154,6 +156,21 @@ export const LimitsSettings = () => {
                     onChange={(e) => setLimits({...limits, driverMaxQueue: parseInt(e.target.value) || 0})}
                     className="w-24"
                   />
+                </div>
+                <div className="flex items-center gap-3">
+                  <Label className="w-48 text-sm">Минимальный рейтинг:</Label>
+                  <Input
+                    type="number"
+                    step="0.1"
+                    min="0"
+                    max="5"
+                    value={limits.minRating}
+                    onChange={(e) => setLimits({...limits, minRating: parseFloat(e.target.value) || 0})}
+                    className="w-24"
+                  />
+                  <span className="text-xs text-muted-foreground">
+                    (от 0 до 5)
+                  </span>
                 </div>
               </div>
             </div>

@@ -10,9 +10,6 @@ import { Order, saveOrder } from '@/utils/orderStorage';
 interface DeliveryReport {
   orderId: string;
   photoUrl: string;
-  warehouseNumber: string;
-  vehiclePlate: string;
-  notes: string;
   timestamp: string;
 }
 
@@ -33,9 +30,6 @@ export const CompleteOrderModal = ({
 }: CompleteOrderModalProps) => {
   const [photoFile, setPhotoFile] = useState<File | null>(null);
   const [photoPreview, setPhotoPreview] = useState<string>('');
-  const [warehouseNumber, setWarehouseNumber] = useState('');
-  const [vehiclePlate, setVehiclePlate] = useState('');
-  const [notes, setNotes] = useState('');
   const [selectedOrders, setSelectedOrders] = useState<string[]>(orders.map(o => o.id));
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -62,12 +56,7 @@ export const CompleteOrderModal = ({
 
   const handleSubmit = async () => {
     if (!photoFile) {
-      alert('Прикрепите фото автомобиля у ворот склада');
-      return;
-    }
-
-    if (!vehiclePlate.trim()) {
-      alert('Укажите госномер автомобиля');
+      alert('Прикрепите фото автомобиля у ворот склада с видимым госномером и номером ворот');
       return;
     }
 
@@ -82,9 +71,6 @@ export const CompleteOrderModal = ({
       const report: DeliveryReport = {
         orderId: selectedOrders.join(','),
         photoUrl: photoPreview,
-        warehouseNumber,
-        vehiclePlate,
-        notes,
         timestamp: new Date().toISOString()
       };
 
@@ -149,7 +135,7 @@ export const CompleteOrderModal = ({
             <div>
               <Label htmlFor="photo">Фото автомобиля у ворот склада *</Label>
               <p className="text-xs text-gray-500 mb-2">
-                На фото должен быть виден номер автомобиля и номер ворот склада
+                На фото должен быть виден госномер автомобиля и номер ворот склада (если есть)
               </p>
               
               {photoPreview ? (
@@ -188,41 +174,6 @@ export const CompleteOrderModal = ({
                   />
                 </label>
               )}
-            </div>
-
-            {/* Номер ворот склада */}
-            <div>
-              <Label htmlFor="warehouse">Номер ворот склада (если есть)</Label>
-              <Input
-                id="warehouse"
-                value={warehouseNumber}
-                onChange={(e) => setWarehouseNumber(e.target.value)}
-                placeholder="Например: 5А"
-              />
-            </div>
-
-            {/* Госномер автомобиля */}
-            <div>
-              <Label htmlFor="plate">Госномер автомобиля *</Label>
-              <Input
-                id="plate"
-                value={vehiclePlate}
-                onChange={(e) => setVehiclePlate(e.target.value.toUpperCase())}
-                placeholder="А123БВ77"
-                required
-              />
-            </div>
-
-            {/* Дополнительные заметки */}
-            <div>
-              <Label htmlFor="notes">Дополнительная информация</Label>
-              <Textarea
-                id="notes"
-                value={notes}
-                onChange={(e) => setNotes(e.target.value)}
-                placeholder="Укажите дополнительные детали о доставке..."
-                rows={3}
-              />
             </div>
 
             {/* Выбор заявок для отправки отчета */}
