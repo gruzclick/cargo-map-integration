@@ -2,6 +2,15 @@ export type OrderStatus = 'active' | 'accepted' | 'in-progress' | 'completed' | 
 
 export type OrderType = 'shipper' | 'carrier';
 
+export interface DeliveryReport {
+  orderId: string;
+  photoUrl: string;
+  warehouseNumber: string;
+  vehiclePlate: string;
+  notes: string;
+  timestamp: string;
+}
+
 export interface OrderShipper {
   id: string;
   type: 'shipper';
@@ -12,6 +21,8 @@ export interface OrderShipper {
   createdAt: string;
   updatedAt: string;
   closedAt?: string;
+  completedAt?: string;
+  deliveryReport?: DeliveryReport;
   
   // Shipper-specific data
   items: Array<{
@@ -59,6 +70,8 @@ export interface OrderCarrier {
   createdAt: string;
   updatedAt: string;
   closedAt?: string;
+  completedAt?: string;
+  deliveryReport?: DeliveryReport;
   
   // Carrier-specific data
   vehicles: Array<{
