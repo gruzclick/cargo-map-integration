@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import Icon from '@/components/ui/icon';
 import { Order } from '@/types/order';
-import { getUserOrders, deleteOrder, saveOrder, addNotification } from '@/utils/orderStorage';
+import { getUserOrders, deleteOrder, saveOrder, addNotification, archiveOrder } from '@/utils/orderStorage';
 import { OrderCard } from './OrderCard';
 import { OrderEditModal } from './OrderEditModal';
 
@@ -20,7 +20,8 @@ export const OrdersPanel = ({ userId, userName, isOpen, onToggle }: OrdersPanelP
 
   const loadOrders = () => {
     const userOrders = getUserOrders(userId);
-    setOrders(userOrders);
+    const activeOrders = userOrders.filter(o => o.status !== 'completed' && o.status !== 'cancelled');
+    setOrders(activeOrders);
   };
 
   useEffect(() => {
@@ -33,12 +34,11 @@ export const OrdersPanel = ({ userId, userName, isOpen, onToggle }: OrdersPanelP
     const order = orders.find(o => o.id === orderId);
     if (!order) return;
 
-    const confirmed = window.confirm('Вы уверены, что хотите закрыть заявку? Это действие нельзя отменить.');
+    const confirmed = window.confirm('Вы уверены, что хотите закрыть заявку? Заявка будет перемещена в архив с доступом только для чтения.');
     if (!confirmed) return;
 
-    // Update order status
-    const updatedOrder = { ...order, status: 'completed' as const };
-    saveOrder(updatedOrder);
+    // Archive order (moves to readonly archive)
+    archiveOrder(orderId);
 
     // Notify accepted users
     if (order.acceptedBy) {

@@ -134,29 +134,12 @@ const SecurityRecommendations = ({ onClose }: SecurityRecommendationsProps) => {
 
               <li className="flex items-start gap-2">
                 <Icon name="CheckCircle" size={16} className="flex-shrink-0 mt-0.5 text-blue-600" />
-                <span><strong>Сообщайте о нарушениях:</strong> Если что-то не так - немедленно свяжитесь с поддержкой</span>
+                <span><strong>Сообщайте о нарушениях:</strong> Если что-то не так - немедленно свяжитесь с полицией</span>
               </li>
             </ul>
           </div>
 
-          <div className="bg-yellow-50 dark:bg-yellow-900/20 p-4 rounded-xl border border-yellow-200 dark:border-yellow-800">
-            <div className="flex items-start gap-3">
-              <Icon name="Phone" size={20} className="text-yellow-600 flex-shrink-0 mt-0.5" />
-              <div className="text-sm">
-                <p className="font-medium text-yellow-900 dark:text-yellow-100 mb-1">
-                  Служба поддержки 24/7
-                </p>
-                <p className="text-yellow-800 dark:text-yellow-200">
-                  При любых подозрительных действиях немедленно свяжитесь с нами:
-                </p>
-                <div className="mt-2 space-y-1">
-                  <div className="font-mono">📞 8 (800) 555-35-35 (бесплатно)</div>
-                  <div className="font-mono">📧 support@gruzklik.ru</div>
-                  <div className="font-mono">💬 Telegram: @gruzklik_support</div>
-                </div>
-              </div>
-            </div>
-          </div>
+
         </div>
 
         <div className="sticky bottom-0 bg-white dark:bg-gray-900 border-t border-gray-200 dark:border-gray-700 p-6">

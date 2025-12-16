@@ -1,6 +1,7 @@
 import { Order, OrderShipper, OrderCarrier, Notification } from '@/types/order';
 
 const ORDERS_KEY = 'cargo_orders';
+const ARCHIVE_KEY = 'cargo_orders_archive';
 const NOTIFICATIONS_KEY = 'cargo_notifications';
 const USER_DEFAULTS_KEY = 'user_defaults';
 
@@ -47,6 +48,36 @@ export const saveOrder = (order: Order): void => {
 export const deleteOrder = (orderId: string): void => {
   const orders = getOrders().filter(o => o.id !== orderId);
   localStorage.setItem(ORDERS_KEY, JSON.stringify(orders));
+};
+
+export const archiveOrder = (orderId: string): void => {
+  const orders = getOrders();
+  const orderToArchive = orders.find(o => o.id === orderId);
+  
+  if (orderToArchive) {
+    orderToArchive.status = 'completed';
+    orderToArchive.closedAt = new Date().toISOString();
+    
+    const archive = getArchivedOrders();
+    archive.push(orderToArchive);
+    localStorage.setItem(ARCHIVE_KEY, JSON.stringify(archive));
+    
+    const remainingOrders = orders.filter(o => o.id !== orderId);
+    localStorage.setItem(ORDERS_KEY, JSON.stringify(remainingOrders));
+  }
+};
+
+export const getArchivedOrders = (): Order[] => {
+  try {
+    const stored = localStorage.getItem(ARCHIVE_KEY);
+    return stored ? JSON.parse(stored) : [];
+  } catch {
+    return [];
+  }
+};
+
+export const getUserArchivedOrders = (userId: string): Order[] => {
+  return getArchivedOrders().filter(o => o.userId === userId || o.acceptedBy?.userId === userId);
 };
 
 export const getUserOrders = (userId: string): Order[] => {

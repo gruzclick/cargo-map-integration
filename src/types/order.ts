@@ -11,6 +11,7 @@ export interface OrderShipper {
   status: OrderStatus;
   createdAt: string;
   updatedAt: string;
+  closedAt?: string;
   
   // Shipper-specific data
   items: Array<{
@@ -57,6 +58,7 @@ export interface OrderCarrier {
   status: OrderStatus;
   createdAt: string;
   updatedAt: string;
+  closedAt?: string;
   
   // Carrier-specific data
   vehicles: Array<{

@@ -20,9 +20,15 @@ export default function AppDownload() {
     const userAgent = window.navigator.userAgent.toLowerCase();
     const ios = /iphone|ipad|ipod/.test(userAgent);
     const android = /android/.test(userAgent);
+    const isMobile = ios || android || /mobile/.test(userAgent);
     
     setIsIOS(ios);
     setIsAndroid(android);
+    
+    // Скрыть компонент для десктопа
+    if (!isMobile) {
+      return;
+    }
 
     const handleBeforeInstallPrompt = (e: Event) => {
       e.preventDefault();
@@ -100,6 +106,14 @@ export default function AppDownload() {
   };
 
   const instructions = getInstallInstructions();
+  
+  // Не показывать на десктопе
+  const userAgent = window.navigator.userAgent.toLowerCase();
+  const isMobile = isIOS || isAndroid || /mobile/.test(userAgent);
+  
+  if (!isMobile) {
+    return null;
+  }
 
   return (
     <div className="space-y-4 sm:space-y-6">
@@ -128,15 +142,7 @@ export default function AppDownload() {
                   <div className="text-xs sm:text-sm text-muted-foreground">Открывается мгновенно с главного экрана</div>
                 </div>
               </div>
-              <div className="flex gap-2 sm:gap-3">
-                <div className="w-9 h-9 sm:w-10 sm:h-10 bg-purple-500/20 rounded-lg flex items-center justify-center shrink-0">
-                  <Icon name="Wifi" size={18} className="text-purple-500 sm:w-5 sm:h-5" />
-                </div>
-                <div className="min-w-0">
-                  <div className="font-medium text-sm sm:text-base mb-0.5 sm:mb-1">Работает офлайн</div>
-                  <div className="text-xs sm:text-sm text-muted-foreground">Доступ к данным без интернета</div>
-                </div>
-              </div>
+
               <div className="flex gap-2 sm:gap-3">
                 <div className="w-9 h-9 sm:w-10 sm:h-10 bg-green-500/20 rounded-lg flex items-center justify-center shrink-0">
                   <Icon name="Bell" size={18} className="text-green-500 sm:w-5 sm:h-5" />
