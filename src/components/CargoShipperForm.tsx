@@ -22,6 +22,7 @@ const CargoShipperForm = ({ onComplete, onBack }: CargoShipperFormProps) => {
     pickupInstructions: '',
     pickupDate: '',
     pickupTime: '',
+    deliveryDate: '',
     photo: null,
     contactPhone: '',
     senderName: ''
@@ -112,6 +113,7 @@ const CargoShipperForm = ({ onComplete, onBack }: CargoShipperFormProps) => {
       pickupInstructions: '',
       pickupDate: '',
       pickupTime: '',
+      deliveryDate: '',
       photo: null,
       contactPhone: '',
       senderName: ''

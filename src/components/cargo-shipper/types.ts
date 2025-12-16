@@ -9,6 +9,7 @@ export interface CargoItem {
   pickupInstructions: string;
   pickupDate: string;
   pickupTime: string;
+  deliveryDate?: string;
   photo: File | null;
   contactPhone: string;
   senderName: string;

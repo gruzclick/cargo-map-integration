@@ -109,7 +109,7 @@ export const CargoItemCard = ({
           type="text"
           value={warehouseSearch}
           onChange={(e) => onWarehouseSearch(e.target.value)}
-          placeholder="Начните вводить: Wildberries, Ozon, Москва..."
+          placeholder="Например: Вайлдберриз Подольск, Озон Тверь..."
           className="w-full px-4 py-2 rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800"
         />
         {warehouseResults.length > 0 && (
@@ -127,10 +127,11 @@ export const CargoItemCard = ({
             ))}
           </div>
         )}
+        <p className="text-xs text-gray-500 mt-1">Можно ввести название склада без выбора из списка</p>
       </div>
 
       <div className="relative">
-        <label className="block text-sm font-medium mb-2">Адрес забора груза *</label>
+        <label className="block text-sm font-medium mb-2">Адрес погрузки груза *</label>
         <input
           type="text"
           value={item.pickupAddress}
@@ -161,9 +162,20 @@ export const CargoItemCard = ({
         )}
       </div>
 
+      <div>
+        <label className="block text-sm font-medium mb-2">Дата отгрузки на склад *</label>
+        <input
+          type="date"
+          value={item.deliveryDate}
+          onChange={(e) => onUpdate('deliveryDate', e.target.value)}
+          min={new Date().toISOString().split('T')[0]}
+          className="w-full px-4 py-2 rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800"
+        />
+      </div>
+
       <div className="grid grid-cols-2 gap-3">
         <div>
-          <label className="block text-sm font-medium mb-2">Дата забора *</label>
+          <label className="block text-sm font-medium mb-2">Дата погрузки *</label>
           <input
             type="date"
             value={item.pickupDate}
@@ -173,7 +185,7 @@ export const CargoItemCard = ({
           />
         </div>
         <div>
-          <label className="block text-sm font-medium mb-2">Время забора *</label>
+          <label className="block text-sm font-medium mb-2">Время погрузки *</label>
           <input
             type="time"
             value={item.pickupTime}
@@ -222,17 +234,17 @@ export const CargoItemCard = ({
         <label className="block text-sm font-medium mb-2">Скачать термонаклейку</label>
         <div className="flex gap-2">
           <Button
-            onClick={() => generateLabel(item, '75x120')}
+            onClick={async () => await generateLabel(item, '75x120')}
             disabled={!isItemValid(item)}
             variant="outline"
             size="sm"
             className="flex-1"
           >
             <Icon name="Download" size={16} className="mr-2" />
-            75×120 мм
+            120×75 мм
           </Button>
           <Button
-            onClick={() => generateLabel(item, '58x40')}
+            onClick={async () => await generateLabel(item, '58x40')}
             disabled={!isItemValid(item)}
             variant="outline"
             size="sm"

@@ -11,6 +11,7 @@ import StatusSelector from './map/StatusSelector';
 import NearbyCargoNotification from './map/NearbyCargoNotification';
 import AIAssistant from './AIAssistant';
 import { MapMarker, CargoDetailsModal as CargoDetailsModalType, VehicleDetailsModal as VehicleDetailsModalType, LiveMapProps } from './map/MapTypes';
+import { getOrderMarkers } from '@/utils/orderMapIntegration';
 
 
 const LiveMap = ({ isPublic = false, onMarkerClick }: LiveMapProps = {}) => {
@@ -40,7 +41,12 @@ const LiveMap = ({ isPublic = false, onMarkerClick }: LiveMapProps = {}) => {
 
   useEffect(() => {
     fetchMarkers();
-    detectUserLocation();
+    // Определяем геолокацию только при первом входе
+    const hasDetectedLocation = sessionStorage.getItem('location_detected');
+    if (!hasDetectedLocation) {
+      detectUserLocation();
+      sessionStorage.setItem('location_detected', 'true');
+    }
     loadUserActiveOrder();
     const interval = setInterval(() => {
       fetchMarkers();
@@ -218,27 +224,69 @@ const LiveMap = ({ isPublic = false, onMarkerClick }: LiveMapProps = {}) => {
       const response = await fetch('https://functions.poehali.dev/e0c57b5b-aa36-4b28-8b31-c70ece513cae?path=/users');
       const data = await response.json();
       
+      // Получаем маркеры заявок
+      const orderMarkers = getOrderMarkers();
+      
+      // Конвертируем OrderMarker в MapMarker
+      const orderMapMarkers = orderMarkers.map(om => ({
+        id: om.id,
+        lat: om.lat,
+        lng: om.lng,
+        type: om.type === 'order-pickup' ? 'cargo' : 'cargo',
+        name: om.title,
+        details: om.details,
+        phone: om.order.contactPhone || '',
+        cargoType: 'box' as const,
+        vehicleCategory: undefined,
+        carrierStatus: undefined,
+        clientStatus: om.order.status === 'active' ? 'ready_now' : undefined,
+        vehicleStatus: undefined,
+        readyStatus: om.order.status === 'active' ? 'ready' : 'scheduled',
+        isCurrentUser: false,
+        role: undefined
+      }));
+      
       if (data.markers && data.markers.length > 0) {
         setMarkers(prev => {
-          // Сохраняем маркеры пользователя
           const userMarkers = prev.filter(m => m.id.startsWith('user-'));
-          return [...data.markers, ...userMarkers];
+          return [...data.markers, ...orderMapMarkers, ...userMarkers];
         });
       } else {
         const { generateAllMockData } = await import('@/utils/mockData');
         const mockMarkers = generateAllMockData();
         setMarkers(prev => {
           const userMarkers = prev.filter(m => m.id.startsWith('user-'));
-          return [...mockMarkers, ...userMarkers];
+          return [...mockMarkers, ...orderMapMarkers, ...userMarkers];
         });
       }
     } catch (error) {
       console.error('Failed to fetch real users, using mock data:', error);
       const { generateAllMockData } = await import('@/utils/mockData');
       const mockMarkers = generateAllMockData();
+      
+      // Добавляем маркеры заявок даже при ошибке
+      const orderMarkers = getOrderMarkers();
+      const orderMapMarkers = orderMarkers.map(om => ({
+        id: om.id,
+        lat: om.lat,
+        lng: om.lng,
+        type: om.type === 'order-pickup' ? 'cargo' : 'cargo',
+        name: om.title,
+        details: om.details,
+        phone: om.order.contactPhone || '',
+        cargoType: 'box' as const,
+        vehicleCategory: undefined,
+        carrierStatus: undefined,
+        clientStatus: om.order.status === 'active' ? 'ready_now' : undefined,
+        vehicleStatus: undefined,
+        readyStatus: om.order.status === 'active' ? 'ready' : 'scheduled',
+        isCurrentUser: false,
+        role: undefined
+      }));
+      
       setMarkers(prev => {
         const userMarkers = prev.filter(m => m.id.startsWith('user-'));
-        return [...mockMarkers, ...userMarkers];
+        return [...mockMarkers, ...orderMapMarkers, ...userMarkers];
       });
     }
   };
@@ -306,6 +354,15 @@ const LiveMap = ({ isPublic = false, onMarkerClick }: LiveMapProps = {}) => {
           <Icon name="Menu" size={20} className="text-gray-900 dark:text-white" />
         </button>
       )}
+
+      {/* Кнопка "Моя геопозиция" */}
+      <button
+        onClick={detectUserLocation}
+        className="fixed top-36 left-4 z-[60] w-12 h-12 bg-white/90 dark:bg-gray-800/90 backdrop-blur-3xl border border-gray-300 dark:border-gray-600 shadow-2xl rounded-full flex items-center justify-center hover:bg-white dark:hover:bg-gray-700 active:scale-95 transition-all"
+        title="Моя геопозиция"
+      >
+        <Icon name="Navigation" size={20} className="text-gray-900 dark:text-white" />
+      </button>
 
 
       {/* Боковая панель слева - ультра компактная */}
