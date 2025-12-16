@@ -32,20 +32,7 @@ const RouteSearchPanel = ({ routeSearch, onRouteChange, onLocationDetected }: Ro
     );
   };
 
-  return (
-    <div className="space-y-2">
-      <Button
-        variant="outline"
-        size="sm"
-        onClick={detectLocation}
-        disabled={detectingLocation}
-        className="text-xs h-8 w-full"
-      >
-        <Icon name={detectingLocation ? "Loader2" : "MapPin"} size={14} className={`mr-2 ${detectingLocation ? 'animate-spin' : ''}`} />
-        Моя геопозиция
-      </Button>
-    </div>
-  );
+  return null;
 };
 
 export default RouteSearchPanel;

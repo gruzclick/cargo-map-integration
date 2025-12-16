@@ -130,13 +130,35 @@ export const CargoItemCard = ({
         <p className="text-xs text-gray-500 mt-1">Можно ввести название склада без выбора из списка</p>
       </div>
 
+      <div className="grid grid-cols-2 gap-3">
+        <div>
+          <label className="block text-sm font-medium mb-2">Дата погрузки *</label>
+          <input
+            type="date"
+            value={item.pickupDate}
+            onChange={(e) => onUpdate('pickupDate', e.target.value)}
+            min={new Date().toISOString().split('T')[0]}
+            className="w-full px-4 py-2 rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800"
+          />
+        </div>
+        <div>
+          <label className="block text-sm font-medium mb-2">Время погрузки *</label>
+          <input
+            type="time"
+            value={item.pickupTime}
+            onChange={(e) => onUpdate('pickupTime', e.target.value)}
+            className="w-full px-4 py-2 rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800"
+          />
+        </div>
+      </div>
+
       <div className="relative">
-        <label className="block text-sm font-medium mb-2">Адрес погрузки груза *</label>
+        <label className="block text-sm font-medium mb-2">Адрес погрузки склада *</label>
         <input
           type="text"
           value={item.pickupAddress}
           onChange={(e) => onAddressChange(e.target.value)}
-          placeholder="Начните вводить: Москва, ул. Примерная..."
+          placeholder="Начните вводить адрес..."
           className="w-full px-4 py-2 rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800"
         />
         {loadingAddress && (
@@ -163,7 +185,7 @@ export const CargoItemCard = ({
       </div>
 
       <div>
-        <label className="block text-sm font-medium mb-2">Дата отгрузки на склад *</label>
+        <label className="block text-sm font-medium mb-2">Дата поставки на склад *</label>
         <input
           type="date"
           value={item.deliveryDate}
@@ -171,28 +193,6 @@ export const CargoItemCard = ({
           min={new Date().toISOString().split('T')[0]}
           className="w-full px-4 py-2 rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800"
         />
-      </div>
-
-      <div className="grid grid-cols-2 gap-3">
-        <div>
-          <label className="block text-sm font-medium mb-2">Дата погрузки *</label>
-          <input
-            type="date"
-            value={item.pickupDate}
-            onChange={(e) => onUpdate('pickupDate', e.target.value)}
-            min={new Date().toISOString().split('T')[0]}
-            className="w-full px-4 py-2 rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800"
-          />
-        </div>
-        <div>
-          <label className="block text-sm font-medium mb-2">Время погрузки *</label>
-          <input
-            type="time"
-            value={item.pickupTime}
-            onChange={(e) => onUpdate('pickupTime', e.target.value)}
-            className="w-full px-4 py-2 rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800"
-          />
-        </div>
       </div>
 
       <div>

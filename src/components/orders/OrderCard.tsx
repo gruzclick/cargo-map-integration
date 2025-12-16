@@ -8,9 +8,10 @@ interface OrderCardProps {
   onEdit: () => void;
   onClose: () => void;
   onCancel: () => void;
+  onCardClick?: () => void;
 }
 
-export const OrderCard = ({ order, onEdit, onClose, onCancel }: OrderCardProps) => {
+export const OrderCard = ({ order, onEdit, onClose, onCancel, onCardClick }: OrderCardProps) => {
   const getStatusColor = (status: string) => {
     switch (status) {
       case 'active': return 'bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-300';
@@ -34,7 +35,10 @@ export const OrderCard = ({ order, onEdit, onClose, onCancel }: OrderCardProps) 
   };
 
   return (
-    <div className="border border-gray-200 dark:border-gray-700 rounded-lg p-4 hover:shadow-md transition-shadow">
+    <div 
+      className="border border-gray-200 dark:border-gray-700 rounded-lg p-4 hover:shadow-md transition-shadow cursor-pointer"
+      onClick={onCardClick}
+    >
       <div className="flex items-start justify-between mb-3">
         <div className="flex items-center gap-3">
           <div className={`w-10 h-10 rounded-lg flex items-center justify-center ${
@@ -69,7 +73,11 @@ export const OrderCard = ({ order, onEdit, onClose, onCancel }: OrderCardProps) 
             </div>
             <div className="flex items-center gap-2 text-gray-600 dark:text-gray-400">
               <Icon name="MapPin" size={14} />
-              <span>{order.items[0]?.warehouse?.marketplace || 'Не указан'}</span>
+              <span>Склад назначения: {order.items[0]?.warehouse?.marketplace || 'Не указан'}</span>
+            </div>
+            <div className="flex items-center gap-2 text-gray-600 dark:text-gray-400">
+              <Icon name="Navigation" size={14} />
+              <span className="truncate">{order.items[0]?.pickupAddress || 'Адрес не указан'}</span>
             </div>
           </>
         )}
@@ -84,6 +92,12 @@ export const OrderCard = ({ order, onEdit, onClose, onCancel }: OrderCardProps) 
               <Icon name="User" size={14} />
               <span>{order.vehicles[0]?.driverName || 'Не указан'}</span>
             </div>
+            {order.vehicles[0]?.warehouse && (
+              <div className="flex items-center gap-2 text-gray-600 dark:text-gray-400">
+                <Icon name="MapPin" size={14} />
+                <span>Склад: {order.vehicles[0].warehouse.marketplace}</span>
+              </div>
+            )}
           </>
         )}
 
@@ -95,7 +109,7 @@ export const OrderCard = ({ order, onEdit, onClose, onCancel }: OrderCardProps) 
         )}
       </div>
 
-      <div className="flex gap-2">
+      <div className="flex gap-2" onClick={(e) => e.stopPropagation()}>
         {order.status === 'active' && (
           <>
             <Button variant="outline" size="sm" onClick={onEdit} className="flex-1">

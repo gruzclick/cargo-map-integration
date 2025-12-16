@@ -11,9 +11,10 @@ interface OrdersPanelProps {
   userName: string;
   isOpen: boolean;
   onToggle: () => void;
+  onOrderClick?: (address: string) => void;
 }
 
-export const OrdersPanel = ({ userId, userName, isOpen, onToggle }: OrdersPanelProps) => {
+export const OrdersPanel = ({ userId, userName, isOpen, onToggle, onOrderClick }: OrdersPanelProps) => {
   const [orders, setOrders] = useState<Order[]>([]);
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
@@ -76,6 +77,18 @@ export const OrdersPanel = ({ userId, userName, isOpen, onToggle }: OrdersPanelP
     loadOrders();
   };
 
+  const handleOrderCardClick = (order: Order) => {
+    let address = '';
+    if (order.type === 'shipper' && order.items[0]?.pickupAddress) {
+      address = order.items[0].pickupAddress;
+    } else if (order.type === 'carrier' && order.vehicles[0]?.warehouse?.address) {
+      address = order.vehicles[0].warehouse.address;
+    }
+    if (address && onOrderClick) {
+      onOrderClick(address);
+    }
+  };
+
   return (
     <>
       <div className={`fixed top-16 left-0 w-full bg-white dark:bg-gray-900 border-b shadow-lg transition-all duration-300 z-40 ${
@@ -109,6 +122,7 @@ export const OrdersPanel = ({ userId, userName, isOpen, onToggle }: OrdersPanelP
                   onEdit={() => handleEditOrder(order)}
                   onClose={() => handleCloseOrder(order.id)}
                   onCancel={() => handleCancelOrder(order.id)}
+                  onCardClick={() => handleOrderCardClick(order)}
                 />
               ))}
             </div>
