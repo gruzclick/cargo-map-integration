@@ -1,0 +1,56 @@
+{
+  "tests": [
+    {
+      "name": "GET carrier orders",
+      "method": "GET",
+      "path": "/",
+      "headers": {
+        "X-User-Id": "test-carrier-123",
+        "X-Role": "carrier"
+      },
+      "expectedStatus": 200,
+      "expectedBody": {
+        "success": true
+      },
+      "bodyMatcher": "partial"
+    },
+    {
+      "name": "GET shipper orders",
+      "method": "GET",
+      "path": "/",
+      "headers": {
+        "X-User-Id": "test-shipper-456",
+        "X-Role": "shipper"
+      },
+      "expectedStatus": 200,
+      "expectedBody": {
+        "success": true,
+        "orders": []
+      },
+      "bodyMatcher": "partial"
+    },
+    {
+      "name": "POST create carrier order",
+      "method": "POST",
+      "path": "/",
+      "headers": {
+        "X-User-Id": "test-carrier-123",
+        "X-Role": "carrier"
+      },
+      "body": {
+        "warehouse_marketplace": "Wildberries",
+        "warehouse_city": "Moscow",
+        "warehouse_address": "Test address",
+        "capacity_boxes": 100,
+        "capacity_pallets": 10,
+        "latitude": 55.751244,
+        "longitude": 37.618423
+      },
+      "expectedStatus": 200,
+      "expectedBody": {
+        "success": true
+      },
+      "bodyMatcher": "partial"
+    }
+  ]
+}

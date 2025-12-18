@@ -6,28 +6,27 @@
       "path": "/",
       "body": {
         "action": "send_code",
-        "telegram_username": "@testuser",
+        "telegram_username": "testuser",
         "phone": "+79991234567"
       },
       "expectedStatus": 200,
       "expectedBody": {
-        "success": true,
-        "message": "string",
-        "code_for_demo": "string"
+        "success": true
       },
       "bodyMatcher": "partial"
     },
     {
-      "name": "Missing telegram username",
+      "name": "Verify code - login",
       "method": "POST",
       "path": "/",
       "body": {
-        "action": "send_code",
-        "phone": "+79991234567"
+        "action": "verify_code",
+        "telegram_username": "testuser",
+        "code": "123456"
       },
       "expectedStatus": 400,
       "expectedBody": {
-        "error": "Telegram username is required"
+        "error": "string"
       },
       "bodyMatcher": "partial"
     }

@@ -1,0 +1,54 @@
+{
+  "tests": [
+    {
+      "name": "GET full profile",
+      "method": "GET",
+      "path": "/?section=all",
+      "headers": {
+        "X-User-Id": "test-user-123"
+      },
+      "expectedStatus": 200,
+      "expectedBody": {
+        "success": true
+      },
+      "bodyMatcher": "partial"
+    },
+    {
+      "name": "PUT update personal data",
+      "method": "PUT",
+      "path": "/",
+      "headers": {
+        "X-User-Id": "test-user-123"
+      },
+      "body": {
+        "full_name": "Test User",
+        "phone_number": "+79991234567"
+      },
+      "expectedStatus": 200,
+      "expectedBody": {
+        "success": true
+      },
+      "bodyMatcher": "partial"
+    },
+    {
+      "name": "POST create address",
+      "method": "POST",
+      "path": "/",
+      "headers": {
+        "X-User-Id": "test-user-123"
+      },
+      "body": {
+        "type": "address",
+        "address_type": "warehouse",
+        "name": "Test Warehouse",
+        "address": "Test Street 1",
+        "city": "Moscow"
+      },
+      "expectedStatus": 201,
+      "expectedBody": {
+        "success": true
+      },
+      "bodyMatcher": "partial"
+    }
+  ]
+}

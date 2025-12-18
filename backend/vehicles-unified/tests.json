@@ -1,0 +1,45 @@
+{
+  "tests": [
+    {
+      "name": "GET vehicles list",
+      "method": "GET",
+      "path": "/",
+      "headers": {
+        "X-User-Id": "test-user-123"
+      },
+      "expectedStatus": 200,
+      "expectedBody": {
+        "success": true,
+        "vehicles": []
+      },
+      "bodyMatcher": "partial"
+    },
+    {
+      "name": "POST save vehicles",
+      "method": "POST",
+      "path": "/",
+      "headers": {
+        "X-User-Id": "test-user-123"
+      },
+      "body": {
+        "vehicles": [
+          {
+            "driver_name": "Test Driver",
+            "driver_phone": "+79991234567",
+            "driver_license_number": "1234567890",
+            "car_brand": "Volvo",
+            "car_model": "FH16",
+            "car_number": "A123BC77",
+            "capacity_boxes": 100,
+            "capacity_pallets": 20
+          }
+        ]
+      },
+      "expectedStatus": 200,
+      "expectedBody": {
+        "success": true
+      },
+      "bodyMatcher": "partial"
+    }
+  ]
+}
